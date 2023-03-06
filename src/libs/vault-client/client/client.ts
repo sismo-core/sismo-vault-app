@@ -20,8 +20,9 @@ export class VaultClient {
   public async createFromOwner(owner: Owner, name: string): Promise<Vault> {
     const currentVault = await this.get(owner.seed);
     if (currentVault) throw new Error("Vault already exist");
+    const mnemonic = SismoWallet.generateMnemonic();
     const createdVault: Vault = {
-      mnemonics: [],
+      mnemonics: [mnemonic],
       importedAccounts: [],
       recoveryKeys: [],
       owners: [owner],

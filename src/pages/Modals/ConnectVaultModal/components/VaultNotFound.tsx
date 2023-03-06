@@ -84,11 +84,17 @@ export default function VaultNotFound({
       await vault.createFromOwner(owner, "My Sismo vault");
       const commitmentMapperSecret =
         CommitmentMapper.generateCommitmentMapperSecret(seed);
+
+      const mnemonic = await vault.getMnemonic(owner);
+      const vaultSecret =
+        CommitmentMapper.generateCommitmentMapperSecret(mnemonic);
+
       const { commitmentReceipt, commitmentMapperPubKey } =
         await vault.commitmentMapper.getEthereumCommitmentReceipt(
           ownerAddress,
           _ownershipSignature,
-          commitmentMapperSecret
+          commitmentMapperSecret,
+          vaultSecret
         );
       await vault.connect(owner);
       await vault.importAccount(owner, {

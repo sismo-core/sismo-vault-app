@@ -136,13 +136,19 @@ export default function ImportAccountModalProvider({
         try {
           const commitmentMapperSecret =
             CommitmentMapper.generateCommitmentMapperSecret(seed);
+
+          const mnemonic = await vault.getMnemonic(alreadyOwner);
+          const vaultSecret =
+            CommitmentMapper.generateCommitmentMapperSecret(mnemonic);
+
           const {
             commitmentReceipt: _commitmentReceipt,
             commitmentMapperPubKey: _commitmentMapperPubKey,
           } = await vault.commitmentMapper.getEthereumCommitmentReceipt(
             identifier,
             ownershipSignature,
-            commitmentMapperSecret
+            commitmentMapperSecret,
+            vaultSecret
           );
 
           commitmentReceipt = _commitmentReceipt;

@@ -5,7 +5,7 @@ window.env = {
   disabledMinting: false,
   disabledNullifier: false,
   disabledSentry: false,
-  vaultURL: "https://vault-api.zikies.io",
+  vaultURL: "https://vault-beta-api.sismo.io",
   factoryApiUrl: "https://factory-api.staging.zikies.io",
   relayerEndpoints: {
     5: [
@@ -15,7 +15,7 @@ window.env = {
       "https://api.defender.openzeppelin.com/autotasks/3e7eda9e-d4df-4a7c-85ff-0863b11c9d5d/runs/webhook/b4340068-6b9e-453b-809e-5f861121c806/2RKoDc8i18dDbJL6FQMGyg",
     ],
   },
-  commitmentMapperUrl: "https://x5y521b36b.execute-api.eu-west-1.amazonaws.com",
+  commitmentMapperUrl: "https://x93oogcd5e.execute-api.eu-west-1.amazonaws.com",
   badgesApiUrl: "https://hub.staging.zikies.io",
   hydraApiUrl: "https://hub.staging.zikies.io",
   flowsApiUrl: "https://hub.staging.zikies.io",
@@ -91,8 +91,8 @@ window.env = {
     address: "0x0000000000000000000000000000000000515110",
     sec: 515110,
     commitmentMapperPubKey: [
-      "0x1e468ad0fcde4edec429cd41eb28a0e78d4f31fa2c25172ef677468b2b38a9dc",
-      "0x2b6e9a8e3b8ed419cca51e2e2ee7ae07d2902454deca17d7da7b00ae4a798add",
+      "0x07f6c5612eb579788478789deccb06cf0eb168e457eea490af754922939ebdb9",
+      "0x20706798455f90ed993f8dac8075fc1538738a25f0c928da905c0dffd81869fa",
     ],
     commitmentReceipt: [
       "0x2345a306a80dcbf995265d6dfcd19e2e747ed07324578c509f4d8e214c4afb09",

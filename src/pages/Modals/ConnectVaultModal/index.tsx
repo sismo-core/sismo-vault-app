@@ -23,13 +23,11 @@ const Content = styled.div`
 type ConnectVaultModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  outsideClosable?: boolean;
 };
 
 export default function ConnectVaultModal({
   isOpen,
   onClose,
-  outsideClosable,
 }: ConnectVaultModalProps): JSX.Element {
   const [step, setStep] = useState("AccessOrCreateStep");
   const [loading, setLoading] = useState(false);
@@ -90,7 +88,7 @@ export default function ConnectVaultModal({
         onClose={onClose}
         blur={step === "switchActiveTuto" || loading}
         animated
-        outsideClosable={!switchingWallet && !onboardIsOpen && !outsideClosable}
+        outsideClosable={!switchingWallet && !onboardIsOpen}
       >
         <Content>
           {step === "AccessOrCreateStep" && (

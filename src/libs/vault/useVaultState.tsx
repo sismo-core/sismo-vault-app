@@ -11,6 +11,7 @@ export type VaultState = {
   connectedOwner: Owner;
   recoveryKeys: RecoveryKey[];
   deletable: boolean;
+  mnemonics: string[];
   updateVaultState: (vault: Vault) => Promise<void>;
   updateConnectedOwner: (owner: Owner) => Promise<void>;
   reset: () => void;
@@ -19,6 +20,7 @@ export type VaultState = {
 export const useVaultState = (): VaultState => {
   const wallet = useWallet();
   const [vaultName, setVaultName] = useState(null);
+  const [mnemonics, setMnemonics] = useState<string[]>();
   const [autoImportOwners, setAutoImportOwners] = useState<boolean>(null);
   const [keepConnected, setKeepConnected] = useState<boolean>(null);
   const [importedAccounts, setImportedAccounts] =
@@ -31,6 +33,12 @@ export const useVaultState = (): VaultState => {
   const updateVaultName = async (vault: Vault): Promise<void> => {
     if (vault.settings.name !== vaultName) {
       setVaultName(vault.settings.name);
+    }
+  };
+
+  const updateMnemonic = async (vault: Vault): Promise<void> => {
+    if (vault.mnemonics !== mnemonics) {
+      setMnemonics(vault.mnemonics);
     }
   };
 
@@ -113,6 +121,7 @@ export const useVaultState = (): VaultState => {
       updateAutoImportOwners(vault),
       updateRecoveryKeys(vault),
       updateKeepConnected(vault),
+      updateMnemonic(vault),
     ]);
   };
 
@@ -145,6 +154,7 @@ export const useVaultState = (): VaultState => {
     deletable,
     recoveryKeys,
     keepConnected,
+    mnemonics,
     updateVaultState,
     updateConnectedOwner,
     reset,

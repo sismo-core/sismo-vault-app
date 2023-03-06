@@ -9,7 +9,14 @@ export default function Home() {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
   const vault = useVault();
 
-  useEffect(() => {}, []);
+  // useEffect(() => {
+  //   if (vault.isConnected) {
+  //     setConnectIsOpen(false);
+  //   }
+  //   if(!vault.isConnected) {
+  //     setConnectIsOpen(true);
+  //   }
+  // }, [vault.isConnected]);
 
   return (
     <>

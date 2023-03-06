@@ -26,6 +26,7 @@ import { useVaultState } from "./useVaultState";
 import { getSeedActiveSession } from "./utils/getSeedActiveSession";
 
 type ReactVault = {
+  mnemonics: string[];
   vaultName: string;
   loadingActiveSession: boolean;
   autoImportOwners: boolean;
@@ -37,6 +38,7 @@ type ReactVault = {
   deletable: boolean;
   recoveryKeys: RecoveryKey[];
   commitmentMapper: CommitmentMapper;
+  getMnemonic: (owner: Owner) => Promise<string>;
   disconnect: () => void;
   connect: (owner: Owner) => Promise<boolean>;
   isVaultExist: (owner: Owner) => Promise<boolean>;
@@ -96,6 +98,7 @@ export default function SismoVaultProvider({
 
   const connect = async (owner: Owner): Promise<boolean> => {
     const vault = await vaultClient.load(owner.seed);
+    console.log("vault connected", vault);
     if (!vault) return false;
     await Promise.all([
       vaultState.updateConnectedOwner(owner),
@@ -321,6 +324,7 @@ export default function SismoVaultProvider({
         isConnected: Boolean(vaultState.connectedOwner),
         deletable: vaultState.deletable,
         recoveryKeys: vaultState.recoveryKeys,
+        getMnemonic,
         getRecoveryKey,
         deleteRecoveryKey,
         generateRecoveryKey,

@@ -10,6 +10,7 @@ import env from "../../../environment";
 import More from "./More";
 import { ArrowLeft } from "phosphor-react";
 import { useMainScrollManager } from "../../../libs/main-scroll-manager";
+import { useVault } from "../../../libs/vault";
 
 const Container = styled.div`
   width: 100vw;
@@ -124,6 +125,12 @@ export default function MyVaultModal() {
   const state = useMyVault();
   const [chainId, setChainId] = useState(env.chainIds[0]);
   const { disabledScroll, enabledScroll } = useMainScrollManager();
+
+  const vault = useVault();
+
+  useEffect(() => {
+    console.log("myVault", vault);
+  }, [vault]);
 
   useEffect(() => {
     if (state.isOpen) {

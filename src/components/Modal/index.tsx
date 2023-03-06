@@ -131,6 +131,7 @@ type ModalProps = {
   animated?: boolean;
   outsideClosable?: boolean;
   zIndex?: number;
+  opacity?: boolean;
 };
 
 export default function Modal({

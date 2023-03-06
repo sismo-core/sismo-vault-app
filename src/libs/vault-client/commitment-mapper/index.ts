@@ -39,6 +39,7 @@ export class CommitmentMapper {
 
   constructor({ url }: { url?: string }) {
     if (url) this.url = url;
+    //TODO WHAT IS THIS URL?
     else this.url = "https://sibgc1bwn8.execute-api.eu-west-1.amazonaws.com";
   }
 
@@ -58,12 +59,14 @@ export class CommitmentMapper {
   public async getEthereumCommitmentReceipt(
     ethAddress: string,
     ethSignature: string,
-    secret: string
+    accountSecret: string,
+    vaultSecret: string
   ): Promise<CommitmentMapperEthereumReturn> {
     const poseidon = await buildPoseidon();
-    const commitment = poseidon([secret]).toHexString();
 
-    const { data } = await axios.post(`${this.url}/commit-eddsa`, {
+    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
+
+    const { data } = await axios.post(`${this.url}/commit-ethereum-eddsa`, {
       ethAddress,
       ethSignature,
       commitment,
