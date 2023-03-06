@@ -1,0 +1,58 @@
+<svg
+    width="28"
+    height="38"
+    viewBox="0 0 28 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+>
+      <path
+        d="M11.4798 23.1269C15.0843 23.1269 18.0062 20.205 18.0062 16.6006C18.0062 12.9962 15.0843 10.0742 11.4798 10.0742C7.87544 10.0742 4.95349 12.9962 4.95349 16.6006C4.95349 20.205 7.87544 23.1269 11.4798 23.1269Z"
+        stroke="white"
+        strokeWidth="1.83028"
+        strokeMiterlimit="10"
+      />
+      <path
+        d="M1.39465 16.6181C1.39465 11.0459 5.90933 6.53125 11.4815 6.53125C17.0537 6.53125 21.5684 11.0459 21.5684 16.6181"
+        stroke="white"
+        strokeWidth="1.83028"
+        strokeMiterlimit="10"
+      />
+      <path
+        d="M18.0062 1.41406L14.8988 7.12696"
+        stroke="white"
+        strokeWidth="1.83028"
+        strokeMiterlimit="10"
+      />
+      <path
+        d="M5.8479 1.41406L8.93415 6.8569"
+        stroke="white"
+        strokeWidth="1.83028"
+        strokeMiterlimit="10"
+      />
+      <path
+        d="M14.3579 22.4531L13.0079 29.0852"
+        stroke="white"
+        strokeWidth="1.83028"
+        strokeMiterlimit="10"
+      />
+      <path
+        d="M8.59534 22.4531L10.0364 29.0852"
+        stroke="white"
+        strokeWidth="1.83028"
+        strokeMiterlimit="10"
+      />
+      <circle
+        cx="13.2137"
+        cy="14.6565"
+        r="1.14425"
+        transform="rotate(-90 13.2137 14.6565)"
+        fill="white"
+      />
+      <circle
+        cx="9.66439"
+        cy="14.6565"
+        r="1.14425"
+        transform="rotate(-90 9.66439 14.6565)"
+        fill="white"
+      />
+    </svg>

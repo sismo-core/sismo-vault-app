@@ -1,0 +1,61 @@
+body {
+  margin: 0;
+  font-family: Inter-Medium, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+p {
+  margin: 0px;
+}
+
+html {
+  background: linear-gradient(285.51deg, #193970 -75.32%, #12203d 76.45%);
+  background-attachment: fixed;
+  background-color: #12203d;
+  overflow-x: hidden;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+@font-face {
+  font-family: "BebasNeuePro-Regular";
+  src: local("Bebas"),
+    url(./theme/assets/BebasNeuePro-Regular.otf) format("opentype");
+}
+
+@font-face {
+  font-family: "BebasNeuePro-Bold";
+  src: local("Bebas"),
+    url(./theme/assets/BebasNeuePro-Bold.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Inter-Light";
+  src: local("Inter"), url(./theme/assets/Inter-Light.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Inter-Regular";
+  src: local("Inter"), url(./theme/assets/Inter-Regular.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Inter-SemiBold";
+  src: local("Inter"), url(./theme/assets/Inter-SemiBold.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Inter-Bold";
+  src: local("Inter"), url(./theme/assets/Inter-Bold.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Inter-Medium";
+  src: local("Inter"), url(./theme/assets/Inter-Medium.ttf) format("truetype");
+}

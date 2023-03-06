@@ -1,0 +1,81 @@
+name: "Deploy Sismo app"
+description: "Build and deploy sismo app to AWS"
+inputs:
+  aws-access-key-id:
+    required: true
+    description: "The aws-access-key-id used to authenticate with AWS"
+  aws-secret-access-key:
+    required: true
+    description: "The aws-secret-access-key used to authenticate with AWS"
+  role-to-assume:
+    required: true
+    description: "The role-to-assume used with AWS"
+  env:
+    required: true
+    description: "The env"
+  sentry-env:
+    required: true
+    description: "The Sentry env"
+  static-bucket-name:
+    required: true
+    description: "The static bucket name to synchronize static files"
+  sentry-auth-token:
+    required: true
+    description: "Token used to authenticate on Sentry"
+  sentry-org:
+    required: true
+    description: "Sentry organization"
+  sentry-project:
+    required: true
+    description: "Sentry project"
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        yarn install --frozen-lockfile
+
+    - name: Build
+      shell: bash
+      run: |
+        CI=false yarn build
+
+    - name: Create Sentry release
+      uses: getsentry/action-release@v1
+      env:
+        SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
+        SENTRY_ORG: ${{ inputs.sentry-org }}
+        SENTRY_PROJECT: ${{ inputs.sentry-project }}
+        SENTRY_LOG_LEVEL: debug
+      with:
+        sourcemaps: './build'
+        url_prefix: '~'
+        environment: ${{ inputs.sentry-env }}
+
+    - name: Remove source map
+      shell: bash
+      run: |
+        yarn delete-maps
+
+    - name: Configure env
+      shell: bash
+      run: |
+        mv build/envs/env.${{ inputs.env }}.js build/envs/env.js
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        role-to-assume: ${{ inputs.role-to-assume }}
+        role-session-name: github-action-deploy-sismo-app
+        aws-region: eu-west-1
+        role-duration-seconds: 900
+
+    - name: Sync s3 static
+      shell: bash
+      run: |
+        aws s3 sync ./build s3://${{ inputs.static-bucket-name }}

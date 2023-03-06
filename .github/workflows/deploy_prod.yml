@@ -1,0 +1,29 @@
+name: Deploy Prod environment
+on:
+  workflow_dispatch: {}
+  push:
+    tags:
+      - prod*
+
+jobs:
+  deploy:
+    name: Deploy Prod
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+      url: https://app.sismo.io
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build and deploy
+        uses: ./.github/actions/deploy
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
+          static-bucket-name: app.sismo.io
+          env: prod
+          sentry-env: PROD
+          sentry-auth-token: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          sentry-org: ${{ secrets.SENTRY_ORG }}
+          sentry-project: ${{ secrets.SENTRY_PROJECT }}

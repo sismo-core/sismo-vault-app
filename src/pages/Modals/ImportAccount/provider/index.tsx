@@ -1,0 +1,320 @@
+import React, { useContext, useState } from "react";
+import { CommitmentMapper, Seed } from "../../../../libs/sismo-client";
+import {
+  AccountType,
+  ImportedAccount,
+  WalletPurpose,
+} from "../../../../libs/vault-client";
+import { useVault } from "../../../../libs/vault";
+import * as Sentry from "@sentry/react";
+import { useNotifications } from "../../../../components/Notifications/provider";
+
+type ImportAccountHook = {
+  open: (args?: {
+    importType: "account" | "owner";
+    accountTypes?: AccountType[];
+    importTarget?: string;
+  }) => void;
+  close: () => void;
+  importing: "account" | "owner";
+  lastImportedAccount: ImportedAccount;
+  importTarget: string;
+  accountTypes: AccountType[];
+  importEthereum: (
+    address: string,
+    seedSignature: string,
+    ownershipSignature: string,
+    importType: "account" | "owner"
+  ) => void;
+  importGithub: (githubCode: string) => void;
+  importTwitter: (twitterOauth: {
+    oauthToken: string;
+    oauthVerifier: string;
+  }) => void;
+  isOpen: boolean;
+  importType: "account" | "owner";
+};
+
+export const useImportAccount = (): ImportAccountHook => {
+  return useContext(ModalsContext);
+};
+
+export const ModalsContext = React.createContext(null);
+
+export default function ImportAccountModalProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  const [isOpen, setIsOpen] = useState(null);
+  const [importTarget, setImportTarget] = useState<string>(null);
+  const [importType, setImportType] = useState<"account" | "owner">(null);
+  const [accountTypes, setAccountTypes] = useState(null);
+  const vault = useVault();
+  const { notificationAdded } = useNotifications();
+  const [importing, setImporting] = useState<"account" | "owner">(null);
+  const [lastImportedAccount, setLastImportedAccount] = useState(null);
+
+  const open = (args: {
+    importType: "account" | "owner";
+    accountTypes?: AccountType[];
+    importTarget?: string;
+  }) => {
+    setImportType(args.importType);
+    setImportTarget(args.importTarget ? args.importTarget.toLowerCase() : null);
+    let _accountTypes = null;
+    if (args) {
+      if (args.accountTypes) {
+        _accountTypes = args.accountTypes;
+      }
+    }
+    setAccountTypes(_accountTypes);
+    setIsOpen(true);
+  };
+
+  const close = () => {
+    setIsOpen(false);
+    setImportType(null);
+    setImportTarget(null);
+    setAccountTypes(null);
+  };
+
+  const triggerError = (e) => {
+    Sentry.withScope(function (scope) {
+      scope.setLevel("fatal");
+      Sentry.captureException(e);
+    });
+    console.error(e);
+    notificationAdded({
+      text: "An error occurred while saving your vault, please try again.",
+      type: "error",
+    });
+    setImporting(null);
+  };
+
+  const importEthereum = async (
+    identifier: string,
+    seedSignature: string,
+    ownershipSignature: string,
+    _importType: "account" | "owner"
+  ) => {
+    setImporting(_importType);
+    setLastImportedAccount(null);
+
+    const alreadyOwner = vault.owners.find(
+      (el) => el.identifier === identifier
+    );
+    const alreadyImported = vault.importedAccounts.find(
+      (el) => el.identifier === identifier
+    );
+
+    let seed;
+    if (alreadyImported || alreadyOwner) {
+      if (alreadyImported) seed = alreadyImported.seed;
+      if (alreadyOwner) seed = alreadyOwner.seed;
+    } else {
+      seed = Seed.generateSeed(seedSignature);
+    }
+
+    if (_importType === "owner") {
+      if (alreadyOwner) {
+        triggerError("Already imported as Owner");
+        return;
+      }
+      await vault.addOwner(vault.connectedOwner, {
+        identifier: identifier,
+        seed: seed,
+        timestamp: Date.now(),
+      });
+    } else {
+      let commitmentReceipt;
+      let commitmentMapperPubKey;
+      if (alreadyImported) {
+        commitmentReceipt = alreadyImported.commitmentReceipt;
+        commitmentMapperPubKey = alreadyImported.commitmentMapperPubKey;
+      } else {
+        try {
+          const commitmentMapperSecret =
+            CommitmentMapper.generateCommitmentMapperSecret(seed);
+          const {
+            commitmentReceipt: _commitmentReceipt,
+            commitmentMapperPubKey: _commitmentMapperPubKey,
+          } = await vault.commitmentMapper.getEthereumCommitmentReceipt(
+            identifier,
+            ownershipSignature,
+            commitmentMapperSecret
+          );
+
+          commitmentReceipt = _commitmentReceipt;
+          commitmentMapperPubKey = _commitmentMapperPubKey;
+        } catch (e) {
+          triggerError(e);
+          return;
+        }
+      }
+
+      if (_importType === "account") {
+        if (alreadyImported) {
+          triggerError("Already imported");
+          return;
+        }
+        await vault.importAccount(vault.connectedOwner, {
+          identifier,
+          seed,
+          commitmentReceipt,
+          commitmentMapperPubKey,
+          type: "ethereum",
+          timestamp: Date.now(),
+        });
+        setLastImportedAccount({
+          identifier,
+          seed,
+          commitmentReceipt,
+          commitmentMapperPubKey,
+          type: "ethereum",
+          timestamp: Date.now(),
+        });
+      }
+    }
+    setImporting(null);
+  };
+
+  const importGithub = async (githubCode: string) => {
+    setImporting("account");
+    setLastImportedAccount(null);
+    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
+      vault.connectedOwner,
+      WalletPurpose.IMPORTED_ACCOUNT
+    );
+    try {
+      const commitmentMapperSecret =
+        CommitmentMapper.generateCommitmentMapperSecret(seed);
+      const { commitmentReceipt, commitmentMapperPubKey, account } =
+        await vault.commitmentMapper.getGithubCommitmentReceipt(
+          githubCode,
+          commitmentMapperSecret
+        );
+      await vault.importAccount(vault.connectedOwner, {
+        identifier: account.identifier,
+        seed,
+        commitmentReceipt,
+        commitmentMapperPubKey,
+        type: "github",
+        profile: {
+          login: account.login,
+          id: account.profileId,
+          name: account.name,
+          avatar: account.avatarUrl,
+        },
+        wallet: {
+          accountNumber: accountNumber,
+          mnemonic: mnemonic,
+        },
+        timestamp: Date.now(),
+      });
+    } catch (e) {
+      //Check if the account is already in the vault
+      if (
+        e?.response?.data?.error === "Address is already used for a commitment!"
+      ) {
+        console.error(e);
+        Sentry.withScope(function (scope) {
+          scope.setLevel("fatal");
+          Sentry.captureException(e);
+        });
+        notificationAdded({
+          text: "Github account already imported in this vault or in another one",
+          type: "error",
+        });
+        setImporting(null);
+      } else {
+        triggerError(e);
+      }
+      return;
+    } finally {
+      setImporting(null);
+    }
+  };
+
+  const importTwitter = async (oauth: {
+    oauthToken: string;
+    oauthVerifier: string;
+  }) => {
+    setImporting("account");
+    setLastImportedAccount(null);
+    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
+      vault.connectedOwner,
+      WalletPurpose.IMPORTED_ACCOUNT
+    );
+    try {
+      const commitmentMapperSecret =
+        CommitmentMapper.generateCommitmentMapperSecret(seed);
+
+      const { commitmentReceipt, commitmentMapperPubKey, account } =
+        await vault.commitmentMapper.getTwitterCommitmentReceipt(
+          oauth.oauthToken,
+          oauth.oauthVerifier,
+          commitmentMapperSecret
+        );
+
+      await vault.importAccount(vault.connectedOwner, {
+        identifier: account.identifier,
+        seed,
+        commitmentReceipt,
+        commitmentMapperPubKey,
+        type: "twitter",
+        profile: {
+          login: account.username,
+          id: account.userId,
+          name: "",
+          avatar: "",
+        },
+        wallet: {
+          accountNumber: accountNumber,
+          mnemonic: mnemonic,
+        },
+        timestamp: Date.now(),
+      });
+    } catch (e) {
+      if (
+        e?.response?.data?.error === "Address is already used for a commitment!"
+      ) {
+        console.error(e);
+        Sentry.withScope(function (scope) {
+          scope.setLevel("fatal");
+          Sentry.captureException(e);
+        });
+        notificationAdded({
+          text: "Twitter account already imported in this vault or in another one",
+          type: "error",
+        });
+        setImporting(null);
+      } else {
+        triggerError(e);
+      }
+      return;
+    } finally {
+      setImporting(null);
+    }
+  };
+
+  return (
+    <ModalsContext.Provider
+      value={{
+        open,
+        close,
+        importing,
+        lastImportedAccount,
+        importTarget,
+        accountTypes,
+        importEthereum,
+        importGithub,
+        importTwitter,
+        isOpen,
+        importType,
+      }}
+    >
+      {children}
+    </ModalsContext.Provider>
+  );
+}
