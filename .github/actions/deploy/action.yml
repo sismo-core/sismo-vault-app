@@ -13,22 +13,6 @@ inputs:
   env:
     required: true
     description: "The env"
-  sentry-env:
-    required: true
-    description: "The Sentry env"
-  static-bucket-name:
-    required: true
-    description: "The static bucket name to synchronize static files"
-  sentry-auth-token:
-    required: true
-    description: "Token used to authenticate on Sentry"
-  sentry-org:
-    required: true
-    description: "Sentry organization"
-  sentry-project:
-    required: true
-    description: "Sentry project"
-
 
 runs:
   using: "composite"
@@ -43,17 +27,17 @@ runs:
       run: |
         CI=false yarn build
 
-    - name: Create Sentry release
-      uses: getsentry/action-release@v1
-      env:
-        SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
-        SENTRY_ORG: ${{ inputs.sentry-org }}
-        SENTRY_PROJECT: ${{ inputs.sentry-project }}
-        SENTRY_LOG_LEVEL: debug
-      with:
-        sourcemaps: './build'
-        url_prefix: '~'
-        environment: ${{ inputs.sentry-env }}
+    # - name: Create Sentry release
+    #   uses: getsentry/action-release@v1
+    #   env:
+    #     SENTRY_AUTH_TOKEN: ${{ inputs.sentry-auth-token }}
+    #     SENTRY_ORG: ${{ inputs.sentry-org }}
+    #     SENTRY_PROJECT: ${{ inputs.sentry-project }}
+    #     SENTRY_LOG_LEVEL: debug
+    #   with:
+    #     sourcemaps: './build'
+    #     url_prefix: '~'
+    #     environment: ${{ inputs.sentry-env }}
 
     - name: Remove source map
       shell: bash
