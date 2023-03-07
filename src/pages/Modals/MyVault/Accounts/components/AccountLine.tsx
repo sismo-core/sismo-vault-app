@@ -133,20 +133,6 @@ export default function AccountLine({
           >
             <Icon name="copy-outline-white" style={{ width: 16 }} />
           </Action>
-          {account.type === "ethereum" || env.name === "TESTNETS_PRIVATE" ? (
-            <Action
-              onClick={(e) => {
-                setConfirmDeleteOpen(true);
-                e.stopPropagation();
-              }}
-            >
-              <Trash size={16} color={colors.blue0} />
-            </Action>
-          ) : (
-            <IconWrapper>
-              <Trash size={16} color={colors.blue7} />
-            </IconWrapper>
-          )}
         </Actions>
       </Container>
     </>

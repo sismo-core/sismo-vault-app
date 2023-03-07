@@ -1,8 +1,9 @@
 //testnets.zikies.io
 window.env = {
-  name: "TESTNETS_PRIVATE",
+  name: "PROD_BETA",
   disabledSentry: false,
   vaultURL: "https://vault-beta-api.sismo.io",
+  hubApiUrl: "https://hub.staging.zikies.io",
   factoryApiUrl: "https://factory-api.staging.zikies.io",
   commitmentMapperUrl: "https://x93oogcd5e.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "35b1e225b5f8f1401cc3",

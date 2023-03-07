@@ -5,7 +5,7 @@ import { HydraS1OffchainProver } from "../provers/hydra-s1-offchain-prover";
 export class SismoClient {
   public prover: HydraS1OffchainProver;
 
-  constructor({ cache }: { cache: Cache; chainIds: number[] }) {
+  constructor({ cache }: { cache: Cache }) {
     this.prover = new HydraS1OffchainProver({ cache });
   }
 

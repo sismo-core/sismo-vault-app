@@ -115,9 +115,7 @@ export default function EligibleLink({
     <Container>
       {accountsNumber ? (
         <DetailLine
-          href={
-            env.name === "LOCAL" ? `${env.badgesApiUrl}${dataUrl}` : dataUrl
-          }
+          href={env.name === "LOCAL" ? `${env.hubApiUrl}${dataUrl}` : dataUrl}
           target="_bla
         <nk"
         >

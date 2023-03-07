@@ -102,7 +102,6 @@ const FONTS_LIST = [
 
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),
-  chainIds: env.chainIds,
 });
 
 const removeHexadecimalNumbers = (event: Sentry.Event) => {

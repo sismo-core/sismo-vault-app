@@ -221,15 +221,15 @@ export default function Pws(): JSX.Element {
         const _timestamp = params.targetGroup.timestamp;
 
         const groupsSnapshotMetadata = await axios.get(
-          `${env.badgesApiUrl}/group-snapshots/${_groupId}?timestamp=${_timestamp}`
+          `${env.hubApiUrl}/group-snapshots/${_groupId}?timestamp=${_timestamp}`
         );
         const groupsQueryUrlAppendix =
           _timestamp === "latest" ? `?latest=true` : `?timestamp=${_timestamp}`;
         const groups = await axios.get(
-          `${env.badgesApiUrl}/groups/${groupsSnapshotMetadata.data.items[0].name}?${groupsQueryUrlAppendix}`
+          `${env.hubApiUrl}/groups/${groupsSnapshotMetadata.data.items[0].name}?${groupsQueryUrlAppendix}`
         );
         const groupsGenerator = await axios.get(
-          `${env.badgesApiUrl}/group-generators/${groups.data.items[0].generatedBy}?latest=true`
+          `${env.hubApiUrl}/group-generators/${groups.data.items[0].generatedBy}?latest=true`
         );
 
         const _groupMetadata = {

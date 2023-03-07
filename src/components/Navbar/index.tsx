@@ -4,7 +4,6 @@ import styled from "styled-components";
 import ConnectVaultModal from "../../pages/Modals/ConnectVaultModal";
 import VaultMenu from "./components/VaultMenu";
 import { useVault } from "../../libs/vault";
-import SelectChain from "../SelectChain";
 import Button from "../Button";
 import env from "../../environment";
 import LinksMenu from "./components/LinksMenu";
@@ -224,26 +223,16 @@ export default function Navbar(): JSX.Element {
                 alt="Sismo logo"
                 onClick={() => navigate("/")}
               />
-              {env.name !== "PROD" && env.name !== "PLAYGROUND" && (
-                <Tag>
-                  {env.name === "TESTNETS" &&
-                    `
-                      Testnets
-                    `}
-                  {env.name === "TESTNETS_PRIVATE" &&
-                    `
-                      Testnets
-                    `}
-                  {env.name === "LOCAL" &&
-                    `
-                      Local
-                    `}
-                  {env.name === "STAGING" &&
-                    `
+              <Tag>
+                {env.name === "STAGING_BETA" &&
+                  `
                       Staging
                     `}
-                </Tag>
-              )}
+                {env.name === "PROD_BETA" &&
+                  `
+                      Beta
+                    `}
+              </Tag>
             </Logo>
           </Section>
 
