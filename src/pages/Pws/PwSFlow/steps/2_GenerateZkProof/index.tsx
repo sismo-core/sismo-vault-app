@@ -150,16 +150,11 @@ export default function GenerateZkProof({
       );
 
       const owner = vault.owners[0];
-      const vaultIdentifier = await vault.getVaultIdentifierForApp(
-        owner,
-        zkConnectRequest.appId
-      );
       const vaultSecret = await vault.getVaultSecret(owner);
 
       const proofRequest: OffchainProofRequest = {
         appId: zkConnectRequest.appId,
         source: eligibleSourceAccount,
-        vaultIdentifier: vaultIdentifier,
         vaultSecret: vaultSecret,
         namespace: zkConnectRequest.namespace,
         groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,

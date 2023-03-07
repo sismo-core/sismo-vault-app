@@ -32,7 +32,6 @@ export class SismoClient {
   public async generateOffchainProof({
     appId,
     source,
-    vaultIdentifier,
     vaultSecret,
     namespace,
     groupId,
@@ -43,7 +42,6 @@ export class SismoClient {
     return await this.prover.generateProof({
       appId,
       source,
-      vaultIdentifier,
       vaultSecret,
       namespace,
       groupId,

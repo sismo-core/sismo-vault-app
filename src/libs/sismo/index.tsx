@@ -42,7 +42,6 @@ export default function SismoProvider({
     ({
       appId,
       source,
-      vaultIdentifier,
       vaultSecret,
       namespace,
       groupId,
@@ -53,7 +52,6 @@ export default function SismoProvider({
       return client.generateOffchainProof({
         appId,
         source,
-        vaultIdentifier,
         vaultSecret,
         namespace,
         groupId,

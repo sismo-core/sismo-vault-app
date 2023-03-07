@@ -82,16 +82,6 @@ export class VaultClient {
     return vaultSecret;
   }
 
-  public async getVaultIdentifierForApp(
-    owner: Owner,
-    appId: string
-  ): Promise<string> {
-    const vaultSecret = await this.getVaultSecret(owner);
-    const poseidon = await buildPoseidon();
-    const vaultIdentifier = poseidon([vaultSecret, appId]).toHexString();
-    return vaultIdentifier;
-  }
-
   /*****************************************************************/
   /************************* RECOVERY KEYS ****************************/
   /*****************************************************************/

@@ -23,7 +23,6 @@ export type GetEligibilityInputs = {
 export type OffchainProofRequest = {
   appId: string;
   source: ImportedAccount;
-  vaultIdentifier: string;
   vaultSecret: string;
   namespace?: string;
   groupId?: string;
