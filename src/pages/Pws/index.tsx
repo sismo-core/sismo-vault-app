@@ -6,6 +6,7 @@ import WrongUrlScreen from "./components/WrongUrlScreen";
 import PwSFlow from "./PwSFlow";
 import axios from "axios";
 import * as Sentry from "@sentry/react";
+import { ZkConnectRequest } from "../../libs/sismo-client/provers/types";
 
 const Container = styled.div`
   position: relative;
@@ -67,21 +68,6 @@ export type FactoryAppType = {
   lastUpdatedAt: number;
 };
 
-export type TargetGroup = {
-  groupId: string;
-  timestamp?: number | "latest";
-  value?: number | "MAX";
-  additionalProperties?: any;
-};
-
-export type RequestParamsType = {
-  version: string;
-  appId: string;
-  targetGroup: TargetGroup;
-  serviceName: string;
-  callbackPath: string | null;
-};
-
 export type EligibleGroup = {
   [account: string]: number;
 };
@@ -98,28 +84,15 @@ export type GroupMetadata = {
   dataUrl: string;
 };
 
-// const mockGroupMetadata: GroupMetadata = {
-//   id: "0x682544d549b8a461d7fe3e589846bb7b",
-//   name: "proof-of-humanity",
-//   description:
-//     "Group of early Sismo supporters holding .sismo.eth ENS, a contribution POAP or early ZK Badges.",
-//   specs:
-//     "Hold a .sismo.eth Sismo ENS subdomain (Sismo Genesis 0, or X, or A token), or hold a Sismo Contributor Poap (37527: User Testing, or 80235: User Testing#2, or 39515: Artists, or 39651: Community Managers, or 39654: Data Analysts, or 39655: Copywriters, or 39657: Cryptographers, or 39660: Data creators, or 54045: Ziki Run, or 66267: Contributor, or 81377: Contributor#2), or hold a 53325: Meet Sismo @ETHCC POAP, or a 48976: Sismo PreMasquerade POAP, or a 48975: Sismo Masquerade POAP, or hold a early ZK Badge (Masquerade ZK Badge, or Early User ZK Badge, or PoH ZK Badge, or a Ethereum Power User ZK Badge, or a Proof of Attendance ZK Badge, or a ENS Supporter ZK Badge, or a Gitcoin GR15 ZK Badge) or donated to the Sismo Gitcoin Grant 41, or be part of the Sismo Core team",
-//   accountsNumber: 6000,
-//   groupGeneratorName: "proof-of-humanity",
-//   lastGenerationTimestamp: 1676891410,
-//   generationFrequency: "weekly",
-//   dataUrl:
-//     "https://sismo-staging-hub-data.s3.eu-west-1.amazonaws.com/group-snapshot-store/0x682544d549b8a461d7fe3e589846bb7b/1676891410.json",
-// };
-
 export const PWS_VERSION = "off-chain-1";
 
 export default function Pws(): JSX.Element {
   const [searchParams] = useSearchParams();
   const [factoryApp, setFactoryApp] = useState<FactoryAppType>(null);
-  const [requestParams, setRequestParams] = useState<RequestParamsType>(null);
+  const [zkConnectRequest, setZkConnectRequest] =
+    useState<ZkConnectRequest>(null);
   const [groupMetadata, setGroupMetadata] = useState<GroupMetadata>(null);
+  const [isDataRequest, setIsDataRequest] = useState<boolean | null>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
   const [referrerName, setReferrerName] = useState("");
   const [callbackUrl, setCallbackUrl] = useState(null);
@@ -142,40 +115,50 @@ export default function Pws(): JSX.Element {
   useEffect(() => {
     let _version = searchParams.get("version");
     let _appId = searchParams.get("appId");
-    let _targetGroup = searchParams.get("targetGroup");
-    let _serviceName = searchParams.get("serviceName");
+    let _dataRequest = searchParams.get("dataRequest");
+    let _namespace = searchParams.get("namespace");
     let _callbackPath = searchParams.get("callbackPath");
 
     const params = {
       version: _version,
       appId: _appId,
-      targetGroup: JSON.parse(_targetGroup),
-      serviceName: _serviceName,
+      dataRequest: JSON.parse(_dataRequest),
+      namespace: _namespace,
       callbackPath: _callbackPath,
-    } as RequestParamsType;
+    } as ZkConnectRequest;
 
-    params.targetGroup.timestamp =
-      typeof params.targetGroup.timestamp === "undefined"
-        ? "latest"
-        : params.targetGroup.timestamp;
-    params.targetGroup.value =
-      typeof params.targetGroup.value === "undefined"
-        ? 1
-        : params.targetGroup.value;
-    if (!params.targetGroup.additionalProperties)
-      params.targetGroup.additionalProperties = {};
-    params.targetGroup.additionalProperties.acceptHigherValues =
-      typeof params.targetGroup.additionalProperties.acceptHigherValues ===
-      "undefined"
-        ? true
-        : params.targetGroup.additionalProperties.acceptHigherValues === "true";
-    params.serviceName = params.serviceName || "main";
+    if (!params.dataRequest) {
+      setIsDataRequest(false);
+    }
 
-    if (!_version || !_appId || !_targetGroup || !_serviceName) {
+    if (params.dataRequest) {
+      setIsDataRequest(true);
+      params.dataRequest.statementRequests[0].groupTimestamp =
+        typeof params.dataRequest.statementRequests[0].groupTimestamp ===
+        "undefined"
+          ? "latest"
+          : params.dataRequest.statementRequests[0].groupTimestamp;
+      params.dataRequest.statementRequests[0].requestedValue =
+        typeof params.dataRequest.statementRequests[0].requestedValue ===
+        "undefined"
+          ? 1
+          : params.dataRequest.statementRequests[0].requestedValue;
+
+      params.dataRequest.statementRequests[0].comparator =
+        typeof params.dataRequest.statementRequests[0].comparator ===
+        "undefined"
+          ? "GTE"
+          : params.dataRequest.statementRequests[0].comparator;
+    }
+
+    params.namespace = params.namespace || "main";
+
+    if (!_version || !_appId || !_namespace) {
       setIsWrongUrl(true);
       return;
     }
-    setRequestParams(params);
+
+    setZkConnectRequest(params);
 
     let _callbackUrl = "http://myfakeapp.com";
     let _referrerName = "your app";
@@ -216,9 +199,11 @@ export default function Pws(): JSX.Element {
     }
 
     async function getGroupMetadata() {
+      if (!params.dataRequest) return;
       try {
-        const _groupId = params.targetGroup.groupId;
-        const _timestamp = params.targetGroup.timestamp;
+        const _groupId = params.dataRequest.statementRequests[0].groupId;
+        const _timestamp =
+          params.dataRequest.statementRequests[0].groupTimestamp;
 
         const groupsSnapshotMetadata = await axios.get(
           `${env.hubApiUrl}/group-snapshots/${_groupId}?timestamp=${_timestamp}`
@@ -309,7 +294,8 @@ export default function Pws(): JSX.Element {
         ) : (
           <PwSFlow
             factoryApp={factoryApp}
-            requestParams={requestParams}
+            isDataRequest={isDataRequest}
+            zkConnectRequest={zkConnectRequest}
             groupMetadata={groupMetadata}
             callbackUrl={callbackUrl}
             referrerUrl={referrerUrl}

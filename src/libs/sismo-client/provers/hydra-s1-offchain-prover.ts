@@ -7,12 +7,20 @@ import {
   HydraS1Account,
   SnarkProof,
   DestinationInput,
+  UserParams,
+  VaultInput,
+  StatementInput,
 } from "@sismo-core/hydra-s1";
 import { OffchainRegistryTreeReader } from "../registry-tree-readers/offchain-registry-tree-reader";
 import { Cache } from "../caches";
 import { ethers, BigNumber } from "ethers";
 import { CommitmentMapper } from "..";
-import { OffchainProofRequest, AccountData } from "./types";
+import {
+  OffchainProofRequest,
+  AccountData,
+  RequestIdentifierInputs,
+  GetEligibilityInputs,
+} from "./types";
 import { Prover } from "./prover";
 import env from "../../../environment";
 
@@ -26,88 +34,53 @@ export class HydraS1OffchainProver extends Prover {
 
   public async generateProof({
     appId,
-    serviceName = "main",
-    acceptHigherValues,
-    value,
     source,
+    vaultIdentifier,
+    vaultSecret,
+    namespace,
     groupId,
     groupTimestamp,
+    requestedValue,
+    comparator,
   }: OffchainProofRequest): Promise<SnarkProof> {
-    const accountsTree = await this.registryTreeReader.getAccountsTree({
-      groupId,
-      account: source.identifier,
-      timestamp: groupTimestamp,
-    });
-
-    const registryTree = await this.registryTreeReader.getRegistryTree();
-
     const commitmentMapperPubKey =
       env.sismoDestination.commitmentMapperPubKey.map((string) =>
         BigNumber.from(string)
       ) as EddsaPublicKey;
 
-    const commitmentReceipt = env.sismoDestination.commitmentReceipt.map(
-      (string) => BigNumber.from(string)
-    ) as EddsaSignature;
-
-    const destination: DestinationInput = {
-      identifier: env.sismoDestination.address,
-      secret: BigNumber.from(env.sismoDestination.sec),
-      commitmentReceipt: commitmentReceipt,
-      chainId: BigNumber.from(0),
-    };
-
-    const chainId = 0;
-    const claimedValue =
-      value === "MAX"
-        ? accountsTree.getValue(source.identifier)
-        : BigNumber.from(value);
-
-    const isStrict = !acceptHigherValues;
-    const hydraS1Account = this.getHydraS1Account(source);
-    const requestIdentifier = this.requestIdentifier({
-      appId,
-      groupId,
-      timestamp: groupTimestamp,
-      serviceName,
-    });
-
     const prover = new HydraS1Prover(commitmentMapperPubKey, {
-      wasmPath: "/hydra/v1.0.6/hydra-s1.wasm",
-      zkeyPath: "/hydra/v1.0.6/hydra-s1.zkey",
+      wasmPath: "/hydra/v2.0.0-beta/hydra-s1.wasm",
+      zkeyPath: "/hydra/v2.0.0-beta/hydra-s1.zkey",
     });
 
-    // const proof = await prover.generateSnarkProof({
-    //   source: hydraS1Account,
-    //   destination,
-    //   claimedValue,
-    //   chainId,
-    //   accountsTree,
-    //   externalNullifier: requestIdentifier,
-    //   isStrict,
-    // });
+    const userParams = await this.prepareSnarkProofRequest({
+      appId,
+      source,
+      vaultIdentifier,
+      vaultSecret,
+      namespace,
+      groupId,
+      groupTimestamp,
+      requestedValue,
+      comparator,
+    });
 
-    let proof: SnarkProof = null;
+    const proof = await prover.generateSnarkProof(userParams);
+
     return proof;
   }
 
   public async getEligibility({
     accounts,
     groupId,
-    timestamp,
-    value,
-    acceptHigherValues,
-  }: {
-    accounts: string[];
-    groupId: string;
-    timestamp: number | "latest";
-    value: number | "MAX";
-    acceptHigherValues: boolean;
-  }): Promise<AccountData> {
+    groupTimestamp,
+    requestedValue,
+    comparator,
+  }: GetEligibilityInputs): Promise<AccountData> {
     const eligibleAccountsTreeData =
       await this.registryTreeReader.getAccountsTreeEligibility({
         groupId,
-        timestamp,
+        timestamp: groupTimestamp,
         accounts,
       });
 
@@ -115,31 +88,35 @@ export class HydraS1OffchainProver extends Prover {
       return null;
     }
 
-    if (!acceptHigherValues) {
-      for (const entry of Object.entries(eligibleAccountsTreeData)) {
-        if (BigNumber.from(entry[1]).toNumber() === value) {
+    if (comparator === "EQ") {
+      for (const [identifier, value] of Object.entries(
+        eligibleAccountsTreeData
+      )) {
+        if (BigNumber.from(value).toNumber() === value) {
           return {
-            identifier: entry[0],
-            value: BigNumber.from(entry[1]).toNumber(),
+            identifier,
+            value: BigNumber.from(value).toNumber(),
           };
         }
       }
       return null;
     }
 
-    if (value === "MAX" || acceptHigherValues) {
+    if (requestedValue === "USER_SELECTED_VALUE" || comparator === "GTE") {
       let maxAccountData: AccountData = null;
-      for (const entry of Object.entries(eligibleAccountsTreeData)) {
+      for (const [identifier, value] of Object.entries(
+        eligibleAccountsTreeData
+      )) {
         if (maxAccountData === null) {
           maxAccountData = {
-            identifier: entry[0],
-            value: BigNumber.from(entry[1]).toNumber(),
+            identifier,
+            value: BigNumber.from(value).toNumber(),
           };
         } else {
-          if (BigNumber.from(entry[1]).toNumber() > maxAccountData.value) {
+          if (BigNumber.from(value).toNumber() > maxAccountData.value) {
             maxAccountData = {
-              identifier: entry[0],
-              value: BigNumber.from(entry[1]).toNumber(),
+              identifier,
+              value: BigNumber.from(value).toNumber(),
             };
           }
         }
@@ -167,18 +144,13 @@ export class HydraS1OffchainProver extends Prover {
   protected requestIdentifier = ({
     appId,
     groupId,
-    timestamp,
-    serviceName,
-  }: {
-    appId: string;
-    groupId: string;
-    timestamp: number | "latest";
-    serviceName: string;
-  }): string => {
+    groupTimestamp,
+    namespace,
+  }: RequestIdentifierInputs): string => {
     const encodedTimestamp =
-      timestamp === "latest"
+      groupTimestamp === "latest"
         ? BigNumber.from(ethers.utils.formatBytes32String("latest")).shr(128)
-        : BigNumber.from(timestamp);
+        : BigNumber.from(groupTimestamp);
 
     const groupSnapshotId = ethers.utils.solidityPack(
       ["uint128", "uint128"],
@@ -186,7 +158,7 @@ export class HydraS1OffchainProver extends Prover {
     );
 
     const hashedServiceName = BigNumber.from(
-      ethers.utils.keccak256(ethers.utils.toUtf8Bytes(serviceName))
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes(namespace))
     ).shr(128);
 
     const serviceId = ethers.utils.solidityPack(
@@ -206,4 +178,84 @@ export class HydraS1OffchainProver extends Prover {
       .toHexString();
     return requestIdentifier;
   };
+
+  protected async prepareSnarkProofRequest({
+    appId,
+    source,
+    vaultIdentifier,
+    vaultSecret,
+    namespace,
+    groupId,
+    groupTimestamp,
+    requestedValue,
+    comparator,
+  }: OffchainProofRequest): Promise<UserParams> {
+    const vaultInput: VaultInput = {
+      identifier: vaultIdentifier,
+      secret: BigNumber.from(vaultSecret),
+      namespace: appId,
+    };
+
+    const hydraS1Account: HydraS1Account = this.getHydraS1Account(source);
+
+    let userParams: UserParams = {
+      vault: vaultInput,
+      source: hydraS1Account,
+    };
+
+    const isDataRequest =
+      namespace && groupId && groupTimestamp && requestedValue && comparator;
+
+    if (isDataRequest) {
+      const commitmentReceipt = env.sismoDestination.commitmentReceipt.map(
+        (string) => BigNumber.from(string)
+      ) as EddsaSignature;
+
+      const destinationInput: DestinationInput = {
+        identifier: env.sismoDestination.address,
+        secret: BigNumber.from(env.sismoDestination.sec),
+        commitmentReceipt: commitmentReceipt,
+        chainId: BigNumber.from(0),
+      };
+
+      const accountsTree = await this.registryTreeReader.getAccountsTree({
+        groupId,
+        account: source.identifier,
+        timestamp: groupTimestamp,
+      });
+
+      const registryTree = await this.registryTreeReader.getRegistryTree();
+
+      const claimedValue =
+        requestedValue === "USER_SELECTED_VALUE"
+          ? accountsTree.getValue(source.identifier)
+          : BigNumber.from(requestedValue);
+
+      const parsedComparator = "GTE" ? 0 : 1;
+
+      const statementInput: StatementInput = {
+        value: BigNumber.from(claimedValue),
+        comparator: parsedComparator,
+        registryTree: registryTree,
+        accountsTree: accountsTree,
+      };
+
+      const requestIdentifier = this.requestIdentifier({
+        appId,
+        groupId,
+        groupTimestamp,
+        namespace,
+      });
+
+      userParams = {
+        vault: vaultInput,
+        source: hydraS1Account,
+        destination: destinationInput,
+        statement: statementInput,
+        requestIdentifier: requestIdentifier,
+      };
+    }
+
+    return userParams;
+  }
 }

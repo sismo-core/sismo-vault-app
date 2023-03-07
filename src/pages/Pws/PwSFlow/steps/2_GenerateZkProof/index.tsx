@@ -6,11 +6,13 @@ import ThreeDotsLoader from "../../../../../components/ThreeDotsLoader";
 import { useCallback, useEffect, useState } from "react";
 import { useVault } from "../../../../../libs/vault";
 import { useSismo } from "../../../../../libs/sismo";
-import Web2PrivacyModal from "../../components/Web2PrivacyModal";
 import * as Sentry from "@sentry/react";
-import { AccountData } from "../../../../../libs/sismo-client/provers/types";
-import { RequestParamsType } from "../../..";
+import {
+  AccountData,
+  OffchainProofRequest,
+} from "../../../../../libs/sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s1";
+import { ZkConnectRequest } from "../../../../../libs/sismo-client/provers/types";
 
 const Container = styled.div`
   display: flex;
@@ -123,18 +125,17 @@ const LoadingFeedBack = styled(FeedBack)`
 `;
 
 type Props = {
-  requestParams: RequestParamsType;
+  zkConnectRequest: ZkConnectRequest;
   eligibleAccountData: AccountData;
   onNext: (proof: SnarkProof) => void;
 };
 
 export default function GenerateZkProof({
   eligibleAccountData,
-  requestParams,
+  zkConnectRequest,
   onNext,
 }: Props) {
   const vault = useVault();
-  const [web2PrivacyIsOpen, setWeb2PrivacyIsOpen] = useState(false);
   const [loadingProof, setLoadingProof] = useState(false);
   const [proof, setProof] = useState<SnarkProof>(null);
   const [, setErrorProof] = useState(false);
@@ -148,15 +149,26 @@ export default function GenerateZkProof({
         (_source) => _source.identifier === eligibleAccountData.identifier
       );
 
-      const proofRequest = {
-        appId: requestParams.appId,
-        serviceName: requestParams.serviceName,
-        acceptHigherValues:
-          requestParams.targetGroup.additionalProperties.acceptHigherValues,
-        value: requestParams.targetGroup.value,
+      const owner = vault.owners[0];
+      const vaultIdentifier = await vault.getVaultIdentifierForApp(
+        owner,
+        zkConnectRequest.appId
+      );
+      const vaultSecret = await vault.getVaultSecret(owner);
+
+      const proofRequest: OffchainProofRequest = {
+        appId: zkConnectRequest.appId,
         source: eligibleSourceAccount,
-        groupId: requestParams.targetGroup.groupId,
-        groupTimestamp: requestParams.targetGroup.timestamp,
+        vaultIdentifier: vaultIdentifier,
+        vaultSecret: vaultSecret,
+        namespace: zkConnectRequest.namespace,
+        groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
+        groupTimestamp:
+          zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
+        requestedValue:
+          zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
+        comparator:
+          zkConnectRequest.dataRequest.statementRequests[0].comparator,
       };
 
       const proof = await sismo.generateOffchainProof(proofRequest);
@@ -176,41 +188,12 @@ export default function GenerateZkProof({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const web2AccountVerification = useCallback(() => {
-    const source = vault.importedAccounts.find(
-      (_source) => _source.identifier === eligibleAccountData?.identifier
-    );
-    if (source.type !== "ethereum") {
-      const msBetweenDates = Math.abs(source.timestamp - Date.now());
-      const hoursBetweenDates = msBetweenDates / (60 * 60 * 1000);
-      if (hoursBetweenDates < 24) {
-        setWeb2PrivacyIsOpen(true);
-        return;
-      }
-    }
-    generateProof();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   useEffect(() => {
-    if (requestParams?.version?.startsWith("off-chain")) {
-      web2AccountVerification();
-    } else {
-      generateProof();
-    }
-  }, [generateProof, requestParams?.version, web2AccountVerification]);
+    generateProof();
+  }, [generateProof]);
 
   return (
     <Container>
-      <Web2PrivacyModal
-        isOpen={web2PrivacyIsOpen}
-        onClose={() => setWeb2PrivacyIsOpen(false)}
-        onContinue={() => {
-          setWeb2PrivacyIsOpen(false);
-          generateProof();
-        }}
-      />
-
       <Summary>
         <HeaderWrapper>
           <ContentHeader>

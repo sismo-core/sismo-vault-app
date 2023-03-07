@@ -1,27 +1,24 @@
 import React, { useCallback, useContext } from "react";
 import { SismoClient } from "../sismo-client";
-import { OffchainProofRequest } from "../sismo-client/provers/types";
+import {
+  OffchainProofRequest,
+  GetEligibilityInputs,
+} from "../sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s1";
 
 export type Sismo = {
   getEligibility: ({
     accounts,
     groupId,
-    timestamp,
-    acceptHigherValues,
-    value,
-  }: {
-    accounts: string[];
-    groupId: string;
-    timestamp: number | "latest";
-    acceptHigherValues: boolean;
-    value: number | "MAX";
-  }) => Promise<{ [key: string]: number }>;
+    groupTimestamp,
+    comparator,
+    requestedValue,
+  }: GetEligibilityInputs) => Promise<{ [key: string]: number }>;
   generateOffchainProof: ({
     appId,
-    serviceName,
-    acceptHigherValues,
-    value,
+    namespace,
+    comparator,
+    requestedValue,
     source,
     groupId,
     groupTimestamp,
@@ -44,21 +41,25 @@ export default function SismoProvider({
   const generateOffchainProof = useCallback(
     ({
       appId,
-      serviceName,
-      acceptHigherValues,
-      value,
       source,
+      vaultIdentifier,
+      vaultSecret,
+      namespace,
       groupId,
       groupTimestamp,
+      requestedValue,
+      comparator,
     }: OffchainProofRequest) => {
       return client.generateOffchainProof({
         appId,
-        serviceName,
-        acceptHigherValues,
-        value,
         source,
+        vaultIdentifier,
+        vaultSecret,
+        namespace,
         groupId,
         groupTimestamp,
+        requestedValue,
+        comparator,
       });
     },
     [client]
@@ -68,22 +69,16 @@ export default function SismoProvider({
     ({
       accounts,
       groupId,
-      timestamp,
-      acceptHigherValues,
-      value,
-    }: {
-      accounts: string[];
-      groupId: string;
-      timestamp: number | "latest";
-      acceptHigherValues: boolean;
-      value: number | "MAX";
-    }) => {
+      groupTimestamp,
+      comparator,
+      requestedValue,
+    }: GetEligibilityInputs) => {
       return client.getEligibility({
         accounts,
         groupId,
-        timestamp,
-        acceptHigherValues,
-        value,
+        groupTimestamp,
+        comparator,
+        requestedValue,
       });
     },
     [client]

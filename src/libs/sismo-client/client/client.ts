@@ -1,6 +1,7 @@
 import { ImportedAccount } from "../../vault-client";
 import { Cache } from "../caches";
 import { HydraS1OffchainProver } from "../provers/hydra-s1-offchain-prover";
+import { GetEligibilityInputs, OffchainProofRequest } from "../provers/types";
 
 export class SismoClient {
   public prover: HydraS1OffchainProver;
@@ -15,51 +16,41 @@ export class SismoClient {
   public async getEligibility({
     accounts,
     groupId,
-    timestamp,
-    acceptHigherValues,
-    value,
-  }: {
-    accounts: string[];
-    groupId: string;
-    timestamp: number | "latest";
-    acceptHigherValues: boolean;
-    value: number | "MAX";
-  }) {
+    groupTimestamp,
+    comparator,
+    requestedValue,
+  }: GetEligibilityInputs) {
     const accountData = await this.prover.getEligibility({
       accounts,
       groupId,
-      timestamp,
-      acceptHigherValues,
-      value,
+      groupTimestamp,
+      comparator,
+      requestedValue,
     });
     return accountData;
   }
 
   public async generateOffchainProof({
     appId,
-    serviceName,
-    acceptHigherValues,
-    value,
     source,
+    vaultIdentifier,
+    vaultSecret,
+    namespace,
     groupId,
     groupTimestamp,
-  }: {
-    appId: string;
-    serviceName: string;
-    acceptHigherValues: boolean;
-    value: number | "MAX";
-    source: ImportedAccount;
-    groupId: string;
-    groupTimestamp: number | "latest";
-  }) {
+    requestedValue,
+    comparator,
+  }: OffchainProofRequest) {
     return await this.prover.generateProof({
       appId,
-      serviceName,
-      acceptHigherValues,
-      value,
       source,
+      vaultIdentifier,
+      vaultSecret,
+      namespace,
       groupId,
       groupTimestamp,
+      requestedValue,
+      comparator,
     });
   }
 }

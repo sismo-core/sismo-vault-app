@@ -6,6 +6,10 @@ import { VaultProvider } from "../provider/provider";
 import { BaseStore } from "../stores/base-store";
 import { SismoWallet, WalletPurpose } from "../wallet";
 import { RecoveryKey, Vault } from "./client.types";
+import { buildPoseidon } from "@sismo-core/crypto";
+import SHA3 from "sha3";
+import { BigNumber } from "ethers";
+import { SNARK_FIELD } from "@sismo-core/hydra-s1";
 
 export class VaultClient {
   private provider: VaultProvider;
@@ -57,6 +61,35 @@ export class VaultClient {
     };
     await this.post(createdVault, JSON.stringify(createdVault));
     return createdVault;
+  }
+
+  /*****************************************************************/
+  /************************* VAULT SECRET & IDENTIFIER  ************/
+  /*****************************************************************/
+
+  public async getVaultSecret(owner: Owner): Promise<string> {
+    const currentVault = await this.get(owner.seed);
+    if (!currentVault) throw new Error("No vault found on this owner");
+
+    const mnemonic = currentVault.mnemonics[0];
+    const hash = new SHA3(256);
+    const vaultSecret = BigNumber.from(
+      "0x" + hash.update(mnemonic + "/vaultSecret").digest("hex")
+    )
+      .mod(SNARK_FIELD)
+      .toHexString();
+
+    return vaultSecret;
+  }
+
+  public async getVaultIdentifierForApp(
+    owner: Owner,
+    appId: string
+  ): Promise<string> {
+    const vaultSecret = await this.getVaultSecret(owner);
+    const poseidon = await buildPoseidon();
+    const vaultIdentifier = poseidon([vaultSecret, appId]).toHexString();
+    return vaultIdentifier;
   }
 
   /*****************************************************************/

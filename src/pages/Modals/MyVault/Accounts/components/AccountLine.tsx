@@ -8,9 +8,7 @@ import { useNotifications } from "../../../../../components/Notifications/provid
 import { getMinimalIdentifier } from "../../../../../utils/getMinimalIdentifier";
 import { useVault } from "../../../../../libs/vault";
 import Avatar from "../../../../../components/Avatar";
-import { Trash } from "phosphor-react";
 import { ImportedAccount } from "../../../../../libs/vault-client";
-import env from "../../../../../environment";
 import * as Sentry from "@sentry/react";
 
 const Container = styled.div<{ selected: boolean }>`

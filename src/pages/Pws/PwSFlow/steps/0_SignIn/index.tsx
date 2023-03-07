@@ -118,7 +118,7 @@ const Link = styled.a`
 
 type Props = {
   factoryApp: FactoryAppType;
-  groupMetadata: GroupMetadata;
+  groupMetadata: GroupMetadata | null;
   referrerUrl: string;
   referrerName: string;
   onNext: () => void;
@@ -160,7 +160,6 @@ export default function SignIn({
         {(!factoryApp || !referrerName || !groupMetadata) && <Skeleton />}
         {factoryApp && referrerName && groupMetadata && (
           <>
-            {" "}
             <MintSchema
               referrerName={referrerName}
               logoUrl={factoryApp?.logoUrl}

@@ -7,12 +7,8 @@ import LayoutFlow from "./components/LayoutFlow";
 import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-import {
-  FactoryAppType,
-  GroupMetadata,
-  PWS_VERSION,
-  RequestParamsType,
-} from "..";
+import { FactoryAppType, GroupMetadata, PWS_VERSION } from "..";
+import { ZkConnectRequest } from "../../../libs/sismo-client/provers/types";
 import { AccountData } from "../../../libs/sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s1";
 import { ArrowLeft } from "phosphor-react";
@@ -46,7 +42,8 @@ export type Step =
 
 type Props = {
   factoryApp: FactoryAppType;
-  requestParams: RequestParamsType;
+  zkConnectRequest: ZkConnectRequest;
+  isDataRequest: boolean | null;
   groupMetadata: GroupMetadata;
   callbackUrl: string;
   referrerUrl: string;
@@ -55,7 +52,8 @@ type Props = {
 
 export default function PwSFlow({
   factoryApp,
-  requestParams,
+  zkConnectRequest,
+  isDataRequest,
   groupMetadata,
   referrerName,
   referrerUrl,
@@ -71,7 +69,7 @@ export default function PwSFlow({
   //Test Eligibility
   useEffect(() => {
     if (!vault?.importedAccounts) return;
-    if (!requestParams) return;
+    if (!zkConnectRequest) return;
 
     const testEligibility = async () => {
       try {
@@ -81,11 +79,13 @@ export default function PwSFlow({
         );
         const accountData = await sismo.getEligibility({
           accounts: importedAccountIdentifiers,
-          groupId: requestParams.targetGroup.groupId,
-          timestamp: requestParams.targetGroup.timestamp,
-          value: requestParams.targetGroup.value,
-          acceptHigherValues:
-            requestParams.targetGroup.additionalProperties.acceptHigherValues,
+          groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
+          groupTimestamp:
+            zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
+          requestedValue:
+            zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
+          comparator:
+            zkConnectRequest.dataRequest.statementRequests[0].comparator,
         });
         setEligibleAccountData(accountData);
         setLoadingEligible(false);
@@ -96,37 +96,37 @@ export default function PwSFlow({
     };
     testEligibility();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vault?.importedAccounts, requestParams]);
+  }, [vault?.importedAccounts, zkConnectRequest]);
 
   const redirect = (snarkProof?: SnarkProof) => {
     localStorage.removeItem("prove_referrer");
     let url = `${callbackUrl}`;
     let pwsProof = null;
     if (snarkProof) {
-      pwsProof = {
-        appId: factoryApp.id,
-        serviceName: requestParams.serviceName,
-        membershipProofs: [
-          {
-            proofId: snarkProof.input[6],
-            groupId: requestParams.targetGroup.groupId,
-            value: snarkProof.input[7],
-            timestamp: requestParams.targetGroup.timestamp,
-            additionalProperties: null,
-            provingScheme: "hydraS1",
-            version: "1.0.7",
-            proof: snarkProof,
-          },
-        ],
-        version: PWS_VERSION,
-      };
+      // pwsProof = {
+      //   appId: factoryApp.id,
+      //   serviceName: requestParams.namespace,
+      //   membershipProofs: [
+      //     {
+      //       proofId: snarkProof.input[6],
+      //       groupId: requestParams.targetGroup.groupId,
+      //       value: snarkProof.input[7],
+      //       timestamp: requestParams.targetGroup.timestamp,
+      //       additionalProperties: null,
+      //       provingScheme: "hydraS1",
+      //       version: "1.0.7",
+      //       proof: snarkProof,
+      //     },
+      //   ],
+      //   version: PWS_VERSION,
+      // };
       url += `?pwsProof=${JSON.stringify(pwsProof)}`;
     }
     if (window.opener) {
       window.opener.postMessage(pwsProof, url); //If it's a popup, this will send a message to the opener which is here zkdrop.io
       window.close(); //Close the popup
     } else {
-      window.location.href = url; //If it's not a popup return the proof in params or url
+      //   window.location.href = url; //If it's not a popup return the proof in params or url
     }
   };
 
@@ -223,7 +223,7 @@ export default function PwSFlow({
             )}
             {step === "GenerateZkProof" && (
               <GenerateZkProof
-                requestParams={requestParams}
+                zkConnectRequest={zkConnectRequest}
                 eligibleAccountData={eligibleAccountData}
                 onNext={(proof) => {
                   setTimeout(() => {
