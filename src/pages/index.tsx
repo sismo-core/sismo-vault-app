@@ -17,8 +17,6 @@ import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
 
 export default function Pages(): JSX.Element {
-  const [chainId, setChainId] = useState(env.chainIds[0]);
-  const [chainIds, setChainIds] = useState(env.chainIds);
   const [githubCode, setGithubCode] = useState(null);
   const [twitterOauth, setTwitterOauth] = useState(null);
   const importAccount = useImportAccount();
@@ -203,13 +201,7 @@ export default function Pages(): JSX.Element {
         <GenerateRecoveryKeyModal />
         {/* Detect if the environment is correct and align with onchain data*/}
         <Notifications />
-        <Navbar
-          chainId={chainId}
-          onSwitchChain={(_chainId) => {
-            setChainId(_chainId);
-          }}
-          chainIds={chainIds}
-        />
+        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/pws" element={<Pws />} />

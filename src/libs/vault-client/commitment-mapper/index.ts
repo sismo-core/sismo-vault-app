@@ -39,8 +39,6 @@ export class CommitmentMapper {
 
   constructor({ url }: { url?: string }) {
     if (url) this.url = url;
-    //TODO WHAT IS THIS URL?
-    else this.url = "https://sibgc1bwn8.execute-api.eu-west-1.amazonaws.com";
   }
 
   static generateCommitmentMapperSecret = (seed: string) => {

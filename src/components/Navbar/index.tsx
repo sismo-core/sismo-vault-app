@@ -159,11 +159,7 @@ const Inline = styled.div`
   align-items: center;
 `;
 
-export default function Navbar({
-  chainId,
-  chainIds,
-  onSwitchChain,
-}): JSX.Element {
+export default function Navbar(): JSX.Element {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
   const vault = useVault();
   const navigate = useNavigate();
@@ -215,20 +211,6 @@ export default function Navbar({
         </Logo>
 
         <Inline>
-          {location.pathname !== "/" &&
-            location.pathname !== "/explorer" &&
-            location.pathname !== "/prove" &&
-            location.pathname !== "/pws" &&
-            vault.isConnected && (
-              <SelectChain
-                chainId={chainId}
-                onChange={(_chainId) => onSwitchChain(_chainId)}
-                chainIds={chainIds}
-                style={{
-                  marginRight: 5,
-                }}
-              />
-            )}
           <VaultMenu />
         </Inline>
       </MobileNav>
@@ -266,21 +248,6 @@ export default function Navbar({
           </Section>
 
           <Section right isHidden={isTopRightSectionHidden}>
-            {location.pathname !== "/" &&
-              vault.isConnected &&
-              location.pathname !== "/prove" &&
-              location.pathname !== "/pws" &&
-              location.pathname !== "/explorer" && (
-                <SelectChain
-                  chainId={chainId}
-                  onChange={(_chainId) => onSwitchChain(_chainId)}
-                  chainIds={chainIds}
-                  style={{
-                    marginRight: 5,
-                  }}
-                />
-              )}
-
             <LinksMenu />
             {vault.isConnected ? (
               <VaultMenu />

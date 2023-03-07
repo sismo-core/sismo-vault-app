@@ -100,13 +100,6 @@ const FONTS_LIST = [
   "Inter-Medium",
 ];
 
-//TODO Add multi chain gestion on AppoloClient
-console.log("Apollo", env.sismoSubGraphAPIUrls[env.chainIds[0]]);
-export const apolloClient = new ApolloClient({
-  uri: env.sismoSubGraphAPIUrls[env.chainIds[0]],
-  cache: new InMemoryCache(),
-});
-
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),
   chainIds: env.chainIds,

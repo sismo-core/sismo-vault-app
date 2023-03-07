@@ -6,6 +6,7 @@ import {
   HydraS1Prover,
   HydraS1Account,
   SnarkProof,
+  DestinationInput,
 } from "@sismo-core/hydra-s1";
 import { OffchainRegistryTreeReader } from "../registry-tree-readers/offchain-registry-tree-reader";
 import { Cache } from "../caches";
@@ -49,10 +50,11 @@ export class HydraS1OffchainProver extends Prover {
       (string) => BigNumber.from(string)
     ) as EddsaSignature;
 
-    const destination: HydraS1Account = {
+    const destination: DestinationInput = {
       identifier: env.sismoDestination.address,
       secret: BigNumber.from(env.sismoDestination.sec),
       commitmentReceipt: commitmentReceipt,
+      chainId: BigNumber.from(0),
     };
 
     const chainId = 0;
@@ -70,20 +72,22 @@ export class HydraS1OffchainProver extends Prover {
       serviceName,
     });
 
-    const prover = new HydraS1Prover(registryTree, commitmentMapperPubKey, {
+    const prover = new HydraS1Prover(commitmentMapperPubKey, {
       wasmPath: "/hydra/v1.0.6/hydra-s1.wasm",
       zkeyPath: "/hydra/v1.0.6/hydra-s1.zkey",
     });
 
-    const proof = await prover.generateSnarkProof({
-      source: hydraS1Account,
-      destination,
-      claimedValue,
-      chainId,
-      accountsTree,
-      externalNullifier: requestIdentifier,
-      isStrict,
-    });
+    // const proof = await prover.generateSnarkProof({
+    //   source: hydraS1Account,
+    //   destination,
+    //   claimedValue,
+    //   chainId,
+    //   accountsTree,
+    //   externalNullifier: requestIdentifier,
+    //   isStrict,
+    // });
+
+    let proof: SnarkProof = null;
     return proof;
   }
 

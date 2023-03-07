@@ -12,6 +12,7 @@ const walletAccountsCache: {
 export enum WalletPurpose {
   IMPORTED_ACCOUNT = 10,
   RECOVERY_KEY = 11,
+  MNEMONIC = 12,
 }
 
 export class SismoWallet {
@@ -29,7 +30,7 @@ export class SismoWallet {
   };
 
   static generateMnemonic(): string {
-    const path = SismoWallet.getPath(WalletPurpose.IMPORTED_ACCOUNT, 0);
+    const path = SismoWallet.getPath(WalletPurpose.MNEMONIC, 0);
     const wallet = Wallet.createRandom({ path });
     return wallet.mnemonic.phrase;
   }
