@@ -153,7 +153,9 @@ export default function Pws(): JSX.Element {
 
     params.namespace = params.namespace || "main";
 
-    if (!_version || !_appId || !_namespace) {
+    if (!_version || !_appId || !params.namespace) {
+      console.log("wrong url");
+      console.log(_version, _appId, _namespace);
       setIsWrongUrl(true);
       return;
     }

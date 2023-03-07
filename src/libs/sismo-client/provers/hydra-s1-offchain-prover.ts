@@ -6,7 +6,6 @@ import {
   HydraS1Prover,
   HydraS1Account,
   SnarkProof,
-  DestinationInput,
   UserParams,
   VaultInput,
   StatementInput,
@@ -65,8 +64,10 @@ export class HydraS1OffchainProver extends Prover {
       comparator,
     });
 
-    const proof = await prover.generateSnarkProof(userParams);
+    console.log("commitmentMapperPubKey", commitmentMapperPubKey);
+    console.log("userParams", userParams);
 
+    const proof = await prover.generateSnarkProof(userParams);
     return proof;
   }
 
@@ -207,17 +208,6 @@ export class HydraS1OffchainProver extends Prover {
       namespace && groupId && groupTimestamp && requestedValue && comparator;
 
     if (isDataRequest) {
-      const commitmentReceipt = env.sismoDestination.commitmentReceipt.map(
-        (string) => BigNumber.from(string)
-      ) as EddsaSignature;
-
-      const destinationInput: DestinationInput = {
-        identifier: env.sismoDestination.address,
-        secret: BigNumber.from(env.sismoDestination.sec),
-        commitmentReceipt: commitmentReceipt,
-        chainId: BigNumber.from(0),
-      };
-
       const accountsTree = await this.registryTreeReader.getAccountsTree({
         groupId,
         account: source.identifier,
@@ -232,6 +222,8 @@ export class HydraS1OffchainProver extends Prover {
           : BigNumber.from(requestedValue);
 
       const parsedComparator = "GTE" ? 0 : 1;
+
+      console.log("parsedComparator", parsedComparator);
 
       const statementInput: StatementInput = {
         value: BigNumber.from(claimedValue),
@@ -250,12 +242,13 @@ export class HydraS1OffchainProver extends Prover {
       userParams = {
         vault: vaultInput,
         source: hydraS1Account,
-        destination: destinationInput,
+        //  destination: { ...hydraS1Account, chainId: 0 },
         statement: statementInput,
         requestIdentifier: requestIdentifier,
       };
     }
 
+    console.log("userParams", userParams);
     return userParams;
   }
 }

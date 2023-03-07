@@ -3160,10 +3160,10 @@
     circomlibjs "^0.1.2"
     ethers "^5.6.1"
 
-"@sismo-core/hydra-s1@2.0.0-beta":
-  version "2.0.0-beta"
-  resolved "https://registry.yarnpkg.com/@sismo-core/hydra-s1/-/hydra-s1-2.0.0-beta.tgz#8138c96fbe3af7a4dc9b12b0d46aaa6be5babb0b"
-  integrity sha512-HVvOFdLI9DwkXDWOsi7u9vkTeIDETAhcnZf9SPK488Kz93srwhb+ltuo4JJAmCFqEVZTZoSdTjPiSnbkSeP8qw==
+"@sismo-core/hydra-s1@2.0.0-beta2":
+  version "2.0.0-beta2"
+  resolved "https://registry.yarnpkg.com/@sismo-core/hydra-s1/-/hydra-s1-2.0.0-beta2.tgz#f467ce80c46c0a78640281aa0653ac22d64ecb80"
+  integrity sha512-DCPt4Pg0sXsPAiIkTPbWmtaRobx9W2EqtyGw7KrRVyBm6r95dk90tQzrzyjYmKoXGC270j/2POkxwnDWDhfTYg==
   dependencies:
     "@sismo-core/crypto" "^1.1.4"
     "@sismo-core/kv-merkle-tree" "^1.0.4"

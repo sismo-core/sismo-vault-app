@@ -1,4 +1,3 @@
-import { ImportedAccount } from "../../vault-client";
 import { Cache } from "../caches";
 import { HydraS1OffchainProver } from "../provers/hydra-s1-offchain-prover";
 import { GetEligibilityInputs, OffchainProofRequest } from "../provers/types";

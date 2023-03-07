@@ -1,7 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Notifications from "../components/Notifications";
 import { useEffect, useRef, useState } from "react";
-import env from "../environment";
 import Navbar from "../components/Navbar";
 import { useImportAccount } from "./Modals/ImportAccount/provider";
 import ImportAccountModal from "./Modals/ImportAccount";
@@ -204,11 +203,11 @@ export default function Pages(): JSX.Element {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/pws" element={<Pws />} />
+          <Route path="/connect" element={<Pws />} />
 
           <Route path="/redirect" element={<Redirect />} />
 
-          <Route path="*" element={<Navigate to={`/`} replace={true} />} />
+          {/* <Route path="*" element={<Navigate to={`/`} replace={true} />} /> */}
         </Routes>
       </BrowserRouter>
     </>
