@@ -81,5 +81,6 @@ export type ZkConnectResponse = Omit<
   ZkConnectRequest,
   "callbackPath" | "dataRequest"
 > & {
+  authProof?: any;
   verifiableStatements: VerifiableStatement[];
 };

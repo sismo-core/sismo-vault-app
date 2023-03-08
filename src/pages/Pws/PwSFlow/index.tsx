@@ -14,6 +14,7 @@ import { SnarkProof } from "@sismo-core/hydra-s1";
 import { ArrowLeft } from "phosphor-react";
 import { ZkConnectResponse } from "../../../libs/zk-connect/types";
 import { ZkConnectRequestHandler } from "../../../libs/zk-connect/request";
+import { BigNumber } from "ethers";
 
 const Container = styled.div`
   position: relative;
@@ -45,7 +46,7 @@ export type Step =
 type Props = {
   factoryApp: FactoryAppType;
   zkConnectRequest: ZkConnectRequest;
-  isDataRequest: boolean | null;
+  hasDataRequested: boolean | null;
   groupMetadata: GroupMetadata;
   callbackUrl: string;
   referrerUrl: string;
@@ -55,7 +56,7 @@ type Props = {
 export default function PwSFlow({
   factoryApp,
   zkConnectRequest,
-  isDataRequest,
+  hasDataRequested,
   groupMetadata,
   referrerName,
   referrerUrl,
@@ -74,7 +75,7 @@ export default function PwSFlow({
     if (!zkConnectRequest) return;
 
     const testEligibility = async () => {
-      if (isDataRequest === false) {
+      if (hasDataRequested === false) {
         return;
       }
       try {
@@ -114,20 +115,30 @@ export default function PwSFlow({
       zkConnectResponse = {
         appId: factoryApp.id,
         namespace: zkConnectRequest.namespace,
-        verifiableStatements: [
+        verifiableStatements: [],
+        version: PWS_VERSION,
+      };
+      const provingScheme = "hydra-s1.2";
+      if (hasDataRequested === false) {
+        zkConnectResponse.authProof = {
+          provingScheme,
+          proof: snarkProof,
+        };
+      } else if (hasDataRequested === true) {
+        zkConnectResponse.verifiableStatements = [
           {
             // proofId: snarkProof.input[6].toHexString(),
             groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
-            value: snarkProof.input[7].toNumber(),
+            value: BigNumber.from(snarkProof.input[7]).toNumber(),
             groupTimestamp:
               zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
             extraData: null,
-            provingScheme: "hydra-s1.1",
+            provingScheme,
             proof: snarkProof,
           },
-        ],
-        version: PWS_VERSION,
-      };
+        ];
+      }
+      zkConnectResponse["version"] = PWS_VERSION;
       console.log("zkConnectResponse", zkConnectResponse);
       url += `?zkConnectResponse=${JSON.stringify(zkConnectResponse)}`;
     }
@@ -174,7 +185,7 @@ export default function PwSFlow({
       }
     }
 
-    if (isDataRequest === false) {
+    if (hasDataRequested === false) {
       setStep("GenerateZkProof");
     } else if (!eligibleAccountData && step === "GenerateZkProof") {
       onStepChange("ImportEligibleAccount");
@@ -221,7 +232,7 @@ export default function PwSFlow({
             factoryApp={factoryApp}
             referrerName={referrerName}
             referrerUrl={referrerUrl}
-            isDataRequest={isDataRequest}
+            hasDataRequested={hasDataRequested}
             vaultSliderOpen={vaultSliderOpen}
             setVaultSliderOpen={setVaultSliderOpen}
             step={step}
@@ -237,7 +248,7 @@ export default function PwSFlow({
               <GenerateZkProof
                 zkConnectRequest={zkConnectRequest}
                 eligibleAccountData={eligibleAccountData}
-                isDataRequest={isDataRequest}
+                hasDataRequested={hasDataRequested}
                 onNext={(proof) => {
                   setTimeout(() => {
                     redirect(proof);

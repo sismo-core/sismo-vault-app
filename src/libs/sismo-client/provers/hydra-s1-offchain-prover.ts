@@ -202,10 +202,10 @@ export class HydraS1OffchainProver extends Prover {
         verificationEnabled: true,
       };
 
-      const isDataRequest =
+      const hasDataRequested =
         namespace && groupId && groupTimestamp && requestedValue && comparator;
 
-      if (isDataRequest) {
+      if (hasDataRequested) {
         const accountsTree = await this.registryTreeReader.getAccountsTree({
           groupId,
           account: source.identifier,

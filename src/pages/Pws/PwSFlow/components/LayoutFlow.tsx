@@ -108,7 +108,7 @@ const StepperBlock = styled(Stepper)<{ stepperWidth: number }>`
 
 type Props = {
   groupMetadata: GroupMetadata;
-  isDataRequest: boolean;
+  hasDataRequested: boolean;
   referrerUrl: string;
   referrerName: string;
   vaultSliderOpen: boolean;
@@ -128,7 +128,7 @@ export default function LayoutFlow({
   factoryApp,
   proofLoading = false,
   step,
-  isDataRequest,
+  hasDataRequested,
   setVaultSliderOpen,
 }: Props) {
   // const proveName = badge?.name?.split(" ZK Badge")[0] || badge?.name;
@@ -158,7 +158,7 @@ export default function LayoutFlow({
           </BadgeWrapper>
 
           <SummaryText>
-            {isDataRequest && (
+            {hasDataRequested && (
               <>
                 <FirstLine>
                   <Bold>{capitalizeFirstLetter(referrerName)}</Bold> wants to

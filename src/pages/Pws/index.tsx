@@ -92,7 +92,7 @@ export default function Pws(): JSX.Element {
   const [zkConnectRequest, setZkConnectRequest] =
     useState<ZkConnectRequest>(null);
   const [groupMetadata, setGroupMetadata] = useState<GroupMetadata>(null);
-  const [isDataRequest, setIsDataRequest] = useState<boolean | null>(null);
+  const [hasDataRequested, setIsDataRequest] = useState<boolean | null>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
   const [referrerName, setReferrerName] = useState("");
   const [callbackUrl, setCallbackUrl] = useState(null);
@@ -299,7 +299,7 @@ export default function Pws(): JSX.Element {
         ) : (
           <PwSFlow
             factoryApp={factoryApp}
-            isDataRequest={isDataRequest}
+            hasDataRequested={hasDataRequested}
             zkConnectRequest={zkConnectRequest}
             groupMetadata={groupMetadata}
             callbackUrl={callbackUrl}

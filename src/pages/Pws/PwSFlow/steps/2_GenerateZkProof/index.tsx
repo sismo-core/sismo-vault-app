@@ -127,14 +127,14 @@ const LoadingFeedBack = styled(FeedBack)`
 type Props = {
   zkConnectRequest: ZkConnectRequest;
   eligibleAccountData: AccountData;
-  isDataRequest: boolean;
+  hasDataRequested: boolean;
   onNext: (proof: SnarkProof) => void;
 };
 
 export default function GenerateZkProof({
   eligibleAccountData,
   zkConnectRequest,
-  isDataRequest,
+  hasDataRequested,
   onNext,
 }: Props) {
   const vault = useVault();
@@ -150,12 +150,12 @@ export default function GenerateZkProof({
       let proofRequest: OffchainProofRequest;
       const owner = vault.owners[0];
       const vaultSecret = await vault.getVaultSecret(owner);
-      if (isDataRequest === false) {
+      if (hasDataRequested === false) {
         proofRequest = {
           appId: zkConnectRequest.appId,
           vaultSecret: vaultSecret,
         };
-      } else if (isDataRequest === true) {
+      } else if (hasDataRequested === true) {
         const eligibleSourceAccount = vault.importedAccounts.find(
           (_source) => _source.identifier === eligibleAccountData.identifier
         );
