@@ -81,7 +81,6 @@ export type ZkConnectResponse = Omit<
   ZkConnectRequest,
   "callbackPath" | "dataRequest"
 > & {
-  vaultIdentifier: string;
   authProof?: any;
   verifiableStatements: VerifiableStatement[];
 };

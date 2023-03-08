@@ -113,7 +113,6 @@ export default function PwSFlow({
       console.log("resolving snarkproof");
       console.log("snarkproof", snarkProof);
       zkConnectResponse = {
-        vaultIdentifier: BigNumber.from(snarkProof.input[10]).toHexString(),
         appId: factoryApp.id,
         namespace: zkConnectRequest.namespace,
         verifiableStatements: [],
