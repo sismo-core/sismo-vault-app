@@ -136,10 +136,7 @@ export default function ImportAccountModalProvider({
         try {
           const commitmentMapperSecret =
             CommitmentMapper.generateCommitmentMapperSecret(seed);
-
-          const mnemonic = await vault.getMnemonic(alreadyOwner);
-          const vaultSecret =
-            CommitmentMapper.generateCommitmentMapperSecret(mnemonic);
+          const vaultSecret = await vault.getVaultSecret(alreadyOwner);
 
           const {
             commitmentReceipt: _commitmentReceipt,

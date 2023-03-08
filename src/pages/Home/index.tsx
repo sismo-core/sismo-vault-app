@@ -24,7 +24,7 @@ export default function Home() {
         isOpen={connectIsOpen}
         onClose={() => setConnectIsOpen(false)}
       />
-      <Container>{vault.isConnected && <div>IS CONNECTED </div>}</Container>
+      <Container>{vault.isConnected && <div></div>}</Container>
     </>
   );
 }

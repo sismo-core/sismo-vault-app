@@ -46,10 +46,10 @@ const ContentTitle = styled.div`
   margin-bottom: 20px;
 `;
 
-const FirstLine = styled.span`
-  font-family: ${(props) => props.theme.fonts.regular};
-  font-size: 16px;
-  line-height: 22px;
+const AppLogo = styled.img`
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
 `;
 
 const GroupTag = styled.div`
@@ -61,6 +61,8 @@ const GroupTag = styled.div`
   background: ${(props) => props.theme.colors.blue9};
   border-radius: 4px;
 `;
+
+const DataRequested = styled.div``;
 
 const SecondLine = styled.div`
   display: flex;
@@ -118,7 +120,7 @@ const Link = styled.a`
 
 type Props = {
   factoryApp: FactoryAppType;
-  groupMetadata: GroupMetadata;
+  groupMetadata: GroupMetadata | null;
   referrerUrl: string;
   referrerName: string;
   onNext: () => void;
@@ -157,32 +159,34 @@ export default function SignIn({
       <Container>
         <HeaderTitle url={referrerUrl} />
 
-        {(!factoryApp || !referrerName || !groupMetadata) && <Skeleton />}
-        {factoryApp && referrerName && groupMetadata && (
+        {(!factoryApp || !referrerName) && <Skeleton />}
+        {factoryApp && referrerName && (
           <>
-            {" "}
-            <MintSchema
+            {/* <MintSchema
               referrerName={referrerName}
               logoUrl={factoryApp?.logoUrl}
-            />
+            /> */}
             <Content>
               <ContentTitle>
-                <FirstLine>
-                  <Bold>{capitalizeFirstLetter(referrerName)}</Bold> wants to
-                  verify that you belong to
-                </FirstLine>
+                <AppLogo src={factoryApp?.logoUrl} alt={referrerName} />
                 <SecondLine>
-                  <GroupTag>{humanReadableGroupName}</GroupTag>
-                  group.
+                  Connect to <Bold>{capitalizeFirstLetter(referrerName)}</Bold>
                 </SecondLine>
               </ContentTitle>
 
-              <EligibilityLink onClick={() => setModalIsOpen(true)}>
+              {groupMetadata && (
+                <>
+                  <DataRequested>Data requested:</DataRequested>
+                  <GroupTag>{humanReadableGroupName}</GroupTag>
+                </>
+              )}
+
+              {/* <EligibilityLink onClick={() => setModalIsOpen(true)}>
                 Eligibility{" "}
                 <ArrowWrapper>
                   <ArrowsOutSimple size={13.74} color={colors.blue2} />
                 </ArrowWrapper>
-              </EligibilityLink>
+              </EligibilityLink> */}
             </Content>
             <ButtonGroup>
               <Link
@@ -193,7 +197,7 @@ export default function SignIn({
                   )
                 }
               >
-                What is a ZK Proof <ArrowSquareOut />
+                What is zkConnect <ArrowSquareOut />
               </Link>
 
               {vault.isConnected ? (
@@ -202,7 +206,7 @@ export default function SignIn({
                   success
                   onClick={() => onNext()}
                 >
-                  Continue
+                  Connect O
                 </Button>
               ) : (
                 <Button

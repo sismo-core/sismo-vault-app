@@ -16,7 +16,7 @@ export const fetchAvailableGroups = async (
   availableGroups: AvailableGroups | OffchainAvailableGroups;
   timestamp: number;
 }> => {
-  const key = `${env.hydraApiUrl}_${ChainIdToName[chainId]}_${attesterName}`;
+  const key = `${env.hubApiUrl}_${ChainIdToName[chainId]}_${attesterName}`;
   if (
     !promiseAvailableDataCache.has(key) ||
     ignoreCache ||
@@ -31,7 +31,7 @@ export const fetchAvailableGroups = async (
 };
 
 const getAvailableGroups = async (chainId, attesterName) => {
-  let url = `${env.hydraApiUrl}/available-data/${ChainIdToName[chainId]}/${attesterName}?latest=true&isOnChain=true`;
+  let url = `${env.hubApiUrl}/available-data/${ChainIdToName[chainId]}/${attesterName}?latest=true&isOnChain=true`;
   const availableData: AvailableData = await axios
     .get(url)
     .then((res) => res.data.items[0]);
@@ -45,7 +45,7 @@ const getAvailableGroups = async (chainId, attesterName) => {
 
   let availableGroupsUrl = availableData.url.startsWith("http")
     ? availableData.url
-    : `${env.hydraApiUrl}${availableData.url}`;
+    : `${env.hubApiUrl}${availableData.url}`;
 
   const availableGroups: AvailableGroups | OffchainAvailableGroups = await axios
     .get(availableGroupsUrl)
@@ -64,7 +64,7 @@ export const fetchJsonTree = async (treeUrl): Promise<JsonMerkleTree> => {
     promiseJsonTreeCache.set(
       treeUrl,
       axios.get(
-        treeUrl.startsWith("http") ? treeUrl : `${env.hydraApiUrl}${treeUrl}`
+        treeUrl.startsWith("http") ? treeUrl : `${env.hubApiUrl}${treeUrl}`
       )
     );
   }
@@ -81,7 +81,7 @@ export const fetchDataTree = async (
     promiseDataCache.set(
       dataUrl,
       axios.get(
-        dataUrl.startsWith("http") ? dataUrl : `${env.hydraApiUrl}${dataUrl}`
+        dataUrl.startsWith("http") ? dataUrl : `${env.hubApiUrl}${dataUrl}`
       )
     );
   }

@@ -7,6 +7,14 @@ export type RegistryTree = {
   treeUrl: string;
 };
 
+export type getAccountsTreeInputs = OffChainGroupProperties & {
+  account: string;
+};
+
+export type getAccountsTreeEligibilityInputs = OffChainGroupProperties & {
+  accounts: string[];
+};
+
 export type OffChainGroupProperties = {
   groupId: string;
   timestamp: number | "latest";

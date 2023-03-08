@@ -85,9 +85,7 @@ export default function VaultNotFound({
       const commitmentMapperSecret =
         CommitmentMapper.generateCommitmentMapperSecret(seed);
 
-      const mnemonic = await vault.getMnemonic(owner);
-      const vaultSecret =
-        CommitmentMapper.generateCommitmentMapperSecret(mnemonic);
+      const vaultSecret = await vault.getVaultSecret(owner);
 
       const { commitmentReceipt, commitmentMapperPubKey } =
         await vault.commitmentMapper.getEthereumCommitmentReceipt(

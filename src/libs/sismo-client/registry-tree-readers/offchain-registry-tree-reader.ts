@@ -1,6 +1,10 @@
 import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s1";
 import { fetchJsonTree } from "../services/available-data";
-import { OffChainAccountTreeMetadata } from "./types";
+import {
+  getAccountsTreeInputs,
+  OffChainAccountTreeMetadata,
+  OffChainGroupProperties,
+} from "./types";
 import { ChunkedGroups } from "../attesters/hydraS1/chunked-groups";
 import { Cache } from "../caches";
 import { RegistryTreeReader } from "./registry-tree-reader";
@@ -17,11 +21,7 @@ export class OffchainRegistryTreeReader extends RegistryTreeReader {
     groupId,
     timestamp,
     account,
-  }: {
-    groupId: string;
-    timestamp: number | "latest";
-    account: string;
-  }): Promise<KVMerkleTree> {
+  }: getAccountsTreeInputs): Promise<KVMerkleTree> {
     const accountsTreeChunk = await this.getAccountsTreeChunk({
       groupId,
       timestamp,
@@ -86,11 +86,7 @@ export class OffchainRegistryTreeReader extends RegistryTreeReader {
     groupId,
     timestamp,
     account,
-  }: {
-    groupId: string;
-    timestamp: number | "latest";
-    account: string;
-  }): Promise<OffChainAccountTreeMetadata> {
+  }: getAccountsTreeInputs): Promise<OffChainAccountTreeMetadata> {
     const groupAccountsTrees = await this.getGroupAccountsTrees({
       groupId,
       timestamp,
@@ -115,10 +111,7 @@ export class OffchainRegistryTreeReader extends RegistryTreeReader {
   protected async getGroupAccountsTrees({
     groupId,
     timestamp,
-  }: {
-    groupId: string;
-    timestamp: number | "latest";
-  }): Promise<OffChainAccountTreeMetadata[]> {
+  }: OffChainGroupProperties): Promise<OffChainAccountTreeMetadata[]> {
     const availableGroups = await this.getAvailableGroups();
     const accountsTrees = availableGroups.accountTrees;
 

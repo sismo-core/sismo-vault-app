@@ -4,7 +4,6 @@ import styled from "styled-components";
 import ConnectVaultModal from "../../pages/Modals/ConnectVaultModal";
 import VaultMenu from "./components/VaultMenu";
 import { useVault } from "../../libs/vault";
-import SelectChain from "../SelectChain";
 import Button from "../Button";
 import env from "../../environment";
 import LinksMenu from "./components/LinksMenu";
@@ -159,11 +158,7 @@ const Inline = styled.div`
   align-items: center;
 `;
 
-export default function Navbar({
-  chainId,
-  chainIds,
-  onSwitchChain,
-}): JSX.Element {
+export default function Navbar(): JSX.Element {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
   const vault = useVault();
   const navigate = useNavigate();
@@ -215,20 +210,6 @@ export default function Navbar({
         </Logo>
 
         <Inline>
-          {location.pathname !== "/" &&
-            location.pathname !== "/explorer" &&
-            location.pathname !== "/prove" &&
-            location.pathname !== "/pws" &&
-            vault.isConnected && (
-              <SelectChain
-                chainId={chainId}
-                onChange={(_chainId) => onSwitchChain(_chainId)}
-                chainIds={chainIds}
-                style={{
-                  marginRight: 5,
-                }}
-              />
-            )}
           <VaultMenu />
         </Inline>
       </MobileNav>
@@ -242,45 +223,20 @@ export default function Navbar({
                 alt="Sismo logo"
                 onClick={() => navigate("/")}
               />
-              {env.name !== "PROD" && env.name !== "PLAYGROUND" && (
-                <Tag>
-                  {env.name === "TESTNETS" &&
-                    `
-                      Testnets
-                    `}
-                  {env.name === "TESTNETS_PRIVATE" &&
-                    `
-                      Testnets
-                    `}
-                  {env.name === "LOCAL" &&
-                    `
-                      Local
-                    `}
-                  {env.name === "STAGING" &&
-                    `
+              <Tag>
+                {env.name === "STAGING_BETA" &&
+                  `
                       Staging
                     `}
-                </Tag>
-              )}
+                {env.name === "PROD_BETA" &&
+                  `
+                      Beta
+                    `}
+              </Tag>
             </Logo>
           </Section>
 
           <Section right isHidden={isTopRightSectionHidden}>
-            {location.pathname !== "/" &&
-              vault.isConnected &&
-              location.pathname !== "/prove" &&
-              location.pathname !== "/pws" &&
-              location.pathname !== "/explorer" && (
-                <SelectChain
-                  chainId={chainId}
-                  onChange={(_chainId) => onSwitchChain(_chainId)}
-                  chainIds={chainIds}
-                  style={{
-                    marginRight: 5,
-                  }}
-                />
-              )}
-
             <LinksMenu />
             {vault.isConnected ? (
               <VaultMenu />

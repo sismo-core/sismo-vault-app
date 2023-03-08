@@ -1,0 +1,1 @@
+http://localhost:3000/connect?version=off-chain-1&appId=0xf68985adfc209fafebfb1a956913e7fa&dataRequest=%7B%22statementRequests%22:%5B%7B%22groupId%22:%220x682544d549b8a461d7fe3e589846bb7b%22,%22groupTimestamp%22:%22latest%22,%22requestedValue%22:1,%22comparator%22:%22GTE%22,%22provingScheme%22:%22hydra-s1.1%22%7D%5D,%22operator%22:null%7D

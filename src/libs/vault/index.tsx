@@ -38,7 +38,7 @@ type ReactVault = {
   deletable: boolean;
   recoveryKeys: RecoveryKey[];
   commitmentMapper: CommitmentMapper;
-  getMnemonic: (owner: Owner) => Promise<string>;
+  getVaultSecret: (owner: Owner) => Promise<string>;
   disconnect: () => void;
   connect: (owner: Owner) => Promise<boolean>;
   isVaultExist: (owner: Owner) => Promise<boolean>;
@@ -164,6 +164,10 @@ export default function SismoVaultProvider({
     accountNumber?: number
   ): Promise<RecoveryKey> => {
     return await vaultClient.getRecoveryKey(mnemonic, accountNumber);
+  };
+
+  const getVaultSecret = async (owner: Owner): Promise<string> => {
+    return await vaultClient.getVaultSecret(owner);
   };
 
   const getMnemonic = async (owner: Owner) => {
@@ -324,7 +328,7 @@ export default function SismoVaultProvider({
         isConnected: Boolean(vaultState.connectedOwner),
         deletable: vaultState.deletable,
         recoveryKeys: vaultState.recoveryKeys,
-        getMnemonic,
+        getVaultSecret,
         getRecoveryKey,
         deleteRecoveryKey,
         generateRecoveryKey,

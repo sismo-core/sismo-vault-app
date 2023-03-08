@@ -123,7 +123,6 @@ const TABS: {
 export default function MyVaultModal() {
   const myVault = useMyVault();
   const state = useMyVault();
-  const [chainId, setChainId] = useState(env.chainIds[0]);
   const { disabledScroll, enabledScroll } = useMainScrollManager();
 
   const vault = useVault();
@@ -188,12 +187,7 @@ export default function MyVaultModal() {
                 myVault.switchTab(tabId);
               }}
             />
-            {myVault.tab === "accounts" && (
-              <Accounts
-                chainId={chainId}
-                onSwitchChainId={(_chainId) => setChainId(_chainId)}
-              />
-            )}
+            {myVault.tab === "accounts" && <Accounts />}
             {myVault.tab === "settings" && <Settings />}
             {myVault.tab === "more" && <More />}
           </Content>

@@ -8,9 +8,7 @@ import { useNotifications } from "../../../../../components/Notifications/provid
 import { getMinimalIdentifier } from "../../../../../utils/getMinimalIdentifier";
 import { useVault } from "../../../../../libs/vault";
 import Avatar from "../../../../../components/Avatar";
-import { Trash } from "phosphor-react";
 import { ImportedAccount } from "../../../../../libs/vault-client";
-import env from "../../../../../environment";
 import * as Sentry from "@sentry/react";
 
 const Container = styled.div<{ selected: boolean }>`
@@ -133,20 +131,6 @@ export default function AccountLine({
           >
             <Icon name="copy-outline-white" style={{ width: 16 }} />
           </Action>
-          {account.type === "ethereum" || env.name === "TESTNETS_PRIVATE" ? (
-            <Action
-              onClick={(e) => {
-                setConfirmDeleteOpen(true);
-                e.stopPropagation();
-              }}
-            >
-              <Trash size={16} color={colors.blue0} />
-            </Action>
-          ) : (
-            <IconWrapper>
-              <Trash size={16} color={colors.blue7} />
-            </IconWrapper>
-          )}
         </Actions>
       </Container>
     </>

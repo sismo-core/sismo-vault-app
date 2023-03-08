@@ -1,45 +1,12 @@
-import { SupportedChainId } from "./libs/sismo-client";
-
 type Environment = {
-  name:
-    | "LOCAL"
-    | "STAGING"
-    | "PLAYGROUND"
-    | "PROD"
-    | "TESTNETS_PRIVATE"
-    | "TESTNETS";
-  chainIds: SupportedChainId[];
+  name: "LOCAL" | "STAGING_BETA" | "PROD_BETA";
   sentryReleaseName: string;
-  disabledMinting: boolean;
-  disabledNullifier: boolean;
   disabledSentry: boolean;
   vaultURL: string;
   factoryApiUrl: string;
-  // Override SDK default URLs
-  relayerEndpoints?: { [chainId: number]: string[] };
+  hubApiUrl: string;
   commitmentMapperUrl?: string;
-  badgesApiUrl?: string;
-  hydraApiUrl?: string;
-  synapsApiUrl?: string;
-  flowsApiUrl?: string;
   githubOauthClientId?: string;
-  sismoSubGraphAPIUrls?: string;
-  synapsPubKey?: string[];
-  s3SubgraphAPIUrls?: { [chainId: number]: string };
-  contracts?: {
-    [chainId: number]: {
-      [name: string]: {
-        address: string;
-        deploymentTxnHash: string;
-      };
-    };
-  };
-  rpc?: {
-    [chainId: number]: {
-      urlOverride: string;
-      logsLimit: number;
-    };
-  };
   sismoDestination: {
     address: string;
     sec: number;

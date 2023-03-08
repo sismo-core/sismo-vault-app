@@ -1,7 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Notifications from "../components/Notifications";
 import { useEffect, useRef, useState } from "react";
-import env from "../environment";
 import Navbar from "../components/Navbar";
 import { useImportAccount } from "./Modals/ImportAccount/provider";
 import ImportAccountModal from "./Modals/ImportAccount";
@@ -17,8 +16,6 @@ import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
 
 export default function Pages(): JSX.Element {
-  const [chainId, setChainId] = useState(env.chainIds[0]);
-  const [chainIds, setChainIds] = useState(env.chainIds);
   const [githubCode, setGithubCode] = useState(null);
   const [twitterOauth, setTwitterOauth] = useState(null);
   const importAccount = useImportAccount();
@@ -203,20 +200,14 @@ export default function Pages(): JSX.Element {
         <GenerateRecoveryKeyModal />
         {/* Detect if the environment is correct and align with onchain data*/}
         <Notifications />
-        <Navbar
-          chainId={chainId}
-          onSwitchChain={(_chainId) => {
-            setChainId(_chainId);
-          }}
-          chainIds={chainIds}
-        />
+        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/pws" element={<Pws />} />
+          <Route path="/connect" element={<Pws />} />
 
           <Route path="/redirect" element={<Redirect />} />
 
-          <Route path="*" element={<Navigate to={`/`} replace={true} />} />
+          {/* <Route path="*" element={<Navigate to={`/`} replace={true} />} /> */}
         </Routes>
       </BrowserRouter>
     </>

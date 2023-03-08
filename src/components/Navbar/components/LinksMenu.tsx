@@ -140,7 +140,7 @@ export default function LinksMenu(): JSX.Element {
               Docs
             </MoreMainLink>
 
-            {env.name === "STAGING" || env.name === "PROD" ? (
+            {env.name === "STAGING_BETA" || env.name === "PROD_BETA" ? (
               <MoreMainLink
                 href="https://testnets.sismo.io"
                 target="_blank"
