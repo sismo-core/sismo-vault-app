@@ -132,6 +132,11 @@ export default function PwSFlow({
             value: BigNumber.from(snarkProof.input[7]).toNumber(),
             groupTimestamp:
               zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
+            comparator: BigNumber.from(
+              snarkProof.input[9]
+            ).eq(0)
+              ? "GTE"
+              : "EQ",
             extraData: null,
             provingScheme,
             proof: snarkProof,
