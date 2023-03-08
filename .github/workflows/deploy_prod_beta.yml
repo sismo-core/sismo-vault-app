@@ -1,4 +1,4 @@
-name: Deploy Prod environment
+name: Deploy Prod Beta environment
 on:
   workflow_dispatch: {}
 
