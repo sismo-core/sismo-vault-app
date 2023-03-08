@@ -39,9 +39,9 @@ export default function HeaderTitle({ url }: Props) {
   return (
     <Container>
       <Title>
-        <TitleLarge>PROVE</TitleLarge>
-        <TitleSmall> WITH </TitleSmall>
-        <TitleLarge>SISMO</TitleLarge>
+        <TitleLarge>zk</TitleLarge>
+        {/* <TitleSmall> WITH </TitleSmall> */}
+        <TitleLarge>Connect</TitleLarge>
       </Title>
       <Subtitle>{url}</Subtitle>
     </Container>

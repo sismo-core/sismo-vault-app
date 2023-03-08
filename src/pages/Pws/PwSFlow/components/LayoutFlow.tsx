@@ -108,6 +108,7 @@ const StepperBlock = styled(Stepper)<{ stepperWidth: number }>`
 
 type Props = {
   groupMetadata: GroupMetadata;
+  isDataRequest: boolean;
   referrerUrl: string;
   referrerName: string;
   vaultSliderOpen: boolean;
@@ -127,6 +128,7 @@ export default function LayoutFlow({
   factoryApp,
   proofLoading = false,
   step,
+  isDataRequest,
   setVaultSliderOpen,
 }: Props) {
   // const proveName = badge?.name?.split(" ZK Badge")[0] || badge?.name;
@@ -156,13 +158,17 @@ export default function LayoutFlow({
           </BadgeWrapper>
 
           <SummaryText>
-            <FirstLine>
-              <Bold>{capitalizeFirstLetter(referrerName)}</Bold> wants to verify
-              that you belong to
-            </FirstLine>
-            <SecondLine>
-              <GroupTag>{humanReadableGroupName}</GroupTag> group
-            </SecondLine>
+            {isDataRequest && (
+              <>
+                <FirstLine>
+                  <Bold>{capitalizeFirstLetter(referrerName)}</Bold> wants to
+                  verify that you belong to
+                </FirstLine>
+                <SecondLine>
+                  <GroupTag>{humanReadableGroupName}</GroupTag> group
+                </SecondLine>
+              </>
+            )}
           </SummaryText>
         </Summary>
       </HeaderBlock>

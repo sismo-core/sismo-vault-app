@@ -22,10 +22,10 @@ export type GetEligibilityInputs = {
 
 export type OffchainProofRequest = {
   appId: string;
-  source: ImportedAccount;
   vaultSecret: string;
   namespace?: string;
   groupId?: string;
+  source?: ImportedAccount;
   groupTimestamp?: GroupTimestamp;
   requestedValue?: RequestedValue;
   comparator?: StatementComparator;

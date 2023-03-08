@@ -62,9 +62,6 @@ export class HydraS1OffchainProver extends Prover {
       comparator,
     });
 
-    console.log("commitmentMapperPubKey", commitmentMapperPubKey);
-    console.log("userParams", userParams);
-
     const proof = await prover.generateSnarkProof(userParams);
     return proof;
   }
@@ -193,56 +190,56 @@ export class HydraS1OffchainProver extends Prover {
       namespace: appId,
     };
 
-    const hydraS1Account: HydraS1Account = this.getHydraS1Account(source);
-
     let userParams: UserParams = {
       vault: vaultInput,
-      source: {
-        ...hydraS1Account,
-        verificationEnabled: true,
-      },
     };
 
-    const isDataRequest =
-      namespace && groupId && groupTimestamp && requestedValue && comparator;
+    if (source) {
+      const hydraS1Account: HydraS1Account = this.getHydraS1Account(source);
 
-    if (isDataRequest) {
-      const accountsTree = await this.registryTreeReader.getAccountsTree({
-        groupId,
-        account: source.identifier,
-        timestamp: groupTimestamp,
-      });
-
-      const registryTree = await this.registryTreeReader.getRegistryTree();
-
-      const claimedValue =
-        requestedValue === "USER_SELECTED_VALUE"
-          ? accountsTree.getValue(source.identifier)
-          : BigNumber.from(requestedValue);
-
-      const parsedComparator = "GTE" ? 0 : 1;
-
-      console.log("parsedComparator", parsedComparator);
-
-      const statementInput: StatementInput = {
-        value: BigNumber.from(claimedValue),
-        comparator: parsedComparator,
-        registryTree: registryTree,
-        accountsTree: accountsTree,
+      userParams["source"] = {
+        ...hydraS1Account,
+        verificationEnabled: true,
       };
 
-      const requestIdentifier = this.requestIdentifier({
-        appId,
-        groupId,
-        groupTimestamp,
-        namespace,
-      });
+      const isDataRequest =
+        namespace && groupId && groupTimestamp && requestedValue && comparator;
 
-      userParams = {
-        ...userParams,
-        statement: statementInput,
-        requestIdentifier: requestIdentifier,
-      };
+      if (isDataRequest) {
+        const accountsTree = await this.registryTreeReader.getAccountsTree({
+          groupId,
+          account: source.identifier,
+          timestamp: groupTimestamp,
+        });
+
+        const registryTree = await this.registryTreeReader.getRegistryTree();
+
+        const claimedValue =
+          requestedValue === "USER_SELECTED_VALUE"
+            ? accountsTree.getValue(source.identifier)
+            : BigNumber.from(requestedValue);
+
+        const parsedComparator = "GTE" ? 0 : 1;
+
+        console.log("parsedComparator", parsedComparator);
+
+        const statementInput: StatementInput = {
+          value: BigNumber.from(claimedValue),
+          comparator: parsedComparator,
+          registryTree: registryTree,
+          accountsTree: accountsTree,
+        };
+
+        const requestIdentifier = this.requestIdentifier({
+          appId,
+          groupId,
+          groupTimestamp,
+          namespace,
+        });
+
+        userParams["requestIdentifier"] = requestIdentifier;
+        userParams["statement"] = statementInput;
+      }
     }
 
     console.log("userParams", userParams);

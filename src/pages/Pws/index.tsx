@@ -201,7 +201,10 @@ export default function Pws(): JSX.Element {
     }
 
     async function getGroupMetadata() {
-      if (!params.dataRequest) return;
+      if (!params.dataRequest) {
+        setGroupMetadata(null);
+        return;
+      }
       try {
         const _groupId = params.dataRequest.statementRequests[0].groupId;
         const _timestamp =

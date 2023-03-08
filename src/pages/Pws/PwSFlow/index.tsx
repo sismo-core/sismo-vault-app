@@ -12,6 +12,8 @@ import { ZkConnectRequest } from "../../../libs/sismo-client/provers/types";
 import { AccountData } from "../../../libs/sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s1";
 import { ArrowLeft } from "phosphor-react";
+import { ZkConnectResponse } from "../../../libs/zk-connect/types";
+import { ZkConnectRequestHandler } from "../../../libs/zk-connect/request";
 
 const Container = styled.div`
   position: relative;
@@ -72,7 +74,11 @@ export default function PwSFlow({
     if (!zkConnectRequest) return;
 
     const testEligibility = async () => {
+      if (isDataRequest === false) {
+        return;
+      }
       try {
+        console.log("try eligibility");
         setLoadingEligible(true);
         const importedAccountIdentifiers = vault.importedAccounts.map(
           (account) => account.identifier
@@ -101,32 +107,35 @@ export default function PwSFlow({
   const redirect = (snarkProof?: SnarkProof) => {
     localStorage.removeItem("prove_referrer");
     let url = `${callbackUrl}`;
-    let pwsProof = null;
+    let zkConnectResponse: ZkConnectResponse = null;
     if (snarkProof) {
-      // pwsProof = {
-      //   appId: factoryApp.id,
-      //   serviceName: requestParams.namespace,
-      //   membershipProofs: [
-      //     {
-      //       proofId: snarkProof.input[6],
-      //       groupId: requestParams.targetGroup.groupId,
-      //       value: snarkProof.input[7],
-      //       timestamp: requestParams.targetGroup.timestamp,
-      //       additionalProperties: null,
-      //       provingScheme: "hydraS1",
-      //       version: "1.0.7",
-      //       proof: snarkProof,
-      //     },
-      //   ],
-      //   version: PWS_VERSION,
-      // };
-      url += `?pwsProof=${JSON.stringify(pwsProof)}`;
+      console.log("resolving snarkproof");
+      console.log("snarkproof", snarkProof);
+      zkConnectResponse = {
+        appId: factoryApp.id,
+        namespace: zkConnectRequest.namespace,
+        verifiableStatements: [
+          {
+            // proofId: snarkProof.input[6].toHexString(),
+            groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
+            value: snarkProof.input[7].toNumber(),
+            groupTimestamp:
+              zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
+            extraData: null,
+            provingScheme: "hydra-s1.1",
+            proof: snarkProof,
+          },
+        ],
+        version: PWS_VERSION,
+      };
+      console.log("zkConnectResponse", zkConnectResponse);
+      url += `?zkConnectResponse=${JSON.stringify(zkConnectResponse)}`;
     }
     if (window.opener) {
-      window.opener.postMessage(pwsProof, url); //If it's a popup, this will send a message to the opener which is here zkdrop.io
+      window.opener.postMessage(zkConnectResponse, url); //If it's a popup, this will send a message to the opener which is here zkdrop.io
       window.close(); //Close the popup
     } else {
-      //   window.location.href = url; //If it's not a popup return the proof in params or url
+      window.location.href = url; //If it's not a popup return the proof in params or url
     }
   };
 
@@ -165,7 +174,9 @@ export default function PwSFlow({
       }
     }
 
-    if (!eligibleAccountData && step === "GenerateZkProof") {
+    if (isDataRequest === false) {
+      setStep("GenerateZkProof");
+    } else if (!eligibleAccountData && step === "GenerateZkProof") {
       onStepChange("ImportEligibleAccount");
       return;
     }
@@ -210,6 +221,7 @@ export default function PwSFlow({
             factoryApp={factoryApp}
             referrerName={referrerName}
             referrerUrl={referrerUrl}
+            isDataRequest={isDataRequest}
             vaultSliderOpen={vaultSliderOpen}
             setVaultSliderOpen={setVaultSliderOpen}
             step={step}
@@ -225,6 +237,7 @@ export default function PwSFlow({
               <GenerateZkProof
                 zkConnectRequest={zkConnectRequest}
                 eligibleAccountData={eligibleAccountData}
+                isDataRequest={isDataRequest}
                 onNext={(proof) => {
                   setTimeout(() => {
                     redirect(proof);

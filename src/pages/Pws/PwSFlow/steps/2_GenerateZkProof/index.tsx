@@ -127,12 +127,14 @@ const LoadingFeedBack = styled(FeedBack)`
 type Props = {
   zkConnectRequest: ZkConnectRequest;
   eligibleAccountData: AccountData;
+  isDataRequest: boolean;
   onNext: (proof: SnarkProof) => void;
 };
 
 export default function GenerateZkProof({
   eligibleAccountData,
   zkConnectRequest,
+  isDataRequest,
   onNext,
 }: Props) {
   const vault = useVault();
@@ -145,26 +147,33 @@ export default function GenerateZkProof({
     setLoadingProof(true);
     setErrorProof(false);
     try {
-      const eligibleSourceAccount = vault.importedAccounts.find(
-        (_source) => _source.identifier === eligibleAccountData.identifier
-      );
-
+      let proofRequest: OffchainProofRequest;
       const owner = vault.owners[0];
       const vaultSecret = await vault.getVaultSecret(owner);
+      if (isDataRequest === false) {
+        proofRequest = {
+          appId: zkConnectRequest.appId,
+          vaultSecret: vaultSecret,
+        };
+      } else if (isDataRequest === true) {
+        const eligibleSourceAccount = vault.importedAccounts.find(
+          (_source) => _source.identifier === eligibleAccountData.identifier
+        );
 
-      const proofRequest: OffchainProofRequest = {
-        appId: zkConnectRequest.appId,
-        source: eligibleSourceAccount,
-        vaultSecret: vaultSecret,
-        namespace: zkConnectRequest.namespace,
-        groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
-        groupTimestamp:
-          zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
-        requestedValue:
-          zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
-        comparator:
-          zkConnectRequest.dataRequest.statementRequests[0].comparator,
-      };
+        proofRequest = {
+          appId: zkConnectRequest.appId,
+          source: eligibleSourceAccount,
+          vaultSecret: vaultSecret,
+          namespace: zkConnectRequest.namespace,
+          groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
+          groupTimestamp:
+            zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
+          requestedValue:
+            zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
+          comparator:
+            zkConnectRequest.dataRequest.statementRequests[0].comparator,
+        };
+      }
 
       const proof = await sismo.generateOffchainProof(proofRequest);
       setProof(proof);
