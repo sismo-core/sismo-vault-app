@@ -1,3 +1,5 @@
+import { buildPoseidon } from "@sismo-core/crypto";
+import { RegistryTree } from "./../attesters/hydraS1/types";
 import { ImportedAccount } from "../../vault-client";
 import {
   EddsaPublicKey,
@@ -9,6 +11,7 @@ import {
   UserParams,
   VaultInput,
   StatementInput,
+  KVMerkleTree,
 } from "@sismo-core/hydra-s1";
 import { OffchainRegistryTreeReader } from "../registry-tree-readers/offchain-registry-tree-reader";
 import { Cache } from "../caches";
@@ -19,9 +22,11 @@ import {
   AccountData,
   RequestIdentifierInputs,
   GetEligibilityInputs,
+  GroupTimestamp,
 } from "./types";
 import { Prover } from "./prover";
 import env from "../../../environment";
+import { overrideEligibleGroupDataFormatter } from "../../zk-connect/utils";
 
 export class HydraS1OffchainProver extends Prover {
   registryTreeReader: OffchainRegistryTreeReader;
@@ -40,6 +45,7 @@ export class HydraS1OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     comparator,
+    devModeOverrideEligibleGroupData,
   }: OffchainProofRequest): Promise<SnarkProof> {
     const commitmentMapperPubKey =
       env.sismoDestination.commitmentMapperPubKey.map((string) =>
@@ -60,6 +66,7 @@ export class HydraS1OffchainProver extends Prover {
       groupTimestamp,
       requestedValue,
       comparator,
+      devModeOverrideEligibleGroupData,
     });
 
     const proof = await prover.generateSnarkProof(userParams);
@@ -175,6 +182,28 @@ export class HydraS1OffchainProver extends Prover {
     return requestIdentifier;
   };
 
+  protected encodeAccountsTreeValue = (
+    groupId: string,
+    timestamp: number | "latest"
+  ): string => {
+    console.log("encodeAccountsTreeValue groupId", groupId);
+    console.log("encodeAccountsTreeValue timestamp", timestamp);
+    const encodedTimestamp =
+      timestamp === "latest"
+        ? BigNumber.from(ethers.utils.formatBytes32String("latest")).shr(128)
+        : BigNumber.from(timestamp);
+
+    const groupSnapshotId = ethers.utils.solidityPack(
+      ["uint128", "uint128"],
+      [groupId, encodedTimestamp]
+    );
+
+    const accountsTreeValue = BigNumber.from(groupSnapshotId)
+      .mod(SNARK_FIELD)
+      .toHexString();
+    return accountsTreeValue;
+  };
+
   protected async prepareSnarkProofRequest({
     appId,
     source,
@@ -184,6 +213,7 @@ export class HydraS1OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     comparator,
+    devModeOverrideEligibleGroupData,
   }: OffchainProofRequest): Promise<UserParams> {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
@@ -206,13 +236,35 @@ export class HydraS1OffchainProver extends Prover {
         namespace && groupId && groupTimestamp && requestedValue && comparator;
 
       if (hasDataRequested) {
-        const accountsTree = await this.registryTreeReader.getAccountsTree({
-          groupId,
-          account: source.identifier,
-          timestamp: groupTimestamp,
-        });
+        let accountsTree: KVMerkleTree;
+        let registryTree: KVMerkleTree;
+        if (!devModeOverrideEligibleGroupData) {
+          accountsTree = await this.registryTreeReader.getAccountsTree({
+            groupId,
+            account: source.identifier,
+            timestamp: groupTimestamp,
+          });
 
-        const registryTree = await this.registryTreeReader.getRegistryTree();
+          registryTree = await this.registryTreeReader.getRegistryTree();
+        } else {
+          const poseidon = await buildPoseidon();
+          accountsTree = new KVMerkleTree(
+            overrideEligibleGroupDataFormatter(
+              devModeOverrideEligibleGroupData
+            ),
+            poseidon,
+            20
+          );
+          const accountsTreeValue = this.encodeAccountsTreeValue(
+            groupId,
+            groupTimestamp
+          );
+          console.log("accountsTreeValue", accountsTreeValue);
+          const registryTreeData = {
+            [accountsTree.getRoot().toHexString()]: accountsTreeValue,
+          };
+          registryTree = new KVMerkleTree(registryTreeData, poseidon, 20);
+        }
 
         const claimedValue =
           requestedValue === "USER_SELECTED_VALUE"
@@ -220,8 +272,6 @@ export class HydraS1OffchainProver extends Prover {
             : BigNumber.from(requestedValue);
 
         const parsedComparator = "GTE" ? 0 : 1;
-
-        console.log("parsedComparator", parsedComparator);
 
         const statementInput: StatementInput = {
           value: BigNumber.from(claimedValue),

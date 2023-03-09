@@ -6,7 +6,7 @@ import WrongUrlScreen from "./components/WrongUrlScreen";
 import PwSFlow from "./PwSFlow";
 import axios from "axios";
 import * as Sentry from "@sentry/react";
-import { ZkConnectRequest } from "../../libs/sismo-client/provers/types";
+import { ZkConnectRequest } from "../../libs/zk-connect/types";
 
 const Container = styled.div`
   position: relative;

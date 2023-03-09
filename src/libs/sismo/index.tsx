@@ -48,6 +48,7 @@ export default function SismoProvider({
       groupTimestamp,
       requestedValue,
       comparator,
+      devModeOverrideEligibleGroupData,
     }: OffchainProofRequest) => {
       return client.generateOffchainProof({
         appId,
@@ -58,6 +59,7 @@ export default function SismoProvider({
         groupTimestamp,
         requestedValue,
         comparator,
+        devModeOverrideEligibleGroupData,
       });
     },
     [client]
@@ -70,6 +72,7 @@ export default function SismoProvider({
       groupTimestamp,
       comparator,
       requestedValue,
+      devModeOverrideEligibleGroupData,
     }: GetEligibilityInputs) => {
       return client.getEligibility({
         accounts,
@@ -77,6 +80,7 @@ export default function SismoProvider({
         groupTimestamp,
         comparator,
         requestedValue,
+        devModeOverrideEligibleGroupData,
       });
     },
     [client]

@@ -8,12 +8,13 @@ import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
 import { FactoryAppType, GroupMetadata, PWS_VERSION } from "..";
-import { ZkConnectRequest } from "../../../libs/sismo-client/provers/types";
 import { AccountData } from "../../../libs/sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s1";
 import { ArrowLeft } from "phosphor-react";
-import { ZkConnectResponse } from "../../../libs/zk-connect/types";
-import { ZkConnectRequestHandler } from "../../../libs/zk-connect/request";
+import {
+  ZkConnectRequest,
+  ZkConnectResponse,
+} from "../../../libs/zk-connect/types";
 import { BigNumber } from "ethers";
 
 const Container = styled.div`
@@ -93,6 +94,9 @@ export default function PwSFlow({
             zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
           comparator:
             zkConnectRequest.dataRequest.statementRequests[0].comparator,
+          devModeOverrideEligibleGroupData:
+            zkConnectRequest.dataRequest.statementRequests[0].extraData
+              ?.devModeOverrideEligibleGroupData,
         });
         setEligibleAccountData(accountData);
         setLoadingEligible(false);
@@ -132,9 +136,7 @@ export default function PwSFlow({
             value: BigNumber.from(snarkProof.input[7]).toNumber(),
             groupTimestamp:
               zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
-            comparator: BigNumber.from(
-              snarkProof.input[9]
-            ).eq(0)
+            comparator: BigNumber.from(snarkProof.input[9]).eq(0)
               ? "GTE"
               : "EQ",
             extraData: null,
@@ -224,6 +226,7 @@ export default function PwSFlow({
             factoryApp={factoryApp}
             referrerName={referrerName}
             groupMetadata={groupMetadata}
+            hasDataRequested={hasDataRequested}
             referrerUrl={referrerUrl}
             onNext={() => {
               setStep("ImportEligibleAccount");

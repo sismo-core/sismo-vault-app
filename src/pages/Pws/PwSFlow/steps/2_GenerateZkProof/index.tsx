@@ -12,7 +12,7 @@ import {
   OffchainProofRequest,
 } from "../../../../../libs/sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s1";
-import { ZkConnectRequest } from "../../../../../libs/sismo-client/provers/types";
+import { ZkConnectRequest } from "../../../../../libs/zk-connect/types";
 
 const Container = styled.div`
   display: flex;
@@ -172,6 +172,9 @@ export default function GenerateZkProof({
             zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
           comparator:
             zkConnectRequest.dataRequest.statementRequests[0].comparator,
+          devModeOverrideEligibleGroupData:
+            zkConnectRequest.dataRequest.statementRequests[0].extraData
+              ?.devModeOverrideEligibleGroupData,
         };
       }
 

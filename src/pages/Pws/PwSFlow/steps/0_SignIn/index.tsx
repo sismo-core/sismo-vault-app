@@ -123,6 +123,7 @@ type Props = {
   groupMetadata: GroupMetadata | null;
   referrerUrl: string;
   referrerName: string;
+  hasDataRequested: boolean;
   onNext: () => void;
 };
 
@@ -131,6 +132,7 @@ export default function SignIn({
   referrerName,
   referrerUrl,
   factoryApp,
+  hasDataRequested,
   onNext,
 }: Props) {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
@@ -201,13 +203,21 @@ export default function SignIn({
               </Link>
 
               {vault.isConnected ? (
-                <Button
-                  style={{ width: "100%" }}
-                  success
-                  onClick={() => onNext()}
-                >
-                  Connect O
-                </Button>
+                <>
+                  {!groupMetadata && hasDataRequested ? (
+                    <>Loading group metadata...</>
+                  ) : (
+                    <>
+                      <Button
+                        style={{ width: "100%" }}
+                        success
+                        onClick={() => onNext()}
+                      >
+                        Connect O
+                      </Button>
+                    </>
+                  )}
+                </>
               ) : (
                 <Button
                   style={{ width: "100%" }}

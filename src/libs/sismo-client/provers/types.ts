@@ -18,6 +18,7 @@ export type GetEligibilityInputs = {
   groupTimestamp: GroupTimestamp;
   requestedValue: RequestedValue;
   comparator: StatementComparator;
+  devModeOverrideEligibleGroupData?: { [accountIdentifier: string]: number };
 };
 
 export type OffchainProofRequest = {
@@ -29,30 +30,10 @@ export type OffchainProofRequest = {
   groupTimestamp?: GroupTimestamp;
   requestedValue?: RequestedValue;
   comparator?: StatementComparator;
+  devModeOverrideEligibleGroupData?: { [accountIdentifier: string]: number };
 };
 
 export type AccountData = {
   identifier: string;
   value: number;
-};
-
-export type StatementRequest = {
-  groupId: string;
-  groupTimestamp: GroupTimestamp; // default to "latest"
-  requestedValue: RequestedValue; // If "MAX" the max value inside the group should be selected. The user can select what he wants to reveal
-  comparator?: StatementComparator; // default to "GTE". , "EQ" . If requestedValue="MAX" comparator should be empty
-  provingScheme?: any;
-};
-
-export type DataRequest = {
-  statementRequests?: StatementRequest[];
-  operator?: LogicalOperator;
-};
-
-export type ZkConnectRequest = {
-  version: string;
-  appId: string;
-  namespace: string;
-  dataRequest?: DataRequest; // we can initiate a zkConnect without dataRequest
-  callbackPath?: string;
 };

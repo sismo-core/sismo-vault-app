@@ -1,12 +1,12 @@
-//testnets.zikies.io
+//app.sismo.io
 window.env = {
   name: "PROD_BETA",
   disabledSentry: false,
   vaultURL: "https://vault-beta-api.sismo.io",
-  hubApiUrl: "https://hub.staging.zikies.io",
-  factoryApiUrl: "https://factory-api.staging.zikies.io",
+  hubApiUrl: "https://hub.sismo.io",
+  factoryApiUrl: "https://factory-api.sismo.io",
   commitmentMapperUrl: "https://x93oogcd5e.execute-api.eu-west-1.amazonaws.com",
-  githubOauthClientId: "35b1e225b5f8f1401cc3",
+  githubOauthClientId: "ed165a166320d0676ccb",
   sismoDestination: {
     address: "0x0000000000000000000000000000000000515110",
     sec: 515110,

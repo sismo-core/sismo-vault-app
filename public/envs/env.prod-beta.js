@@ -3,7 +3,7 @@ window.env = {
   name: "PROD_BETA",
   disabledSentry: false,
   vaultURL: "https://vault-beta-api.sismo.io",
-  hubApiUrl: "https://hub.staging.zikies.io",
+  hubApiUrl: "https://hub.sismo.io",
   factoryApiUrl: "https://factory-api.sismo.io",
   commitmentMapperUrl: "https://x93oogcd5e.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "ed165a166320d0676ccb",
