@@ -259,7 +259,6 @@ export class HydraS1OffchainProver extends Prover {
             groupId,
             groupTimestamp
           );
-          console.log("accountsTreeValue", accountsTreeValue);
           const registryTreeData = {
             [accountsTree.getRoot().toHexString()]: accountsTreeValue,
           };

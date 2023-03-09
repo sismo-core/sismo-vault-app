@@ -13,7 +13,7 @@ export class OffchainRegistryTreeReader extends RegistryTreeReader {
   private _chunkedGroups: ChunkedGroups;
 
   constructor({ cache }: { cache: Cache }) {
-    super({ cache, attesterName: "hydra-s1-off-chain", chainName: "goerli" });
+    super({ cache, attesterName: "hydra-s1-off-chain", chainName: "gnosis" });
     this._chunkedGroups = new ChunkedGroups({ cache });
   }
 
