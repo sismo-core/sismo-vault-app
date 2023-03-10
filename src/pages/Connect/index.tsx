@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
-import PwSFlow from "./PwSFlow";
+import ConnectFlow from "./ConnectFlow";
 import axios from "axios";
 import * as Sentry from "@sentry/react";
 import { ZkConnectRequest } from "../../libs/zk-connect/types";
@@ -86,7 +86,7 @@ export type GroupMetadata = {
 
 export const PWS_VERSION = "off-chain-1";
 
-export default function Pws(): JSX.Element {
+export default function Connect(): JSX.Element {
   const [searchParams] = useSearchParams();
   const [factoryApp, setFactoryApp] = useState<FactoryAppType>(null);
   const [zkConnectRequest, setZkConnectRequest] =
@@ -96,7 +96,10 @@ export default function Pws(): JSX.Element {
   const [referrerUrl, setReferrerUrl] = useState(null);
   const [referrerName, setReferrerName] = useState("");
   const [callbackUrl, setCallbackUrl] = useState(null);
-  const [isWrongUrl, setIsWrongUrl] = useState(null);
+  const [isWrongUrl, setIsWrongUrl] = useState({
+    status: null,
+    message: null,
+  });
 
   const getReferrer = (): string => {
     if (!document?.referrer) {
@@ -153,10 +156,25 @@ export default function Pws(): JSX.Element {
 
     params.namespace = params.namespace || "main";
 
-    if (!_version || !_appId || !params.namespace) {
-      console.log("wrong url");
-      console.log(_version, _appId, _namespace);
-      setIsWrongUrl(true);
+    if (!_version) {
+      setIsWrongUrl({
+        status: true,
+        message: "Invalid version query parameter: " + _version,
+      });
+      return;
+    }
+    if (!_appId) {
+      setIsWrongUrl({
+        status: true,
+        message: "Invalid appId query parameter: " + _appId,
+      });
+      return;
+    }
+    if (!params.namespace) {
+      setIsWrongUrl({
+        status: true,
+        message: "Invalid namespace query parameter: " + params.namespace,
+      });
       return;
     }
 
@@ -195,7 +213,10 @@ export default function Pws(): JSX.Element {
         setCallbackUrl(_callbackUrl + (_callbackPath ? _callbackPath : ""));
       } catch (e) {
         console.log("Referrer error");
-        setIsWrongUrl(true);
+        setIsWrongUrl({
+          status: true,
+          message: "Invalid referrer: " + document.referrer,
+        });
         Sentry.captureException(e);
       }
     }
@@ -239,8 +260,10 @@ export default function Pws(): JSX.Element {
 
         setGroupMetadata(_groupMetadata);
       } catch (e) {
-        console.log("TargetGroup error");
-        setIsWrongUrl(true);
+        setIsWrongUrl({
+          status: true,
+          message: "Invalid Statement request: " + e,
+        });
         Sentry.captureException(e);
         console.error(e);
       }
@@ -279,7 +302,10 @@ export default function Pws(): JSX.Element {
         setFactoryApp(factoryApp.data);
       } catch (e) {
         console.log("Factory app error");
-        setIsWrongUrl(true);
+        setIsWrongUrl({
+          status: true,
+          message: "Invalid appId: " + _appId,
+        });
         Sentry.captureException(e);
         console.error(e);
       }
@@ -295,9 +321,9 @@ export default function Pws(): JSX.Element {
     <Container>
       <ContentContainer>
         {isWrongUrl ? (
-          <WrongUrlScreen callbackUrl={callbackUrl} />
+          <WrongUrlScreen callbackUrl={callbackUrl} isWrongUrl={isWrongUrl} />
         ) : (
-          <PwSFlow
+          <ConnectFlow
             factoryApp={factoryApp}
             hasDataRequested={hasDataRequested}
             zkConnectRequest={zkConnectRequest}

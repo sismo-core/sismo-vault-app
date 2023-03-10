@@ -54,7 +54,7 @@ type Props = {
   referrerName: string;
 };
 
-export default function PwSFlow({
+export default function ConnectFlow({
   factoryApp,
   zkConnectRequest,
   hasDataRequested,
