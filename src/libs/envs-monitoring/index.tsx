@@ -22,7 +22,6 @@ export default function EnvsMonitoring({
       );
 
       setCommitmentMapperPubKey(dataMapper.commitmentMapperPubKey);
-      console.log("commitmentMapperPubKey", dataMapper.commitmentMapperPubKey);
       (window as any).env = {
         ...env,
         //synapsPubKey: commitmentSignerSynapsPubKey,

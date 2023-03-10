@@ -202,12 +202,15 @@ export default function Pages(): JSX.Element {
         <Notifications />
         <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* <Route path="/" element={<Home />} /> */}
           <Route path="/connect" element={<Pws />} />
 
           <Route path="/redirect" element={<Redirect />} />
 
-          {/* <Route path="*" element={<Navigate to={`/`} replace={true} />} /> */}
+          <Route
+            path="*"
+            element={<Navigate to={`/connect`} replace={true} />}
+          />
         </Routes>
       </BrowserRouter>
     </>

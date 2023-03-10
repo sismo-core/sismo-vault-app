@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 import env from "../../environment";
 import {
@@ -26,6 +27,8 @@ import { useVaultState } from "./useVaultState";
 import { getSeedActiveSession } from "./utils/getSeedActiveSession";
 import { LocalStore } from "../vault-client/stores/local-store";
 import { VaultClientDemo } from "../vault-client/client/client-demo";
+import { demoOwner } from "../vault-client/client/client-demo.mock";
+import { CommitmentMapperDemo } from "../vault-client/commitment-mapper/commitment-mapper.demo";
 
 type ReactVault = {
   mnemonics: string[];
@@ -103,9 +106,8 @@ export default function SismoVaultProvider({
   }, [vaultUrl]);
   const vaultState = useVaultState();
 
-  const connect = async (owner: Owner): Promise<boolean> => {
+  const connect = useCallback(async (owner: Owner): Promise<boolean> => {
     const vault = await vaultClient.load(owner.seed);
-    console.log("vault connected", vault);
     if (!vault) return false;
     await Promise.all([
       vaultState.updateConnectedOwner(owner),
@@ -115,7 +117,7 @@ export default function SismoVaultProvider({
       createActiveSession(owner, 24 * 30 * 24);
     }
     return true;
-  };
+  }, []);
 
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
   useEffect(() => {
@@ -313,21 +315,24 @@ export default function SismoVaultProvider({
     await vaultState.reset();
   };
 
+  // Connect to vault on demo mode
   useEffect(() => {
-    if (vaultClient) {
-      connect({
-        // TODO FILL
+    if (vaultClient && env.name === "DEMO") {
+      connect(demoOwner);
+    }
+  }, [connect, vaultClient]);
+
+  const commitmentMapper = useMemo(() => {
+    if (env.name === "DEMO") {
+      return new CommitmentMapperDemo({
+        url: env.commitmentMapperUrl,
       });
     }
-  }, [vaultClient]);
 
-  const commitmentMapper = useMemo(
-    () =>
-      new CommitmentMapper({
-        url: env.commitmentMapperUrl,
-      }),
-    []
-  );
+    new CommitmentMapper({
+      url: env.commitmentMapperUrl,
+    });
+  }, []);
 
   return (
     <SismoVaultContext.Provider

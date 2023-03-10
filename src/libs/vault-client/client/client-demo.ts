@@ -1,5 +1,10 @@
 import { VaultClient } from "./client";
 import { ImportedAccount, Owner, RecoveryKey, Vault } from "./client.types";
+import { demoVault } from "./client-demo.mock";
+import {
+  commitmentMapperPubKeyDemo,
+  commitmentReceiptDemo,
+} from "../commitment-mapper/commitment-mapper.mock";
 
 const demoRecoveryKey: RecoveryKey = {
   key: "demo",
@@ -27,7 +32,7 @@ export class VaultClientDemo extends VaultClient {
   /*****************************************************************/
 
   public async getVaultSecret(owner: Owner): Promise<string> {
-    return "demo";
+    return "0x000";
   }
 
   /*****************************************************************/
@@ -78,6 +83,19 @@ export class VaultClientDemo extends VaultClient {
   }
 
   public async addOwner(owner: Owner, ownerAdded: Owner): Promise<Vault> {
+    demoVault.owners.push(ownerAdded);
+
+    const _importedAccount: ImportedAccount = {
+      identifier: ownerAdded.identifier,
+      seed: ownerAdded.seed,
+      commitmentReceipt: commitmentReceiptDemo,
+      commitmentMapperPubKey: commitmentMapperPubKeyDemo,
+      type: "ethereum",
+      timestamp: Date.now(),
+    };
+
+    demoVault.importedAccounts.push(_importedAccount);
+
     return demoVault;
   }
 
