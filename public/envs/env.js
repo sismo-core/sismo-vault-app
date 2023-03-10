@@ -1,6 +1,6 @@
 //app.sismo.io
 window.env = {
-  name: "PROD_BETA",
+  name: "DEMO",
   disabledSentry: false,
   vaultURL: "https://vault-beta-api.sismo.io",
   hubApiUrl: "https://hub.sismo.io",

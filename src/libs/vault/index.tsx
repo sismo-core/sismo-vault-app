@@ -24,6 +24,8 @@ import {
 import { AwsStore } from "../vault-client/stores/aws-store";
 import { useVaultState } from "./useVaultState";
 import { getSeedActiveSession } from "./utils/getSeedActiveSession";
+import { LocalStore } from "../vault-client/stores/local-store";
+import { VaultClientDemo } from "../vault-client/client/client-demo";
 
 type ReactVault = {
   mnemonics: string[];
@@ -92,6 +94,11 @@ export default function SismoVaultProvider({
   const vaultClient = useMemo(() => {
     if (!vaultUrl) return;
     const awsStore = new AwsStore({ vaultUrl: vaultUrl });
+    if (env.name === "DEMO") {
+      const localStore = new LocalStore();
+      const vault = new VaultClientDemo(localStore);
+      return vault;
+    }
     return new VaultClient(awsStore);
   }, [vaultUrl]);
   const vaultState = useVaultState();
@@ -305,6 +312,14 @@ export default function SismoVaultProvider({
     await vaultClient.delete(owner);
     await vaultState.reset();
   };
+
+  useEffect(() => {
+    if (vaultClient) {
+      connect({
+        // TODO FILL
+      });
+    }
+  }, [vaultClient]);
 
   const commitmentMapper = useMemo(
     () =>

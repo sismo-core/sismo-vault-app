@@ -1,5 +1,5 @@
 type Environment = {
-  name: "LOCAL" | "STAGING_BETA" | "PROD_BETA";
+  name: "LOCAL" | "DEMO" | "PROD_BETA" | "STAGING_BETA";
   sentryReleaseName: string;
   disabledSentry: boolean;
   vaultURL: string;
