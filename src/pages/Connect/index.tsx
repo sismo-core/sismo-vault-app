@@ -308,7 +308,7 @@ export default function Connect(): JSX.Element {
   return (
     <Container>
       <ContentContainer>
-        {isWrongUrl ? (
+        {isWrongUrl?.status ? (
           <WrongUrlScreen callbackUrl={callbackUrl} isWrongUrl={isWrongUrl} />
         ) : (
           <ConnectFlow
