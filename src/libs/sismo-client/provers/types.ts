@@ -1,7 +1,6 @@
 import { ImportedAccount } from "../../vault-client";
+import { StatementComparator } from "@sismo-core/zk-connect-client";
 
-export type LogicalOperator = "AND" | "OR";
-export type StatementComparator = "GTE" | "EQ";
 export type RequestedValue = number | "USER_SELECTED_VALUE";
 export type GroupTimestamp = number | "latest";
 

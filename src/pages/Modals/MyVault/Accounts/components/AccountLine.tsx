@@ -57,16 +57,6 @@ const Action = styled.div`
   }
 `;
 
-const IconWrapper = styled.div`
-  width: 25px;
-  height: 25px;
-  border-radius: 5px;
-  border: 1px solid transparent;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
 type Props = {
   account: ImportedAccount;
   isSelected: boolean;

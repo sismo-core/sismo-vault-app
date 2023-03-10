@@ -1,5 +1,4 @@
 import { buildPoseidon } from "@sismo-core/crypto";
-import { RegistryTree } from "./../attesters/hydraS1/types";
 import { ImportedAccount } from "../../vault-client";
 import {
   EddsaPublicKey,
@@ -22,7 +21,6 @@ import {
   AccountData,
   RequestIdentifierInputs,
   GetEligibilityInputs,
-  GroupTimestamp,
 } from "./types";
 import { Prover } from "./prover";
 import env from "../../../environment";
@@ -186,8 +184,6 @@ export class HydraS1OffchainProver extends Prover {
     groupId: string,
     timestamp: number | "latest"
   ): string => {
-    console.log("encodeAccountsTreeValue groupId", groupId);
-    console.log("encodeAccountsTreeValue timestamp", timestamp);
     const encodedTimestamp =
       timestamp === "latest"
         ? BigNumber.from(ethers.utils.formatBytes32String("latest")).shr(128)
@@ -219,6 +215,13 @@ export class HydraS1OffchainProver extends Prover {
       secret: BigNumber.from(vaultSecret),
       namespace: appId,
     };
+
+    // Return only the vault input if we are in demo mode
+    if (env.name === "DEMO") {
+      return {
+        vault: vaultInput,
+      };
+    }
 
     let userParams: UserParams = {
       vault: vaultInput,
@@ -291,7 +294,6 @@ export class HydraS1OffchainProver extends Prover {
       }
     }
 
-    console.log("userParams", userParams);
     return userParams;
   }
 }

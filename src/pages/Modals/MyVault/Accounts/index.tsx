@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Badge, MintedBadge } from "../../../../libs/sismo-client";
+import { Badge } from "../../../../libs/sismo-client";
 import MyVaultContainer from "../components/MyVaultContainer";
 import { ImportedAccount } from "../../../../libs/vault-client";
 import ImportedAccounts from "./components/ImportedAccounts";

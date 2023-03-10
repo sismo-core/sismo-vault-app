@@ -6,7 +6,7 @@ import WrongUrlScreen from "./components/WrongUrlScreen";
 import ConnectFlow from "./ConnectFlow";
 import axios from "axios";
 import * as Sentry from "@sentry/react";
-import { ZkConnectRequest } from "../../libs/zk-connect/types";
+import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 
 const Container = styled.div`
   position: relative;
@@ -125,7 +125,7 @@ export default function Connect(): JSX.Element {
     const params = {
       version: _version,
       appId: _appId,
-      dataRequest: JSON.parse(_dataRequest),
+      claim: JSON.parse(_dataRequest),
       namespace: _namespace,
       callbackPath: _callbackPath,
     } as ZkConnectRequest;
@@ -189,7 +189,6 @@ export default function Connect(): JSX.Element {
       try {
         const referrer = getReferrer();
         if (referrer) {
-          console.log("referrer", referrer);
           const referrerUrl = new URL(referrer);
           _callbackUrl =
             referrerUrl.protocol +
@@ -279,16 +278,6 @@ export default function Connect(): JSX.Element {
           (domain: string) => {
             const domainName = domain.split(".")[domain.split(".").length - 2];
             const TLD = domain.split(".")[domain.split(".").length - 1];
-            console.log(
-              "domain;",
-              domainName,
-              "referrer:",
-              _referrerName,
-              "authTld:",
-              TLD,
-              "refTLD:",
-              _TLD
-            );
             if (domainName === "*") return true;
             if (domainName === _referrerName && TLD === _TLD) return true;
             return false;
@@ -301,7 +290,6 @@ export default function Connect(): JSX.Element {
 
         setFactoryApp(factoryApp.data);
       } catch (e) {
-        console.log("Factory app error");
         setIsWrongUrl({
           status: true,
           message: "Invalid appId: " + _appId,
@@ -320,7 +308,7 @@ export default function Connect(): JSX.Element {
   return (
     <Container>
       <ContentContainer>
-        {isWrongUrl ? (
+        {isWrongUrl?.status ? (
           <WrongUrlScreen callbackUrl={callbackUrl} isWrongUrl={isWrongUrl} />
         ) : (
           <ConnectFlow

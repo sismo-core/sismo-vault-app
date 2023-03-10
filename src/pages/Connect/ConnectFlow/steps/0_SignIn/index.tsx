@@ -3,9 +3,7 @@ import styled from "styled-components";
 import Button from "../../../../../components/Button";
 import { useVault } from "../../../../../libs/vault";
 import HeaderTitle from "../../components/HeaderTitle";
-import MintSchema from "./components/MintSchema";
-import { ArrowsOutSimple, ArrowSquareOut } from "phosphor-react";
-import colors from "../../../../../theme/colors";
+import { ArrowSquareOut } from "phosphor-react";
 import { capitalizeFirstLetter } from "../../../../../utils/capitalizeFirstLetter";
 import ConnectVaultModal from "../../../../Modals/ConnectVaultModal";
 import { FactoryAppType, GroupMetadata } from "../../..";
@@ -75,23 +73,6 @@ const SecondLine = styled.div`
 
 const Bold = styled.span`
   font-family: ${(props) => props.theme.fonts.bold};
-`;
-
-const EligibilityLink = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  font-size: 14px;
-  line-height: 20px;
-  font-family: ${(props) => props.theme.fonts.medium};
-  color: ${(props) => props.theme.colors.blue2};
-  gap: 5px;
-`;
-
-const ArrowWrapper = styled(ArrowsOutSimple)`
-  align-self: flex-start;
 `;
 
 const ButtonGroup = styled.div`

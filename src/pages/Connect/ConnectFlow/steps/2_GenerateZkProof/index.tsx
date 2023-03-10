@@ -12,7 +12,7 @@ import {
   OffchainProofRequest,
 } from "../../../../../libs/sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s1";
-import { ZkConnectRequest } from "../../../../../libs/zk-connect/types";
+import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 
 const Container = styled.div`
   display: flex;

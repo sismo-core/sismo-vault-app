@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import ConnectVaultModal from "../Modals/ConnectVaultModal";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useVault } from "../../libs/vault";
 
 const Container = styled.div``;
@@ -8,15 +8,6 @@ const Container = styled.div``;
 export default function Home() {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
   const vault = useVault();
-
-  // useEffect(() => {
-  //   if (vault.isConnected) {
-  //     setConnectIsOpen(false);
-  //   }
-  //   if(!vault.isConnected) {
-  //     setConnectIsOpen(true);
-  //   }
-  // }, [vault.isConnected]);
 
   return (
     <>

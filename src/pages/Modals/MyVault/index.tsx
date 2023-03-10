@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import styled from "styled-components";
 import PageContainer from "../../../components/PageContainer";
 import Accounts from "./Accounts";
@@ -6,11 +6,9 @@ import { useMyVault } from "./Provider";
 import Settings from "./Settings";
 import Menu from "./components/Menu";
 import Icon, { IconProps } from "../../../components/Icon";
-import env from "../../../environment";
 import More from "./More";
 import { ArrowLeft } from "phosphor-react";
 import { useMainScrollManager } from "../../../libs/main-scroll-manager";
-import { useVault } from "../../../libs/vault";
 
 const Container = styled.div`
   width: 100vw;
@@ -124,12 +122,6 @@ export default function MyVaultModal() {
   const myVault = useMyVault();
   const state = useMyVault();
   const { disabledScroll, enabledScroll } = useMainScrollManager();
-
-  const vault = useVault();
-
-  useEffect(() => {
-    console.log("myVault", vault);
-  }, [vault]);
 
   useEffect(() => {
     if (state.isOpen) {

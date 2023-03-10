@@ -30,15 +30,6 @@ const LeftFixed = styled.div`
   }
 `;
 
-const Right = styled.div`
-  width: calc(100% - 520px);
-  min-width: calc(100% - 520px);
-  @media (max-width: 1450px) {
-    min-width: 100%;
-    width: 100%;
-  }
-`;
-
 type Props = {
   left: ReactNode;
 };

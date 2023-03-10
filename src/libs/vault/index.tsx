@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 import env from "../../environment";
 import {
@@ -24,6 +25,10 @@ import {
 import { AwsStore } from "../vault-client/stores/aws-store";
 import { useVaultState } from "./useVaultState";
 import { getSeedActiveSession } from "./utils/getSeedActiveSession";
+import { LocalStore } from "../vault-client/stores/local-store";
+import { VaultClientDemo } from "../vault-client/client/client-demo";
+import { demoOwner } from "../vault-client/client/client-demo.mock";
+import { CommitmentMapperDemo } from "../vault-client/commitment-mapper/commitment-mapper.demo";
 
 type ReactVault = {
   mnemonics: string[];
@@ -92,13 +97,17 @@ export default function SismoVaultProvider({
   const vaultClient = useMemo(() => {
     if (!vaultUrl) return;
     const awsStore = new AwsStore({ vaultUrl: vaultUrl });
+    if (env.name === "DEMO") {
+      const localStore = new LocalStore();
+      const vault = new VaultClientDemo(localStore);
+      return vault;
+    }
     return new VaultClient(awsStore);
   }, [vaultUrl]);
   const vaultState = useVaultState();
 
-  const connect = async (owner: Owner): Promise<boolean> => {
+  const connect = useCallback(async (owner: Owner): Promise<boolean> => {
     const vault = await vaultClient.load(owner.seed);
-    console.log("vault connected", vault);
     if (!vault) return false;
     await Promise.all([
       vaultState.updateConnectedOwner(owner),
@@ -108,7 +117,8 @@ export default function SismoVaultProvider({
       createActiveSession(owner, 24 * 30 * 24);
     }
     return true;
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
   useEffect(() => {
@@ -306,13 +316,24 @@ export default function SismoVaultProvider({
     await vaultState.reset();
   };
 
-  const commitmentMapper = useMemo(
-    () =>
-      new CommitmentMapper({
+  // Connect to vault on demo mode
+  useEffect(() => {
+    if (vaultClient && env.name === "DEMO") {
+      connect(demoOwner);
+    }
+  }, [connect, vaultClient]);
+
+  const commitmentMapper = useMemo(() => {
+    if (env.name === "DEMO") {
+      return new CommitmentMapperDemo({
         url: env.commitmentMapperUrl,
-      }),
-    []
-  );
+      });
+    }
+
+    new CommitmentMapper({
+      url: env.commitmentMapperUrl,
+    });
+  }, []);
 
   return (
     <SismoVaultContext.Provider
