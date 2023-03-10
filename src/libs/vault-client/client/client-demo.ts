@@ -1,10 +1,6 @@
 import { VaultClient } from "./client";
 import { ImportedAccount, Owner, RecoveryKey, Vault } from "./client.types";
 
-const demoVault: Vault = {
-  // TO FILL
-};
-
 const demoRecoveryKey: RecoveryKey = {
   key: "demo",
   mnemonic: "demo",
