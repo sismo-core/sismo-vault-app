@@ -165,14 +165,15 @@ export default function GenerateZkProof({
           source: eligibleSourceAccount,
           vaultSecret: vaultSecret,
           namespace: zkConnectRequest.namespace,
-          groupId: zkConnectRequest.claim.statementRequests[0].groupId,
+          groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
           groupTimestamp:
-            zkConnectRequest.claim.statementRequests[0].groupTimestamp,
+            zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
           requestedValue:
-            zkConnectRequest.claim.statementRequests[0].requestedValue,
-          comparator: zkConnectRequest.claim.statementRequests[0].comparator,
+            zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
+          comparator:
+            zkConnectRequest.dataRequest.statementRequests[0].comparator,
           devModeOverrideEligibleGroupData:
-            zkConnectRequest.claim.statementRequests[0].extraData
+            zkConnectRequest.dataRequest.statementRequests[0].extraData
               ?.devModeOverrideEligibleGroupData,
         };
       }

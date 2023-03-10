@@ -86,14 +86,15 @@ export default function ConnectFlow({
         );
         const accountData = await sismo.getEligibility({
           accounts: importedAccountIdentifiers,
-          groupId: zkConnectRequest.claim.statementRequests[0].groupId,
+          groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
           groupTimestamp:
-            zkConnectRequest.claim.statementRequests[0].groupTimestamp,
+            zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
           requestedValue:
-            zkConnectRequest.claim.statementRequests[0].requestedValue,
-          comparator: zkConnectRequest.claim.statementRequests[0].comparator,
+            zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
+          comparator:
+            zkConnectRequest.dataRequest.statementRequests[0].comparator,
           devModeOverrideEligibleGroupData:
-            zkConnectRequest.claim.statementRequests[0].extraData
+            zkConnectRequest.dataRequest.statementRequests[0].extraData
               ?.devModeOverrideEligibleGroupData,
         });
         setEligibleAccountData(accountData);
@@ -128,10 +129,10 @@ export default function ConnectFlow({
         zkConnectResponse.verifiableStatements = [
           {
             // proofId: snarkProof.input[6].toHexString(),
-            groupId: zkConnectRequest.claim.statementRequests[0].groupId,
+            groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
             value: BigNumber.from(snarkProof.input[7]).toNumber(),
             groupTimestamp:
-              zkConnectRequest.claim.statementRequests[0].groupTimestamp,
+              zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
             comparator: BigNumber.from(snarkProof.input[9]).eq(0)
               ? "GTE"
               : "EQ",

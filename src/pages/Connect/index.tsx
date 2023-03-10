@@ -130,25 +130,28 @@ export default function Connect(): JSX.Element {
       callbackPath: _callbackPath,
     } as ZkConnectRequest;
 
-    if (!params.claim) {
+    if (!params.dataRequest) {
       setIsDataRequest(false);
     }
 
-    if (params.claim) {
+    if (params.dataRequest) {
       setIsDataRequest(true);
-      params.claim.statementRequests[0].groupTimestamp =
-        typeof params.claim.statementRequests[0].groupTimestamp === "undefined"
+      params.dataRequest.statementRequests[0].groupTimestamp =
+        typeof params.dataRequest.statementRequests[0].groupTimestamp ===
+        "undefined"
           ? "latest"
-          : params.claim.statementRequests[0].groupTimestamp;
-      params.claim.statementRequests[0].requestedValue =
-        typeof params.claim.statementRequests[0].requestedValue === "undefined"
+          : params.dataRequest.statementRequests[0].groupTimestamp;
+      params.dataRequest.statementRequests[0].requestedValue =
+        typeof params.dataRequest.statementRequests[0].requestedValue ===
+        "undefined"
           ? 1
-          : params.claim.statementRequests[0].requestedValue;
+          : params.dataRequest.statementRequests[0].requestedValue;
 
-      params.claim.statementRequests[0].comparator =
-        typeof params.claim.statementRequests[0].comparator === "undefined"
+      params.dataRequest.statementRequests[0].comparator =
+        typeof params.dataRequest.statementRequests[0].comparator ===
+        "undefined"
           ? "GTE"
-          : params.claim.statementRequests[0].comparator;
+          : params.dataRequest.statementRequests[0].comparator;
     }
 
     params.namespace = params.namespace || "main";
@@ -218,13 +221,14 @@ export default function Connect(): JSX.Element {
     }
 
     async function getGroupMetadata() {
-      if (!params.claim) {
+      if (!params.dataRequest) {
         setGroupMetadata(null);
         return;
       }
       try {
-        const _groupId = params.claim.statementRequests[0].groupId;
-        const _timestamp = params.claim.statementRequests[0].groupTimestamp;
+        const _groupId = params.dataRequest.statementRequests[0].groupId;
+        const _timestamp =
+          params.dataRequest.statementRequests[0].groupTimestamp;
 
         const groupsSnapshotMetadata = await axios.get(
           `${env.hubApiUrl}/group-snapshots/${_groupId}?timestamp=${_timestamp}`
