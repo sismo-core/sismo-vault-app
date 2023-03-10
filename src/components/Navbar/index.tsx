@@ -232,6 +232,10 @@ export default function Navbar(): JSX.Element {
                   `
                       Beta
                     `}
+                {env.name === "DEMO" &&
+                  `
+                      Demo
+                    `}
               </Tag>
             </Logo>
           </Section>
