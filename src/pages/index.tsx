@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Notifications from "../components/Notifications";
 import { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
@@ -11,7 +11,7 @@ import GenerateRecoveryKeyModal from "./Modals/GenerateRecoveryKey";
 import Redirect from "./Redirect";
 import LoadingScreen from "../components/LoadingScreen";
 import AlphaNotification from "../components/ZikiNotification";
-import Pws from "./Pws";
+import Connect from "./Connect";
 import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
 
@@ -203,7 +203,7 @@ export default function Pages(): JSX.Element {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/connect" element={<Pws />} />
+          <Route path="/connect" element={<Connect />} />
 
           <Route path="/redirect" element={<Redirect />} />
 
