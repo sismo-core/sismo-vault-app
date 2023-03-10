@@ -98,7 +98,7 @@
   "lint-staged": {
     "src/**/*": "prettier --write --ignore-unknown",
     "src/**/*.{ts,tsx,js,jsx}": [
-      "eslint src --max-warnings=200"
+      "eslint src --max-warnings=0"
     ]
   }
 }

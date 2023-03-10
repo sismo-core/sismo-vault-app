@@ -80,7 +80,6 @@ export default function ConnectFlow({
         return;
       }
       try {
-        console.log("try eligibility");
         setLoadingEligible(true);
         const importedAccountIdentifiers = vault.importedAccounts.map(
           (account) => account.identifier
@@ -114,8 +113,6 @@ export default function ConnectFlow({
     let url = `${callbackUrl}`;
     let zkConnectResponse: ZkConnectResponse = null;
     if (snarkProof) {
-      console.log("resolving snarkproof");
-      console.log("snarkproof", snarkProof);
       zkConnectResponse = {
         appId: factoryApp.id,
         namespace: zkConnectRequest.namespace,
@@ -146,7 +143,6 @@ export default function ConnectFlow({
         ];
       }
       zkConnectResponse["version"] = PWS_VERSION;
-      console.log("zkConnectResponse", zkConnectResponse);
       url += `?zkConnectResponse=${JSON.stringify(zkConnectResponse)}`;
     }
     if (window.opener) {

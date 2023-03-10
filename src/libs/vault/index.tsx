@@ -117,6 +117,7 @@ export default function SismoVaultProvider({
       createActiveSession(owner, 24 * 30 * 24);
     }
     return true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);

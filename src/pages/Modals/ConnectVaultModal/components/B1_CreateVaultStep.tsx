@@ -150,8 +150,6 @@ export default function CreateVaultStep({
 
     const vaultSecret = await vault.getVaultSecret(owner);
 
-    console.log("vaultSecret", vaultSecret);
-
     const { commitmentReceipt, commitmentMapperPubKey } =
       await vault.commitmentMapper.getEthereumCommitmentReceipt(
         identifier,

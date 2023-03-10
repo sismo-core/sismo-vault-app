@@ -14,6 +14,7 @@ import AlphaNotification from "../components/ZikiNotification";
 import Connect from "./Connect";
 import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
+import { Navigate } from "react-router-dom";
 
 export default function Pages(): JSX.Element {
   const [githubCode, setGithubCode] = useState(null);
@@ -202,15 +203,15 @@ export default function Pages(): JSX.Element {
         <Notifications />
         <Navbar />
         <Routes>
-          {/* <Route path="/" element={<Home />} /> */}
+          <Route path="/" element={<Home />} />
           <Route path="/connect" element={<Connect />} />
 
           <Route path="/redirect" element={<Redirect />} />
 
-          {/* <Route
+          <Route
             path="*"
             element={<Navigate to={`/connect`} replace={true} />}
-          /> */}
+          />
         </Routes>
       </BrowserRouter>
     </>

@@ -6,7 +6,6 @@ import { VaultProvider } from "../provider/provider";
 import { BaseStore } from "../stores/base-store";
 import { SismoWallet, WalletPurpose } from "../wallet";
 import { RecoveryKey, Vault } from "./client.types";
-import { buildPoseidon } from "@sismo-core/crypto";
 import SHA3 from "sha3";
 import { BigNumber } from "ethers";
 import { SNARK_FIELD } from "@sismo-core/hydra-s1";
@@ -70,8 +69,6 @@ export class VaultClient {
   public async getVaultSecret(owner: Owner): Promise<string> {
     const currentVault = await this.get(owner.seed);
     if (!currentVault) throw new Error("No vault found on this owner");
-
-    console.log("currentVault", currentVault);
     const mnemonic = currentVault.mnemonics[0];
     const hash = new SHA3(256);
     const vaultSecret = BigNumber.from(
@@ -79,8 +76,6 @@ export class VaultClient {
     )
       .mod(SNARK_FIELD)
       .toHexString();
-
-    console.log("vaultSecret", vaultSecret);
     return vaultSecret;
   }
 

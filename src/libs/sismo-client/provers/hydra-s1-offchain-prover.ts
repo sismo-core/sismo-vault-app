@@ -1,5 +1,4 @@
 import { buildPoseidon } from "@sismo-core/crypto";
-import { RegistryTree } from "./../attesters/hydraS1/types";
 import { ImportedAccount } from "../../vault-client";
 import {
   EddsaPublicKey,
@@ -22,7 +21,6 @@ import {
   AccountData,
   RequestIdentifierInputs,
   GetEligibilityInputs,
-  GroupTimestamp,
 } from "./types";
 import { Prover } from "./prover";
 import env from "../../../environment";

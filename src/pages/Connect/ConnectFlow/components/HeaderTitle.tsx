@@ -18,12 +18,6 @@ const TitleLarge = styled.span`
   font-family: ${(props) => props.theme.fonts.logo};
 `;
 
-const TitleSmall = styled.span`
-  font-size: 24px;
-  line-height: 32px;
-  font-family: ${(props) => props.theme.fonts.logoRegular};
-`;
-
 const Subtitle = styled.div`
   font-size: 12px;
   line-height: 14px;

@@ -189,7 +189,6 @@ export default function Connect(): JSX.Element {
       try {
         const referrer = getReferrer();
         if (referrer) {
-          console.log("referrer", referrer);
           const referrerUrl = new URL(referrer);
           _callbackUrl =
             referrerUrl.protocol +
@@ -279,16 +278,6 @@ export default function Connect(): JSX.Element {
           (domain: string) => {
             const domainName = domain.split(".")[domain.split(".").length - 2];
             const TLD = domain.split(".")[domain.split(".").length - 1];
-            console.log(
-              "domain;",
-              domainName,
-              "referrer:",
-              _referrerName,
-              "authTld:",
-              TLD,
-              "refTLD:",
-              _TLD
-            );
             if (domainName === "*") return true;
             if (domainName === _referrerName && TLD === _TLD) return true;
             return false;
@@ -301,7 +290,6 @@ export default function Connect(): JSX.Element {
 
         setFactoryApp(factoryApp.data);
       } catch (e) {
-        console.log("Factory app error");
         setIsWrongUrl({
           status: true,
           message: "Invalid appId: " + _appId,

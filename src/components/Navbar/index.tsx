@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import ConnectVaultModal from "../../pages/Modals/ConnectVaultModal";
 import VaultMenu from "./components/VaultMenu";
@@ -131,26 +131,6 @@ const Tag = styled.div`
   line-height: 18px;
   margin-top: -10px;
   margin-left: -5px;
-`;
-
-const NavGroup = styled.div<{ scrollbarWidth: number }>`
-  display: flex;
-  gap: 40px;
-  padding: 0px 40px;
-  padding-right: ${(props) => 40 - props.scrollbarWidth}px;
-  @media (max-width: 800px) {
-    gap: 10px;
-    padding: 0px 10px;
-  }
-`;
-
-const NavLink = styled(Link)<{ selected?: boolean }>`
-  text-decoration: none;
-  font-size: 16px;
-  line-height: 22px;
-  color: ${(props) =>
-    props.selected ? props.theme.colors.blue0 : props.theme.colors.blue4};
-  font-family: ${(props) => props.theme.fonts.medium};
 `;
 
 const Inline = styled.div`
