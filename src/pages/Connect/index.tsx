@@ -122,13 +122,13 @@ export default function Connect(): JSX.Element {
     let _namespace = searchParams.get("namespace");
     let _callbackPath = searchParams.get("callbackPath");
 
-    const params = {
+    const params: ZkConnectRequest = {
       version: _version,
       appId: _appId,
-      claim: JSON.parse(_dataRequest),
+      dataRequest: JSON.parse(_dataRequest),
       namespace: _namespace,
       callbackPath: _callbackPath,
-    } as ZkConnectRequest;
+    };
 
     if (!params.dataRequest) {
       setIsDataRequest(false);
