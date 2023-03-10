@@ -12,7 +12,7 @@ import {
   OffchainProofRequest,
 } from "../../../../../libs/sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s1";
-import { ZkConnectRequest } from "../../../../../libs/zk-connect/types";
+import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 
 const Container = styled.div`
   display: flex;
@@ -165,15 +165,14 @@ export default function GenerateZkProof({
           source: eligibleSourceAccount,
           vaultSecret: vaultSecret,
           namespace: zkConnectRequest.namespace,
-          groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
+          groupId: zkConnectRequest.claim.statementRequests[0].groupId,
           groupTimestamp:
-            zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
+            zkConnectRequest.claim.statementRequests[0].groupTimestamp,
           requestedValue:
-            zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
-          comparator:
-            zkConnectRequest.dataRequest.statementRequests[0].comparator,
+            zkConnectRequest.claim.statementRequests[0].requestedValue,
+          comparator: zkConnectRequest.claim.statementRequests[0].comparator,
           devModeOverrideEligibleGroupData:
-            zkConnectRequest.dataRequest.statementRequests[0].extraData
+            zkConnectRequest.claim.statementRequests[0].extraData
               ?.devModeOverrideEligibleGroupData,
         };
       }

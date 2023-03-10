@@ -3187,6 +3187,11 @@
     ethers "^5.7.0"
     snarkjs "^0.4.16"
 
+"@sismo-core/zk-connect-client@^0.0.0-beta.1":
+  version "0.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@sismo-core/zk-connect-client/-/zk-connect-client-0.0.0-beta.1.tgz#d3133380c961542d0f7d08a9abe0bec80cdcb698"
+  integrity sha512-bf3OgCKeCbP1NMvggOmjdFeRLfHdeHCAPwSf4JOmvY4gjnIuGVNfVOOWPpiyo8psQpk2HtI6MLebmlR9D0+ulQ==
+
 "@surma/rollup-plugin-off-main-thread@^2.2.3":
   version "2.2.3"
   resolved "https://registry.npmjs.org/@surma/rollup-plugin-off-main-thread/-/rollup-plugin-off-main-thread-2.2.3.tgz"

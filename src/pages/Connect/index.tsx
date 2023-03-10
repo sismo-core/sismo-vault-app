@@ -6,7 +6,7 @@ import WrongUrlScreen from "./components/WrongUrlScreen";
 import ConnectFlow from "./ConnectFlow";
 import axios from "axios";
 import * as Sentry from "@sentry/react";
-import { ZkConnectRequest } from "../../libs/zk-connect/types";
+import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 
 const Container = styled.div`
   position: relative;
@@ -125,33 +125,30 @@ export default function Connect(): JSX.Element {
     const params = {
       version: _version,
       appId: _appId,
-      dataRequest: JSON.parse(_dataRequest),
+      claim: JSON.parse(_dataRequest),
       namespace: _namespace,
       callbackPath: _callbackPath,
     } as ZkConnectRequest;
 
-    if (!params.dataRequest) {
+    if (!params.claim) {
       setIsDataRequest(false);
     }
 
-    if (params.dataRequest) {
+    if (params.claim) {
       setIsDataRequest(true);
-      params.dataRequest.statementRequests[0].groupTimestamp =
-        typeof params.dataRequest.statementRequests[0].groupTimestamp ===
-        "undefined"
+      params.claim.statementRequests[0].groupTimestamp =
+        typeof params.claim.statementRequests[0].groupTimestamp === "undefined"
           ? "latest"
-          : params.dataRequest.statementRequests[0].groupTimestamp;
-      params.dataRequest.statementRequests[0].requestedValue =
-        typeof params.dataRequest.statementRequests[0].requestedValue ===
-        "undefined"
+          : params.claim.statementRequests[0].groupTimestamp;
+      params.claim.statementRequests[0].requestedValue =
+        typeof params.claim.statementRequests[0].requestedValue === "undefined"
           ? 1
-          : params.dataRequest.statementRequests[0].requestedValue;
+          : params.claim.statementRequests[0].requestedValue;
 
-      params.dataRequest.statementRequests[0].comparator =
-        typeof params.dataRequest.statementRequests[0].comparator ===
-        "undefined"
+      params.claim.statementRequests[0].comparator =
+        typeof params.claim.statementRequests[0].comparator === "undefined"
           ? "GTE"
-          : params.dataRequest.statementRequests[0].comparator;
+          : params.claim.statementRequests[0].comparator;
     }
 
     params.namespace = params.namespace || "main";
@@ -221,14 +218,13 @@ export default function Connect(): JSX.Element {
     }
 
     async function getGroupMetadata() {
-      if (!params.dataRequest) {
+      if (!params.claim) {
         setGroupMetadata(null);
         return;
       }
       try {
-        const _groupId = params.dataRequest.statementRequests[0].groupId;
-        const _timestamp =
-          params.dataRequest.statementRequests[0].groupTimestamp;
+        const _groupId = params.claim.statementRequests[0].groupId;
+        const _timestamp = params.claim.statementRequests[0].groupTimestamp;
 
         const groupsSnapshotMetadata = await axios.get(
           `${env.hubApiUrl}/group-snapshots/${_groupId}?timestamp=${_timestamp}`

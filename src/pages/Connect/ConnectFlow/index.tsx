@@ -14,7 +14,7 @@ import { ArrowLeft } from "phosphor-react";
 import {
   ZkConnectRequest,
   ZkConnectResponse,
-} from "../../../libs/zk-connect/types";
+} from "@sismo-core/zk-connect-client";
 import { BigNumber } from "ethers";
 
 const Container = styled.div`
@@ -86,15 +86,14 @@ export default function ConnectFlow({
         );
         const accountData = await sismo.getEligibility({
           accounts: importedAccountIdentifiers,
-          groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
+          groupId: zkConnectRequest.claim.statementRequests[0].groupId,
           groupTimestamp:
-            zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
+            zkConnectRequest.claim.statementRequests[0].groupTimestamp,
           requestedValue:
-            zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
-          comparator:
-            zkConnectRequest.dataRequest.statementRequests[0].comparator,
+            zkConnectRequest.claim.statementRequests[0].requestedValue,
+          comparator: zkConnectRequest.claim.statementRequests[0].comparator,
           devModeOverrideEligibleGroupData:
-            zkConnectRequest.dataRequest.statementRequests[0].extraData
+            zkConnectRequest.claim.statementRequests[0].extraData
               ?.devModeOverrideEligibleGroupData,
         });
         setEligibleAccountData(accountData);
@@ -129,10 +128,10 @@ export default function ConnectFlow({
         zkConnectResponse.verifiableStatements = [
           {
             // proofId: snarkProof.input[6].toHexString(),
-            groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
+            groupId: zkConnectRequest.claim.statementRequests[0].groupId,
             value: BigNumber.from(snarkProof.input[7]).toNumber(),
             groupTimestamp:
-              zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
+              zkConnectRequest.claim.statementRequests[0].groupTimestamp,
             comparator: BigNumber.from(snarkProof.input[9]).eq(0)
               ? "GTE"
               : "EQ",
