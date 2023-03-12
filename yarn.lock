@@ -3187,10 +3187,12 @@
     ethers "^5.7.0"
     snarkjs "^0.4.16"
 
-"@sismo-core/zk-connect-client@^0.0.0-beta.4":
-  version "0.0.0-beta.4"
-  resolved "https://registry.npmjs.org/@sismo-core/zk-connect-client/-/zk-connect-client-0.0.0-beta.4.tgz#d59a3462a5d094bf207aa13b3f95bc5a181a6b00"
-  integrity sha512-9dsprEvqR4oIGpYM6sEeS6a5dC9cmca8in/3tKwYDhDUvptCP9LAGoZMBd8wQH8csK/xgMuVaiKsQ+84LG+3nw==
+"@sismo-core/zk-connect-client@^0.0.0-beta.6":
+  version "0.0.0-beta.6"
+  resolved "https://registry.npmjs.org/@sismo-core/zk-connect-client/-/zk-connect-client-0.0.0-beta.6.tgz#1bff51a7b75adcf5571f7faca4d938b288e735ff"
+  integrity sha512-jRfciHhUjbfmRXyCli/CPlVO9pgLGe5unlsTu8CBYc3wmnmZhwW0hkn6zMy+PNyCa+k7BeOK4jxFPN+Ek7IlQQ==
+  dependencies:
+    "@ethersproject/bignumber" "5.7.0"
 
 "@surma/rollup-plugin-off-main-thread@^2.2.3":
   version "2.2.3"

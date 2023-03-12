@@ -1,7 +1,8 @@
 import { ImportedAccount } from "../../vault-client";
 import { StatementComparator } from "@sismo-core/zk-connect-client";
+import { BigNumberish } from "ethers";
 
-export type RequestedValue = number | "USER_SELECTED_VALUE";
+export type RequestedValue = number | BigNumberish | "USER_SELECTED_VALUE";
 export type GroupTimestamp = number | "latest";
 
 export type RequestIdentifierInputs = {
