@@ -12,13 +12,17 @@ export type RequestIdentifierInputs = {
   namespace: string;
 };
 
+export type devAddressesType = {
+  [accountIdentifier: string]: number | BigNumberish;
+};
+
 export type GetEligibilityInputs = {
   accounts: string[];
   groupId: string;
   groupTimestamp: GroupTimestamp;
   requestedValue: RequestedValue;
   comparator: StatementComparator;
-  devModeOverrideEligibleGroupData?: { [accountIdentifier: string]: number };
+  devAddresses?: devAddressesType;
 };
 
 export type OffchainProofRequest = {
@@ -30,10 +34,10 @@ export type OffchainProofRequest = {
   groupTimestamp?: GroupTimestamp;
   requestedValue?: RequestedValue;
   comparator?: StatementComparator;
-  devModeOverrideEligibleGroupData?: { [accountIdentifier: string]: number };
+  devAddresses?: devAddressesType;
 };
 
 export type AccountData = {
   identifier: string;
-  value: number;
+  value: BigNumberish;
 };
