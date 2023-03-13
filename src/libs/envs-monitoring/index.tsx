@@ -56,6 +56,7 @@ export default function EnvsMonitoring({
   useEffect(() => {
     if (!commitmentMapperPubKey) return;
     if (!vault.importedAccounts) return;
+    if (env.name === "DEMO") return;
     const test = () => {
       for (let account of [...vault.importedAccounts]) {
         if (

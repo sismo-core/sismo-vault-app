@@ -16,6 +16,7 @@ import {
   ZkConnectResponse,
 } from "@sismo-core/zk-connect-client";
 import { BigNumber } from "ethers";
+import env from "../../../environment";
 
 const Container = styled.div`
   position: relative;
@@ -65,7 +66,9 @@ export default function ConnectFlow({
 }: Props): JSX.Element {
   const vault = useVault();
   const sismo = useSismo();
-  const [vaultSliderOpen, setVaultSliderOpen] = useState(false);
+  const [vaultSliderOpen, setVaultSliderOpen] = useState(
+    env.name === "DEMO" ? true : false
+  );
   const [eligibleAccountData, setEligibleAccountData] = useState<AccountData>();
   const [step, setStep] = useState<Step>("SignIn");
   const [loadingEligible, setLoadingEligible] = useState(true);
