@@ -330,7 +330,7 @@ export default function SismoVaultProvider({
       });
     }
 
-    new CommitmentMapper({
+    return new CommitmentMapper({
       url: env.commitmentMapperUrl,
     });
   }, []);

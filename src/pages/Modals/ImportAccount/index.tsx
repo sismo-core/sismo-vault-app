@@ -9,6 +9,7 @@ import { zIndex } from "../../../theme/z-index";
 import { useWallet } from "../../../libs/wallet";
 import { useImportAccount } from "./provider";
 import ImportTwitter from "./Twitter";
+import env from "../../../environment";
 
 const Content = styled.div`
   display: flex;
@@ -64,6 +65,11 @@ export default function ImportAccountModal({
       setDisplay(null);
       return;
     }
+    if (env.name === "DEMO") {
+      setDisplay("ethereum");
+      return;
+    }
+
     if (
       importType === "owner" ||
       (accountTypes &&
