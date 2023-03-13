@@ -185,6 +185,7 @@ export default function ImportAccountModalProvider({
   const importGithub = async (githubCode: string) => {
     setImporting("account");
     setLastImportedAccount(null);
+
     let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
       vault.connectedOwner,
       WalletPurpose.IMPORTED_ACCOUNT
