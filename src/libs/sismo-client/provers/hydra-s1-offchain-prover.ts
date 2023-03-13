@@ -43,7 +43,7 @@ export class HydraS1OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     comparator,
-    devModeOverrideEligibleGroupData,
+    devAddresses,
   }: OffchainProofRequest): Promise<SnarkProof> {
     const commitmentMapperPubKey =
       env.sismoDestination.commitmentMapperPubKey.map((string) =>
@@ -64,7 +64,7 @@ export class HydraS1OffchainProver extends Prover {
       groupTimestamp,
       requestedValue,
       comparator,
-      devModeOverrideEligibleGroupData,
+      devAddresses: devAddresses,
     });
 
     const proof = await prover.generateSnarkProof(userParams);
@@ -209,7 +209,7 @@ export class HydraS1OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     comparator,
-    devModeOverrideEligibleGroupData,
+    devAddresses,
   }: OffchainProofRequest): Promise<UserParams> {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
@@ -241,7 +241,7 @@ export class HydraS1OffchainProver extends Prover {
       if (hasDataRequested) {
         let accountsTree: KVMerkleTree;
         let registryTree: KVMerkleTree;
-        if (!devModeOverrideEligibleGroupData) {
+        if (!devAddresses) {
           accountsTree = await this.registryTreeReader.getAccountsTree({
             groupId,
             account: source.identifier,
@@ -252,9 +252,7 @@ export class HydraS1OffchainProver extends Prover {
         } else {
           const poseidon = await buildPoseidon();
           accountsTree = new KVMerkleTree(
-            overrideEligibleGroupDataFormatter(
-              devModeOverrideEligibleGroupData
-            ),
+            overrideEligibleGroupDataFormatter(devAddresses),
             poseidon,
             20
           );

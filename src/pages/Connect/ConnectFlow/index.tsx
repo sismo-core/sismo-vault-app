@@ -8,7 +8,10 @@ import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
 import { FactoryAppType, GroupMetadata, PWS_VERSION } from "..";
-import { AccountData } from "../../../libs/sismo-client/provers/types";
+import {
+  AccountData,
+  devAddressesType,
+} from "../../../libs/sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s1";
 import { ArrowLeft } from "phosphor-react";
 import {
@@ -96,9 +99,8 @@ export default function ConnectFlow({
             zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
           comparator:
             zkConnectRequest.dataRequest.statementRequests[0].comparator,
-          devModeOverrideEligibleGroupData:
-            zkConnectRequest.dataRequest.statementRequests[0].extraData
-              ?.devModeOverrideEligibleGroupData,
+          devAddresses: zkConnectRequest.dataRequest.statementRequests[0]
+            .extraData?.devAddresses as devAddressesType,
         });
         setEligibleAccountData(accountData);
         setLoadingEligible(false);

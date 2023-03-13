@@ -3187,10 +3187,10 @@
     ethers "^5.7.0"
     snarkjs "^0.4.16"
 
-"@sismo-core/zk-connect-client@^0.0.0-beta.6":
-  version "0.0.0-beta.6"
-  resolved "https://registry.npmjs.org/@sismo-core/zk-connect-client/-/zk-connect-client-0.0.0-beta.6.tgz#1bff51a7b75adcf5571f7faca4d938b288e735ff"
-  integrity sha512-jRfciHhUjbfmRXyCli/CPlVO9pgLGe5unlsTu8CBYc3wmnmZhwW0hkn6zMy+PNyCa+k7BeOK4jxFPN+Ek7IlQQ==
+"@sismo-core/zk-connect-client@^0.0.0-beta.7":
+  version "0.0.0-beta.7"
+  resolved "https://registry.npmjs.org/@sismo-core/zk-connect-client/-/zk-connect-client-0.0.0-beta.7.tgz#a1350a071c71264f9f9573e091e39656cb794a45"
+  integrity sha512-4NsKDU91ln843iUSaLq4BrMBi1l1KPrk6me14mUgG1TkzjWEo8JZGPfIxWSe4zF/XQSnIbnL3TIQl4eB6zsY2Q==
   dependencies:
     "@ethersproject/bignumber" "5.7.0"
 

@@ -19,16 +19,15 @@ export class SismoClient {
     groupTimestamp,
     comparator,
     requestedValue,
-    devModeOverrideEligibleGroupData,
+    devAddresses,
   }: GetEligibilityInputs) {
-    if (devModeOverrideEligibleGroupData) {
+    if (devAddresses) {
       console.warn(
-        `Using devModeOverrideEligibleGroupData to check eligibility for groupId ${groupId}!`,
-        devModeOverrideEligibleGroupData
+        `Using devAddresses to check eligibility for groupId ${groupId}!`,
+        devAddresses
       );
-      const lowerCaseOverrideGroupData = overrideEligibleGroupDataFormatter(
-        devModeOverrideEligibleGroupData
-      );
+      const lowerCaseOverrideGroupData =
+        overrideEligibleGroupDataFormatter(devAddresses);
       const eligibleAccount = accounts.find(
         (account) => lowerCaseOverrideGroupData[account.toLowerCase()]
       );
@@ -37,7 +36,7 @@ export class SismoClient {
       }
       return {
         identifier: eligibleAccount,
-        value: devModeOverrideEligibleGroupData[eligibleAccount] ?? 1,
+        value: devAddresses[eligibleAccount] ?? 1,
       };
     }
 
@@ -60,7 +59,7 @@ export class SismoClient {
     groupTimestamp,
     requestedValue,
     comparator,
-    devModeOverrideEligibleGroupData,
+    devAddresses,
   }: OffchainProofRequest) {
     return await this.prover.generateProof({
       appId,
@@ -71,7 +70,7 @@ export class SismoClient {
       groupTimestamp,
       requestedValue,
       comparator,
-      devModeOverrideEligibleGroupData,
+      devAddresses,
     });
   }
 }

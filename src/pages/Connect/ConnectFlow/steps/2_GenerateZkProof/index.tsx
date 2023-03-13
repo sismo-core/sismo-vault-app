@@ -172,9 +172,9 @@ export default function GenerateZkProof({
             zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
           comparator:
             zkConnectRequest.dataRequest.statementRequests[0].comparator,
-          devModeOverrideEligibleGroupData:
+          devAddresses:
             zkConnectRequest.dataRequest.statementRequests[0].extraData
-              ?.devModeOverrideEligibleGroupData,
+              ?.devAddresses,
         };
       }
 
