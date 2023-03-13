@@ -21,7 +21,7 @@ export const demoVault: Vault = {
       timestamp: 1678459334350,
     },
     {
-      identifier: "vbuterin",
+      identifier: "0x1002000000000000000000000000000002230894",
       seed: "0xd5b0dff2c9b0168e8998447e7b64df1f0fbe805b7442ab91377d8168aafe4ad0",
       commitmentReceipt: [
         "0x304cab23adfdb1a3aabc7a8d4069a4abf6f4fa8497a3f30ae6bb5a7c9c0ee6d6",
@@ -34,9 +34,15 @@ export const demoVault: Vault = {
       ] as any,
       type: "github",
       timestamp: 1678459363524,
+      profile: {
+        login: "vbuterin",
+        id: 2230894,
+        name: "string",
+        avatar: "string",
+      },
     },
     {
-      identifier: "VitalikButerin",
+      identifier: "0x1001000000000000000000000000000295218901",
       seed: "0x8205b82bfd32ef2061e25eae75459b4777432f3db0dde5a1b6376a38f1fa024a",
       commitmentReceipt: [
         "0x2d984b3e9ff3544c03a62e5e5a639f77d342f5a8042686434e75bad248ae12b1",
@@ -49,6 +55,12 @@ export const demoVault: Vault = {
       ] as any,
       type: "twitter",
       timestamp: 1678459385136,
+      profile: {
+        login: "VitalikButerin",
+        id: 295218901,
+        name: "string",
+        avatar: "string",
+      },
     },
     {
       identifier: "0x1ae8839726ca075b866138e80c85d50c33d696ed",
