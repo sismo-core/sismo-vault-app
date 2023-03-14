@@ -239,6 +239,16 @@ export default function Connect(): JSX.Element {
         const groupsSnapshotMetadata = await axios.get(
           `${env.hubApiUrl}/group-snapshots/${_groupId}?timestamp=${_timestamp}`
         );
+        if (groupsSnapshotMetadata.data.items.length === 0) {
+          setIsWrongUrl({
+            status: true,
+            message: `Invalid groupId ${_groupId} ${
+              _timestamp !== "latest" && `or timestamp ${_timestamp}`
+            }. Please make sure they are correct using the Factory Sismo Data Groups Explorer.`,
+          });
+          return;
+        }
+
         const groupsQueryUrlAppendix =
           _timestamp === "latest" ? `?latest=true` : `?timestamp=${_timestamp}`;
         const groups = await axios.get(
@@ -300,7 +310,7 @@ export default function Connect(): JSX.Element {
         if (!isAuthorized) {
           setIsWrongUrl({
             status: true,
-            message: `The domain "${_referrerName}" is not an authorized domain for the appId ${_appId}. If this is your app, please make sure to add your domain to your zkConnect app from the factory`,
+            message: `The domain "${_referrerName}" is not an authorized domain for the appId ${_appId}. If this is your app, please make sure to add your domain to your zkConnect app from the factory.`,
           });
           return;
         }
