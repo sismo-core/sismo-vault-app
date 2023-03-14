@@ -55,7 +55,7 @@ type Props = {
   groupMetadata: GroupMetadata;
   callbackUrl: string;
   referrerUrl: string;
-  referrerName: string;
+  appName: string;
   hostName: string;
 };
 
@@ -64,9 +64,9 @@ export default function ConnectFlow({
   zkConnectRequest,
   hasDataRequest,
   groupMetadata,
-  referrerName,
   referrerUrl,
   callbackUrl,
+  appName,
   hostName,
 }: Props): JSX.Element {
   const vault = useVault();
@@ -246,7 +246,7 @@ export default function ConnectFlow({
           <SignIn
             factoryApp={factoryApp}
             zkConnectRequest={zkConnectRequest}
-            referrerName={referrerName}
+            appName={appName}
             groupMetadata={groupMetadata}
             hasDataRequest={hasDataRequest}
             referrerUrl={referrerUrl}
@@ -264,7 +264,8 @@ export default function ConnectFlow({
           <LayoutFlow
             groupMetadata={groupMetadata}
             factoryApp={factoryApp}
-            referrerName={referrerName}
+            appName={appName}
+            hostName={hostName}
             referrerUrl={referrerUrl}
             hasDataRequest={hasDataRequest}
             zkConnectRequest={zkConnectRequest}

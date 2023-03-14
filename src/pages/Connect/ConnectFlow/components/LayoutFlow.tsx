@@ -110,7 +110,8 @@ type Props = {
   hasDataRequest: boolean;
   zkConnectRequest: ZkConnectRequest;
   referrerUrl: string;
-  referrerName: string;
+  appName: string;
+  hostName: string;
   vaultSliderOpen: boolean;
   children: React.ReactNode;
   proofLoading?: boolean;
@@ -122,7 +123,8 @@ type Props = {
 export default function LayoutFlow({
   groupMetadata,
   zkConnectRequest,
-  referrerName,
+  appName,
+  hostName,
   referrerUrl,
   children,
   vaultSliderOpen,
@@ -151,19 +153,19 @@ export default function LayoutFlow({
         <HeaderTitle url={referrerUrl} />
         {!hasDataRequest && (
           <BadgeWrapper>
-            <BadgeImg src={factoryApp?.logoUrl} alt={referrerName} />
+            <BadgeImg src={factoryApp?.logoUrl} alt={appName} />
           </BadgeWrapper>
         )}
         {hasDataRequest && (
           <Summary>
             <BadgeWrapper>
-              <BadgeImg src={factoryApp?.logoUrl} alt={referrerName} />
+              <BadgeImg src={factoryApp?.logoUrl} alt={appName} />
             </BadgeWrapper>
 
             <SummaryText>
               <FirstLine>
-                <Bold>{capitalizeFirstLetter(referrerName)}</Bold> wants to
-                verify that you own
+                <Bold>{capitalizeFirstLetter(appName)}</Bold> wants to verify
+                that you own
               </FirstLine>
               <SecondLine>
                 <ShardTag
@@ -189,7 +191,7 @@ export default function LayoutFlow({
         <ContentBlock>
           {children}
           <StepperBlock
-            referrerName={referrerName}
+            hostName={hostName}
             step={step}
             stepperWidth={stepperWidth}
           />

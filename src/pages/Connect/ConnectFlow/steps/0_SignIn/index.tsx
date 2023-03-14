@@ -116,7 +116,7 @@ type Props = {
   zkConnectRequest: ZkConnectRequest;
   groupMetadata: GroupMetadata | null;
   referrerUrl: string;
-  referrerName: string;
+  appName: string;
   hasDataRequest: boolean;
   onNext: () => void;
 };
@@ -124,7 +124,7 @@ type Props = {
 export default function SignIn({
   groupMetadata,
   zkConnectRequest,
-  referrerName,
+  appName,
   referrerUrl,
   factoryApp,
   hasDataRequest,
@@ -156,12 +156,12 @@ export default function SignIn({
 
   const loading = hasDataRequest
     ? !factoryApp ||
-      !referrerName ||
+      !appName ||
       vault.loadingActiveSession ||
       !zkConnectRequest ||
       !imgLoaded ||
       !groupMetadata
-    : !factoryApp || !referrerName || vault.loadingActiveSession || !imgLoaded;
+    : !factoryApp || !appName || vault.loadingActiveSession || !imgLoaded;
 
   return (
     <>
@@ -178,10 +178,10 @@ export default function SignIn({
           <Content>
             <TopContent>
               <ContentTitle>
-                <AppLogo src={factoryApp?.logoUrl} alt={referrerName} />
+                <AppLogo src={factoryApp?.logoUrl} alt={appName} />
                 <SecondLine>
                   Connect to
-                  <Bold>{capitalizeFirstLetter(referrerName)}</Bold>
+                  <Bold>{capitalizeFirstLetter(appName)}</Bold>
                   <HoverTooltip
                     width={300}
                     text="Connecting with your Vault does not reveal the accounts inside. You only reveal your Vault ID—an anonymous app-specific identifier that authenticates ownership of a Data Vault. "
