@@ -15,7 +15,7 @@ import ThreeDotsLoader from "../../../../components/ThreeDotsLoader";
 
 const Container = styled.div<{ vaultSliderOpen: boolean }>`
   position: absolute;
-  top: 207px;
+  top: 30px;
   left: 530px;
   display: flex;
 

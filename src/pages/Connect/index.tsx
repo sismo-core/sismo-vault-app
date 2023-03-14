@@ -92,7 +92,7 @@ export default function Connect(): JSX.Element {
   const [zkConnectRequest, setZkConnectRequest] =
     useState<ZkConnectRequest>(null);
   const [groupMetadata, setGroupMetadata] = useState<GroupMetadata>(null);
-  const [hasDataRequested, setIsDataRequest] = useState<boolean | null>(null);
+  const [hasDataRequest, setHasDataRequest] = useState<boolean | null>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
   const [referrerName, setReferrerName] = useState("");
   const [callbackUrl, setCallbackUrl] = useState(null);
@@ -131,11 +131,11 @@ export default function Connect(): JSX.Element {
     };
 
     if (!params.dataRequest) {
-      setIsDataRequest(false);
+      setHasDataRequest(false);
     }
 
     if (params.dataRequest) {
-      setIsDataRequest(true);
+      setHasDataRequest(true);
       params.dataRequest.statementRequests[0].groupTimestamp =
         typeof params.dataRequest.statementRequests[0].groupTimestamp ===
         "undefined"
@@ -313,7 +313,7 @@ export default function Connect(): JSX.Element {
         ) : (
           <ConnectFlow
             factoryApp={factoryApp}
-            hasDataRequested={hasDataRequested}
+            hasDataRequest={hasDataRequest}
             zkConnectRequest={zkConnectRequest}
             groupMetadata={groupMetadata}
             callbackUrl={callbackUrl}

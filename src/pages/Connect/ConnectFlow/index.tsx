@@ -48,7 +48,7 @@ export type Step =
 type Props = {
   factoryApp: FactoryAppType;
   zkConnectRequest: ZkConnectRequest;
-  hasDataRequested: boolean | null;
+  hasDataRequest: boolean | null;
   groupMetadata: GroupMetadata;
   callbackUrl: string;
   referrerUrl: string;
@@ -58,7 +58,7 @@ type Props = {
 export default function ConnectFlow({
   factoryApp,
   zkConnectRequest,
-  hasDataRequested,
+  hasDataRequest,
   groupMetadata,
   referrerName,
   referrerUrl,
@@ -66,9 +66,7 @@ export default function ConnectFlow({
 }: Props): JSX.Element {
   const vault = useVault();
   const sismo = useSismo();
-  const [vaultSliderOpen, setVaultSliderOpen] = useState(
-    env.name === "DEMO" ? true : false
-  );
+  const [vaultSliderOpen, setVaultSliderOpen] = useState(false);
   const [eligibleAccountData, setEligibleAccountData] = useState<AccountData>();
   const [step, setStep] = useState<Step>("SignIn");
   const [loadingEligible, setLoadingEligible] = useState(true);
@@ -79,7 +77,7 @@ export default function ConnectFlow({
     if (!zkConnectRequest) return;
 
     const testEligibility = async () => {
-      if (hasDataRequested === false) {
+      if (hasDataRequest === false) {
         return;
       }
       try {
@@ -123,12 +121,12 @@ export default function ConnectFlow({
         version: PWS_VERSION,
       };
       const provingScheme = "hydra-s1.2";
-      if (hasDataRequested === false) {
+      if (hasDataRequest === false) {
         zkConnectResponse.authProof = {
           provingScheme,
           proof: snarkProof,
         };
-      } else if (hasDataRequested === true) {
+      } else if (hasDataRequest === true) {
         zkConnectResponse.verifiableStatements = [
           {
             // proofId: snarkProof.input[6].toHexString(),
@@ -167,6 +165,26 @@ export default function ConnectFlow({
     }
   }, [vault.isConnected]);
 
+  //  Auto open vault slider when in demo mode
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (env.name === "DEMO" && step === "ImportEligibleAccount") {
+      timeout = setTimeout(() => {
+        setVaultSliderOpen(true);
+      }, 150);
+    }
+
+    if (env.name === "DEMO" && step === "GenerateZkProof" && !hasDataRequest) {
+      timeout = setTimeout(() => {
+        setVaultSliderOpen(true);
+      }, 150);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [step]);
+
   useEffect(() => {
     if (!vault.isConnected) return;
     const queryString = window.location.search;
@@ -191,9 +209,7 @@ export default function ConnectFlow({
       }
     }
 
-    if (hasDataRequested === false) {
-      setStep("GenerateZkProof");
-    } else if (!eligibleAccountData && step === "GenerateZkProof") {
+    if (hasDataRequest && !eligibleAccountData && step === "GenerateZkProof") {
       onStepChange("ImportEligibleAccount");
       return;
     }
@@ -216,18 +232,25 @@ export default function ConnectFlow({
   return (
     <>
       <Container>
-        <GoBack onClick={() => goBack()}>
-          <ArrowLeft style={{ marginRight: 15 }} />
-          Go back to {referrerName}
-        </GoBack>
+        {referrerName && (
+          <GoBack onClick={() => goBack()}>
+            <ArrowLeft style={{ marginRight: 15 }} />
+            Go back to {referrerName}
+          </GoBack>
+        )}
         {step === "SignIn" && (
           <SignIn
             factoryApp={factoryApp}
+            zkConnectRequest={zkConnectRequest}
             referrerName={referrerName}
             groupMetadata={groupMetadata}
-            hasDataRequested={hasDataRequested}
+            hasDataRequest={hasDataRequest}
             referrerUrl={referrerUrl}
             onNext={() => {
+              if (!hasDataRequest) {
+                setStep("GenerateZkProof");
+                return;
+              }
               setStep("ImportEligibleAccount");
               return;
             }}
@@ -239,7 +262,8 @@ export default function ConnectFlow({
             factoryApp={factoryApp}
             referrerName={referrerName}
             referrerUrl={referrerUrl}
-            hasDataRequested={hasDataRequested}
+            hasDataRequest={hasDataRequest}
+            zkConnectRequest={zkConnectRequest}
             vaultSliderOpen={vaultSliderOpen}
             setVaultSliderOpen={setVaultSliderOpen}
             step={step}
@@ -254,8 +278,9 @@ export default function ConnectFlow({
             {step === "GenerateZkProof" && (
               <GenerateZkProof
                 zkConnectRequest={zkConnectRequest}
+                groupMetadata={groupMetadata}
                 eligibleAccountData={eligibleAccountData}
-                hasDataRequested={hasDataRequested}
+                hasDataRequest={hasDataRequest}
                 onNext={(proof) => {
                   setTimeout(() => {
                     redirect(proof);

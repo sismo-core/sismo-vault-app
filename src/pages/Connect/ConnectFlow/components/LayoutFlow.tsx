@@ -1,11 +1,14 @@
 import styled from "styled-components";
+import { useRef, useState, useEffect } from "react";
 import { capitalizeFirstLetter } from "../../../../utils/capitalizeFirstLetter";
 import HeaderTitle from "./HeaderTitle";
 import Stepper from "./Stepper";
-import { useRef, useEffect } from "react";
 import VaultSlider from "./VaultSlider";
 import { useImportAccount } from "../../../Modals/ImportAccount/provider";
 import { FactoryAppType, GroupMetadata } from "../..";
+import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+import ShardTag from "./ShardTag";
+import { BigNumber } from "ethers";
 
 const Container = styled.div`
   position: relative;
@@ -20,34 +23,26 @@ const Container = styled.div`
   box-sizing: border-box;
 `;
 
-const HeaderBlock = styled.div`
+const HeaderBlock = styled.div<{ hasDataRequest: boolean }>`
   background-color: ${(props) => props.theme.colors.blue11};
   border-radius: 10px;
-  padding: 20px 30px 25px 30px;
+  padding: ${(props) =>
+    props.hasDataRequest ? "20px 30px 25px 30px" : "20px 30px 20px 30px"};
 
   display: flex;
-  flex-direction: column;
+  flex-direction: ${(props) => (props.hasDataRequest ? "column" : "row")};
+  justify-content: space-between;
   gap: 20px;
 
   box-sizing: border-box;
-  //box-shadow: rgb(0 0 0 / 10%) 0px 0px 3px 0px, rgb(0 0 0 / 6%) 0px 0px 2px 0px;
 `;
 
 const Summary = styled.div`
   display: flex;
+  align-items: center;
   gap: 16px;
   font-family: ${(props) => props.theme.fonts.regular};
   color: ${(props) => props.theme.colors.blue0};
-`;
-
-const GroupTag = styled.div`
-  font-family: ${(props) => props.theme.fonts.medium};
-  font-size: 14px;
-  line-height: 20px;
-  color: ${(props) => props.theme.colors.blue0};
-  padding: 2px 8px;
-  background: ${(props) => props.theme.colors.blue9};
-  border-radius: 4px;
 `;
 
 const BadgeWrapper = styled.div`
@@ -72,7 +67,7 @@ const BadgeImg = styled.img`
 const SummaryText = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   font-size: 16px;
   line-height: 22px;
 `;
@@ -87,6 +82,10 @@ const SecondLine = styled.div`
 
 const Bold = styled.span`
   font-family: ${(props) => props.theme.fonts.semibold};
+`;
+
+const ContentWrapper = styled.div`
+  position: relative;
 `;
 
 const ContentBlock = styled.div`
@@ -108,7 +107,8 @@ const StepperBlock = styled(Stepper)<{ stepperWidth: number }>`
 
 type Props = {
   groupMetadata: GroupMetadata;
-  hasDataRequested: boolean;
+  hasDataRequest: boolean;
+  zkConnectRequest: ZkConnectRequest;
   referrerUrl: string;
   referrerName: string;
   vaultSliderOpen: boolean;
@@ -121,6 +121,7 @@ type Props = {
 
 export default function LayoutFlow({
   groupMetadata,
+  zkConnectRequest,
   referrerName,
   referrerUrl,
   children,
@@ -128,15 +129,11 @@ export default function LayoutFlow({
   factoryApp,
   proofLoading = false,
   step,
-  hasDataRequested,
+  hasDataRequest,
   setVaultSliderOpen,
 }: Props) {
   // const proveName = badge?.name?.split(" ZK Badge")[0] || badge?.name;
   // const article = ["a", "e", "i", "o", "u"].includes(badge?.name) ? "an" : "a";
-
-  const humanReadableGroupName = groupMetadata?.name
-    ?.replace(/-/g, " ")
-    .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
 
   const ref = useRef<HTMLDivElement>(null);
   const stepperWidth = ref.current?.offsetWidth;
@@ -150,43 +147,59 @@ export default function LayoutFlow({
 
   return (
     <Container>
-      <HeaderBlock>
+      <HeaderBlock hasDataRequest={hasDataRequest}>
         <HeaderTitle url={referrerUrl} />
-        <Summary>
+        {!hasDataRequest && (
           <BadgeWrapper>
             <BadgeImg src={factoryApp?.logoUrl} alt={referrerName} />
           </BadgeWrapper>
+        )}
+        {hasDataRequest && (
+          <Summary>
+            <BadgeWrapper>
+              <BadgeImg src={factoryApp?.logoUrl} alt={referrerName} />
+            </BadgeWrapper>
 
-          <SummaryText>
-            {hasDataRequested && (
-              <>
-                <FirstLine>
-                  <Bold>{capitalizeFirstLetter(referrerName)}</Bold> wants to
-                  verify that you belong to
-                </FirstLine>
-                <SecondLine>
-                  <GroupTag>{humanReadableGroupName}</GroupTag> group
-                </SecondLine>
-              </>
-            )}
-          </SummaryText>
-        </Summary>
+            <SummaryText>
+              <FirstLine>
+                <Bold>{capitalizeFirstLetter(referrerName)}</Bold> zkSub wants
+                to verify that you own
+              </FirstLine>
+              <SecondLine>
+                <ShardTag
+                  groupMetadata={groupMetadata}
+                  comparator={
+                    zkConnectRequest?.dataRequest?.statementRequests[0]
+                      ?.comparator
+                  }
+                  requestedValue={
+                    BigNumber.from(
+                      zkConnectRequest?.dataRequest?.statementRequests[0]
+                        ?.requestedValue
+                    ).toNumber() || 1
+                  }
+                />
+              </SecondLine>
+            </SummaryText>
+          </Summary>
+        )}
       </HeaderBlock>
-      <ContentBlock>
-        <StepperBlock
-          referrerName={referrerName}
-          step={step}
-          stepperWidth={stepperWidth}
+
+      <ContentWrapper>
+        <ContentBlock>
+          {children}
+          <StepperBlock
+            referrerName={referrerName}
+            step={step}
+            stepperWidth={stepperWidth}
+          />
+        </ContentBlock>
+        <VaultSlider
+          vaultSliderOpen={vaultSliderOpen}
+          setVaultSliderOpen={setVaultSliderOpen}
+          proofLoading={proofLoading}
         />
-
-        {children}
-      </ContentBlock>
-
-      <VaultSlider
-        vaultSliderOpen={vaultSliderOpen}
-        setVaultSliderOpen={setVaultSliderOpen}
-        proofLoading={proofLoading}
-      />
+      </ContentWrapper>
     </Container>
   );
 }

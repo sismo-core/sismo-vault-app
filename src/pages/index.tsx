@@ -170,8 +170,6 @@ export default function Pages(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [importAccount.isOpen]);
 
-  if (vault.loadingActiveSession) return <LoadingScreen />;
-
   return (
     <>
       <BrowserRouter>
