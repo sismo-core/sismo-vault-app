@@ -53,6 +53,7 @@ type Props = {
   callbackUrl: string;
   referrerUrl: string;
   referrerName: string;
+  hostName: string;
 };
 
 export default function ConnectFlow({
@@ -63,6 +64,7 @@ export default function ConnectFlow({
   referrerName,
   referrerUrl,
   callbackUrl,
+  hostName,
 }: Props): JSX.Element {
   const vault = useVault();
   const sismo = useSismo();
@@ -232,10 +234,10 @@ export default function ConnectFlow({
   return (
     <>
       <Container>
-        {referrerName && (
+        {hostName && (
           <GoBack onClick={() => goBack()}>
             <ArrowLeft style={{ marginRight: 15 }} />
-            Go back to {referrerName}
+            Go back to {hostName}
           </GoBack>
         )}
         {step === "SignIn" && (

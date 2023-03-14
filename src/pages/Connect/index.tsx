@@ -93,6 +93,7 @@ export default function Connect(): JSX.Element {
     useState<ZkConnectRequest>(null);
   const [groupMetadata, setGroupMetadata] = useState<GroupMetadata>(null);
   const [hasDataRequest, setHasDataRequest] = useState<boolean | null>(null);
+  const [hostName, setHostname] = useState<string>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
   const [callbackUrl, setCallbackUrl] = useState(null);
   const [isWrongUrl, setIsWrongUrl] = useState({
@@ -183,6 +184,7 @@ export default function Connect(): JSX.Element {
     let _referrerName = "your app";
     let _callbackRefererPath = "";
     let _TLD = "";
+    let _hostname = "";
 
     function setReferrer() {
       try {
@@ -195,14 +197,19 @@ export default function Connect(): JSX.Element {
             referrerUrl.hostname +
             (referrerUrl.port ? `:${referrerUrl.port}` : "");
           _callbackRefererPath = referrerUrl.pathname;
-
           _TLD =
             referrer.split(".")?.length > 1
               ? referrer
                   .split(".")
                   [referrer.split(".")?.length - 1].split("/")[0]
               : "";
+          _hostname =
+            referrer.split("//").length > 1
+              ? referrer.split("//")[1].split("/")[0]
+              : "";
         }
+
+        setHostname(_hostname);
         setReferrerUrl(_callbackUrl + _callbackRefererPath);
         setCallbackUrl(_callbackUrl + (_callbackPath ? _callbackPath : ""));
       } catch (e) {
@@ -314,6 +321,7 @@ export default function Connect(): JSX.Element {
             callbackUrl={callbackUrl}
             referrerUrl={referrerUrl}
             referrerName={factoryApp?.name}
+            hostName={hostName}
           />
         )}
       </ContentContainer>

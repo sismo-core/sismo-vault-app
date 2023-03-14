@@ -63,12 +63,12 @@ export default function Skeleton() {
           x="0px"
           y="0px"
           viewBox="0 0 200 178"
-          enable-background="new 0 0 200 178"
+          enableBackground="new 0 0 200 178"
           xmlSpace="preserve"
           width={200}
           height={178}
         >
-          <clipPath id="svgClipPathID1" transform={"translateX(50)"}>
+          <clipPath id="svgClipPathID1">
             <path d="M97,0h6c24.9,0,45,20.1,45,45v6c0,24.9-20.1,45-45,45h-6c-24.9,0-45-20.1-45-45v-6C52,20.1,72.1,0,97,0z" />
             <path d="M5,116h190c2.8,0,5,2.2,5,5v12c0,2.8-2.2,5-5,5H5c-2.8,0-5-2.2-5-5v-12C0,118.2,2.2,116,5,116z" />
             <path d="M52,158h96c2.8,0,5,2.2,5,5v10c0,2.8-2.2,5-5,5H52c-2.8,0-5-2.2-5-5v-10C47,160.2,49.2,158,52,158z" />
@@ -84,7 +84,7 @@ export default function Skeleton() {
           x="0px"
           y="0px"
           viewBox="0 0 120 24"
-          enable-background="new 0 0 120 24"
+          enableBackground="new 0 0 120 24"
           xmlSpace="preserve"
           width={120}
           height={24}
@@ -103,7 +103,7 @@ export default function Skeleton() {
           x="0px"
           y="0px"
           viewBox="0 0 252 68"
-          enable-background="new 0 0 252 68"
+          enableBackground="new 0 0 252 68"
           xmlSpace="preserve"
           width={252}
           height={68}
