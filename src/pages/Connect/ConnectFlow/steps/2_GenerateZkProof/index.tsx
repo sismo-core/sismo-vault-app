@@ -1,8 +1,6 @@
 import styled from "styled-components";
 import { Check } from "phosphor-react";
 import colors from "../../../../../theme/colors";
-import Logo, { LogoType } from "../../../../../components/Logo";
-import ThreeDotsLoader from "../../../../../components/ThreeDotsLoader";
 import { useCallback, useEffect, useState } from "react";
 import { useVault } from "../../../../../libs/vault";
 import { useSismo } from "../../../../../libs/sismo";

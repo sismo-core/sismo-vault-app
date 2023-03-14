@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import Lottie from "react-lottie";
-import { useEffect, useState } from "react";
 import { GroupMetadata } from "../..";
 import colors from "../../../../theme/colors";
 import animationData from "../assets/hammer.json";

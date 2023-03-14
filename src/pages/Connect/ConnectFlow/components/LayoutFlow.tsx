@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { capitalizeFirstLetter } from "../../../../utils/capitalizeFirstLetter";
 import HeaderTitle from "./HeaderTitle";
 import Stepper from "./Stepper";
@@ -162,8 +162,8 @@ export default function LayoutFlow({
 
             <SummaryText>
               <FirstLine>
-                <Bold>{capitalizeFirstLetter(referrerName)}</Bold> zkSub wants
-                to verify that you own
+                <Bold>{capitalizeFirstLetter(referrerName)}</Bold> wants to
+                verify that you own
               </FirstLine>
               <SecondLine>
                 <ShardTag

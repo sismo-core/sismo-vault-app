@@ -9,7 +9,6 @@ import { useVault } from "../libs/vault";
 import { useMyVault } from "./Modals/MyVault/Provider";
 import GenerateRecoveryKeyModal from "./Modals/GenerateRecoveryKey";
 import Redirect from "./Redirect";
-import LoadingScreen from "../components/LoadingScreen";
 import AlphaNotification from "../components/ZikiNotification";
 import Connect from "./Connect";
 import ConnectVaultModal from "./Modals/ConnectVaultModal";

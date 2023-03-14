@@ -183,7 +183,7 @@ export default function ConnectFlow({
     return () => {
       clearTimeout(timeout);
     };
-  }, [step]);
+  }, [hasDataRequest, step]);
 
   useEffect(() => {
     if (!vault.isConnected) return;

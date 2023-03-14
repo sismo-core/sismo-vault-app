@@ -63,7 +63,7 @@ export const demoVault: Vault = {
       },
     },
     {
-      identifier: "0x1ae8839726ca075b866138e80c85d50c33d696ed",
+      identifier: "0x644177f8d79117c2b9c7596527642b3c2d05888e",
       seed: "0x38b31bdb6562614125218b667571eab501c8238c37b3e566d39a0f63f2036a3b",
       commitmentReceipt: [
         "0x1ffe179d00b7e6a76f4bb67be88d61446f5ea28448dde901ac7148948fd195dc",
@@ -78,7 +78,7 @@ export const demoVault: Vault = {
       timestamp: 1678459403673,
     },
     {
-      identifier: "0x41714751c3f96e38ca16afe161a8a305a2828c59",
+      identifier: "0xca55123aba844d347d0a18d91a958eda531447ff",
       seed: "0x7bb627deeaa076028dc8488ac4641ee776d4a90abeff99301157cff7d38c2280",
       commitmentReceipt: [
         "0x2cd8687a473d4aa552c0a7ec1dc274e6f1dccea48319af70689d378ce86f6877",
@@ -101,22 +101,12 @@ export const demoVault: Vault = {
       timestamp: 1678459328743,
     },
     {
-      identifier: "0x91c46e41f6af316142c4b58b1afb91d4655ff87c",
-      seed: "0xd5b0dff2c9b0168e8998447e7b64df1f0fbe805b7442ab91377d8168aafe4ad0",
-      timestamp: 1678459363524,
-    },
-    {
-      identifier: "0x4ef9c52e3af04eafbda4ad6c65be08282b39c4bf",
-      seed: "0x8205b82bfd32ef2061e25eae75459b4777432f3db0dde5a1b6376a38f1fa024a",
-      timestamp: 1678459385136,
-    },
-    {
-      identifier: "0x1ae8839726ca075b866138e80c85d50c33d696ed",
+      identifier: "0xca55123aba844d347d0a18d91a958eda531447ff",
       seed: "0x38b31bdb6562614125218b667571eab501c8238c37b3e566d39a0f63f2036a3b",
       timestamp: 1678459403673,
     },
     {
-      identifier: "0x41714751c3f96e38ca16afe161a8a305a2828c59",
+      identifier: "0x644177f8d79117c2b9c7596527642b3c2d05888e",
       seed: "0x7bb627deeaa076028dc8488ac4641ee776d4a90abeff99301157cff7d38c2280",
       timestamp: 1678459423335,
     },

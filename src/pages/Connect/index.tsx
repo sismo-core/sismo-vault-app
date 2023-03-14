@@ -94,7 +94,6 @@ export default function Connect(): JSX.Element {
   const [groupMetadata, setGroupMetadata] = useState<GroupMetadata>(null);
   const [hasDataRequest, setHasDataRequest] = useState<boolean | null>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
-  const [referrerName, setReferrerName] = useState("");
   const [callbackUrl, setCallbackUrl] = useState(null);
   const [isWrongUrl, setIsWrongUrl] = useState({
     status: null,
@@ -196,10 +195,7 @@ export default function Connect(): JSX.Element {
             referrerUrl.hostname +
             (referrerUrl.port ? `:${referrerUrl.port}` : "");
           _callbackRefererPath = referrerUrl.pathname;
-          _referrerName =
-            referrer.split(".")?.length > 1
-              ? referrer.split(".")[referrer.split(".")?.length - 2]
-              : referrer.split("/")[2];
+
           _TLD =
             referrer.split(".")?.length > 1
               ? referrer
@@ -207,7 +203,6 @@ export default function Connect(): JSX.Element {
                   [referrer.split(".")?.length - 1].split("/")[0]
               : "";
         }
-        setReferrerName(_referrerName);
         setReferrerUrl(_callbackUrl + _callbackRefererPath);
         setCallbackUrl(_callbackUrl + (_callbackPath ? _callbackPath : ""));
       } catch (e) {
@@ -318,7 +313,7 @@ export default function Connect(): JSX.Element {
             groupMetadata={groupMetadata}
             callbackUrl={callbackUrl}
             referrerUrl={referrerUrl}
-            referrerName={referrerName}
+            referrerName={factoryApp?.name}
           />
         )}
       </ContentContainer>
