@@ -1,4 +1,4 @@
-import { EddsaPublicKey, EddsaSignature } from "@sismo-core/hydra-s1";
+import { EddsaPublicKey, EddsaSignature } from "@sismo-core/hydra-s2";
 import { BigNumber } from "ethers";
 
 type EthAccount = {

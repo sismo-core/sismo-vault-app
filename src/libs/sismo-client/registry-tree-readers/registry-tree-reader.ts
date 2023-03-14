@@ -2,7 +2,7 @@ import { Cache } from "../caches";
 import { ChainNameToId } from "../contracts/commons";
 import { fetchAvailableGroups } from "../services/available-data";
 import { OffchainAvailableGroups } from "./types";
-import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s1";
+import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
 import { OffChainAccountTreeMetadata } from "./types";
 
 export abstract class RegistryTreeReader {

@@ -1,4 +1,4 @@
-import { SnarkProof, UserParams } from "@sismo-core/hydra-s1";
+import { SnarkProof, UserParams } from "@sismo-core/hydra-s2";
 import { AccountData, OffchainProofRequest } from "./types";
 
 export abstract class Prover {

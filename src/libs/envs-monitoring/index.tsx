@@ -26,7 +26,7 @@ export default function EnvsMonitoring({
         ...env,
         //synapsPubKey: commitmentSignerSynapsPubKey,
         commitmentMapperPubKey: dataMapper.commitmentMapperPubKey,
-        hydraS1Version: packageJson.dependencies["@sismo-core/hydra-s1"],
+        hydraS2Version: packageJson.dependencies["@sismo-core/hydra-s2"],
         pythia1Version: packageJson.dependencies["@sismo-core/pythia-1"],
       };
     };

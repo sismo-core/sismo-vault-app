@@ -8,7 +8,7 @@ import { SismoWallet, WalletPurpose } from "../wallet";
 import { RecoveryKey, Vault } from "./client.types";
 import SHA3 from "sha3";
 import { BigNumber } from "ethers";
-import { SNARK_FIELD } from "@sismo-core/hydra-s1";
+import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 
 export class VaultClient {
   private provider: VaultProvider;

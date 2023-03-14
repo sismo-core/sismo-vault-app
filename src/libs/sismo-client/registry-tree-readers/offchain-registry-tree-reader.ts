@@ -1,4 +1,4 @@
-import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s1";
+import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
 import { fetchJsonTree } from "../services/available-data";
 import {
   getAccountsTreeInputs,

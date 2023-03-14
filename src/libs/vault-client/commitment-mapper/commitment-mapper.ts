@@ -1,5 +1,5 @@
 import { buildPoseidon } from "@sismo-core/crypto";
-import { SNARK_FIELD } from "@sismo-core/hydra-s1";
+import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import axios from "axios";
 import { BigNumber } from "ethers";
 import SHA3 from "sha3";
