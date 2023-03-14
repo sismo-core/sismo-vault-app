@@ -8,7 +8,7 @@
     "@sismo-core/crypto": "^1.0.6",
     "@sismo-core/hydra-s2": "^1.0.0",
     "@sismo-core/pythia-1": "^1.0.6",
-    "@sismo-core/zk-connect-client": "^0.0.0-beta.7",
+    "@sismo-core/zk-connect-client": "^0.0.0-beta.9",
     "@synaps-io/react-verify": "^1.0.1",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",

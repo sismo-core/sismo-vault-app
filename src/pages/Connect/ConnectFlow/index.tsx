@@ -124,7 +124,7 @@ export default function ConnectFlow({
         verifiableStatements: [],
         version: PWS_VERSION,
       };
-      const provingScheme = "hydra-s2.1" as any;
+      const provingScheme = "hydra-s2.1";
       if (hasDataRequested === false) {
         zkConnectResponse.authProof = {
           provingScheme,

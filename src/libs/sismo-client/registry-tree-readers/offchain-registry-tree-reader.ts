@@ -8,12 +8,17 @@ import {
 import { ChunkedGroups } from "../attesters/hydraS1/chunked-groups";
 import { Cache } from "../caches";
 import { RegistryTreeReader } from "./registry-tree-reader";
+import env from "../../../environment";
 
 export class OffchainRegistryTreeReader extends RegistryTreeReader {
   private _chunkedGroups: ChunkedGroups;
 
   constructor({ cache }: { cache: Cache }) {
-    super({ cache, attesterName: "hydra-s1-off-chain", chainName: "gnosis" });
+    super({
+      cache,
+      attesterName: "hydra-s1-off-chain",
+      chainName: env.chainName,
+    });
     this._chunkedGroups = new ChunkedGroups({ cache });
   }
 
