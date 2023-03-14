@@ -6,11 +6,11 @@ import colors from "../../../../../theme/colors";
 import HoverTooltip from "../../../../../components/HoverTooltip";
 import ThreeDots from "../../components/ThreeDots";
 import { AccountData } from "../../../../../libs/sismo-client/provers/types";
-import Logo, { LogoType } from "../../../../../components/Logo";
 import { useVault } from "../../../../../libs/vault";
 import { GroupMetadata } from "../../..";
 import EligibilityModal from "../../components/EligibilityModal";
 import { useState } from "react";
+import { Gem } from "../../../../../components/SismoReactIcon";
 
 const Container = styled.div`
   display: flex;
@@ -250,7 +250,7 @@ export default function ImportEligibleAccount({
         <Summary>
           <HeaderWrapper>
             <ContentHeader>
-              <Logo type={LogoType.PROOF} color={colors.blue0} size={22.61} />
+              <Gem color={colors.blue0} size={19} />
               ZK Proof Generation
             </ContentHeader>
 
@@ -295,8 +295,12 @@ export default function ImportEligibleAccount({
               importAccount.importing !== "account" &&
               importAccount.importing !== "owner" &&
               !loadingEligible && (
-                <EligibilityLink onClick={() => {}}>
-                  Eligibility{" "}
+                <EligibilityLink
+                  onClick={() => {
+                    setModalIsOpen(true);
+                  }}
+                >
+                  Eligibility
                   <ArrowWrapper>
                     <ArrowsOutSimple size={13.74} color={colors.blue2} />
                   </ArrowWrapper>

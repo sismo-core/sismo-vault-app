@@ -235,10 +235,10 @@ export class HydraS1OffchainProver extends Prover {
         verificationEnabled: true,
       };
 
-      const hasDataRequested =
+      const hasDataRequest =
         namespace && groupId && groupTimestamp && requestedValue && comparator;
 
-      if (hasDataRequested) {
+      if (hasDataRequest) {
         let accountsTree: KVMerkleTree;
         let registryTree: KVMerkleTree;
         if (!devAddresses) {
