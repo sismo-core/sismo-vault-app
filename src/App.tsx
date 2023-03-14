@@ -39,7 +39,7 @@ const removeHexadecimalNumbers = (event: Sentry.Event) => {
 
 !env.disabledSentry &&
   Sentry.init({
-    dsn: "https://ada3a7d1e0c148b09e6f8015949fb402@o1362988.ingest.sentry.io/6655193",
+    dsn: "https://715ab6b127b4455b83e5849bd4c3a5e9@o1362988.ingest.sentry.io/4504838094323712",
     integrations: [
       new Sentry.Integrations.Breadcrumbs({
         fetch: false,
