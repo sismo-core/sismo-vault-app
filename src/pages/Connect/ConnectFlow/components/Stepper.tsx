@@ -54,7 +54,7 @@ const CircleStep = styled.div<{ isFilled: boolean; color: string }>`
 type Props = {
   className?: string;
   style?: React.CSSProperties;
-  referrerName: string;
+  hostName: string;
   step: "SignIn" | "ImportEligibleAccount" | "GenerateZkProof" | "Redirecting";
 };
 
@@ -62,7 +62,7 @@ export default function LayoutFlow({
   className,
   style,
   step,
-  referrerName,
+  hostName,
 }: Props) {
   return (
     <Container className={className} style={style}>
@@ -75,7 +75,7 @@ export default function LayoutFlow({
         <Text color={step === "Redirecting" ? colors.blue1 : colors.blue5}>
           Redirecting to
           <br />
-          {referrerName}
+          {hostName}
         </Text>
       </LeftFlex>
 

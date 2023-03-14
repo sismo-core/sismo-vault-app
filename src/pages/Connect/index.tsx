@@ -203,6 +203,10 @@ export default function Connect(): JSX.Element {
                   .split(".")
                   [referrer.split(".")?.length - 1].split("/")[0]
               : "";
+          _referrerName =
+            referrer.split(".")?.length > 1
+              ? referrer.split(".")[referrer.split(".")?.length - 2]
+              : referrer.split("/")[2];
           _hostname =
             referrer.split("//").length > 1
               ? referrer.split("//")[1].split("/")[0]
@@ -280,6 +284,13 @@ export default function Connect(): JSX.Element {
           (domain: string) => {
             const domainName = domain.split(".")[domain.split(".").length - 2];
             const TLD = domain.split(".")[domain.split(".").length - 1];
+            if (env.name === "DEV_BETA" && _referrerName.includes("localhost"))
+              return true;
+            if (
+              domainName.includes("localhost") &&
+              _referrerName.includes("localhost")
+            )
+              return true;
             if (domainName === "*") return true;
             if (domainName === _referrerName && TLD === _TLD) return true;
             return false;
@@ -287,7 +298,11 @@ export default function Connect(): JSX.Element {
         );
 
         if (!isAuthorized) {
-          throw new Error("Unauthorized domain");
+          setIsWrongUrl({
+            status: true,
+            message: `The domain "${_referrerName}" is not an authorized domain for the appId ${_appId}. If this is your app, please make sure to add your domain to your zkConnect app from the factory`,
+          });
+          return;
         }
 
         setFactoryApp(factoryApp.data);
@@ -320,7 +335,7 @@ export default function Connect(): JSX.Element {
             groupMetadata={groupMetadata}
             callbackUrl={callbackUrl}
             referrerUrl={referrerUrl}
-            referrerName={factoryApp?.name}
+            appName={factoryApp?.name}
             hostName={hostName}
           />
         )}
