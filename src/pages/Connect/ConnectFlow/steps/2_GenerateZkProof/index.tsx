@@ -1,8 +1,6 @@
 import styled from "styled-components";
 import { Check } from "phosphor-react";
 import colors from "../../../../../theme/colors";
-import Logo, { LogoType } from "../../../../../components/Logo";
-import ThreeDotsLoader from "../../../../../components/ThreeDotsLoader";
 import { useCallback, useEffect, useState } from "react";
 import { useVault } from "../../../../../libs/vault";
 import { useSismo } from "../../../../../libs/sismo";
@@ -13,6 +11,9 @@ import {
 } from "../../../../../libs/sismo-client/provers/types";
 import { SnarkProof } from "@sismo-core/hydra-s2";
 import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+import ShardAnimation from "../../components/ShardAnimation";
+import { GroupMetadata } from "../../..";
+import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
 
 const Container = styled.div`
   display: flex;
@@ -53,32 +54,6 @@ const Schema = styled.div`
   align-self: center;
 `;
 
-const VaultIconWrapper = styled.div`
-  width: 55px;
-  height: 45px;
-  position: relative;
-`;
-
-const VaultIcon = styled.img`
-  width: 45px;
-  height: 45px;
-`;
-
-const GreenCircle = styled.div`
-  position: absolute;
-  bottom: 0;
-  right: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: ${(props) => props.theme.colors.green1};
-`;
-
 const LoadingWrapper = styled.div`
   margin-top: 50px;
   display: flex;
@@ -94,10 +69,12 @@ const SuccessWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   flex-grow: 1;
-  margin-top: 21px;
+  margin-top: 37px;
 `;
 
 const ProofSuccessWrapper = styled.div`
+  display: flex;
+  align-items: center;
   position: relative;
 `;
 
@@ -126,19 +103,21 @@ const LoadingFeedBack = styled(FeedBack)`
 
 type Props = {
   zkConnectRequest: ZkConnectRequest;
+  groupMetadata: GroupMetadata;
   eligibleAccountData: AccountData;
-  hasDataRequested: boolean;
+  hasDataRequest: boolean;
   onNext: (proof: SnarkProof) => void;
 };
 
 export default function GenerateZkProof({
   eligibleAccountData,
+  groupMetadata,
   zkConnectRequest,
-  hasDataRequested,
+  hasDataRequest,
   onNext,
 }: Props) {
   const vault = useVault();
-  const [loadingProof, setLoadingProof] = useState(false);
+  const [loadingProof, setLoadingProof] = useState(true);
   const [proof, setProof] = useState<SnarkProof>(null);
   const [, setErrorProof] = useState(false);
   const sismo = useSismo();
@@ -150,12 +129,12 @@ export default function GenerateZkProof({
       let proofRequest: OffchainProofRequest;
       const owner = vault.owners[0];
       const vaultSecret = await vault.getVaultSecret(owner);
-      if (hasDataRequested === false) {
+      if (hasDataRequest === false) {
         proofRequest = {
           appId: zkConnectRequest.appId,
           vaultSecret: vaultSecret,
         };
-      } else if (hasDataRequested === true) {
+      } else if (hasDataRequest === true) {
         const eligibleSourceAccount = vault.importedAccounts.find(
           (_source) => _source.identifier === eligibleAccountData.identifier
         );
@@ -204,7 +183,7 @@ export default function GenerateZkProof({
       <Summary>
         <HeaderWrapper>
           <ContentHeader>
-            <Logo type={LogoType.PROOF} color={colors.blue0} size={22.61} />
+            <Gem color={colors.blue0} size={19} />
             ZK Proof Generation
           </ContentHeader>
         </HeaderWrapper>
@@ -213,14 +192,7 @@ export default function GenerateZkProof({
       {!proof && loadingProof && (
         <LoadingWrapper>
           <Schema>
-            <VaultIconWrapper>
-              <VaultIcon src="/assets/sismo-vault-v2.svg" alt="vault" />
-              <GreenCircle>
-                <Check size={12.73} color={colors.blue10} weight="bold" />
-              </GreenCircle>
-            </VaultIconWrapper>
-            <ThreeDotsLoader />
-            <Logo type={LogoType.PROOF} size={53.56} color={`#8F826A`} />
+            <ShardAnimation groupMetadata={[groupMetadata]} />
           </Schema>
           <LoadingFeedBack>Generating ZK Proof...</LoadingFeedBack>
         </LoadingWrapper>
@@ -229,7 +201,7 @@ export default function GenerateZkProof({
       {proof && (
         <SuccessWrapper>
           <ProofSuccessWrapper>
-            <Logo type={LogoType.PROOF} size={83.32} color={colors.orange2} />
+            <GemProof size={58} color={colors.purple2} />
           </ProofSuccessWrapper>
           <FeedBack>
             <div>ZK Proof generated!</div>

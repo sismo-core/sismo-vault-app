@@ -1,36 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import Button from "../../../../../components/Button";
 import { useVault } from "../../../../../libs/vault";
 import HeaderTitle from "../../components/HeaderTitle";
-import { ArrowSquareOut } from "phosphor-react";
+import { ArrowSquareOut, Info } from "phosphor-react";
 import { capitalizeFirstLetter } from "../../../../../utils/capitalizeFirstLetter";
 import ConnectVaultModal from "../../../../Modals/ConnectVaultModal";
 import { FactoryAppType, GroupMetadata } from "../../..";
 import Skeleton from "./components/Skeleton";
-import EligibilityModal from "../../components/EligibilityModal";
+import HoverTooltip from "../../../../../components/HoverTooltip";
+import colors from "../../../../../theme/colors";
+import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+import ShardTag from "../../components/ShardTag";
+import { BigNumber } from "ethers";
 
-const Container = styled.div`
+const Container = styled.div<{ hasDataRequest: boolean }>`
   background-color: ${(props) => props.theme.colors.blue11};
   color: ${(props) => props.theme.colors.blue0};
   width: 100%;
   padding: 24px 30px 40px 30px;
   border-radius: 10px;
 
-  min-height: 507px;
-  gap: 48px;
+  min-height: ${(props) => (props.hasDataRequest ? "500px" : "388px")};
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 
   box-sizing: border-box;
 `;
 
 const Content = styled.div`
+  flex-grow: 1;
   display: flex;
-  flex-direction: center;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+`;
+
+const TopContent = styled.div`
+  display: flex;
   align-items: center;
   flex-direction: column;
 `;
@@ -41,26 +49,30 @@ const ContentTitle = styled.div`
   justify-content: center;
   align-items: center;
   gap: 4px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 `;
 
 const AppLogo = styled.img`
   width: 96px;
   height: 96px;
   border-radius: 50%;
+  margin-bottom: 20px;
 `;
 
-const GroupTag = styled.div`
-  font-family: ${(props) => props.theme.fonts.medium};
+const DataRequested = styled.div`
   font-size: 14px;
   line-height: 20px;
+  font-family: ${(props) => props.theme.fonts.regular};
   color: ${(props) => props.theme.colors.blue0};
-  padding: 2px 8px;
-  background: ${(props) => props.theme.colors.blue9};
-  border-radius: 4px;
+  margin-bottom: 6px;
 `;
 
-const DataRequested = styled.div``;
+const Separator = styled.div`
+  width: 252px;
+  height: 1px;
+  background: ${(props) => props.theme.colors.blue9};
+  margin-bottom: 10px;
+`;
 
 const SecondLine = styled.div`
   display: flex;
@@ -101,31 +113,55 @@ const Link = styled.a`
 
 type Props = {
   factoryApp: FactoryAppType;
+  zkConnectRequest: ZkConnectRequest;
   groupMetadata: GroupMetadata | null;
   referrerUrl: string;
   referrerName: string;
-  hasDataRequested: boolean;
+  hasDataRequest: boolean;
   onNext: () => void;
 };
 
 export default function SignIn({
   groupMetadata,
+  zkConnectRequest,
   referrerName,
   referrerUrl,
   factoryApp,
-  hasDataRequested,
+  hasDataRequest,
   onNext,
 }: Props) {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(true);
 
   const vault = useVault();
   // const proveName = badge?.name?.split(" ZK Badge")[0] || null;
   // const article = ["a", "e", "i", "o", "u"].includes(badge?.name) ? "an" : "a";
 
-  const humanReadableGroupName = groupMetadata?.name
-    ?.replace(/-/g, " ")
-    .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
+  useEffect(() => {
+    const loadImage = (url) => {
+      return new Promise((resolve, reject) => {
+        const loadImg = new Image(96, 96);
+        loadImg.src = url;
+        loadImg.onload = () => resolve(url);
+        loadImg.onerror = (err) => reject(err);
+      });
+    };
+
+    if (factoryApp) {
+      loadImage(factoryApp.logoUrl).then(() => {
+        setImgLoaded(true);
+      });
+    }
+  }, [factoryApp]);
+
+  const loading = hasDataRequest
+    ? !factoryApp ||
+      !referrerName ||
+      vault.loadingActiveSession ||
+      !zkConnectRequest ||
+      !imgLoaded ||
+      !groupMetadata
+    : !factoryApp || !referrerName || vault.loadingActiveSession || !imgLoaded;
 
   return (
     <>
@@ -133,44 +169,48 @@ export default function SignIn({
         isOpen={connectIsOpen}
         onClose={() => setConnectIsOpen(false)}
       />
-      <EligibilityModal
-        groupMetadata={groupMetadata}
-        isOpen={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
-      />
 
-      <Container>
-        <HeaderTitle url={referrerUrl} />
+      <Container hasDataRequest={hasDataRequest}>
+        <HeaderTitle url={referrerUrl} style={{ marginBottom: 20 }} />
 
-        {(!factoryApp || !referrerName) && <Skeleton />}
-        {factoryApp && referrerName && (
-          <>
-            {/* <MintSchema
-              referrerName={referrerName}
-              logoUrl={factoryApp?.logoUrl}
-            /> */}
-            <Content>
+        {loading && <Skeleton />}
+        {!loading && (
+          <Content>
+            <TopContent>
               <ContentTitle>
                 <AppLogo src={factoryApp?.logoUrl} alt={referrerName} />
                 <SecondLine>
-                  Connect to <Bold>{capitalizeFirstLetter(referrerName)}</Bold>
+                  Connect to
+                  <Bold>{capitalizeFirstLetter(referrerName)}</Bold>
+                  <HoverTooltip
+                    width={300}
+                    text="Connecting with your Vault does not reveal the accounts inside. You only reveal your Vault ID—an anonymous app-specific identifier that authenticates ownership of a Data Vault. "
+                  >
+                    <Info size={12} color={colors.blue0} />
+                  </HoverTooltip>
                 </SecondLine>
               </ContentTitle>
 
-              {groupMetadata && (
+              {hasDataRequest && (
                 <>
-                  <DataRequested>Data requested:</DataRequested>
-                  <GroupTag>{humanReadableGroupName}</GroupTag>
+                  <DataRequested>Requested Data</DataRequested>
+                  <Separator />
+                  <ShardTag
+                    groupMetadata={groupMetadata}
+                    comparator={
+                      zkConnectRequest?.dataRequest?.statementRequests[0]
+                        ?.comparator
+                    }
+                    requestedValue={
+                      BigNumber.from(
+                        zkConnectRequest?.dataRequest?.statementRequests[0]
+                          ?.requestedValue
+                      ).toNumber() || 1
+                    }
+                  />
                 </>
               )}
-
-              {/* <EligibilityLink onClick={() => setModalIsOpen(true)}>
-                Eligibility{" "}
-                <ArrowWrapper>
-                  <ArrowsOutSimple size={13.74} color={colors.blue2} />
-                </ArrowWrapper>
-              </EligibilityLink> */}
-            </Content>
+            </TopContent>
             <ButtonGroup>
               <Link
                 onClick={() =>
@@ -184,21 +224,13 @@ export default function SignIn({
               </Link>
 
               {vault.isConnected ? (
-                <>
-                  {!groupMetadata && hasDataRequested ? (
-                    <>Loading group metadata...</>
-                  ) : (
-                    <>
-                      <Button
-                        style={{ width: "100%" }}
-                        success
-                        onClick={() => onNext()}
-                      >
-                        Connect O
-                      </Button>
-                    </>
-                  )}
-                </>
+                <Button
+                  style={{ width: "100%" }}
+                  success
+                  onClick={() => onNext()}
+                >
+                  Connect
+                </Button>
               ) : (
                 <Button
                   style={{ width: "100%" }}
@@ -208,8 +240,8 @@ export default function SignIn({
                   Sign-in to Sismo
                 </Button>
               )}
-            </ButtonGroup>{" "}
-          </>
+            </ButtonGroup>
+          </Content>
         )}
       </Container>
     </>

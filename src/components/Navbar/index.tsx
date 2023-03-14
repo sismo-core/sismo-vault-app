@@ -115,6 +115,8 @@ const Logo = styled.div`
   align-items: flex-end;
   flex-direction: row;
   cursor: pointer;
+  width: 70px;
+  height: 70px;
 
   @media (max-width: 800px) {
     width: 40px;
@@ -144,6 +146,7 @@ export default function Navbar(): JSX.Element {
   const navigate = useNavigate();
   let location = useLocation();
   const [scrollbarWidth, setScrollbarWidth] = useState(null);
+  const [logoLoaded, setLogoLoaded] = useState(false);
 
   const displayNav = useMemo(() => {
     if (
@@ -162,6 +165,12 @@ export default function Navbar(): JSX.Element {
     }
     return !vault.isConnected;
   }, [vault.isConnected, location.pathname]);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/assets/logoV2.svg";
+    img.onload = () => setLogoLoaded(true);
+  }, []);
 
   useEffect(() => {
     function resizeHandler() {
@@ -203,24 +212,26 @@ export default function Navbar(): JSX.Element {
                 alt="Sismo logo"
                 onClick={() => navigate("/")}
               />
-              <Tag>
-                {env.name === "STAGING_BETA" &&
-                  `
+              {logoLoaded && (
+                <Tag>
+                  {env.name === "STAGING_BETA" &&
+                    `
                       Staging
                     `}
-                {env.name === "PROD_BETA" &&
-                  `
+                  {env.name === "PROD_BETA" &&
+                    `
                       Beta
                     `}
-                {env.name === "DEMO" &&
-                  `
+                  {env.name === "DEMO" &&
+                    `
                       Demo
                     `}
-                {env.name === "DEV_BETA" &&
-                  `
+                  {env.name === "DEV_BETA" &&
+                    `
                       Dev
                     `}
-              </Tag>
+                </Tag>
+              )}
             </Logo>
           </Section>
 

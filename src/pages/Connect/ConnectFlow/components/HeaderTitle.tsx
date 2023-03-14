@@ -6,14 +6,16 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+  height: 50px;
 `;
 
 const Title = styled.div`
   color: ${(props) => props.theme.colors.blue1};
+  margin-bottom: 4px;
 `;
 
 const TitleLarge = styled.span`
-  font-size: 32px;
+  font-size: 35.2463px;
   line-height: 32px;
   font-family: ${(props) => props.theme.fonts.logo};
 `;
@@ -27,15 +29,14 @@ const Subtitle = styled.div`
 
 type Props = {
   url: string;
+  style?: React.CSSProperties;
 };
 
-export default function HeaderTitle({ url }: Props) {
+export default function HeaderTitle({ url, style }: Props) {
   return (
-    <Container>
+    <Container style={style}>
       <Title>
-        <TitleLarge>zk</TitleLarge>
-        {/* <TitleSmall> WITH </TitleSmall> */}
-        <TitleLarge>Connect</TitleLarge>
+        <TitleLarge>zkConnect</TitleLarge>
       </Title>
       <Subtitle>{url}</Subtitle>
     </Container>

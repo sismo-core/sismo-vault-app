@@ -1,5 +1,13 @@
 import styled, { keyframes } from "styled-components";
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 366px;
+  box-sizing: border-box;
+`;
+
 export const SkeletonLoading = keyframes`
   from {
     background-position-x: 0%;
@@ -9,11 +17,16 @@ export const SkeletonLoading = keyframes`
   }
 `;
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 48px;
+const Separator = styled.div`
+  width: 252px;
+  height: 1px;
+  background: ${(props) => props.theme.colors.blue9};
+  margin: 10px 0;
+  box-sizing: border-box;
+`;
+
+const Wrapper = styled.div`
+  justify-content: center;
 
   background: linear-gradient(
     90deg,
@@ -27,50 +40,80 @@ const Container = styled.div`
   animation-duration: 1.5s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  box-sizing: border-box;
+`;
+
+const TopWrapper = styled(Wrapper)`
+  clip-path: url(#svgClipPathID1);
+`;
+const MiddleWrapper = styled(Wrapper)`
+  clip-path: url(#svgClipPathID2);
+`;
+const BottomWrapper = styled(Wrapper)`
+  clip-path: url(#svgClipPathID3);
+  transform: translateY(46px);
 `;
 
 export default function Skeleton() {
   return (
     <Container>
-      <svg
-        version="1.1"
-        id="Calque_1"
-        xmlns="http://www.w3.org/2000/svg"
-        x="0px"
-        y="0px"
-        viewBox="0 0 470 345"
-        enableBackground="new 0 0 470 345"
-        xmlSpace="preserve"
-        width={470}
-      >
-        <clipPath id="svgClipPathID">
-          <path d="M93,0h23c2.8,0,5,2.2,5,5v6c0,2.8-2.2,5-5,5H93c-2.8,0-5-2.2-5-5V5C88,2.2,90.2,0,93,0z" />
-          <path d="M83.5,20h42c2.8,0,5,2.2,5,5v6c0,2.8-2.2,5-5,5h-42c-2.8,0-5-2.2-5-5v-6C78.5,22.2,80.7,20,83.5,20z" />
-          <path d="M204.5,0h44c2.8,0,5,2.2,5,5v6c0,2.8-2.2,5-5,5h-44c-2.8,0-5-2.2-5-5V5C199.5,2.2,201.7,0,204.5,0z" />
-          <path d="M205.5,20h42c2.8,0,5,2.2,5,5v6c0,2.8-2.2,5-5,5h-42c-2.8,0-5-2.2-5-5v-6C200.5,22.2,202.7,20,205.5,20z" />
-          <path d="M315.5,0h71c2.8,0,5,2.2,5,5v6c0,2.8-2.2,5-5,5h-71c-2.8,0-5-2.2-5-5V5C310.5,2.2,312.7,0,315.5,0z" />
-          <path d="M330,20h42c2.8,0,5,2.2,5,5v6c0,2.8-2.2,5-5,5h-42c-2.8,0-5-2.2-5-5v-6C325,22.2,327.2,20,330,20z" />
-          <path
-            d="M102,44L102,44c13,0,23.5,10.5,23.5,23.5l0,0c0,13-10.5,23.5-23.5,23.5l0,0c-13,0-23.5-10.5-23.5-23.5l0,0
-	C78.5,54.5,89,44,102,44z"
-          />
-          <path d="M142,65h45c1.4,0,2.5,1.1,2.5,2.5l0,0c0,1.4-1.1,2.5-2.5,2.5h-45c-1.4,0-2.5-1.1-2.5-2.5l0,0C139.5,66.1,140.6,65,142,65z" />
-          <path
-            d="M227,44L227,44c13,0,23.5,10.5,23.5,23.5l0,0c0,13-10.5,23.5-23.5,23.5l0,0c-13,0-23.5-10.5-23.5-23.5l0,0
-	C203.5,54.5,214,44,227,44z"
-          />
-          <path d="M267,65h45c1.4,0,2.5,1.1,2.5,2.5l0,0c0,1.4-1.1,2.5-2.5,2.5h-45c-1.4,0-2.5-1.1-2.5-2.5l0,0C264.5,66.1,265.6,65,267,65z" />
-          <path
-            d="M352,44L352,44c13,0,23.5,10.5,23.5,23.5l0,0c0,13-10.5,23.5-23.5,23.5l0,0c-13,0-23.5-10.5-23.5-23.5l0,0
-	C328.5,54.5,339,44,352,44z"
-          />
-          <path d="M70,139h330c2.8,0,5,2.2,5,5v12c0,2.8-2.2,5-5,5H70c-2.8,0-5-2.2-5-5v-12C65,141.2,67.2,139,70,139z" />
-          <path d="M172,165h126c2.8,0,5,2.2,5,5v14c0,2.8-2.2,5-5,5H172c-2.8,0-5-2.2-5-5v-14C167,167.2,169.2,165,172,165z" />
-          <path d="M201,209h68c2.8,0,5,2.2,5,5v10c0,2.8-2.2,5-5,5h-68c-2.8,0-5-2.2-5-5v-10C196,211.2,198.2,209,201,209z" />
-          <path d="M238,277h118c2.8,0,5,2.2,5,5v8c0,2.8-2.2,5-5,5H238c-2.8,0-5-2.2-5-5v-8C233,279.2,235.2,277,238,277z" />
-          <path d="M114,305h242c2.8,0,5,2.2,5,5v30c0,2.8-2.2,5-5,5H114c-2.8,0-5-2.2-5-5v-30C109,307.2,111.2,305,114,305z" />
-        </clipPath>
-      </svg>
+      <TopWrapper>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          x="0px"
+          y="0px"
+          viewBox="0 0 200 178"
+          enableBackground="new 0 0 200 178"
+          xmlSpace="preserve"
+          width={200}
+          height={178}
+        >
+          <clipPath id="svgClipPathID1">
+            <path d="M97,0h6c24.9,0,45,20.1,45,45v6c0,24.9-20.1,45-45,45h-6c-24.9,0-45-20.1-45-45v-6C52,20.1,72.1,0,97,0z" />
+            <path d="M5,116h190c2.8,0,5,2.2,5,5v12c0,2.8-2.2,5-5,5H5c-2.8,0-5-2.2-5-5v-12C0,118.2,2.2,116,5,116z" />
+            <path d="M52,158h96c2.8,0,5,2.2,5,5v10c0,2.8-2.2,5-5,5H52c-2.8,0-5-2.2-5-5v-10C47,160.2,49.2,158,52,158z" />
+          </clipPath>
+        </svg>
+      </TopWrapper>
+      <Separator />
+      <MiddleWrapper>
+        <svg
+          version="1.1"
+          id="Calque_1"
+          xmlns="http://www.w3.org/2000/svg"
+          x="0px"
+          y="0px"
+          viewBox="0 0 120 24"
+          enableBackground="new 0 0 120 24"
+          xmlSpace="preserve"
+          width={120}
+          height={24}
+        >
+          <clipPath id="svgClipPathID2">
+            <path d="M5,0h110c2.8,0,5,2.2,5,5v14c0,2.8-2.2,5-5,5H5c-2.8,0-5-2.2-5-5V5C0,2.2,2.2,0,5,0z" />
+          </clipPath>
+        </svg>
+      </MiddleWrapper>
+      <Separator />
+      <BottomWrapper>
+        <svg
+          version="1.1"
+          id="Calque_1"
+          xmlns="http://www.w3.org/2000/svg"
+          x="0px"
+          y="0px"
+          viewBox="0 0 252 68"
+          enableBackground="new 0 0 252 68"
+          xmlSpace="preserve"
+          width={252}
+          height={68}
+        >
+          <clipPath id="svgClipPathID3">
+            <path d="M117,0h130c2.8,0,5,2.2,5,5v8c0,2.8-2.2,5-5,5H117c-2.8,0-5-2.2-5-5V5C112,2.2,114.2,0,117,0z" />
+            <path d="M5,28h242c2.8,0,5,2.2,5,5v30c0,2.8-2.2,5-5,5H5c-2.8,0-5-2.2-5-5V33C0,30.2,2.2,28,5,28z" />
+          </clipPath>
+        </svg>
+      </BottomWrapper>
     </Container>
   );
 }
