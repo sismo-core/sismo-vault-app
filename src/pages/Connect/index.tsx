@@ -84,7 +84,7 @@ export type GroupMetadata = {
   dataUrl: string;
 };
 
-export const PWS_VERSION = "off-chain-1";
+export const PWS_VERSION = "zk-connect-v1";
 
 export default function Connect(): JSX.Element {
   const [searchParams] = useSearchParams();

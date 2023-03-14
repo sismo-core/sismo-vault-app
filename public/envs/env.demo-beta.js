@@ -7,6 +7,7 @@ window.env = {
   factoryApiUrl: "https://factory-api.sismo.io",
   commitmentMapperUrl: "https://btwu3bqo4a.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "d3f98ef4b1abaa0354b0",
+  chainName: "gnosis",
   sismoDestination: {
     address: "0x0000000000000000000000000000000000515110",
     sec: 515110,

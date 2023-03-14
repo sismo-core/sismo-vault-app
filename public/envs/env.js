@@ -1,12 +1,13 @@
 //app.sismo.io
 window.env = {
-  name: "DEMO",
+  name: "STAGING_BETA",
   disabledSentry: false,
   vaultURL: "https://vault-beta-api.sismo.io",
-  hubApiUrl: "https://hub.sismo.io",
-  factoryApiUrl: "https://factory-api.sismo.io",
-  commitmentMapperUrl: "https://btwu3bqo4a.execute-api.eu-west-1.amazonaws.com",
-  githubOauthClientId: "d3f98ef4b1abaa0354b0",
+  hubApiUrl: "https://hub.staging.zikies.io",
+  factoryApiUrl: "https://factory-api.staging.zikies.io",
+  commitmentMapperUrl: "https://x93oogcd5e.execute-api.eu-west-1.amazonaws.com",
+  githubOauthClientId: "ed165a166320d0676ccb",
+  chainName: "goerli",
   sismoDestination: {
     address: "0x0000000000000000000000000000000000515110",
     sec: 515110,

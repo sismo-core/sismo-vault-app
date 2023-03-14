@@ -1,4 +1,4 @@
-import { JsonMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s1";
+import { JsonMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
 import axios from "axios";
 import { ChainIdToName } from "..";
 import env from "../../../environment";

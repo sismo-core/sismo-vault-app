@@ -7,6 +7,7 @@ type Environment = {
   hubApiUrl: string;
   commitmentMapperUrl?: string;
   githubOauthClientId?: string;
+  chainName?: string;
   sismoDestination: {
     address: string;
     sec: number;

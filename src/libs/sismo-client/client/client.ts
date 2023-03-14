@@ -1,13 +1,13 @@
 import { overrideEligibleGroupDataFormatter } from "../../zk-connect/utils";
 import { Cache } from "../caches";
-import { HydraS1OffchainProver } from "../provers/hydra-s1-offchain-prover";
+import { HydraS2OffchainProver } from "../provers/hydra-s2-offchain-prover";
 import { GetEligibilityInputs, OffchainProofRequest } from "../provers/types";
 
 export class SismoClient {
-  public prover: HydraS1OffchainProver;
+  public prover: HydraS2OffchainProver;
 
   constructor({ cache }: { cache: Cache }) {
-    this.prover = new HydraS1OffchainProver({ cache });
+    this.prover = new HydraS2OffchainProver({ cache });
   }
 
   /*****************************************************************/

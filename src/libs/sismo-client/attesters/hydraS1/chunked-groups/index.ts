@@ -1,5 +1,5 @@
 import { Cache } from "../../../caches";
-import { MerkleTreeData } from "@sismo-core/hydra-s1";
+import { MerkleTreeData } from "@sismo-core/hydra-s2";
 import { fetchDataTree } from "../../../services/available-data";
 
 export class ChunkedGroups {

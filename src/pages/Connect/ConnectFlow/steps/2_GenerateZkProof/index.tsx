@@ -9,7 +9,7 @@ import {
   AccountData,
   OffchainProofRequest,
 } from "../../../../../libs/sismo-client/provers/types";
-import { SnarkProof } from "@sismo-core/hydra-s1";
+import { SnarkProof } from "@sismo-core/hydra-s2";
 import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import ShardAnimation from "../../components/ShardAnimation";
 import { GroupMetadata } from "../../..";

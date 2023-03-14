@@ -4,7 +4,7 @@ import {
   OffchainProofRequest,
   GetEligibilityInputs,
 } from "../sismo-client/provers/types";
-import { SnarkProof } from "@sismo-core/hydra-s1";
+import { SnarkProof } from "@sismo-core/hydra-s2";
 
 export type Sismo = {
   getEligibility: ({

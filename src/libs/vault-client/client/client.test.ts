@@ -1,4 +1,4 @@
-import { EddsaPublicKey, EddsaSignature } from "@sismo-core/hydra-s1";
+import { EddsaPublicKey, EddsaSignature } from "@sismo-core/hydra-s2";
 import { BigNumber, Wallet } from "ethers";
 import { RecoveryKey, ImportedAccount, Owner, VaultClient } from ".";
 import { LocalStore } from "../stores/local-store";

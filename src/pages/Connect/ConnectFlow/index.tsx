@@ -12,7 +12,7 @@ import {
   AccountData,
   devAddressesType,
 } from "../../../libs/sismo-client/provers/types";
-import { SnarkProof } from "@sismo-core/hydra-s1";
+import { SnarkProof } from "@sismo-core/hydra-s2";
 import { ArrowLeft } from "phosphor-react";
 import {
   ZkConnectRequest,
@@ -124,7 +124,7 @@ export default function ConnectFlow({
         verifiableStatements: [],
         version: PWS_VERSION,
       };
-      const provingScheme = "hydra-s1.2";
+      const provingScheme = "hydra-s2.1";
       if (hasDataRequest === false) {
         zkConnectResponse.authProof = {
           provingScheme,
