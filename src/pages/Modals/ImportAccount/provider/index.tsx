@@ -134,7 +134,6 @@ export default function ImportAccountModalProvider({
         commitmentMapperPubKey = alreadyImported.commitmentMapperPubKey;
       } else {
         try {
-          console.log("commitment1");
           const commitmentMapperSecret =
             CommitmentMapper.generateCommitmentMapperSecret(seed);
           const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
@@ -149,7 +148,6 @@ export default function ImportAccountModalProvider({
             vaultSecret
           );
 
-          console.log("commitment2");
           commitmentReceipt = _commitmentReceipt;
           commitmentMapperPubKey = _commitmentMapperPubKey;
         } catch (e) {
