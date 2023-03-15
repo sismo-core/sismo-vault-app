@@ -134,6 +134,7 @@ export default function ImportAccountModalProvider({
         commitmentMapperPubKey = alreadyImported.commitmentMapperPubKey;
       } else {
         try {
+          console.log("commitment1");
           const commitmentMapperSecret =
             CommitmentMapper.generateCommitmentMapperSecret(seed);
           const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
@@ -148,10 +149,20 @@ export default function ImportAccountModalProvider({
             vaultSecret
           );
 
+          console.log("commitment2");
           commitmentReceipt = _commitmentReceipt;
           commitmentMapperPubKey = _commitmentMapperPubKey;
         } catch (e) {
-          triggerError(e);
+          Sentry.withScope(function (scope) {
+            scope.setLevel("fatal");
+            Sentry.captureException(e);
+          });
+          console.error(e);
+          notificationAdded({
+            text: "Account already imported into another vault.",
+            type: "error",
+          });
+          setImporting(null);
           return;
         }
       }
