@@ -3,6 +3,7 @@ import styled from "styled-components";
 import * as animationData from "./ziki-jobs.json";
 import lottie, { AnimationItem } from "lottie-web";
 import { X } from "phosphor-react";
+import env from "../../environment";
 
 const Container = styled.div<{ isClose: boolean }>`
   position: fixed;
@@ -118,12 +119,12 @@ const Close = styled.div`
   }
 `;
 
-const ZikiRun = styled.div`
+const ZikiRun = styled.div<{ isDev: boolean }>`
   width: 70px;
   height: 70px;
   position: absolute;
   top: 70px;
-  right: 82px;
+  right: ${(props) => (props.isDev ? "123px" : "100px")};
 `;
 
 const Bold = styled.span`
@@ -199,18 +200,48 @@ export default function AlphaNotification({ onClose }: Props): JSX.Element {
           window.innerWidth <= 800 && close();
         }}
       >
-        <NotificationText
-          color={color}
-          href="https://docs.google.com/forms/d/1RblOzLF5TrgxYmkvj6aTgR9d6NHaP9sxVtSLBL8WmYY/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          We are still in Alpha
-          <Bold>Give us your feedback</Bold>
-          <SmallLink>
-            <Heart> 💜</Heart>
-          </SmallLink>
-        </NotificationText>
+        {env.name === "DEMO" && (
+          <NotificationText
+            color={color}
+            href="https://forms.gle/gYeyffjvH7kvdzbJ7"
+            target="_blank"
+            rel="noreferrer"
+          >
+            This is a demo.
+            <Bold>Let us know your feedback!</Bold>
+            <SmallLink>
+              <Heart> 💜</Heart>
+            </SmallLink>
+          </NotificationText>
+        )}
+        {env.name === "DEV_BETA" && (
+          <NotificationText
+            color={color}
+            href="https://builders.sismo.io/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Need help?
+            <Bold>Join our Telegram group for devs!</Bold>
+            <SmallLink>
+              <Heart> 💜</Heart>
+            </SmallLink>
+          </NotificationText>
+        )}
+        {env.name !== "DEV_BETA" && env.name !== "DEMO" && (
+          <NotificationText
+            color={color}
+            href="https://forms.gle/gYeyffjvH7kvdzbJ7"
+            target="_blank"
+            rel="noreferrer"
+          >
+            This is a Beta.
+            <Bold>Let us know your feedback!</Bold>
+            <SmallLink>
+              <Heart> 💜</Heart>
+            </SmallLink>
+          </NotificationText>
+        )}
         <Close
           onClick={(e) => {
             close();
@@ -219,7 +250,10 @@ export default function AlphaNotification({ onClose }: Props): JSX.Element {
         >
           <X weight="bold" size={9.2} />
         </Close>
-        <ZikiRun style={{ transform: isClose ? "scaleX(-1)" : "" }}>
+        <ZikiRun
+          style={{ transform: isClose ? "scaleX(-1)" : "" }}
+          isDev={env.name === "DEV_BETA"}
+        >
           <div
             ref={zikiRunElement}
             style={{
