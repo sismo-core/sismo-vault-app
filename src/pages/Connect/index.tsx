@@ -180,7 +180,7 @@ export default function Connect(): JSX.Element {
 
     setZkConnectRequest(params);
 
-    let _callbackUrl = "http://myfakeapp.com";
+    let _callbackUrl = "";
     let _referrerName = "your app";
     let _callbackRefererPath = "";
     let _TLD = "";
@@ -215,7 +215,11 @@ export default function Connect(): JSX.Element {
 
         setHostname(_hostname);
         setReferrerUrl(_callbackUrl + _callbackRefererPath);
-        setCallbackUrl(_callbackUrl + (_callbackPath ? _callbackPath : ""));
+        setCallbackUrl(
+          _callbackPath && _callbackPath.includes("chrome-extension://")
+            ? _callbackPath
+            : _callbackUrl + (_callbackPath ? _callbackPath : "")
+        );
       } catch (e) {
         console.log("Referrer error");
         setIsWrongUrl({
