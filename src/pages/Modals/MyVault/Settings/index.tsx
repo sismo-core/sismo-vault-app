@@ -2,7 +2,6 @@ import styled from "styled-components";
 import RecoveryKeys from "./components/RecoveryKeys";
 import Customize from "./components/Customize";
 import Owners from "./components/Owners";
-import Security from "./components/Security";
 
 const Container = styled.div`
   height: calc(100vh - 200px);
@@ -30,7 +29,6 @@ export default function Settings() {
         <Owners />
       </Left>
       <Right>
-        <Security />
         <RecoveryKeys />
       </Right>
     </Container>

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import useOnClickOutside from "../../../utils/useClickOutside";
 import Icon from "../../Icon";
 import OwnerDetails from "../../OwnerDetails";
-import Button from "../../Button";
+//import Button from "../../Button";
 import { getMainMinified } from "../../../utils/getMain";
 import { useMyVault } from "../../../pages/Modals/MyVault/Provider";
 import { useVault } from "../../../libs/vault";
@@ -133,10 +133,10 @@ export default function VaultMenu({ style }: VaultMenuProps): JSX.Element {
   useOnClickOutside(ref, () => close());
   const vault = useVault();
 
-  const disconnect = () => {
-    vault.disconnect();
-    close();
-  };
+  // const disconnect = () => {
+  //   vault.disconnect();
+  //   close();
+  // };
 
   const close = () => {
     setIsOpen(false);
@@ -201,9 +201,9 @@ export default function VaultMenu({ style }: VaultMenuProps): JSX.Element {
                 />
                 Settings
               </RowText>
-              <Button style={{ width: "100%" }} onClick={disconnect}>
+              {/* <Button style={{ width: "100%" }} onClick={disconnect}>
                 Disconnect
-              </Button>
+              </Button> */}
             </Rows>
           </>
         )}

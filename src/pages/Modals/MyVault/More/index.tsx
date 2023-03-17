@@ -7,7 +7,7 @@ import colors from "../../../../theme/colors";
 import { useVault } from "../../../../libs/vault";
 import { useMyVault } from "../Provider";
 import * as Sentry from "@sentry/react";
-import env from "../../../../environment";
+//import env from "../../../../environment";
 
 const Container = styled.div`
   background-color: ${colors.blue11};
@@ -118,7 +118,7 @@ export default function More() {
                 {loading ? "Deleting" : "Delete my vault"}
               </Button>
             )}
-            {env.name !== "PROD_BETA" && env.name !== "STAGING_BETA" && (
+            {/* {env.name !== "PROD_BETA" && env.name !== "STAGING_BETA" && (
               <Button
                 style={{ width: 230, marginTop: 10 }}
                 onClick={() => {
@@ -133,7 +133,7 @@ export default function More() {
               >
                 Try error
               </Button>
-            )}
+            )} */}
           </Bottom>
         </Content>
       </Container>

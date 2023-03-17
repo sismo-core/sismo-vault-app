@@ -151,7 +151,16 @@ export default function ImportAccountModalProvider({
           commitmentReceipt = _commitmentReceipt;
           commitmentMapperPubKey = _commitmentMapperPubKey;
         } catch (e) {
-          triggerError(e);
+          Sentry.withScope(function (scope) {
+            scope.setLevel("fatal");
+            Sentry.captureException(e);
+          });
+          console.error(e);
+          notificationAdded({
+            text: "Account already imported into another vault.",
+            type: "error",
+          });
+          setImporting(null);
           return;
         }
       }
