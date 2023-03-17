@@ -296,15 +296,20 @@ export default function Connect(): JSX.Element {
 
         const isAuthorized = factoryApp.data.authorizedDomains.some(
           (domain: string) => {
+            if (
+              env.name === "DEV_BETA" &&
+              _referrerName.includes("localhost")
+            ) {
+              return true;
+            }
+            if (
+              domain.includes("localhost") &&
+              _referrerName.includes("localhost")
+            ) {
+              return true;
+            }
             const domainName = domain.split(".")[domain.split(".").length - 2];
             const TLD = domain.split(".")[domain.split(".").length - 1];
-            if (env.name === "DEV_BETA" && _referrerName.includes("localhost"))
-              return true;
-            if (
-              domainName.includes("localhost") &&
-              _referrerName.includes("localhost")
-            )
-              return true;
             if (domainName === "*") return true;
             if (domainName === _referrerName && TLD === _TLD) return true;
             return false;
