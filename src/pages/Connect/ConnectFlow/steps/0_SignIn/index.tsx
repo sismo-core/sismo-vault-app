@@ -208,6 +208,13 @@ export default function SignIn({
                       ).toNumber() || 1
                     }
                   />
+                  <div>EXTRA DATA:</div>
+                  <div>
+                    {
+                      zkConnectRequest?.dataRequest?.statementRequests[0]
+                        .extraData
+                    }
+                  </div>
                 </>
               )}
             </TopContent>
