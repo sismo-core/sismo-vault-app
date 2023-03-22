@@ -1,9 +1,9 @@
 import { Cache } from "../caches";
 import { ChainNameToId } from "../contracts/commons";
-import { fetchAvailableGroups } from "../services/available-data";
 import { OffchainAvailableGroups } from "./types";
 import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
 import { OffChainAccountTreeMetadata } from "./types";
+import { fetchAvailableGroups } from "./services/available-data";
 
 export abstract class RegistryTreeReader {
   protected _attesterName: string;

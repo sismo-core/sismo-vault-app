@@ -7,10 +7,10 @@ import HoverTooltip from "../../../../../components/HoverTooltip";
 import ThreeDots from "../../components/ThreeDots";
 import { AccountData } from "../../../../../libs/sismo-client/provers/types";
 import { useVault } from "../../../../../libs/vault";
-import { GroupMetadata } from "../../..";
 import EligibilityModal from "../../components/EligibilityModal";
 import { useState } from "react";
 import { Gem } from "../../../../../components/SismoReactIcon";
+import { GroupMetadata } from "../../../../../libs/sismo-client";
 
 const Container = styled.div`
   display: flex;

@@ -2,8 +2,8 @@ import styled from "styled-components";
 import { useState } from "react";
 import { StatementComparator } from "@sismo-core/zk-connect-client";
 import EligibilityModal from "./EligibilityModal";
-import { GroupMetadata } from "../..";
 import colors from "../../../../theme/colors";
+import { GroupMetadata } from "../../../../libs/sismo-client";
 
 const Container = styled.div`
   font-family: ${(props) => props.theme.fonts.medium};

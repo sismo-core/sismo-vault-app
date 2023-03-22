@@ -7,19 +7,15 @@ import LayoutFlow from "./components/LayoutFlow";
 import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-import { FactoryAppType, GroupMetadata, PWS_VERSION } from "..";
-import {
-  AccountData,
-  devAddressesType,
-} from "../../../libs/sismo-client/provers/types";
-import { SnarkProof } from "@sismo-core/hydra-s2";
+import { AccountData } from "../../../libs/sismo-client/provers/types";
 import { ArrowLeft } from "phosphor-react";
-import {
-  ZkConnectRequest,
-  ZkConnectResponse,
-} from "@sismo-core/zk-connect-client";
-import { BigNumber } from "ethers";
+import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import env from "../../../environment";
+import { FactoryApp } from "../../../libs/sismo-client";
+import {
+  StatementGroupMetadata,
+  ZkConnectResponse,
+} from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 
 const Container = styled.div`
   position: relative;
@@ -49,32 +45,33 @@ export type Step =
   | "Redirecting";
 
 type Props = {
-  factoryApp: FactoryAppType;
+  factoryApp: FactoryApp;
   zkConnectRequest: ZkConnectRequest;
-  hasDataRequest: boolean | null;
-  groupMetadata: GroupMetadata;
+  statementsGroupsMetadata: StatementGroupMetadata[];
   callbackUrl: string;
   referrerUrl: string;
-  appName: string;
   hostName: string;
 };
 
 export default function ConnectFlow({
   factoryApp,
   zkConnectRequest,
-  hasDataRequest,
-  groupMetadata,
+  statementsGroupsMetadata,
   referrerUrl,
   callbackUrl,
-  appName,
   hostName,
 }: Props): JSX.Element {
   const vault = useVault();
-  const sismo = useSismo();
   const [vaultSliderOpen, setVaultSliderOpen] = useState(false);
   const [eligibleAccountData, setEligibleAccountData] = useState<AccountData>();
   const [step, setStep] = useState<Step>("SignIn");
   const [loadingEligible, setLoadingEligible] = useState(true);
+  const { getStatementsEligibilities } = useSismo();
+
+  //TODO use statements in components
+  const groupMetadata = statementsGroupsMetadata
+    ? statementsGroupsMetadata[0]?.groupMetadata
+    : null;
 
   //Test Eligibility
   useEffect(() => {
@@ -82,27 +79,17 @@ export default function ConnectFlow({
     if (!zkConnectRequest) return;
 
     const testEligibility = async () => {
-      if (hasDataRequest === false) {
+      if (!zkConnectRequest?.dataRequest) {
         return;
       }
       try {
         setLoadingEligible(true);
-        const importedAccountIdentifiers = vault.importedAccounts.map(
-          (account) => account.identifier
+        const statementsEligibility = await getStatementsEligibilities(
+          zkConnectRequest,
+          vault.importedAccounts
         );
-        const accountData = await sismo.getEligibility({
-          accounts: importedAccountIdentifiers,
-          groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
-          groupTimestamp:
-            zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
-          requestedValue:
-            zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
-          comparator:
-            zkConnectRequest.dataRequest.statementRequests[0].comparator,
-          devAddresses: zkConnectRequest.dataRequest.statementRequests[0]
-            .extraData?.devAddresses as devAddressesType,
-        });
-        setEligibleAccountData(accountData);
+        //TODO use statements in components
+        setEligibleAccountData(statementsEligibility[0].accountData);
         setLoadingEligible(false);
       } catch (e) {
         Sentry.captureException(e);
@@ -113,45 +100,14 @@ export default function ConnectFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vault?.importedAccounts, zkConnectRequest]);
 
-  const redirect = (snarkProof?: SnarkProof) => {
+  const redirect = (response: ZkConnectResponse) => {
     localStorage.removeItem("prove_referrer");
-    let url = `${callbackUrl}`;
-    let zkConnectResponse: ZkConnectResponse = null;
-    if (snarkProof) {
-      zkConnectResponse = {
-        appId: factoryApp.id,
-        namespace: zkConnectRequest.namespace,
-        verifiableStatements: [],
-        version: PWS_VERSION,
-      };
-      const provingScheme = "hydra-s2.1";
-      if (hasDataRequest === false) {
-        zkConnectResponse.authProof = {
-          provingScheme,
-          proof: snarkProof,
-        };
-      } else if (hasDataRequest === true) {
-        zkConnectResponse.verifiableStatements = [
-          {
-            // proofId: snarkProof.input[6].toHexString(),
-            groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
-            value: BigNumber.from(snarkProof.input[7]).toNumber(),
-            groupTimestamp:
-              zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
-            comparator: BigNumber.from(snarkProof.input[9]).eq(0)
-              ? "GTE"
-              : "EQ",
-            extraData: null,
-            provingScheme,
-            proof: snarkProof,
-          },
-        ];
-      }
-      zkConnectResponse["version"] = PWS_VERSION;
-      url += `?zkConnectResponse=${JSON.stringify(zkConnectResponse)}`;
+    let url = callbackUrl;
+    if (response) {
+      url += `?zkConnectResponse=${JSON.stringify(response)}`;
     }
     if (window.opener) {
-      window.opener.postMessage(zkConnectResponse, url); //If it's a popup, this will send a message to the opener which is here zkdrop.io
+      window.opener.postMessage(response, url); //If it's a popup, this will send a message to the opener which is here zkdrop.io
       window.close(); //Close the popup
     } else {
       window.location.href = url; //If it's not a popup return the proof in params or url
@@ -178,7 +134,11 @@ export default function ConnectFlow({
       }, 150);
     }
 
-    if (env.name === "DEMO" && step === "GenerateZkProof" && !hasDataRequest) {
+    if (
+      env.name === "DEMO" &&
+      step === "GenerateZkProof" &&
+      !zkConnectRequest?.dataRequest
+    ) {
       timeout = setTimeout(() => {
         setVaultSliderOpen(true);
       }, 150);
@@ -187,7 +147,7 @@ export default function ConnectFlow({
     return () => {
       clearTimeout(timeout);
     };
-  }, [hasDataRequest, step]);
+  }, [zkConnectRequest?.dataRequest, step]);
 
   useEffect(() => {
     if (!vault.isConnected) return;
@@ -213,7 +173,11 @@ export default function ConnectFlow({
       }
     }
 
-    if (hasDataRequest && !eligibleAccountData && step === "GenerateZkProof") {
+    if (
+      zkConnectRequest?.dataRequest &&
+      !eligibleAccountData &&
+      step === "GenerateZkProof"
+    ) {
       onStepChange("ImportEligibleAccount");
       return;
     }
@@ -246,12 +210,10 @@ export default function ConnectFlow({
           <SignIn
             factoryApp={factoryApp}
             zkConnectRequest={zkConnectRequest}
-            appName={appName}
             groupMetadata={groupMetadata}
-            hasDataRequest={hasDataRequest}
             referrerUrl={referrerUrl}
             onNext={() => {
-              if (!hasDataRequest) {
+              if (!zkConnectRequest?.dataRequest) {
                 setStep("GenerateZkProof");
                 return;
               }
@@ -264,10 +226,8 @@ export default function ConnectFlow({
           <LayoutFlow
             groupMetadata={groupMetadata}
             factoryApp={factoryApp}
-            appName={appName}
             hostName={hostName}
             referrerUrl={referrerUrl}
-            hasDataRequest={hasDataRequest}
             zkConnectRequest={zkConnectRequest}
             vaultSliderOpen={vaultSliderOpen}
             setVaultSliderOpen={setVaultSliderOpen}
@@ -285,10 +245,9 @@ export default function ConnectFlow({
                 zkConnectRequest={zkConnectRequest}
                 groupMetadata={groupMetadata}
                 eligibleAccountData={eligibleAccountData}
-                hasDataRequest={hasDataRequest}
-                onNext={(proof) => {
+                onNext={(response) => {
                   setTimeout(() => {
-                    redirect(proof);
+                    redirect(response);
                   }, 2000);
                 }}
               />

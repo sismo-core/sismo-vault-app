@@ -1,11 +1,11 @@
 <svg width="41" height="46" viewBox="0 0 41 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M18.3908 35.5835C24.0842 35.5835 28.6996 30.9681 28.6996 25.2747C28.6996 19.5814 24.0842 14.9659 18.3908 14.9659C12.6974 14.9659 8.08203 19.5814 8.08203 25.2747C8.08203 30.9681 12.6974 35.5835 18.3908 35.5835Z" stroke="#C08AFF" stroke-width="3.75" stroke-miterlimit="10"/>
-<path d="M2.45898 25.3069C2.45898 16.5053 9.59021 9.37402 18.3918 9.37402C27.1934 9.37402 34.3246 16.5053 34.3246 25.3069" stroke="#C08AFF" stroke-width="3.75" stroke-miterlimit="10"/>
-<path d="M18.3906 0V9.3721" stroke="#C08AFF" stroke-width="3.75" stroke-miterlimit="10"/>
-<path d="M26.5547 11.5975L33.7399 3.29126L38.7311 8.28248" stroke="#C08AFF" stroke-width="3.75" stroke-miterlimit="10"/>
-<path d="M5.75391 3.38635L10.44 11.5025" stroke="#C08AFF" stroke-width="3.75" stroke-miterlimit="10"/>
-<path d="M22.9375 34.5242L26.8295 44.1269" stroke="#C08AFF" stroke-width="3.75" stroke-miterlimit="10"/>
-<path d="M16.5136 35.4127L13.9277 45" stroke="#C08AFF" stroke-width="3.75" stroke-miterlimit="10"/>
+<path d="M18.3908 35.5835C24.0842 35.5835 28.6996 30.9681 28.6996 25.2747C28.6996 19.5814 24.0842 14.9659 18.3908 14.9659C12.6974 14.9659 8.08203 19.5814 8.08203 25.2747C8.08203 30.9681 12.6974 35.5835 18.3908 35.5835Z" stroke="#C08AFF" stroke-width="3.75" strokeMiterlimit="10"/>
+<path d="M2.45898 25.3069C2.45898 16.5053 9.59021 9.37402 18.3918 9.37402C27.1934 9.37402 34.3246 16.5053 34.3246 25.3069" stroke="#C08AFF" stroke-width="3.75" strokeMiterlimit="10"/>
+<path d="M18.3906 0V9.3721" stroke="#C08AFF" stroke-width="3.75" strokeMiterlimit="10"/>
+<path d="M26.5547 11.5975L33.7399 3.29126L38.7311 8.28248" stroke="#C08AFF" stroke-width="3.75" strokeMiterlimit="10"/>
+<path d="M5.75391 3.38635L10.44 11.5025" stroke="#C08AFF" stroke-width="3.75" strokeMiterlimit="10"/>
+<path d="M22.9375 34.5242L26.8295 44.1269" stroke="#C08AFF" stroke-width="3.75" strokeMiterlimit="10"/>
+<path d="M16.5136 35.4127L13.9277 45" stroke="#C08AFF" stroke-width="3.75" strokeMiterlimit="10"/>
 <circle cx="22.9363" cy="28.0779" r="1.80741" fill="#C08AFF"/>
 <circle cx="22.9363" cy="22.4716" r="1.80741" fill="#C08AFF"/>
 </svg>

@@ -1,9 +1,9 @@
 import { JsonMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
 import axios from "axios";
-import { ChainIdToName } from "..";
-import env from "../../../environment";
-import { OffchainAvailableGroups } from "../registry-tree-readers/types";
-import { AvailableData, AvailableGroups } from "../attesters/hydraS1/types";
+import { ChainIdToName } from "../..";
+import env from "../../../../environment";
+import { OffchainAvailableGroups } from "../types";
+import { AvailableData, AvailableGroups } from "./types";
 
 const promiseAvailableDataCache = new Map();
 const EXPIRATION_DURATION = 1000 * 60 * 10;

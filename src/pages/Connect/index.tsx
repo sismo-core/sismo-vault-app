@@ -4,9 +4,13 @@ import styled from "styled-components";
 import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
 import ConnectFlow from "./ConnectFlow";
-import axios from "axios";
 import * as Sentry from "@sentry/react";
 import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+import { FactoryApp } from "../../libs/sismo-client";
+import { useSismo } from "../../libs/sismo";
+import { getZkConnectRequest } from "./utils/getZkConnectRequest";
+import { getReferrer } from "./utils/getReferrerApp";
+import { StatementGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 
 const Container = styled.div`
   position: relative;
@@ -57,42 +61,19 @@ const ContentContainer = styled.div`
   box-sizing: border-box;
 `;
 
-export type FactoryAppType = {
-  creatorId: string;
-  name: string;
-  description: string;
-  authorizedDomains: string[];
-  logoUrl: string; // png url
-  id: string;
-  createdAt: number;
-  lastUpdatedAt: number;
-};
-
 export type EligibleGroup = {
   [account: string]: number;
-};
-
-export type GroupMetadata = {
-  id: string;
-  name: string;
-  description: string;
-  specs: string;
-  accountsNumber: number;
-  groupGeneratorName: string;
-  lastGenerationTimestamp: number;
-  generationFrequency: string;
-  dataUrl: string;
 };
 
 export const PWS_VERSION = "zk-connect-v1";
 
 export default function Connect(): JSX.Element {
   const [searchParams] = useSearchParams();
-  const [factoryApp, setFactoryApp] = useState<FactoryAppType>(null);
+  const [factoryApp, setFactoryApp] = useState<FactoryApp>(null);
   const [zkConnectRequest, setZkConnectRequest] =
     useState<ZkConnectRequest>(null);
-  const [groupMetadata, setGroupMetadata] = useState<GroupMetadata>(null);
-  const [hasDataRequest, setHasDataRequest] = useState<boolean | null>(null);
+  const [statementsGroupsMetadata, setStatementsGroupsMetadata] =
+    useState<StatementGroupMetadata[]>(null);
   const [hostName, setHostname] = useState<string>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
   const [callbackUrl, setCallbackUrl] = useState(null);
@@ -101,102 +82,64 @@ export default function Connect(): JSX.Element {
     message: null,
   });
 
-  const getReferrer = (): string => {
-    if (!document?.referrer) {
-      const referrer = localStorage.getItem("pws_referrer");
-      if (referrer) {
-        return referrer;
-      }
-      return null;
-    }
-    if (document?.referrer) {
-      localStorage.setItem("pws_referrer", document.referrer);
-      return document.referrer;
-    }
-  };
+  const { getStatementsGroupsMetadata, getFactoryApp } = useSismo();
 
+  //Get the request
   useEffect(() => {
-    let _version = searchParams.get("version");
-    let _appId = searchParams.get("appId");
-    let _dataRequest = searchParams.get("dataRequest");
-    let _namespace = searchParams.get("namespace");
-    let _callbackPath = searchParams.get("callbackPath");
+    const request = getZkConnectRequest(searchParams);
+    setZkConnectRequest(request);
+  }, [searchParams]);
 
-    const params: ZkConnectRequest = {
-      version: _version,
-      appId: _appId,
-      dataRequest: JSON.parse(_dataRequest),
-      namespace: _namespace,
-      callbackPath: _callbackPath,
-    };
-
-    if (!params.dataRequest) {
-      setHasDataRequest(false);
-    }
-
-    if (params.dataRequest) {
-      setHasDataRequest(true);
-      params.dataRequest.statementRequests[0].groupTimestamp =
-        typeof params.dataRequest.statementRequests[0].groupTimestamp ===
-        "undefined"
-          ? "latest"
-          : params.dataRequest.statementRequests[0].groupTimestamp;
-      params.dataRequest.statementRequests[0].requestedValue =
-        typeof params.dataRequest.statementRequests[0].requestedValue ===
-        "undefined"
-          ? 1
-          : params.dataRequest.statementRequests[0].requestedValue;
-
-      params.dataRequest.statementRequests[0].comparator =
-        typeof params.dataRequest.statementRequests[0].comparator ===
-        "undefined"
-          ? "GTE"
-          : params.dataRequest.statementRequests[0].comparator;
-    }
-
-    params.namespace = params.namespace || "main";
-
-    if (!_version) {
+  //Verify request validity
+  useEffect(() => {
+    if (!zkConnectRequest) return;
+    if (!zkConnectRequest.version) {
       setIsWrongUrl({
         status: true,
-        message: "Invalid version query parameter: " + _version,
+        message: "Invalid version query parameter: " + zkConnectRequest.version,
       });
       return;
     }
-    if (!_appId) {
+    if (!zkConnectRequest.appId) {
       setIsWrongUrl({
         status: true,
-        message: "Invalid appId query parameter: " + _appId,
+        message: "Invalid appId query parameter: " + zkConnectRequest.appId,
       });
       return;
     }
-    if (!params.namespace) {
+    if (!zkConnectRequest.namespace) {
       setIsWrongUrl({
         status: true,
-        message: "Invalid namespace query parameter: " + params.namespace,
+        message:
+          "Invalid namespace query parameter: " + zkConnectRequest.namespace,
       });
       return;
     }
+  }, [zkConnectRequest, factoryApp]);
 
-    setZkConnectRequest(params);
+  //Fetch data
+  useEffect(() => {
+    if (!zkConnectRequest) return;
 
-    let _callbackUrl = "";
     let _referrerName = "your app";
     let _callbackRefererPath = "";
     let _TLD = "";
     let _hostname = "";
+    let _referrerHostname = "";
 
     function setReferrer() {
       try {
         const referrer = getReferrer();
         if (referrer) {
           const referrerUrl = new URL(referrer);
-          _callbackUrl =
+          _referrerHostname =
             referrerUrl.protocol +
             "//" +
             referrerUrl.hostname +
             (referrerUrl.port ? `:${referrerUrl.port}` : "");
+
           _callbackRefererPath = referrerUrl.pathname;
+
           _TLD =
             referrer.split(".")?.length > 1
               ? referrer
@@ -213,12 +156,21 @@ export default function Connect(): JSX.Element {
               : "";
         }
 
+        //TODO could be nice to use something like this instead of callbackUrl + hostname + referrerUrl + TDL etc..
+        //And in props use ReferrerApp
+        //const referrerApp = getReferrerApp(zkConnectRequest);
+        //console.log("referrerApp", referrerApp);
+
         setHostname(_hostname);
-        setReferrerUrl(_callbackUrl + _callbackRefererPath);
+        setReferrerUrl(_referrerHostname + _callbackRefererPath);
         setCallbackUrl(
-          _callbackPath && _callbackPath.includes("chrome-extension://")
-            ? _callbackPath
-            : _callbackUrl + (_callbackPath ? _callbackPath : "")
+          zkConnectRequest.callbackPath &&
+            zkConnectRequest.callbackPath.includes("chrome-extension://")
+            ? zkConnectRequest.callbackPath
+            : _referrerHostname +
+                (zkConnectRequest.callbackPath
+                  ? zkConnectRequest.callbackPath
+                  : "")
         );
       } catch (e) {
         console.log("Referrer error");
@@ -230,54 +182,14 @@ export default function Connect(): JSX.Element {
       }
     }
 
-    async function getGroupMetadata() {
-      if (!params.dataRequest) {
-        setGroupMetadata(null);
+    async function getGroupMetadataData() {
+      if (!zkConnectRequest.dataRequest) {
+        setStatementsGroupsMetadata(null);
         return;
       }
       try {
-        const _groupId = params.dataRequest.statementRequests[0].groupId;
-        const _timestamp =
-          params.dataRequest.statementRequests[0].groupTimestamp;
-
-        const groupsSnapshotMetadata = await axios.get(
-          `${env.hubApiUrl}/group-snapshots/${_groupId}?timestamp=${_timestamp}`
-        );
-        if (groupsSnapshotMetadata.data.items.length === 0) {
-          setIsWrongUrl({
-            status: true,
-            message: `Invalid groupId ${_groupId} ${
-              _timestamp !== "latest" && `or timestamp ${_timestamp}`
-            }. Please make sure they are correct using the Factory Sismo Data Groups Explorer.`,
-          });
-          return;
-        }
-
-        const groupsQueryUrlAppendix =
-          _timestamp === "latest" ? `?latest=true` : `?timestamp=${_timestamp}`;
-        const groups = await axios.get(
-          `${env.hubApiUrl}/groups/${groupsSnapshotMetadata.data.items[0].name}?${groupsQueryUrlAppendix}`
-        );
-        const groupsGenerator = await axios.get(
-          `${env.hubApiUrl}/group-generators/${groups.data.items[0].generatedBy}?latest=true`
-        );
-
-        const _groupMetadata = {
-          id: groups.data.items[0].id,
-          name: groups.data.items[0].name,
-          description: groups.data.items[0].description,
-          specs: groups.data.items[0].specs,
-          accountsNumber:
-            groupsSnapshotMetadata.data.items[0].properties.accountsNumber,
-          groupGeneratorName: groups.data.items[0].generatedBy,
-          lastGenerationTimestamp:
-            groupsSnapshotMetadata.data.items[0].timestamp,
-          generationFrequency:
-            groupsGenerator.data.items[0].generationFrequency,
-          dataUrl: groupsSnapshotMetadata.data.items[0].dataUrl,
-        };
-
-        setGroupMetadata(_groupMetadata);
+        const res = await getStatementsGroupsMetadata(zkConnectRequest);
+        setStatementsGroupsMetadata(res);
       } catch (e) {
         setIsWrongUrl({
           status: true,
@@ -288,13 +200,12 @@ export default function Connect(): JSX.Element {
       }
     }
 
-    async function getFactoryApp() {
+    async function getFactoryAppData() {
       try {
-        const factoryApp = await axios.get(
-          `${env.factoryApiUrl}/apps/${_appId}`
-        );
+        const factoryApp = await getFactoryApp(zkConnectRequest.appId);
 
-        const isAuthorized = factoryApp.data.authorizedDomains.some(
+        //TODO move this in the validate useEffect
+        const isAuthorized = factoryApp.authorizedDomains.some(
           (domain: string) => {
             if (
               env.name === "DEV_BETA" &&
@@ -319,16 +230,15 @@ export default function Connect(): JSX.Element {
         if (!isAuthorized) {
           setIsWrongUrl({
             status: true,
-            message: `The domain "${_referrerName}" is not an authorized domain for the appId ${_appId}. If this is your app, please make sure to add your domain to your zkConnect app from the factory.`,
+            message: `The domain "${_referrerName}" is not an authorized domain for the appId ${zkConnectRequest.appId}. If this is your app, please make sure to add your domain to your zkConnect app from the factory.`,
           });
           return;
         }
-
-        setFactoryApp(factoryApp.data);
+        setFactoryApp(factoryApp);
       } catch (e) {
         setIsWrongUrl({
           status: true,
-          message: "Invalid appId: " + _appId,
+          message: "Invalid appId: " + zkConnectRequest.appId,
         });
         Sentry.captureException(e);
         console.error(e);
@@ -336,10 +246,9 @@ export default function Connect(): JSX.Element {
     }
 
     setReferrer();
-    getGroupMetadata();
-    getFactoryApp();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+    getGroupMetadataData();
+    getFactoryAppData();
+  }, [zkConnectRequest, getFactoryApp, getStatementsGroupsMetadata]);
 
   return (
     <Container>
@@ -349,12 +258,10 @@ export default function Connect(): JSX.Element {
         ) : (
           <ConnectFlow
             factoryApp={factoryApp}
-            hasDataRequest={hasDataRequest}
             zkConnectRequest={zkConnectRequest}
-            groupMetadata={groupMetadata}
+            statementsGroupsMetadata={statementsGroupsMetadata}
             callbackUrl={callbackUrl}
             referrerUrl={referrerUrl}
-            appName={factoryApp?.name}
             hostName={hostName}
           />
         )}

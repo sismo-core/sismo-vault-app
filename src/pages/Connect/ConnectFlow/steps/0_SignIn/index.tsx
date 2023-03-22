@@ -6,13 +6,13 @@ import HeaderTitle from "../../components/HeaderTitle";
 import { ArrowSquareOut, Info } from "phosphor-react";
 import { capitalizeFirstLetter } from "../../../../../utils/capitalizeFirstLetter";
 import ConnectVaultModal from "../../../../Modals/ConnectVaultModal";
-import { FactoryAppType, GroupMetadata } from "../../..";
 import Skeleton from "./components/Skeleton";
 import HoverTooltip from "../../../../../components/HoverTooltip";
 import colors from "../../../../../theme/colors";
 import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import ShardTag from "../../components/ShardTag";
 import { BigNumber } from "ethers";
+import { FactoryApp, GroupMetadata } from "../../../../../libs/sismo-client";
 
 const Container = styled.div<{ hasDataRequest: boolean }>`
   background-color: ${(props) => props.theme.colors.blue11};
@@ -112,22 +112,18 @@ const Link = styled.a`
 `;
 
 type Props = {
-  factoryApp: FactoryAppType;
+  factoryApp: FactoryApp;
   zkConnectRequest: ZkConnectRequest;
   groupMetadata: GroupMetadata | null;
   referrerUrl: string;
-  appName: string;
-  hasDataRequest: boolean;
   onNext: () => void;
 };
 
 export default function SignIn({
   groupMetadata,
   zkConnectRequest,
-  appName,
   referrerUrl,
   factoryApp,
-  hasDataRequest,
   onNext,
 }: Props) {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
@@ -154,14 +150,13 @@ export default function SignIn({
     }
   }, [factoryApp]);
 
-  const loading = hasDataRequest
+  const loading = zkConnectRequest?.dataRequest
     ? !factoryApp ||
-      !appName ||
       vault.loadingActiveSession ||
       !zkConnectRequest ||
       !imgLoaded ||
       !groupMetadata
-    : !factoryApp || !appName || vault.loadingActiveSession || !imgLoaded;
+    : !factoryApp || vault.loadingActiveSession || !imgLoaded;
 
   return (
     <>
@@ -170,7 +165,7 @@ export default function SignIn({
         onClose={() => setConnectIsOpen(false)}
       />
 
-      <Container hasDataRequest={hasDataRequest}>
+      <Container hasDataRequest={Boolean(zkConnectRequest?.dataRequest)}>
         <HeaderTitle url={referrerUrl} style={{ marginBottom: 20 }} />
 
         {loading && <Skeleton />}
@@ -178,10 +173,10 @@ export default function SignIn({
           <Content>
             <TopContent>
               <ContentTitle>
-                <AppLogo src={factoryApp?.logoUrl} alt={appName} />
+                <AppLogo src={factoryApp?.logoUrl} alt={factoryApp?.name} />
                 <SecondLine>
                   Connect to
-                  <Bold>{capitalizeFirstLetter(appName)}</Bold>
+                  <Bold>{capitalizeFirstLetter(factoryApp?.name)}</Bold>
                   <HoverTooltip
                     width={300}
                     text="Connecting with your Vault does not reveal the accounts inside. You only reveal your Vault ID—an anonymous app-specific identifier that authenticates ownership of a Data Vault. "
@@ -191,7 +186,7 @@ export default function SignIn({
                 </SecondLine>
               </ContentTitle>
 
-              {hasDataRequest && (
+              {zkConnectRequest?.dataRequest && (
                 <>
                   <DataRequested>Requested Data</DataRequested>
                   <Separator />

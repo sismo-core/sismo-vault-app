@@ -5,10 +5,10 @@ import HeaderTitle from "./HeaderTitle";
 import Stepper from "./Stepper";
 import VaultSlider from "./VaultSlider";
 import { useImportAccount } from "../../../Modals/ImportAccount/provider";
-import { FactoryAppType, GroupMetadata } from "../..";
 import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import ShardTag from "./ShardTag";
 import { BigNumber } from "ethers";
+import { FactoryApp, GroupMetadata } from "../../../../libs/sismo-client";
 
 const Container = styled.div`
   position: relative;
@@ -107,15 +107,13 @@ const StepperBlock = styled(Stepper)<{ stepperWidth: number }>`
 
 type Props = {
   groupMetadata: GroupMetadata;
-  hasDataRequest: boolean;
   zkConnectRequest: ZkConnectRequest;
   referrerUrl: string;
-  appName: string;
   hostName: string;
   vaultSliderOpen: boolean;
   children: React.ReactNode;
   proofLoading?: boolean;
-  factoryApp: FactoryAppType;
+  factoryApp: FactoryApp;
   step: "SignIn" | "ImportEligibleAccount" | "GenerateZkProof" | "Redirecting";
   setVaultSliderOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -123,7 +121,6 @@ type Props = {
 export default function LayoutFlow({
   groupMetadata,
   zkConnectRequest,
-  appName,
   hostName,
   referrerUrl,
   children,
@@ -131,7 +128,6 @@ export default function LayoutFlow({
   factoryApp,
   proofLoading = false,
   step,
-  hasDataRequest,
   setVaultSliderOpen,
 }: Props) {
   // const proveName = badge?.name?.split(" ZK Badge")[0] || badge?.name;
@@ -149,23 +145,23 @@ export default function LayoutFlow({
 
   return (
     <Container>
-      <HeaderBlock hasDataRequest={hasDataRequest}>
+      <HeaderBlock hasDataRequest={Boolean(zkConnectRequest?.dataRequest)}>
         <HeaderTitle url={referrerUrl} />
-        {!hasDataRequest && (
+        {!zkConnectRequest?.dataRequest && (
           <BadgeWrapper>
-            <BadgeImg src={factoryApp?.logoUrl} alt={appName} />
+            <BadgeImg src={factoryApp?.logoUrl} alt={factoryApp?.name} />
           </BadgeWrapper>
         )}
-        {hasDataRequest && (
+        {zkConnectRequest?.dataRequest && (
           <Summary>
             <BadgeWrapper>
-              <BadgeImg src={factoryApp?.logoUrl} alt={appName} />
+              <BadgeImg src={factoryApp?.logoUrl} alt={factoryApp?.name} />
             </BadgeWrapper>
 
             <SummaryText>
               <FirstLine>
-                <Bold>{capitalizeFirstLetter(appName)}</Bold> wants to verify
-                that you own
+                <Bold>{capitalizeFirstLetter(factoryApp?.name)}</Bold> wants to
+                verify that you own
               </FirstLine>
               <SecondLine>
                 <ShardTag
