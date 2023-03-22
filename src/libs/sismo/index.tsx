@@ -13,7 +13,7 @@ import { ImportedAccount } from "../vault-client";
 export type Sismo = {
   generateResponse: (
     zkConnectRequest: ZkConnectRequest,
-    source: ImportedAccount | null,
+    importedAccounts: ImportedAccount[],
     vaultSecret: string
   ) => Promise<ZkConnectResponse>;
   getStatementsGroupsMetadata: (
@@ -47,10 +47,14 @@ export default function SismoProvider({
   const generateResponse = useCallback(
     (
       zkConnectRequest: ZkConnectRequest,
-      source: ImportedAccount | null,
+      importedAccounts: ImportedAccount[],
       vaultSecret: string
     ) => {
-      return client.generateResponse(zkConnectRequest, source, vaultSecret);
+      return client.generateResponse(
+        zkConnectRequest,
+        importedAccounts,
+        vaultSecret
+      );
     },
     [client]
   );

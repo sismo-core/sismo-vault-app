@@ -94,10 +94,10 @@ export class ZkConnectProver {
     return statementsEligibility;
   }
 
-  //TODO: Weird to have source here
+  //TODO: this don't scale if we want to choose which account is used
   public async generateResponse(
     zkConnectRequest: ZkConnectRequest,
-    source: ImportedAccount | null,
+    importedAccounts: ImportedAccount[],
     vaultSecret: string
   ): Promise<ZkConnectResponse> {
     const appId = zkConnectRequest.appId;
@@ -109,10 +109,19 @@ export class ZkConnectProver {
       version: zkConnectRequest.version,
     };
     if (zkConnectRequest?.dataRequest) {
-      const statementRequests = zkConnectRequest?.dataRequest.statementRequests;
       zkConnectResponse.verifiableStatements = [];
-      for (let statement of statementRequests) {
+      const statementEligibilities = await this.getStatementsEligibilities(
+        zkConnectRequest,
+        importedAccounts
+      );
+      for (let statementEligibility of statementEligibilities) {
+        const statement = statementEligibility.statement;
         const devAddresses = statement.extraData?.devAddresses;
+        const source = importedAccounts.find(
+          (importedAccount) =>
+            importedAccount.identifier ===
+            statementEligibility.accountData.identifier
+        );
         const snarkProof = await this.prover.generateProof({
           appId,
           source,

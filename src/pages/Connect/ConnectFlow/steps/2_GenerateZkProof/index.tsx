@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useVault } from "../../../../../libs/vault";
 import { useSismo } from "../../../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-import { AccountData } from "../../../../../libs/sismo-client/provers/types";
 import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import ShardAnimation from "../../components/ShardAnimation";
 import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
@@ -101,12 +100,10 @@ const LoadingFeedBack = styled(FeedBack)`
 type Props = {
   zkConnectRequest: ZkConnectRequest;
   groupMetadata: GroupMetadata;
-  eligibleAccountData: AccountData;
   onNext: (zkResponse: ZkConnectResponse) => void;
 };
 
 export default function GenerateZkProof({
-  eligibleAccountData,
   groupMetadata,
   zkConnectRequest,
   onNext,
@@ -117,20 +114,15 @@ export default function GenerateZkProof({
   const [, setErrorProof] = useState(false);
   const { generateResponse } = useSismo();
 
-  const generateProof = useCallback(async () => {
+  const generate = useCallback(async () => {
     setLoadingProof(true);
     setErrorProof(false);
     try {
       const owner = vault.owners[0];
       const vaultSecret = await vault.getVaultSecret(owner);
-      const source = zkConnectRequest?.dataRequest
-        ? vault.importedAccounts.find(
-            (_source) => _source.identifier === eligibleAccountData.identifier
-          )
-        : null;
       const zkResponse = await generateResponse(
         zkConnectRequest,
-        source,
+        vault.importedAccounts,
         vaultSecret
       );
       setIsGenerated(true);
@@ -150,8 +142,8 @@ export default function GenerateZkProof({
   }, []);
 
   useEffect(() => {
-    generateProof();
-  }, [generateProof]);
+    generate();
+  }, [generate]);
 
   return (
     <Container>

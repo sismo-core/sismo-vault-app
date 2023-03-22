@@ -72,11 +72,9 @@ export class SismoClient {
     );
   }
 
-  //TODO source + vaultSecret
-  // + Weird to have a source here
   public generateResponse(
     zkConnectRequest: ZkConnectRequest,
-    source: ImportedAccount,
+    importedAccounts: ImportedAccount[],
     vaultSecret: string
   ): Promise<ZkConnectResponse> {
     if (!this.zkConnectProvers[zkConnectRequest.version])
@@ -86,7 +84,7 @@ export class SismoClient {
     const zkConnectProver = this.zkConnectProvers[zkConnectRequest.version];
     return zkConnectProver.generateResponse(
       zkConnectRequest,
-      source,
+      importedAccounts,
       vaultSecret
     );
   }

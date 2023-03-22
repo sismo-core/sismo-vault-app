@@ -244,7 +244,6 @@ export default function ConnectFlow({
               <GenerateZkProof
                 zkConnectRequest={zkConnectRequest}
                 groupMetadata={groupMetadata}
-                eligibleAccountData={eligibleAccountData}
                 onNext={(response) => {
                   setTimeout(() => {
                     redirect(response);
