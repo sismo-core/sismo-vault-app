@@ -9,13 +9,16 @@ import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
 import { AccountData } from "../../../libs/sismo-client/provers/types";
 import { ArrowLeft } from "phosphor-react";
-import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+//import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+import { ZkConnectRequest } from "../localTypes";
 import env from "../../../environment";
 import { FactoryApp } from "../../../libs/sismo-client";
 import {
-  StatementGroupMetadata,
-  ZkConnectResponse,
+  //StatementGroupMetadata,
+  // ZkConnectResponse,
+  RequestGroupMetadata,
 } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { ZkConnectResponse } from "../localTypes";
 
 const Container = styled.div`
   position: relative;
@@ -47,7 +50,7 @@ export type Step =
 type Props = {
   factoryApp: FactoryApp;
   zkConnectRequest: ZkConnectRequest;
-  statementsGroupsMetadata: StatementGroupMetadata[];
+  requestGroupsMetadata: RequestGroupMetadata[];
   callbackUrl: string;
   referrerUrl: string;
   hostName: string;
@@ -56,7 +59,7 @@ type Props = {
 export default function ConnectFlow({
   factoryApp,
   zkConnectRequest,
-  statementsGroupsMetadata,
+  requestGroupsMetadata,
   referrerUrl,
   callbackUrl,
   hostName,
@@ -69,17 +72,15 @@ export default function ConnectFlow({
   const { getStatementsEligibilities } = useSismo();
 
   //TODO use statements in components
-  const groupMetadata = statementsGroupsMetadata
-    ? statementsGroupsMetadata[0]?.groupMetadata
-    : null;
 
   //Test Eligibility
   useEffect(() => {
     if (!vault?.importedAccounts) return;
     if (!zkConnectRequest) return;
+    if (!requestGroupsMetadata) return;
 
     const testEligibility = async () => {
-      if (!zkConnectRequest?.dataRequest) {
+      if (!zkConnectRequest?.requestContent) {
         return;
       }
       try {
@@ -137,7 +138,7 @@ export default function ConnectFlow({
     if (
       env.name === "DEMO" &&
       step === "GenerateZkProof" &&
-      !zkConnectRequest?.dataRequest
+      !requestGroupsMetadata
     ) {
       timeout = setTimeout(() => {
         setVaultSliderOpen(true);
@@ -147,7 +148,7 @@ export default function ConnectFlow({
     return () => {
       clearTimeout(timeout);
     };
-  }, [zkConnectRequest?.dataRequest, step]);
+  }, [requestGroupsMetadata, step]);
 
   useEffect(() => {
     if (!vault.isConnected) return;
@@ -164,6 +165,7 @@ export default function ConnectFlow({
   // 2 seconds routing after imports and proof generation
   useEffect(() => {
     let timeout: NodeJS.Timeout;
+
     if (eligibleAccountData) {
       if (step === "ImportEligibleAccount") {
         timeout = setTimeout(() => {
@@ -174,7 +176,7 @@ export default function ConnectFlow({
     }
 
     if (
-      zkConnectRequest?.dataRequest &&
+      requestGroupsMetadata &&
       !eligibleAccountData &&
       step === "GenerateZkProof"
     ) {
@@ -210,10 +212,10 @@ export default function ConnectFlow({
           <SignIn
             factoryApp={factoryApp}
             zkConnectRequest={zkConnectRequest}
-            groupMetadata={groupMetadata}
+            requestGroupsMetadata={requestGroupsMetadata}
             referrerUrl={referrerUrl}
             onNext={() => {
-              if (!zkConnectRequest?.dataRequest) {
+              if (!requestGroupsMetadata) {
                 setStep("GenerateZkProof");
                 return;
               }
@@ -224,7 +226,7 @@ export default function ConnectFlow({
         )}
         {step !== "SignIn" && (
           <LayoutFlow
-            groupMetadata={groupMetadata}
+            requestGroupsMetadata={requestGroupsMetadata}
             factoryApp={factoryApp}
             hostName={hostName}
             referrerUrl={referrerUrl}
@@ -233,9 +235,9 @@ export default function ConnectFlow({
             setVaultSliderOpen={setVaultSliderOpen}
             step={step}
           >
-            {step === "ImportEligibleAccount" && (
+            {/* {step === "ImportEligibleAccount" && (
               <ImportEligibleAccount
-                groupMetadata={groupMetadata}
+                requestGroupsMetadata={requestGroupsMetadata}
                 eligibleAccountData={eligibleAccountData}
                 loadingEligible={loadingEligible}
               />
@@ -243,14 +245,14 @@ export default function ConnectFlow({
             {step === "GenerateZkProof" && (
               <GenerateZkProof
                 zkConnectRequest={zkConnectRequest}
-                groupMetadata={groupMetadata}
+                requestGroupsMetadata={requestGroupsMetadata}
                 onNext={(response) => {
                   setTimeout(() => {
                     redirect(response);
                   }, 2000);
                 }}
               />
-            )}
+            )} */}
           </LayoutFlow>
         )}
       </Container>

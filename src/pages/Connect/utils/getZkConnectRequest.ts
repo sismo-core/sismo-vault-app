@@ -1,40 +1,44 @@
-import { ZkConnectRequest } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+//import { ZkConnectRequest } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { ZkConnectRequest } from "../localTypes";
 
 export const getZkConnectRequest = (
   searchParams: URLSearchParams
 ): ZkConnectRequest => {
   let _version = searchParams.get("version");
   let _appId = searchParams.get("appId");
-  let _dataRequest = searchParams.get("dataRequest");
+  let _requestContent = searchParams.get("requestContent");
   let _namespace = searchParams.get("namespace");
   let _callbackPath = searchParams.get("callbackPath");
 
   const request: ZkConnectRequest = {
-    version: _version,
-    appId: _appId,
-    dataRequest: JSON.parse(_dataRequest),
     namespace: _namespace,
+    requestContent: JSON.parse(_requestContent),
+    appId: _appId,
     callbackPath: _callbackPath,
+    version: _version,
   };
 
-  if (request.dataRequest) {
-    for (let i = 0; i < request.dataRequest.statementRequests.length; i++) {
-      request.dataRequest.statementRequests[i].groupTimestamp =
-        typeof request.dataRequest.statementRequests[i].groupTimestamp ===
-        "undefined"
-          ? "latest"
-          : request.dataRequest.statementRequests[i].groupTimestamp;
-      request.dataRequest.statementRequests[i].requestedValue =
-        typeof request.dataRequest.statementRequests[i].requestedValue ===
-        "undefined"
-          ? 1
-          : request.dataRequest.statementRequests[i].requestedValue;
+  if (request.requestContent) {
+    for (let i = 0; i < request.requestContent.dataRequests.length; i++) {
+      if (request.requestContent.dataRequests[i].claimRequest) {
+        request.requestContent.dataRequests[i].claimRequest.groupTimestamp =
+          typeof request.requestContent.dataRequests[i].claimRequest
+            .groupTimestamp === "undefined"
+            ? "latest"
+            : request.requestContent.dataRequests[i].claimRequest
+                .groupTimestamp;
+        request.requestContent.dataRequests[i].claimRequest.value =
+          typeof request.requestContent.dataRequests[i].claimRequest.value ===
+          "undefined"
+            ? 1
+            : request.requestContent.dataRequests[i].claimRequest.value;
 
-      request.dataRequest.statementRequests[i].comparator =
-        typeof request.dataRequest.statementRequests[i].comparator ===
-        "undefined"
-          ? "GTE"
-          : request.dataRequest.statementRequests[i].comparator;
+        request.requestContent.dataRequests[i].claimRequest.claimType =
+          typeof request.requestContent.dataRequests[i].claimRequest
+            .claimType === "undefined"
+            ? 0
+            : request.requestContent.dataRequests[i].claimRequest.claimType;
+      }
     }
   }
 

@@ -1,14 +1,17 @@
 import styled from "styled-components";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { capitalizeFirstLetter } from "../../../../utils/capitalizeFirstLetter";
 import HeaderTitle from "./HeaderTitle";
 import Stepper from "./Stepper";
 import VaultSlider from "./VaultSlider";
 import { useImportAccount } from "../../../Modals/ImportAccount/provider";
-import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+//import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+import { ZkConnectRequest } from "../../localTypes";
 import ShardTag from "./ShardTag";
 import { BigNumber } from "ethers";
 import { FactoryApp, GroupMetadata } from "../../../../libs/sismo-client";
+import EligibilityModal from "./EligibilityModal";
+import { RequestGroupMetadata } from "../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 
 const Container = styled.div`
   position: relative;
@@ -23,14 +26,14 @@ const Container = styled.div`
   box-sizing: border-box;
 `;
 
-const HeaderBlock = styled.div<{ hasDataRequest: boolean }>`
+const HeaderBlock = styled.div<{ hasClaimRequest: boolean }>`
   background-color: ${(props) => props.theme.colors.blue11};
   border-radius: 10px;
   padding: ${(props) =>
-    props.hasDataRequest ? "20px 30px 25px 30px" : "20px 30px 20px 30px"};
+    props.hasClaimRequest ? "20px 30px 25px 30px" : "20px 30px 20px 30px"};
 
   display: flex;
-  flex-direction: ${(props) => (props.hasDataRequest ? "column" : "row")};
+  flex-direction: ${(props) => (props.hasClaimRequest ? "column" : "row")};
   justify-content: space-between;
   gap: 20px;
 
@@ -70,6 +73,7 @@ const SummaryText = styled.div`
   gap: 8px;
   font-size: 16px;
   line-height: 22px;
+  width: 100%;
 `;
 
 const FirstLine = styled.span``;
@@ -77,7 +81,8 @@ const FirstLine = styled.span``;
 const SecondLine = styled.div`
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
+  flex-wrap: wrap;
 `;
 
 const Bold = styled.span`
@@ -106,7 +111,7 @@ const StepperBlock = styled(Stepper)<{ stepperWidth: number }>`
 `;
 
 type Props = {
-  groupMetadata: GroupMetadata;
+  requestGroupsMetadata: RequestGroupMetadata[];
   zkConnectRequest: ZkConnectRequest;
   referrerUrl: string;
   hostName: string;
@@ -119,7 +124,7 @@ type Props = {
 };
 
 export default function LayoutFlow({
-  groupMetadata,
+  requestGroupsMetadata,
   zkConnectRequest,
   hostName,
   referrerUrl,
@@ -130,8 +135,11 @@ export default function LayoutFlow({
   step,
   setVaultSliderOpen,
 }: Props) {
+  const [initialGroupId, setInitialGroupId] = useState<string | null>(null);
   // const proveName = badge?.name?.split(" ZK Badge")[0] || badge?.name;
   // const article = ["a", "e", "i", "o", "u"].includes(badge?.name) ? "an" : "a";
+
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const ref = useRef<HTMLDivElement>(null);
   const stepperWidth = ref.current?.offsetWidth;
@@ -143,61 +151,88 @@ export default function LayoutFlow({
     }
   }, [importAccount?.importing, setVaultSliderOpen]);
 
+  function onShardClick(groupId: string) {
+    setModalIsOpen(true);
+    setInitialGroupId(groupId);
+  }
+
   return (
-    <Container>
-      <HeaderBlock hasDataRequest={Boolean(zkConnectRequest?.dataRequest)}>
-        <HeaderTitle url={referrerUrl} />
-        {!zkConnectRequest?.dataRequest && (
-          <BadgeWrapper>
-            <BadgeImg src={factoryApp?.logoUrl} alt={factoryApp?.name} />
-          </BadgeWrapper>
-        )}
-        {zkConnectRequest?.dataRequest && (
-          <Summary>
+    <>
+      {Boolean(requestGroupsMetadata) && (
+        <EligibilityModal
+          isOpen={modalIsOpen}
+          onClose={() => setModalIsOpen(false)}
+          requestGroupsMetadata={requestGroupsMetadata}
+          initialGroupId={initialGroupId}
+        />
+      )}
+      <Container>
+        <HeaderBlock hasClaimRequest={Boolean(requestGroupsMetadata)}>
+          <HeaderTitle url={referrerUrl} />
+          {!Boolean(requestGroupsMetadata) && (
             <BadgeWrapper>
               <BadgeImg src={factoryApp?.logoUrl} alt={factoryApp?.name} />
             </BadgeWrapper>
+          )}
+          {Boolean(requestGroupsMetadata) && (
+            <Summary>
+              <BadgeWrapper>
+                <BadgeImg src={factoryApp?.logoUrl} alt={factoryApp?.name} />
+              </BadgeWrapper>
 
-            <SummaryText>
-              <FirstLine>
-                <Bold>{capitalizeFirstLetter(factoryApp?.name)}</Bold> wants to
-                verify that you own
-              </FirstLine>
-              <SecondLine>
-                <ShardTag
-                  groupMetadata={groupMetadata}
-                  comparator={
-                    zkConnectRequest?.dataRequest?.statementRequests[0]
-                      ?.comparator
-                  }
-                  requestedValue={
-                    BigNumber.from(
-                      zkConnectRequest?.dataRequest?.statementRequests[0]
-                        ?.requestedValue
-                    ).toNumber() || 1
-                  }
-                />
-              </SecondLine>
-            </SummaryText>
-          </Summary>
-        )}
-      </HeaderBlock>
+              <SummaryText>
+                <FirstLine>
+                  <Bold>{capitalizeFirstLetter(factoryApp?.name)}</Bold> wants
+                  to verify that you own
+                </FirstLine>
+                <SecondLine>
+                  {Boolean(requestGroupsMetadata) &&
+                    requestGroupsMetadata?.map(
+                      (requestGroupMetadata, index) => (
+                        <>
+                          {zkConnectRequest?.requestContent?.operators[0] ===
+                            "OR" &&
+                            index !== 0 && <div>or</div>}
+                          <ShardTag
+                            key={index + "/statement-request"}
+                            groupMetadata={requestGroupMetadata?.groupMetadata}
+                            claimType={requestGroupMetadata?.claim?.claimType}
+                            requestedValue={
+                              BigNumber.from(
+                                requestGroupMetadata?.claim?.value
+                              ).toNumber() || 1
+                            }
+                            onModal={() =>
+                              onShardClick(
+                                requestGroupMetadata?.groupMetadata?.id
+                              )
+                            }
+                          />
+                        </>
+                      )
+                    )}
+                </SecondLine>
+              </SummaryText>
+            </Summary>
+          )}
+        </HeaderBlock>
 
-      <ContentWrapper>
-        <ContentBlock>
-          {children}
-          <StepperBlock
-            hostName={hostName}
-            step={step}
-            stepperWidth={stepperWidth}
+        <ContentWrapper>
+          <ContentBlock>
+            {children}
+            <StepperBlock
+              hostName={hostName}
+              step={step}
+              stepperWidth={stepperWidth}
+            />
+          </ContentBlock>
+          <VaultSlider
+            vaultSliderOpen={vaultSliderOpen}
+            setVaultSliderOpen={setVaultSliderOpen}
+            proofLoading={proofLoading}
           />
-        </ContentBlock>
-        <VaultSlider
-          vaultSliderOpen={vaultSliderOpen}
-          setVaultSliderOpen={setVaultSliderOpen}
-          proofLoading={proofLoading}
-        />
-      </ContentWrapper>
-    </Container>
+        </ContentWrapper>
+      </Container>
+    </>
   );
 }

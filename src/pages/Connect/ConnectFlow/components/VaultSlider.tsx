@@ -21,6 +21,10 @@ const Container = styled.div<{ vaultSliderOpen: boolean }>`
 
   z-index: 3;
   box-sizing: border-box;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
 `;
 
 const VaultButton = styled.div<{ vaultSliderOpen: boolean }>`

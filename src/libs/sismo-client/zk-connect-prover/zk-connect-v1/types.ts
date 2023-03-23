@@ -1,6 +1,13 @@
 import { BigNumberish } from "@ethersproject/bignumber";
 import { AccountData } from "../../provers/types";
 import { GroupMetadata } from "../../providers";
+import { Claim } from "../../../../pages/Connect/localTypes";
+// import Claim from the packages
+
+export type RequestGroupMetadata = {
+  claim: Claim;
+  groupMetadata: GroupMetadata;
+};
 
 export type StatementGroupMetadata = {
   statement: StatementRequest;

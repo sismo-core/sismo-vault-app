@@ -1,3 +1,21 @@
 http://localhost:3000/connect?version=off-chain-1&appId=0x112a692a2005259c25f6094161007967&dataRequest=%7B%22statementRequests%22:%5B%7B%22groupId%22:%220x682544d549b8a461d7fe3e589846bb7b%22,%22groupTimestamp%22:%22latest%22,%22requestedValue%22:1,%22comparator%22:%22GTE%22,%22provingScheme%22:%22hydra-s1.1%22%7D%5D,%22operator%22:null%7D
 
 http://localhost:3000/connect?version=off-chain-1&appId=0x37bb3224298ac0e3ac3cb78a1caa292b&dataRequest={"statementRequests":[{"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":1,"comparator":"GTE","provingScheme":"hydra-s2.1"}],"operator":null}
+
+
+//  New interface milestone 2
+
+1 group : 
+http://localhost:3000/connect?version=off-chain-1&appId=0x37bb3224298ac0e3ac3cb78a1caa292b&dataRequest={"statementRequests":[{"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":1,"comparator":"GTE","provingScheme":"hydra-s2.1"}],"operator":null}
+
+2 group AND
+http://localhost:3000/connect?version=off-chain-1&appId=0x37bb3224298ac0e3ac3cb78a1caa292b&dataRequest={"statementRequests":[{"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":1,"comparator":"GTE","provingScheme":"hydra-s2.1"}, {"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":2,"comparator":"GTE","provingScheme":"hydra-s2.1"}],"operator":"AND"}&message=my-custom-message
+
+2 groups OR
+
+
+3 groups AND :
+http://localhost:3000/connect?version=off-chain-1&appId=0x37bb3224298ac0e3ac3cb78a1caa292b&dataRequest={"statementRequests":[{"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":1,"comparator":"GTE","provingScheme":"hydra-s2.1"}, {"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":2,"comparator":"GTE","provingScheme":"hydra-s2.1"}, {"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":2,"comparator":"GTE","provingScheme":"hydra-s2.1"}],"operator":"AND"}&message=my-custom-message
+
+3 groups OR :
+http://localhost:3000/connect?version=off-chain-1&appId=0x37bb3224298ac0e3ac3cb78a1caa292b&dataRequest={"statementRequests":[{"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":1,"comparator":"GTE","provingScheme":"hydra-s2.1"}, {"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":2,"comparator":"GTE","provingScheme":"hydra-s2.1"}, {"groupId":"0x1720d8b16c052df89d805d3455d71447","groupTimestamp":"latest","requestedValue":2,"comparator":"GTE","provingScheme":"hydra-s2.1"}],"operator":"OR"}&message=Lorem+Ipsum+is+simply+dummy+text+of+the+printing+and+typesetting+industry.+Lorem+Ipsum+has+been+the+industry%27s+standard+dummy+text+ever+since+the+1500s%2C+when+an+unknown+printer+took+a+galley+of+type+and+scrambled+it+to+make+a+type+specimen+book.+It+has+survived+not+only+five+centuries%2C+but+also+the+leap+into+electronic+typesetting%2C+remaining+essentially+unchanged.+It+was+popularised+in+the+1960s+with+the+release+of+Letraset+sheets+containing+Lorem+Ipsum+passages%2C+and+more+recently+with+desktop+publishing+software+like+Aldus+PageMaker+including+versions+of+Lorem+Ipsum.

@@ -202,13 +202,13 @@ const LoadingFeedBack = styled(FeedBack)`
 
 type Props = {
   eligibleAccountData: AccountData;
-  groupMetadata: GroupMetadata;
+  groupsMetadata: GroupMetadata[];
   loadingEligible: boolean;
 };
 
 export default function ImportEligibleAccount({
   eligibleAccountData,
-  groupMetadata,
+  groupsMetadata,
   loadingEligible,
 }: Props) {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -222,22 +222,15 @@ export default function ImportEligibleAccount({
     });
   }
 
-  const isBannerVisible =
-    vault?.importedAccounts?.length > 0 &&
-    !eligibleAccountData &&
-    !loadingEligible &&
-    importAccount.importing !== "account" &&
-    importAccount.importing !== "owner";
-
   return (
     <>
-      <EligibilityModal
-        groupMetadata={groupMetadata}
+      {/* <EligibilityModal
+        groupsMetadata={groupsMetadata}
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
-      />
+      /> */}
       <Container>
-        {isBannerVisible && (
+        {/* {isBannerVisible && (
           <Banner>
             <InfoWrapper>
               <Info size={21.5} weight="thin" />
@@ -245,7 +238,7 @@ export default function ImportEligibleAccount({
             Your current imported accounts do not meet the requirements to
             generate ZK proof. Consider adding another account.
           </Banner>
-        )}
+        )} */}
 
         <Summary>
           <HeaderWrapper>
@@ -259,12 +252,12 @@ export default function ImportEligibleAccount({
               importAccount.importing !== "owner" &&
               !loadingEligible && (
                 <HeaderSubtitle>
-                  Import an eligible account in your Vault
+                  Import an eligible account into your Data Vault to verify:
                 </HeaderSubtitle>
               )}
           </HeaderWrapper>
 
-          <SchemaWrapper>
+          {/* <SchemaWrapper>
             <Schema>
               <Circle>
                 <InnerCircle
@@ -306,7 +299,7 @@ export default function ImportEligibleAccount({
                   </ArrowWrapper>
                 </EligibilityLink>
               )}
-          </SchemaWrapper>
+          </SchemaWrapper> */}
         </Summary>
 
         {eligibleAccountData && (

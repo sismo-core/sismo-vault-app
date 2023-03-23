@@ -5,12 +5,15 @@ import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
 import ConnectFlow from "./ConnectFlow";
 import * as Sentry from "@sentry/react";
-import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+//import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+import { ZkConnectRequest } from "./localTypes";
 import { FactoryApp } from "../../libs/sismo-client";
 import { useSismo } from "../../libs/sismo";
 import { getZkConnectRequest } from "./utils/getZkConnectRequest";
 import { getReferrer } from "./utils/getReferrerApp";
-import { StatementGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+// import { StatementGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { GroupMetadata } from "../../libs/sismo-client";
+import { RequestGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 
 const Container = styled.div`
   position: relative;
@@ -46,14 +49,19 @@ const ContentContainer = styled.div`
   height: 720px;
   position: relative;
 
+  @media (max-width: 900px) {
+    width: 100%;
+    margin-top: -60px;
+  }
+
   /* margin-top: -100px; */
   /* @media (max-width: 1140px) {
     margin-top: -90px;
   }
 
-  @media (max-width: 800px) {
-    margin-top: -60px;
-  }
+
+
+
   @media (max-width: 600px) {
     margin-top: 80px;
   } */
@@ -72,8 +80,8 @@ export default function Connect(): JSX.Element {
   const [factoryApp, setFactoryApp] = useState<FactoryApp>(null);
   const [zkConnectRequest, setZkConnectRequest] =
     useState<ZkConnectRequest>(null);
-  const [statementsGroupsMetadata, setStatementsGroupsMetadata] =
-    useState<StatementGroupMetadata[]>(null);
+  const [requestGroupsMetadata, setRequestGroupsMetadata] =
+    useState<RequestGroupMetadata[]>(null);
   const [hostName, setHostname] = useState<string>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
   const [callbackUrl, setCallbackUrl] = useState(null);
@@ -82,7 +90,7 @@ export default function Connect(): JSX.Element {
     message: null,
   });
 
-  const { getStatementsGroupsMetadata, getFactoryApp } = useSismo();
+  const { getGroupMetadata, getFactoryApp } = useSismo();
 
   //Get the request
   useEffect(() => {
@@ -183,17 +191,47 @@ export default function Connect(): JSX.Element {
     }
 
     async function getGroupMetadataData() {
-      if (!zkConnectRequest.dataRequest) {
-        setStatementsGroupsMetadata(null);
+      if (
+        !zkConnectRequest.requestContent?.dataRequests.some(
+          (dataRequest) => dataRequest?.claimRequest?.groupId
+        )
+      ) {
+        setRequestGroupsMetadata(null);
         return;
       }
       try {
-        const res = await getStatementsGroupsMetadata(zkConnectRequest);
-        setStatementsGroupsMetadata(res);
+        const _claimRequests = [];
+
+        for (const dataRequest of zkConnectRequest?.requestContent
+          ?.dataRequests) {
+          if (dataRequest?.claimRequest?.groupId) {
+            _claimRequests.push(dataRequest.claimRequest);
+          }
+        }
+
+        const res = await Promise.all(
+          _claimRequests.map((_claimRequest) => {
+            return getGroupMetadata(
+              _claimRequest?.groupId,
+              _claimRequest?.groupTimestamp
+            );
+          })
+        );
+
+        const requestGroupsMetadata = _claimRequests.map(
+          (_claimRequest, index) => {
+            return {
+              claim: _claimRequest,
+              groupMetadata: res[index],
+            };
+          }
+        );
+
+        setRequestGroupsMetadata(requestGroupsMetadata);
       } catch (e) {
         setIsWrongUrl({
           status: true,
-          message: "Invalid Statement request: " + e,
+          message: "Invalid Claim requests: " + e,
         });
         Sentry.captureException(e);
         console.error(e);
@@ -203,7 +241,6 @@ export default function Connect(): JSX.Element {
     async function getFactoryAppData() {
       try {
         const factoryApp = await getFactoryApp(zkConnectRequest.appId);
-
         //TODO move this in the validate useEffect
         const isAuthorized = factoryApp.authorizedDomains.some(
           (domain: string) => {
@@ -248,7 +285,7 @@ export default function Connect(): JSX.Element {
     setReferrer();
     getGroupMetadataData();
     getFactoryAppData();
-  }, [zkConnectRequest, getFactoryApp, getStatementsGroupsMetadata]);
+  }, [zkConnectRequest, getFactoryApp, getGroupMetadata]);
 
   return (
     <Container>
@@ -259,7 +296,7 @@ export default function Connect(): JSX.Element {
           <ConnectFlow
             factoryApp={factoryApp}
             zkConnectRequest={zkConnectRequest}
-            statementsGroupsMetadata={statementsGroupsMetadata}
+            requestGroupsMetadata={requestGroupsMetadata}
             callbackUrl={callbackUrl}
             referrerUrl={referrerUrl}
             hostName={hostName}

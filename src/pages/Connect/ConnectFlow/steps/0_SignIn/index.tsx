@@ -9,10 +9,13 @@ import ConnectVaultModal from "../../../../Modals/ConnectVaultModal";
 import Skeleton from "./components/Skeleton";
 import HoverTooltip from "../../../../../components/HoverTooltip";
 import colors from "../../../../../theme/colors";
-import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+//import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+import { ZkConnectRequest } from "../../../localTypes";
 import ShardTag from "../../components/ShardTag";
 import { BigNumber } from "ethers";
 import { FactoryApp, GroupMetadata } from "../../../../../libs/sismo-client";
+import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import EligibilityModal from "../../components/EligibilityModal";
 
 const Container = styled.div<{ hasDataRequest: boolean }>`
   background-color: ${(props) => props.theme.colors.blue11};
@@ -64,14 +67,87 @@ const DataRequested = styled.div`
   line-height: 20px;
   font-family: ${(props) => props.theme.fonts.regular};
   color: ${(props) => props.theme.colors.blue0};
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 `;
 
-const Separator = styled.div`
-  width: 252px;
+const GroupWrapper = styled.div`
+  border: 1px solid ${(props) => props.theme.colors.blue7};
+  border-radius: 5px;
+  padding: 8px;
+
+  flex-wrap: wrap;
+  width: 360px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+
+  @media (max-width: 900px) {
+    width: 100%;
+  }
+`;
+
+const AndWrapper = styled(GroupWrapper)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const OrWrapper = styled(GroupWrapper)`
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const OrSperator = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const Line = styled.div`
   height: 1px;
+  width: 100%;
   background: ${(props) => props.theme.colors.blue9};
-  margin-bottom: 10px;
+`;
+
+const OrText = styled.div`
+  font-size: 14px;
+  line-height: 20px;
+  font-family: ${(props) => props.theme.fonts.medium};
+`;
+
+const MessageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  padding: 8px;
+  gap: 10px;
+
+  width: 360px;
+  max-height: 86px;
+  overflow: auto;
+
+  background: ${(props) => props.theme.colors.blue9};
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 20px;
+
+  color: ${(props) => props.theme.colors.blue0};
+  margin-bottom: 20px;
+  box-sizing: border-box;
+
+  @media (max-width: 900px) {
+    width: 100%;
+  }
+`;
+
+const MessageTitle = styled.div`
+  font-family: ${(props) => props.theme.fonts.bold};
+`;
+
+const Message = styled.div`
+  font-family: ${(props) => props.theme.fonts.medium};
 `;
 
 const SecondLine = styled.div`
@@ -114,13 +190,13 @@ const Link = styled.a`
 type Props = {
   factoryApp: FactoryApp;
   zkConnectRequest: ZkConnectRequest;
-  groupMetadata: GroupMetadata | null;
+  requestGroupsMetadata: RequestGroupMetadata[] | null;
   referrerUrl: string;
   onNext: () => void;
 };
 
 export default function SignIn({
-  groupMetadata,
+  requestGroupsMetadata,
   zkConnectRequest,
   referrerUrl,
   factoryApp,
@@ -128,6 +204,8 @@ export default function SignIn({
 }: Props) {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(true);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [initialGroupId, setInitialGroupId] = useState<string | null>(null);
 
   const vault = useVault();
   // const proveName = badge?.name?.split(" ZK Badge")[0] || null;
@@ -150,13 +228,37 @@ export default function SignIn({
     }
   }, [factoryApp]);
 
-  const loading = zkConnectRequest?.dataRequest
+  console.log({
+    factoryApp,
+    vault: vault?.loadingActiveSession,
+    zkConnectRequest,
+    imgLoaded,
+    requestGroupsMetadata,
+  });
+
+  const loading = zkConnectRequest
     ? !factoryApp ||
       vault.loadingActiveSession ||
       !zkConnectRequest ||
       !imgLoaded ||
-      !groupMetadata
+      !requestGroupsMetadata
     : !factoryApp || vault.loadingActiveSession || !imgLoaded;
+
+  let consolidatedMessageSignatureRequest: string = "";
+
+  if (zkConnectRequest?.requestContent?.dataRequests.length) {
+    for (const dataRequest of zkConnectRequest?.requestContent?.dataRequests) {
+      if (dataRequest?.messageSignatureRequest) {
+        consolidatedMessageSignatureRequest +=
+          dataRequest?.messageSignatureRequest + " ";
+      }
+    }
+  }
+
+  function onShardClick(groupId: string) {
+    setModalIsOpen(true);
+    setInitialGroupId(groupId);
+  }
 
   return (
     <>
@@ -164,8 +266,15 @@ export default function SignIn({
         isOpen={connectIsOpen}
         onClose={() => setConnectIsOpen(false)}
       />
-
-      <Container hasDataRequest={Boolean(zkConnectRequest?.dataRequest)}>
+      {requestGroupsMetadata && (
+        <EligibilityModal
+          isOpen={modalIsOpen}
+          onClose={() => setModalIsOpen(false)}
+          requestGroupsMetadata={requestGroupsMetadata}
+          initialGroupId={initialGroupId}
+        />
+      )}
+      <Container hasDataRequest={Boolean(requestGroupsMetadata)}>
         <HeaderTitle url={referrerUrl} style={{ marginBottom: 20 }} />
 
         {loading && <Skeleton />}
@@ -186,24 +295,86 @@ export default function SignIn({
                 </SecondLine>
               </ContentTitle>
 
-              {zkConnectRequest?.dataRequest && (
+              {requestGroupsMetadata && (
                 <>
-                  <DataRequested>Requested Data</DataRequested>
-                  <Separator />
-                  <ShardTag
-                    groupMetadata={groupMetadata}
-                    comparator={
-                      zkConnectRequest?.dataRequest?.statementRequests[0]
-                        ?.comparator
-                    }
-                    requestedValue={
-                      BigNumber.from(
-                        zkConnectRequest?.dataRequest?.statementRequests[0]
-                          ?.requestedValue
-                      ).toNumber() || 1
-                    }
-                  />
+                  <DataRequested>Requested Data:</DataRequested>
+                  {(!zkConnectRequest?.requestContent?.operators?.length ||
+                    zkConnectRequest?.requestContent?.operators[0] ===
+                      "AND") && (
+                    <AndWrapper>
+                      {requestGroupsMetadata?.length > 0 &&
+                        requestGroupsMetadata?.map(
+                          (requestGroupMetadata, index) => (
+                            <>
+                              <ShardTag
+                                key={index + "/statement-request"}
+                                groupMetadata={
+                                  requestGroupMetadata?.groupMetadata
+                                }
+                                claimType={
+                                  requestGroupMetadata?.claim?.claimType
+                                }
+                                requestedValue={
+                                  BigNumber.from(
+                                    requestGroupMetadata?.claim?.value
+                                  ).toNumber() || 1
+                                }
+                                onModal={() =>
+                                  onShardClick(
+                                    requestGroupMetadata?.groupMetadata?.id
+                                  )
+                                }
+                              />
+                            </>
+                          )
+                        )}
+                    </AndWrapper>
+                  )}
+                  {zkConnectRequest?.requestContent?.operators[0] === "OR" && (
+                    <OrWrapper>
+                      {requestGroupsMetadata?.length > 0 &&
+                        requestGroupsMetadata?.map(
+                          (requestGroupMetadata, index) => (
+                            <>
+                              {index !== 0 && (
+                                <OrSperator>
+                                  <Line />
+                                  <OrText>or</OrText>
+                                  <Line />
+                                </OrSperator>
+                              )}
+                              <ShardTag
+                                key={index + "/statement-request"}
+                                groupMetadata={
+                                  requestGroupMetadata?.groupMetadata
+                                }
+                                claimType={
+                                  requestGroupMetadata?.claim?.claimType
+                                }
+                                requestedValue={
+                                  BigNumber.from(
+                                    requestGroupMetadata?.claim?.value
+                                  ).toNumber() || 1
+                                }
+                                onModal={() =>
+                                  onShardClick(
+                                    requestGroupMetadata?.groupMetadata?.id
+                                  )
+                                }
+                              />
+                            </>
+                          )
+                        )}
+                    </OrWrapper>
+                  )}
                 </>
+              )}
+
+              {consolidatedMessageSignatureRequest && (
+                <MessageWrapper>
+                  <MessageTitle>Message Signature Request</MessageTitle>
+                  <Message>{consolidatedMessageSignatureRequest}</Message>
+                </MessageWrapper>
               )}
             </TopContent>
             <ButtonGroup>

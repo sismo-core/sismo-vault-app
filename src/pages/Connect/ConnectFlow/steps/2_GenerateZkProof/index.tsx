@@ -5,11 +5,12 @@ import { useCallback, useEffect, useState } from "react";
 import { useVault } from "../../../../../libs/vault";
 import { useSismo } from "../../../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+// import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import ShardAnimation from "../../components/ShardAnimation";
 import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
 import { GroupMetadata } from "../../../../../libs/sismo-client";
-import { ZkConnectResponse } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+// import { ZkConnectResponse } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { ZkConnectResponse, ZkConnectRequest } from "../../../localTypes";
 
 const Container = styled.div`
   display: flex;
@@ -128,7 +129,7 @@ export default function GenerateZkProof({
       setIsGenerated(true);
       setErrorProof(false);
       setLoadingProof(false);
-      onNext(zkResponse);
+      //onNext(zkResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {
         scope.setLevel("fatal");

@@ -15,6 +15,8 @@ import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
 import { Navigate } from "react-router-dom";
 
+import { getMockUrl } from "./Connect/mockRequest";
+
 export default function Pages(): JSX.Element {
   const [githubCode, setGithubCode] = useState(null);
   const [twitterOauth, setTwitterOauth] = useState(null);
@@ -30,6 +32,8 @@ export default function Pages(): JSX.Element {
   }, [vault.isConnected]);
 
   const myVaultIsOpen = useRef<Boolean>(false);
+
+  getMockUrl();
 
   /*********************************************************/
   /************************ MY VAULT ***********************/
