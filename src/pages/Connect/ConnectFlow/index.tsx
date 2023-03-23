@@ -235,14 +235,14 @@ export default function ConnectFlow({
             setVaultSliderOpen={setVaultSliderOpen}
             step={step}
           >
-            {/* {step === "ImportEligibleAccount" && (
+            {step === "ImportEligibleAccount" && (
               <ImportEligibleAccount
                 requestGroupsMetadata={requestGroupsMetadata}
                 eligibleAccountData={eligibleAccountData}
                 loadingEligible={loadingEligible}
               />
             )}
-            {step === "GenerateZkProof" && (
+            {/* {step === "GenerateZkProof" && (
               <GenerateZkProof
                 zkConnectRequest={zkConnectRequest}
                 requestGroupsMetadata={requestGroupsMetadata}

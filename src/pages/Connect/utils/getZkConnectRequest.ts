@@ -1,5 +1,6 @@
 //import { ZkConnectRequest } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { ZkConnectRequest } from "../localTypes";
+import env from "../../../environment";
 
 export const getZkConnectRequest = (
   searchParams: URLSearchParams
@@ -9,6 +10,22 @@ export const getZkConnectRequest = (
   let _requestContent = searchParams.get("requestContent");
   let _namespace = searchParams.get("namespace");
   let _callbackPath = searchParams.get("callbackPath");
+
+  // REMOVE ALL URL PARAMS EXCEPT FOR DEV_BETA
+  if (env.name !== "DEV_BETA") {
+    const url = new URL(window.location.href);
+    const deleteParams = [
+      "version",
+      "appId",
+      "requestContent",
+      "namespace",
+      "callbackPath",
+    ];
+    deleteParams.forEach((param) => {
+      url.searchParams.delete(param);
+    });
+    window.history.replaceState({}, "", url.toString());
+  }
 
   const request: ZkConnectRequest = {
     namespace: _namespace,

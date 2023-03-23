@@ -172,6 +172,7 @@ const GroupsSelector = styled.div`
   align-self: center;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   margin-top: -40px;
   flex-wrap: wrap;

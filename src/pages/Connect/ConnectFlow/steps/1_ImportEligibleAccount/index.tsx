@@ -11,6 +11,7 @@ import EligibilityModal from "../../components/EligibilityModal";
 import { useState } from "react";
 import { Gem } from "../../../../../components/SismoReactIcon";
 import { GroupMetadata } from "../../../../../libs/sismo-client";
+import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 
 const Container = styled.div`
   display: flex;
@@ -26,29 +27,6 @@ const HeaderWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 49px;
-`;
-
-const Banner = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-size: 14px;
-  line-height: 20px;
-  font-family: ${(props) => props.theme.fonts.regular};
-  margin-bottom: 30px;
-  padding: 10px;
-  background-color: ${(props) => props.theme.colors.blue8};
-  border-radius: 10px;
-`;
-
-const InfoWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 21.5px;
-  height: 21.5px;
-  flex-shrink: 0;
 `;
 
 const ContentHeader = styled.div`
@@ -73,67 +51,6 @@ const Summary = styled.div`
   flex-direction: column;
   justify-content: space-between;
   gap: 50px;
-`;
-
-const SchemaWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  align-self: center;
-`;
-
-const Schema = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  align-self: center;
-`;
-
-const Circle = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid ${(props) => props.theme.colors.blue0};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  box-sizing: border-box;
-`;
-
-const InnerCircle = styled.div<{ isEligibleAccountImported: Boolean }>`
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: ${(props) =>
-    props.isEligibleAccountImported
-      ? props.theme.colors.green1
-      : props.theme.colors.blue2};
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  box-sizing: border-box;
-`;
-
-const EligibilityLink = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  font-size: 14px;
-  line-height: 20px;
-  font-family: ${(props) => props.theme.fonts.medium};
-  color: ${(props) => props.theme.colors.blue2};
-  gap: 5px;
-`;
-
-const ArrowWrapper = styled(ArrowsOutSimple)`
-  align-self: flex-start;
 `;
 
 const CallToAction = styled.div`
@@ -202,16 +119,17 @@ const LoadingFeedBack = styled(FeedBack)`
 
 type Props = {
   eligibleAccountData: AccountData;
-  groupsMetadata: GroupMetadata[];
+  requestGroupsMetadata: RequestGroupMetadata[];
   loadingEligible: boolean;
 };
 
 export default function ImportEligibleAccount({
   eligibleAccountData,
-  groupsMetadata,
+  requestGroupsMetadata,
   loadingEligible,
 }: Props) {
   const [modalIsOpen, setModalIsOpen] = useState(false);
+
   const importAccount = useImportAccount();
   const vault = useVault();
 
@@ -224,11 +142,14 @@ export default function ImportEligibleAccount({
 
   return (
     <>
-      {/* <EligibilityModal
-        groupsMetadata={groupsMetadata}
-        isOpen={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
-      /> */}
+      {Boolean(requestGroupsMetadata) && (
+        <EligibilityModal
+          isOpen={modalIsOpen}
+          onClose={() => setModalIsOpen(false)}
+          requestGroupsMetadata={requestGroupsMetadata}
+          initialGroupId={requestGroupsMetadata[0]?.groupMetadata?.id}
+        />
+      )}
       <Container>
         {/* {isBannerVisible && (
           <Banner>
@@ -256,50 +177,6 @@ export default function ImportEligibleAccount({
                 </HeaderSubtitle>
               )}
           </HeaderWrapper>
-
-          {/* <SchemaWrapper>
-            <Schema>
-              <Circle>
-                <InnerCircle
-                  isEligibleAccountImported={eligibleAccountData ? true : false}
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M11.3553 3.89966L5.7838 9.47092L2.99805 6.68541"
-                      stroke="#1C2847"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </InnerCircle>
-              </Circle>
-              <ThreeDots />
-              <VaultIcon src="/assets/sismo-vault-v2.svg" alt="vault" />
-            </Schema>
-
-            {!eligibleAccountData &&
-              importAccount.importing !== "account" &&
-              importAccount.importing !== "owner" &&
-              !loadingEligible && (
-                <EligibilityLink
-                  onClick={() => {
-                    setModalIsOpen(true);
-                  }}
-                >
-                  Eligibility
-                  <ArrowWrapper>
-                    <ArrowsOutSimple size={13.74} color={colors.blue2} />
-                  </ArrowWrapper>
-                </EligibilityLink>
-              )}
-          </SchemaWrapper> */}
         </Summary>
 
         {eligibleAccountData && (
