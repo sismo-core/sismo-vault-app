@@ -24,7 +24,7 @@ export function Gem({ size = 19, color = "#E9ECFF", className, style }: Props) {
         fill="none"
         stroke={color}
         strokeWidth={(1.4062 / 19) * size}
-        stroke-miterlimit={10}
+        strokeMiterlimit={10}
         d="M14.8,1.2l3.3,10.2l-8.6,6.2l-8.6-6.3L4.2,1.2H14.8z"
       />
     </svg>

@@ -1,76 +1,101 @@
-import { overrideEligibleGroupDataFormatter } from "../../zk-connect/utils";
+import {
+  StatementEligibility,
+  StatementGroupMetadata,
+  ZkConnectProver as ZkConnectProverV1,
+  ZkConnectRequest,
+  ZkConnectResponse,
+} from "../zk-connect-prover/zk-connect-v1";
 import { Cache } from "../caches";
-import { HydraS2OffchainProver } from "../provers/hydra-s2-offchain-prover";
-import { GetEligibilityInputs, OffchainProofRequest } from "../provers/types";
+import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
+import env from "../../../environment";
+import { GroupProvider } from "../providers/group-provider";
+import { ImportedAccount } from "../../vault-client";
 
 export class SismoClient {
-  public prover: HydraS2OffchainProver;
+  private factoryProvider: FactoryProvider;
+  private groupProvider: GroupProvider;
+  private zkConnectProvers: {
+    "zk-connect-v1": ZkConnectProverV1;
+  };
 
   constructor({ cache }: { cache: Cache }) {
-    this.prover = new HydraS2OffchainProver({ cache });
+    this.factoryProvider = new FactoryProvider({
+      factoryApiUrl: env.factoryApiUrl,
+    });
+    this.groupProvider = new GroupProvider({ hubApiUrl: env.hubApiUrl });
+    this.zkConnectProvers = {
+      "zk-connect-v1": new ZkConnectProverV1({
+        factoryProvider: this.factoryProvider,
+        cache: cache,
+      }),
+    };
   }
 
-  /*****************************************************************/
-  /************************ ELIGIBILITY ****************************/
-  /*****************************************************************/
-  public async getEligibility({
-    accounts,
-    groupId,
-    groupTimestamp,
-    comparator,
-    requestedValue,
-    devAddresses,
-  }: GetEligibilityInputs) {
-    if (devAddresses) {
-      console.warn(
-        `Using devAddresses to check eligibility for groupId ${groupId}!`,
-        devAddresses
+  public async getGroupMetadata(groupId: string, timestamp: "latest" | number) {
+    return await this.groupProvider.getGroupMetadata(groupId, timestamp);
+  }
+
+  public async getFactoryApp(appId: string): Promise<FactoryApp> {
+    return await this.factoryProvider.getFactoryApp(appId);
+  }
+
+  public async getStatementsGroupsMetadata(
+    zkConnectRequest: ZkConnectRequest
+  ): Promise<StatementGroupMetadata[]> {
+    if (!zkConnectRequest.dataRequest) return null;
+    const statementGroupMetadata: StatementGroupMetadata[] = [];
+    for (let statement of zkConnectRequest.dataRequest.statementRequests) {
+      const groupMetadata = await this.groupProvider.getGroupMetadata(
+        statement.groupId,
+        statement.groupTimestamp
       );
-      const lowerCaseOverrideGroupData =
-        overrideEligibleGroupDataFormatter(devAddresses);
-      const eligibleAccount = accounts.find(
-        (account) => lowerCaseOverrideGroupData[account.toLowerCase()]
-      );
-      if (!eligibleAccount) {
-        return null;
-      }
-      return {
-        identifier: eligibleAccount,
-        value: devAddresses[eligibleAccount] ?? 1,
-      };
+      statementGroupMetadata.push({
+        groupMetadata,
+        statement,
+      });
     }
-
-    const accountData = await this.prover.getEligibility({
-      accounts,
-      groupId,
-      groupTimestamp,
-      comparator,
-      requestedValue,
-    });
-    return accountData;
+    return statementGroupMetadata;
   }
 
-  public async generateOffchainProof({
-    appId,
-    source,
-    vaultSecret,
-    namespace,
-    groupId,
-    groupTimestamp,
-    requestedValue,
-    comparator,
-    devAddresses,
-  }: OffchainProofRequest) {
-    return await this.prover.generateProof({
-      appId,
-      source,
-      vaultSecret,
-      namespace,
-      groupId,
-      groupTimestamp,
-      requestedValue,
-      comparator,
-      devAddresses,
-    });
+  public async getStatementsEligibilities(
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<StatementEligibility[]> {
+    if (!this.zkConnectProvers[zkConnectRequest.version])
+      throw new Error(
+        `Version of the request not supported ${zkConnectRequest.version}`
+      );
+    const zkConnectProver = this.zkConnectProvers[zkConnectRequest.version];
+    return await zkConnectProver.getStatementsEligibilities(
+      zkConnectRequest,
+      importedAccounts
+    );
+  }
+
+  public generateResponse(
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[],
+    vaultSecret: string
+  ): Promise<ZkConnectResponse> {
+    if (!this.zkConnectProvers[zkConnectRequest.version])
+      throw new Error(
+        `Version of the request not supported ${zkConnectRequest.version}`
+      );
+    const zkConnectProver = this.zkConnectProvers[zkConnectRequest.version];
+    return zkConnectProver.generateResponse(
+      zkConnectRequest,
+      importedAccounts,
+      vaultSecret
+    );
+  }
+
+  //TODO
+  public verifyZkConnectRequest(zkConnectRequest: ZkConnectRequest) {
+    if (!this.zkConnectProvers[zkConnectRequest.version])
+      throw new Error(
+        `Version of the request not supported ${zkConnectRequest.version}`
+      );
+    const zkConnectProver = this.zkConnectProvers[zkConnectRequest.version];
+    return zkConnectProver.verifyRequest(zkConnectRequest);
   }
 }

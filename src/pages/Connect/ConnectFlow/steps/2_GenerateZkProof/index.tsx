@@ -5,15 +5,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useVault } from "../../../../../libs/vault";
 import { useSismo } from "../../../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-import {
-  AccountData,
-  OffchainProofRequest,
-} from "../../../../../libs/sismo-client/provers/types";
-import { SnarkProof } from "@sismo-core/hydra-s2";
 import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import ShardAnimation from "../../components/ShardAnimation";
-import { GroupMetadata } from "../../..";
 import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
+import { GroupMetadata } from "../../../../../libs/sismo-client";
+import { ZkConnectResponse } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 
 const Container = styled.div`
   display: flex;
@@ -104,64 +100,35 @@ const LoadingFeedBack = styled(FeedBack)`
 type Props = {
   zkConnectRequest: ZkConnectRequest;
   groupMetadata: GroupMetadata;
-  eligibleAccountData: AccountData;
-  hasDataRequest: boolean;
-  onNext: (proof: SnarkProof) => void;
+  onNext: (zkResponse: ZkConnectResponse) => void;
 };
 
 export default function GenerateZkProof({
-  eligibleAccountData,
   groupMetadata,
   zkConnectRequest,
-  hasDataRequest,
   onNext,
 }: Props) {
   const vault = useVault();
   const [loadingProof, setLoadingProof] = useState(true);
-  const [proof, setProof] = useState<SnarkProof>(null);
+  const [isGenerated, setIsGenerated] = useState(false);
   const [, setErrorProof] = useState(false);
-  const sismo = useSismo();
+  const { generateResponse } = useSismo();
 
-  const generateProof = useCallback(async () => {
+  const generate = useCallback(async () => {
     setLoadingProof(true);
     setErrorProof(false);
     try {
-      let proofRequest: OffchainProofRequest;
       const owner = vault.owners[0];
       const vaultSecret = await vault.getVaultSecret(owner);
-      if (hasDataRequest === false) {
-        proofRequest = {
-          appId: zkConnectRequest.appId,
-          vaultSecret: vaultSecret,
-        };
-      } else if (hasDataRequest === true) {
-        const eligibleSourceAccount = vault.importedAccounts.find(
-          (_source) => _source.identifier === eligibleAccountData.identifier
-        );
-
-        proofRequest = {
-          appId: zkConnectRequest.appId,
-          source: eligibleSourceAccount,
-          vaultSecret: vaultSecret,
-          namespace: zkConnectRequest.namespace,
-          groupId: zkConnectRequest.dataRequest.statementRequests[0].groupId,
-          groupTimestamp:
-            zkConnectRequest.dataRequest.statementRequests[0].groupTimestamp,
-          requestedValue:
-            zkConnectRequest.dataRequest.statementRequests[0].requestedValue,
-          comparator:
-            zkConnectRequest.dataRequest.statementRequests[0].comparator,
-          devAddresses:
-            zkConnectRequest.dataRequest.statementRequests[0].extraData
-              ?.devAddresses,
-        };
-      }
-
-      const proof = await sismo.generateOffchainProof(proofRequest);
-      setProof(proof);
+      const zkResponse = await generateResponse(
+        zkConnectRequest,
+        vault.importedAccounts,
+        vaultSecret
+      );
+      setIsGenerated(true);
       setErrorProof(false);
       setLoadingProof(false);
-      onNext(proof);
+      onNext(zkResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {
         scope.setLevel("fatal");
@@ -175,8 +142,8 @@ export default function GenerateZkProof({
   }, []);
 
   useEffect(() => {
-    generateProof();
-  }, [generateProof]);
+    generate();
+  }, [generate]);
 
   return (
     <Container>
@@ -189,7 +156,7 @@ export default function GenerateZkProof({
         </HeaderWrapper>
       </Summary>
 
-      {!proof && loadingProof && (
+      {!isGenerated && loadingProof && (
         <LoadingWrapper>
           <Schema>
             <ShardAnimation groupMetadata={[groupMetadata]} />
@@ -198,7 +165,7 @@ export default function GenerateZkProof({
         </LoadingWrapper>
       )}
 
-      {proof && (
+      {isGenerated && (
         <SuccessWrapper>
           <ProofSuccessWrapper>
             <GemProof size={58} color={colors.purple2} />

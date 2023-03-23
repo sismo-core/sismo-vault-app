@@ -1,14 +1,7 @@
 import { useState } from "react";
-import { Badge } from "../../../../libs/sismo-client";
 import MyVaultContainer from "../components/MyVaultContainer";
 import { ImportedAccount } from "../../../../libs/vault-client";
 import ImportedAccounts from "./components/ImportedAccounts";
-
-export type UserBadge = {};
-
-export type MintedBadges = {
-  accounts: ImportedAccount[];
-} & Badge;
 
 export default function Accounts() {
   const [selectedAccount, setSelectedAccount] = useState<ImportedAccount>(null);

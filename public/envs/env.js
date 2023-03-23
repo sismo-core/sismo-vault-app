@@ -1,25 +1,24 @@
 //app.sismo.io
 window.env = {
-  name: "DEV_BETA",
+  name: "STAGING_BETA",
   disabledSentry: false,
-  vaultURL: "https://dev.vault-beta-api.sismo.io",
-  hubApiUrl: "https://hub.sismo.io",
-  factoryApiUrl: "https://factory-api.sismo.io",
-  commitmentMapperUrl: "https://btwu3bqo4a.execute-api.eu-west-1.amazonaws.com",
-  githubOauthClientId: "d3f98ef4b1abaa0354b0",
-  chainName: "gnosis",
+  vaultURL: "https://vault-beta-api.sismo.io",
+  hubApiUrl: "https://hub.staging.zikies.io",
+  factoryApiUrl: "https://factory-api.staging.zikies.io",
+  commitmentMapperUrl: "https://x93oogcd5e.execute-api.eu-west-1.amazonaws.com",
+  githubOauthClientId: "ed165a166320d0676ccb",
+  chainName: "goerli",
   sismoDestination: {
     address: "0x0000000000000000000000000000000000515110",
     sec: 515110,
     commitmentMapperPubKey: [
-      "0x2ab71fb864979b71106135acfa84afc1d756cda74f8f258896f896b4864f0256",
-      "0x30423b4c502f1cd4179a425723bf1e15c843733af2ecdee9aef6a0451ef2db74"    
+      "0x07f6c5612eb579788478789deccb06cf0eb168e457eea490af754922939ebdb9",
+      "0x20706798455f90ed993f8dac8075fc1538738a25f0c928da905c0dffd81869fa",
     ],
     commitmentReceipt: [
-      "0x100691c4ac75b8431f65e2aeb4ba119c490db94b15eafcb5e6da0a4ada2cd18e",
-      "0x1aad090e45ddcf9c3168349fd209dd525e21e2735f1755594ed472def7b3c1b9",
-      "0x0173e6aa4b3226659d00b710f29ff0c087bb374b63d813f373d0bf93f39f13eb"    
+      "0x2345a306a80dcbf995265d6dfcd19e2e747ed07324578c509f4d8e214c4afb09",
+      "0x24cfee70f84056f2d314f53c80369f512a130bea06c89a926f6f73456a473a04",
+      "0x05f9c1765a0771cae354874d53ba951ade82040278f5d58f09e9dea00a24f3b2",
     ],
   },
 };
-

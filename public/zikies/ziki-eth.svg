@@ -1,12 +1,12 @@
 <svg width="34" height="78" viewBox="0 0 34 78" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M17.922 0.889282L6.49512 19.9609L17.922 26.9618L29.4293 19.9609L17.922 0.889282Z" fill="white"/>
 <path d="M17.922 38.791L6.49512 22.5359L17.922 29.1345L29.4293 22.5359L17.922 38.791Z" fill="white"/>
-<path d="M16.9974 68.4998C22.275 68.4998 26.5534 64.2214 26.5534 58.9438C26.5534 53.6662 22.275 49.3878 16.9974 49.3878C11.7198 49.3878 7.44141 53.6662 7.44141 58.9438C7.44141 64.2214 11.7198 68.4998 16.9974 68.4998Z" stroke="white" stroke-width="2.67992" stroke-miterlimit="10"/>
-<path d="M2.23047 58.9736C2.23047 50.8147 8.84094 44.2042 16.9998 44.2042C25.1587 44.2042 31.7691 50.8147 31.7691 58.9736" stroke="white" stroke-width="2.67992" stroke-miterlimit="10"/>
-<path d="M26.5538 36.71L22.0039 45.0749" stroke="white" stroke-width="2.67992" stroke-miterlimit="10"/>
-<path d="M8.75098 36.71L13.2699 44.6794" stroke="white" stroke-width="2.67992" stroke-miterlimit="10"/>
-<path d="M21.2119 67.5177L19.2354 77.2285" stroke="white" stroke-width="2.67992" stroke-miterlimit="10"/>
-<path d="M12.7734 67.5177L14.8834 77.2285" stroke="white" stroke-width="2.67992" stroke-miterlimit="10"/>
+<path d="M16.9974 68.4998C22.275 68.4998 26.5534 64.2214 26.5534 58.9438C26.5534 53.6662 22.275 49.3878 16.9974 49.3878C11.7198 49.3878 7.44141 53.6662 7.44141 58.9438C7.44141 64.2214 11.7198 68.4998 16.9974 68.4998Z" stroke="white" stroke-width="2.67992" strokeMiterlimit="10"/>
+<path d="M2.23047 58.9736C2.23047 50.8147 8.84094 44.2042 16.9998 44.2042C25.1587 44.2042 31.7691 50.8147 31.7691 58.9736" stroke="white" stroke-width="2.67992" strokeMiterlimit="10"/>
+<path d="M26.5538 36.71L22.0039 45.0749" stroke="white" stroke-width="2.67992" strokeMiterlimit="10"/>
+<path d="M8.75098 36.71L13.2699 44.6794" stroke="white" stroke-width="2.67992" strokeMiterlimit="10"/>
+<path d="M21.2119 67.5177L19.2354 77.2285" stroke="white" stroke-width="2.67992" strokeMiterlimit="10"/>
+<path d="M12.7734 67.5177L14.8834 77.2285" stroke="white" stroke-width="2.67992" strokeMiterlimit="10"/>
 <circle cx="19.5358" cy="56.0986" r="1.67542" transform="rotate(-90 19.5358 56.0986)" fill="white"/>
 <circle cx="14.3395" cy="56.0986" r="1.67542" transform="rotate(-90 14.3395 56.0986)" fill="white"/>
 </svg>

@@ -1,14 +1,14 @@
 import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
-import { fetchJsonTree } from "../services/available-data";
 import {
   getAccountsTreeInputs,
   OffChainAccountTreeMetadata,
   OffChainGroupProperties,
 } from "./types";
-import { ChunkedGroups } from "../attesters/hydraS1/chunked-groups";
 import { Cache } from "../caches";
 import { RegistryTreeReader } from "./registry-tree-reader";
 import env from "../../../environment";
+import { ChunkedGroups } from "./chunked-groups";
+import { fetchJsonTree } from "./services/available-data";
 
 export class OffchainRegistryTreeReader extends RegistryTreeReader {
   private _chunkedGroups: ChunkedGroups;

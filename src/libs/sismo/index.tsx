@@ -1,31 +1,37 @@
 import React, { useCallback, useContext } from "react";
 import { SismoClient } from "../sismo-client";
 import {
-  OffchainProofRequest,
-  GetEligibilityInputs,
-} from "../sismo-client/provers/types";
-import { SnarkProof } from "@sismo-core/hydra-s2";
+  StatementEligibility,
+  StatementGroupMetadata,
+  ZkConnectRequest,
+  ZkConnectResponse,
+} from "../sismo-client/zk-connect-prover/zk-connect-v1";
+import { FactoryApp } from "../sismo-client";
+import { GroupMetadata } from "../sismo-client/providers/group-provider";
+import { ImportedAccount } from "../vault-client";
 
 export type Sismo = {
-  getEligibility: ({
-    accounts,
-    groupId,
-    groupTimestamp,
-    comparator,
-    requestedValue,
-  }: GetEligibilityInputs) => Promise<{ [key: string]: number }>;
-  generateOffchainProof: ({
-    appId,
-    namespace,
-    comparator,
-    requestedValue,
-    source,
-    groupId,
-    groupTimestamp,
-  }: OffchainProofRequest) => Promise<SnarkProof>;
+  generateResponse: (
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[],
+    vaultSecret: string
+  ) => Promise<ZkConnectResponse>;
+  getStatementsGroupsMetadata: (
+    zkConnectRequest: ZkConnectRequest
+  ) => Promise<StatementGroupMetadata[]>;
+  getStatementsEligibilities: (
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ) => Promise<StatementEligibility[]>;
+  verifyZkConnectRequest: (request: ZkConnectRequest) => Promise<any>;
+  getFactoryApp: (appId: string) => Promise<FactoryApp>;
+  getGroupMetadata: (
+    groupId: string,
+    timestamp: "latest" | number
+  ) => Promise<GroupMetadata>;
 };
 
-export const useSismo = (): SismoClient => {
+export const useSismo = (): Sismo => {
   return useContext(SismoClientContext);
 };
 
@@ -38,50 +44,58 @@ export default function SismoProvider({
   children: React.ReactNode;
   client: SismoClient;
 }): JSX.Element {
-  const generateOffchainProof = useCallback(
-    ({
-      appId,
-      source,
-      vaultSecret,
-      namespace,
-      groupId,
-      groupTimestamp,
-      requestedValue,
-      comparator,
-      devAddresses,
-    }: OffchainProofRequest) => {
-      return client.generateOffchainProof({
-        appId,
-        source,
-        vaultSecret,
-        namespace,
-        groupId,
-        groupTimestamp,
-        requestedValue,
-        comparator,
-        devAddresses,
-      });
+  const generateResponse = useCallback(
+    (
+      zkConnectRequest: ZkConnectRequest,
+      importedAccounts: ImportedAccount[],
+      vaultSecret: string
+    ) => {
+      return client.generateResponse(
+        zkConnectRequest,
+        importedAccounts,
+        vaultSecret
+      );
     },
     [client]
   );
 
-  const getEligibility = useCallback(
-    ({
-      accounts,
-      groupId,
-      groupTimestamp,
-      comparator,
-      requestedValue,
-      devAddresses,
-    }: GetEligibilityInputs) => {
-      return client.getEligibility({
-        accounts,
-        groupId,
-        groupTimestamp,
-        comparator,
-        requestedValue,
-        devAddresses,
-      });
+  const getStatementsGroupsMetadata = useCallback(
+    (zkConnectRequest: ZkConnectRequest) => {
+      return client.getStatementsGroupsMetadata(zkConnectRequest);
+    },
+    [client]
+  );
+
+  const getStatementsEligibilities = useCallback(
+    (
+      zkConnectRequest: ZkConnectRequest,
+      importedAccounts: ImportedAccount[]
+    ) => {
+      return client.getStatementsEligibilities(
+        zkConnectRequest,
+        importedAccounts
+      );
+    },
+    [client]
+  );
+
+  const getGroupMetadata = useCallback(
+    (groupId: string, timestamp: "latest" | number) => {
+      return client.getGroupMetadata(groupId, timestamp);
+    },
+    [client]
+  );
+
+  const getFactoryApp = useCallback(
+    (appId: string) => {
+      return client.getFactoryApp(appId);
+    },
+    [client]
+  );
+
+  const verifyZkConnectRequest = useCallback(
+    (request: ZkConnectRequest) => {
+      return client.verifyZkConnectRequest(request);
     },
     [client]
   );
@@ -89,8 +103,12 @@ export default function SismoProvider({
   return (
     <SismoClientContext.Provider
       value={{
-        generateOffchainProof,
-        getEligibility,
+        verifyZkConnectRequest,
+        getGroupMetadata,
+        getFactoryApp,
+        getStatementsEligibilities,
+        generateResponse,
+        getStatementsGroupsMetadata,
       }}
     >
       {children}

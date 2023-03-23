@@ -5,7 +5,7 @@ import EligibleLink from "./components/EligibleLink";
 import Generation from "./components/Generation";
 import Icon from "../../../../../components/Icon";
 import { ArrowSquareOut } from "phosphor-react";
-import { GroupMetadata } from "../../..";
+import { GroupMetadata } from "../../../../../libs/sismo-client";
 
 const Container = styled.div`
   display: flex;
