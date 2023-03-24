@@ -1,15 +1,20 @@
-import { BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { ImportedAccount } from "../../../vault-client";
-import { overrideEligibleGroupDataFormatter } from "../../../zk-connect/utils";
 import { Cache } from "../../caches";
 import { HydraS2OffchainProver } from "../../provers/hydra-s2-offchain-prover";
+import { OffchainProofRequest } from "../../provers/types";
 import { FactoryProvider } from "../../providers/factory-provider";
 import {
-  DataRequestEligibility,
   ClaimRequestEligibility,
   AuthRequestEligibility,
   ZkConnectRequest,
   ZkConnectResponse,
+  DevConfig,
+  Claim,
+  AuthType,
+  ClaimType,
+  ZkConnectProof,
+  Auth,
 } from "./types";
 
 export class ZkConnectProver {
@@ -20,11 +25,13 @@ export class ZkConnectProver {
   constructor({
     factoryProvider,
     cache,
+    devConfig,
   }: {
     factoryProvider: FactoryProvider;
     cache: Cache;
+    devConfig?: DevConfig;
   }) {
-    this.prover = new HydraS2OffchainProver({ cache });
+    this.prover = new HydraS2OffchainProver({ cache, devConfig });
     this.factoryProvider = factoryProvider;
   }
 
@@ -38,146 +45,219 @@ export class ZkConnectProver {
     if (!factoryApp) return false;
   }
 
-  // public async get DataRequestEligibilities(
-  //   zkConnectRequest: ZkConnectRequest,
-  //   importedAccounts: ImportedAccount[],
-  // ) : Promise<DataRequestEligibility[]> {
-  //   const dataRequestEligibilities: DataRequestEligibility[] = [];
+  public async getClaimRequestEligibilities(
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<ClaimRequestEligibility[]> {
+    const claimRequestEligibilities: ClaimRequestEligibility[] = [];
+    const claimRequests: Claim[] = [];
 
-  //   return dataRequestEligibilities;
-  // }
+    const hasClaimRequest =
+      zkConnectRequest?.requestContent?.dataRequests?.some(
+        (dataRequest) => dataRequest?.claimRequest?.groupId
+      );
 
-  // private async getClaimRequestEligibilities(
-  //   zkConnectRequest: ZkConnectRequest,
-  //   importedAccounts: ImportedAccount[]) : Promise<ClaimRequestEligibility[]> {
-  //     const claimRequestEligibilities : ClaimRequestEligibility[] = [];
+    if (!hasClaimRequest) return null;
 
-  //     return claimRequestEligibilities;
-  //   }
+    for (const dataRequest of zkConnectRequest?.requestContent?.dataRequests) {
+      if (!dataRequest?.claimRequest?.groupId) continue;
+      claimRequests.push(dataRequest.claimRequest);
+    }
 
-  // private async getAuthRequestEligibilities(
-  //   zkConnectRequest: ZkConnectRequest,
-  //   importedAccounts: ImportedAccount[]) : Promise<AuthRequestEligibility[]> {
-  //     const authRequestEligibilities : AuthRequestEligibility[] = [];
+    const _accounts = importedAccounts?.map((account) => account.identifier);
 
-  //     return authRequestEligibilities;
+    const accountDatas = await Promise.all(
+      claimRequests.map(async (claimRequest) => {
+        return await this.prover.getEligibility({
+          accounts: _accounts,
+          groupId: claimRequest.groupId,
+          groupTimestamp: claimRequest.groupTimestamp,
+          requestedValue: claimRequest.value,
+          claimType: claimRequest.claimType,
+        });
+      })
+    );
 
-  //   }
+    for (const accountData of accountDatas) {
+      const _claimRequestEligibility: ClaimRequestEligibility = {
+        claimRequest: claimRequests[accountDatas.indexOf(accountData)],
+        accountData: accountData,
+      };
 
-  // public async getStatementsEligibilities(
-  //   zkConnectRequest: ZkConnectRequest,
-  //   importedAccounts: ImportedAccount[]
-  // ): Promise<StatementEligibility[]> {
-  //   const statementRequests = zkConnectRequest?.dataRequest.statementRequests;
+      claimRequestEligibilities.push(_claimRequestEligibility);
+    }
 
-  //   const statementsEligibility: StatementEligibility[] = [];
+    return claimRequestEligibilities;
+  }
 
-  //   for (let statement of statementRequests) {
-  //     const devAddresses = statement.extraData?.devAddresses;
-  //     if (devAddresses) {
-  //       console.warn(
-  //         `Using devAddresses to check eligibility for groupId ${statement.groupId}!`,
-  //         devAddresses
-  //       );
-  //       const lowerCaseOverrideGroupData =
-  //         overrideEligibleGroupDataFormatter(devAddresses);
+  public async getAuthRequestEligibilities(
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<AuthRequestEligibility[]> {
+    const authRequestEligibilities: AuthRequestEligibility[] = [];
+    const hasAuthRequest = zkConnectRequest?.requestContent?.dataRequests?.some(
+      (dataRequest) => dataRequest?.authRequest?.authType
+    );
 
-  //       const eligibleAccount = importedAccounts.find(
-  //         (importedAccount) =>
-  //           lowerCaseOverrideGroupData[importedAccount.identifier.toLowerCase()]
-  //       );
-  //       if (!eligibleAccount) {
-  //         return null;
-  //       }
-  //       statementsEligibility.push({
-  //         statement,
-  //         accountData: {
-  //           identifier: eligibleAccount.identifier,
-  //           value: devAddresses[eligibleAccount.identifier] ?? 1,
-  //         },
-  //       });
-  //       continue;
-  //     }
-  //     if (statement.provingScheme === "hydra-s2.1") {
-  //       const accountData = await this.prover.getEligibility({
-  //         accounts: importedAccounts.map((account) => account.identifier),
-  //         groupId: statement.groupId,
-  //         groupTimestamp: statement.groupTimestamp,
-  //         comparator: statement.comparator,
-  //         requestedValue: statement.requestedValue,
-  //       });
-  //       statementsEligibility.push({
-  //         statement,
-  //         accountData,
-  //       });
-  //     } else {
-  //       console.error(
-  //         `Proving scheme ${statement.provingScheme} not yet supported`
-  //       );
-  //       throw new Error(
-  //         `Proving scheme ${statement.provingScheme} not yet supported`
-  //       );
-  //     }
-  //   }
-  //   return statementsEligibility;
-  // }
+    if (!hasAuthRequest) return null;
 
-  //TODO: this don't scale if we want to choose which account is used
-  // public async generateResponse(
-  //   zkConnectRequest: ZkConnectRequest,
-  //   importedAccounts: ImportedAccount[],
-  //   vaultSecret: string
-  // ): Promise<ZkConnectResponse> {
-  //   const appId = zkConnectRequest.appId;
-  //   const namespace = zkConnectRequest.namespace;
-  //   const zkConnectResponse: ZkConnectResponse = {
-  //     appId,
-  //     namespace,
-  //     verifiableStatements: [],
-  //     version: zkConnectRequest.version,
-  //   };
-  //   if (zkConnectRequest?.dataRequest) {
-  //     zkConnectResponse.verifiableStatements = [];
-  //     const statementEligibilities = await this.getStatementsEligibilities(
-  //       zkConnectRequest,
-  //       importedAccounts
-  //     );
-  //     for (let statementEligibility of statementEligibilities) {
-  //       const statement = statementEligibility.statement;
-  //       const devAddresses = statement.extraData?.devAddresses;
-  //       const source = importedAccounts.find(
-  //         (importedAccount) =>
-  //           importedAccount.identifier ===
-  //           statementEligibility.accountData.identifier
-  //       );
-  //       const snarkProof = await this.prover.generateProof({
-  //         appId,
-  //         source,
-  //         vaultSecret,
-  //         namespace,
-  //         groupId: statement.groupId,
-  //         groupTimestamp: statement.groupTimestamp,
-  //         requestedValue: statement.requestedValue,
-  //         comparator: statement.comparator,
-  //         devAddresses,
-  //       });
-  //       zkConnectResponse.verifiableStatements.push({
-  //         value: BigNumber.from(snarkProof.input[7]).toNumber(),
-  //         proof: snarkProof,
-  //         ...statement,
-  //       });
-  //     }
-  //   } else {
-  //     const snarkProof = await this.prover.generateProof({
-  //       appId,
-  //       vaultSecret,
-  //     });
-  //     //TODO: Weird to have to proving scheme hard coded here
-  //     zkConnectResponse.authProof = {
-  //       provingScheme: "hydra-s2.1",
-  //       proof: snarkProof,
-  //     };
-  //   }
-  //   return zkConnectResponse;
-  // }
+    for (const dataRequest of zkConnectRequest?.requestContent?.dataRequests) {
+      if (!dataRequest?.authRequest?.authType) continue;
+
+      let accounts = [];
+
+      switch (dataRequest?.authRequest?.authType) {
+        case AuthType.ANON | AuthType.NONE:
+          break;
+        case AuthType.GITHUB:
+          accounts = importedAccounts?.filter(
+            (importedAccount) => importedAccount?.type === "github"
+          );
+          break;
+        case AuthType.TWITTER:
+          accounts = importedAccounts?.filter(
+            (importedAccount) => importedAccount?.type === "twitter"
+          );
+          break;
+        case AuthType.EVM_ACCOUNT:
+          accounts = importedAccounts?.filter(
+            (importedAccount) => importedAccount?.type === "ethereum"
+          );
+          break;
+        default:
+          break;
+      }
+
+      authRequestEligibilities.push({
+        authRequest: dataRequest?.authRequest,
+        accounts: accounts?.map((account) => account.identifier),
+      });
+    }
+
+    return authRequestEligibilities;
+  }
+
+  public async generateResponse(
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[],
+    vaultSecret: string
+  ): Promise<ZkConnectResponse> {
+    const appId = zkConnectRequest.appId;
+    const namespace = zkConnectRequest.namespace;
+    const zkConnectResponse: ZkConnectResponse = {
+      appId,
+      namespace,
+      version: zkConnectRequest.version,
+      proofs: [],
+    };
+
+    const dataRequests = zkConnectRequest?.requestContent?.dataRequests;
+
+    const claimRequestEligibilities = await this.getClaimRequestEligibilities(
+      zkConnectRequest,
+      importedAccounts
+    );
+
+    const authRequestEligibilities = await this.getAuthRequestEligibilities(
+      zkConnectRequest,
+      importedAccounts
+    );
+
+    const zkConnectResponsePromises = dataRequests?.map(async (dataRequest) => {
+      let _generateProofInputs = {
+        appId,
+        namespace,
+      } as OffchainProofRequest;
+
+      if (dataRequest?.messageSignatureRequest) {
+        _generateProofInputs["extradata"] = ethers.utils.keccak256(
+          dataRequest?.messageSignatureRequest
+        );
+
+        if (dataRequest?.claimRequest) {
+          const claimRequestEligibility = claimRequestEligibilities.find(
+            (claimRequestEligibility) =>
+              claimRequestEligibility?.claimRequest?.groupId ===
+              dataRequest?.claimRequest?.groupId
+          );
+
+          const source = importedAccounts.find(
+            (importedAccount) =>
+              importedAccount?.identifier ===
+              claimRequestEligibility?.accountData?.identifier
+          );
+
+          _generateProofInputs = {
+            ..._generateProofInputs,
+            appId,
+            source,
+            vaultSecret: "0",
+            groupId: claimRequestEligibility?.claimRequest?.groupId,
+            groupTimestamp:
+              claimRequestEligibility?.claimRequest?.groupTimestamp,
+            requestedValue: claimRequestEligibility?.claimRequest?.value,
+            claimType: claimRequestEligibility?.claimRequest?.claimType,
+          };
+        }
+
+        if (dataRequest?.authRequest) {
+          const authRequestEligibility = authRequestEligibilities?.find(
+            (authRequestEligibility) =>
+              authRequestEligibility?.authRequest?.authType ===
+              dataRequest?.authRequest?.authType
+          );
+
+          const destination = importedAccounts.find((importedAccount) => {
+            const importedAccountType: AuthType =
+              importedAccount?.type === "ethereum"
+                ? AuthType.EVM_ACCOUNT
+                : importedAccount?.type === "github"
+                ? AuthType.GITHUB
+                : importedAccount?.type === "twitter"
+                ? AuthType.TWITTER
+                : AuthType.NONE;
+
+            return (
+              importedAccountType ===
+              authRequestEligibility?.authRequest?.authType
+            );
+          });
+
+          _generateProofInputs = {
+            ..._generateProofInputs,
+            appId,
+            destination,
+            vaultSecret,
+            namespace,
+          };
+        }
+        const snarkProof = await this.prover.generateProof(
+          _generateProofInputs
+        );
+        return {
+          auth: dataRequest?.authRequest
+            ? dataRequest?.authRequest
+            : ({
+                authType: AuthType.NONE,
+              } as Auth),
+          claim: dataRequest?.claimRequest
+            ? dataRequest?.claimRequest
+            : ({
+                claimType: ClaimType.NONE,
+              } as Claim),
+          signedMessage: dataRequest?.messageSignatureRequest,
+          proof: snarkProof.toBytes(),
+          extraData: dataRequest?.claimRequest
+            ? dataRequest?.claimRequest?.extraData
+            : dataRequest?.authRequest?.extraData,
+        } as unknown as ZkConnectProof;
+      }
+    });
+
+    const zkConnectProofs = await Promise.all(zkConnectResponsePromises);
+
+    zkConnectResponse.proofs = zkConnectProofs;
+
+    return zkConnectResponse;
+  }
 }

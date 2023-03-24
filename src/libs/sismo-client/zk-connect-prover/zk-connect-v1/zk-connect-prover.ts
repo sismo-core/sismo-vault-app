@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { ImportedAccount } from "../../../vault-client";
 import { overrideEligibleGroupDataFormatter } from "../../../zk-connect/utils";
 import { Cache } from "../../caches";

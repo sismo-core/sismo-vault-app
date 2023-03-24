@@ -1,5 +1,6 @@
 import {
   ClaimRequestEligibility,
+  AuthRequestEligibility,
   RequestGroupMetadata,
   ZkConnectProver as ZkConnectProverV2,
   ZkConnectRequest,
@@ -64,22 +65,43 @@ export class SismoClient {
     }
   }
 
-  public async getStatementsEligibilities(
+  public async getClaimRequestEligibilities(
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[]
-  ): Promise<StatementEligibility[]> {
+  ): Promise<ClaimRequestEligibility[]> {
     if (!this.zkConnectProvers[zkConnectRequest.version])
       throw new Error(
         `Version of the request not supported ${zkConnectRequest.version}`
       );
-    const zkConnectProver = this.zkConnectProvers[zkConnectRequest.version];
-    return await zkConnectProver.getStatementsEligibilities(
+    const zkConnectProver = this.zkConnectProvers[
+      zkConnectRequest.version
+    ] as ZkConnectProverV2;
+
+    return await zkConnectProver.getClaimRequestEligibilities(
       zkConnectRequest,
       importedAccounts
     );
   }
 
-  public generateResponse(
+  public async getAuthRequestEligibilities(
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<AuthRequestEligibility[]> {
+    if (!this.zkConnectProvers[zkConnectRequest.version])
+      throw new Error(
+        `Version of the request not supported ${zkConnectRequest.version}`
+      );
+    const zkConnectProver = this.zkConnectProvers[
+      zkConnectRequest.version
+    ] as ZkConnectProverV2;
+
+    return await zkConnectProver.getAuthRequestEligibilities(
+      zkConnectRequest,
+      importedAccounts
+    );
+  }
+
+  public async generateResponse(
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[],
     vaultSecret: string
@@ -94,15 +116,5 @@ export class SismoClient {
       importedAccounts,
       vaultSecret
     );
-  }
-
-  //TODO
-  public verifyZkConnectRequest(zkConnectRequest: ZkConnectRequest) {
-    if (!this.zkConnectProvers[zkConnectRequest.version])
-      throw new Error(
-        `Version of the request not supported ${zkConnectRequest.version}`
-      );
-    const zkConnectProver = this.zkConnectProvers[zkConnectRequest.version];
-    return zkConnectProver.verifyRequest(zkConnectRequest);
   }
 }

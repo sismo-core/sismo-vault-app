@@ -34,6 +34,7 @@ export type Claim = {
 };
 
 export enum ClaimType {
+  NONE,
   GTE,
   GT,
   EQ,
@@ -55,9 +56,9 @@ export type Auth = {
 };
 
 export enum AuthType {
-  NONE,
-  ANON,
-  GITHUB,
+  NONE, //  vaultSecret 0
+  ANON, //vaultInput
+  GITHUB, // destination
   TWITTER,
   EVM_ACCOUNT,
 }
@@ -78,10 +79,10 @@ export type ZkConnectResponse = Pick<
 export type ZkConnectProof = {
   auth: Auth;
   claim: Claim;
-  provingScheme: string;
+  provingScheme?: string;
   signedMessage: string | any;
   proofData: string;
-  proofId: string;
+  proofId?: string;
   extraData: any;
 };
 

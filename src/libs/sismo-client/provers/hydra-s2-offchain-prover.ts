@@ -43,6 +43,7 @@ export class HydraS2OffchainProver extends Prover {
   public async generateProof({
     appId,
     source,
+    destination,
     vaultSecret,
     namespace,
     groupId,
@@ -63,6 +64,7 @@ export class HydraS2OffchainProver extends Prover {
     const userParams = await this.prepareSnarkProofRequest({
       appId,
       source,
+      destination,
       vaultSecret,
       namespace,
       groupId,
@@ -214,12 +216,14 @@ export class HydraS2OffchainProver extends Prover {
   protected async prepareSnarkProofRequest({
     appId,
     source,
+    destination,
     vaultSecret,
     namespace,
     groupId,
     groupTimestamp,
     requestedValue,
     claimType,
+    extraData,
   }: OffchainProofRequest): Promise<UserParams> {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
@@ -236,6 +240,15 @@ export class HydraS2OffchainProver extends Prover {
     let userParams: UserParams = {
       vault: vaultInput,
     };
+
+    if (destination) {
+      const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);
+
+      userParams["destination"] = {
+        ...hydraS2Account,
+        verificationEnabled: true,
+      };
+    }
 
     if (source) {
       const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);

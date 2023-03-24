@@ -80,6 +80,7 @@ export type Claim = {
 };
 
 export enum ClaimType {
+  NONE,
   GTE,
   GT,
   EQ,
@@ -124,10 +125,10 @@ export type ZkConnectResponse = Pick<
 export type ZkConnectProof = {
   auth: Auth;
   claim: Claim;
-  provingScheme: string;
+  provingScheme?: string;
   signedMessage: string | any;
   proofData: string;
-  proofId: string;
+  proofId?: string;
   extraData: any;
 };
 
