@@ -5,6 +5,7 @@ import {
   ZkConnectProver as ZkConnectProverV2,
   ZkConnectRequest,
   ZkConnectResponse,
+  DevConfig,
 } from "../zk-connect-prover/zk-connect-v2";
 import { Cache } from "../caches";
 import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
@@ -19,7 +20,7 @@ export class SismoClient {
     "zk-connect-v2": ZkConnectProverV2;
   };
 
-  constructor({ cache }: { cache: Cache }) {
+  constructor({ cache, devConfig }: { cache: Cache; devConfig?: DevConfig }) {
     this.factoryProvider = new FactoryProvider({
       factoryApiUrl: env.factoryApiUrl,
     });
@@ -28,6 +29,7 @@ export class SismoClient {
       "zk-connect-v2": new ZkConnectProverV2({
         factoryProvider: this.factoryProvider,
         cache: cache,
+        devConfig,
       }),
     };
   }

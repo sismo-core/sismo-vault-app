@@ -1,3 +1,5 @@
+import { BigNumberish } from "ethers";
+
 /** ********************************************* */
 /** ********* ZK CONNECT PACKAGE TYPES ********** */
 /** ********************************************* */
@@ -8,7 +10,23 @@ export type ZkConnectRequest = {
   requestContent?: ZkConnectRequestContent; // updated
   callbackPath?: string;
   version: string;
+  devConfig?: DevConfig;
 };
+
+export type DevConfig = {
+  enabled?: boolean; // https://dev.vault-beta.sismo.io/
+  modalOutput: "bytes" | "typescript" | null; // if bytes, open a modal with the ZkConnectResponse direclty encoded in bytes + registryTreeRoot displayed
+  // Allow to customize data for each groupId
+  devGroups?: DevGroup[];
+};
+
+export type DevGroup = {
+  groupId: string;
+  groupTimestamp: number | "latest";
+  data: DevAddresses;
+};
+
+export type DevAddresses = string[] | Record<string, Number | BigNumberish>;
 
 export type ZkConnectRequestContent = {
   dataRequests: DataRequest[];

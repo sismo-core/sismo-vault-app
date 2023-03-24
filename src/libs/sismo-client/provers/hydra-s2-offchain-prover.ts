@@ -32,10 +32,13 @@ export class HydraS2OffchainProver extends Prover {
   constructor({ cache, devConfig }: { cache?: Cache; devConfig?: DevConfig }) {
     super();
     if (devConfig) {
+      console.log("///////////// DEVMODE /////////////");
       this.registryTreeReader = new DevRegistryTreeReader({
         devGroups: devConfig.devGroups,
       });
     } else {
+      console.log("///////////// PRODMODE /////////////");
+      console.log("devConfig", devConfig);
       this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
     }
   }

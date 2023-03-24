@@ -10,6 +10,7 @@ export const getZkConnectRequest = (
   let _requestContent = searchParams.get("requestContent");
   let _namespace = searchParams.get("namespace");
   let _callbackPath = searchParams.get("callbackPath");
+  let _devConfig = searchParams.get("devConfig");
 
   // REMOVE ALL URL PARAMS EXCEPT FOR DEV_BETA
   // if (env.name !== "DEV_BETA") {
@@ -33,6 +34,7 @@ export const getZkConnectRequest = (
     appId: _appId,
     callbackPath: _callbackPath,
     version: _version,
+    devConfig: JSON.parse(_devConfig),
   };
 
   if (request.requestContent) {

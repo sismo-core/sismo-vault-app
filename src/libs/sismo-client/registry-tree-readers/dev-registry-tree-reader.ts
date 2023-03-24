@@ -26,6 +26,8 @@ export class DevRegistryTreeReader extends RegistryTreeReader {
   }: OffchainGetAccountsTreeInputs): Promise<KVMerkleTree> {
     const poseidon = await buildPoseidon();
 
+    console.log("///////////// DEVMODE /////////////");
+
     const devGroup = this._devGroups.find(
       (devGroup) => devGroup.groupId === groupId
     );
