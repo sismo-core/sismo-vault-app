@@ -60,7 +60,11 @@ export default function ShardTag({
         />
       </svg>
       {humanReadableGroupName}
-      {claimType === ClaimType.GT ? (
+      {claimType === ClaimType.GTE ? (
+        <ValueComparator>
+          {">="} {requestedValue}
+        </ValueComparator>
+      ) : claimType === ClaimType.GT ? (
         <ValueComparator>
           {">"} {requestedValue}
         </ValueComparator>

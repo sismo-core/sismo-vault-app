@@ -3,6 +3,7 @@ import { ZkConnectRequest, ClaimType } from "../../../../localTypes";
 import { RequestGroupMetadata } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { CheckCircle } from "phosphor-react";
 import { getHumanReadableGroupName } from "../../../../utils/getHumanReadableGroupName";
+import { ClaimRequestEligibility } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 
 const Container = styled.div`
   align-self: center;
@@ -67,11 +68,13 @@ const ValueComparator = styled.div<{ isEligible: boolean }>`
 type Props = {
   zkConnectRequest: ZkConnectRequest;
   requestGroupsMetadata: RequestGroupMetadata[];
+  claimRequestEligibilities: ClaimRequestEligibility[];
 };
 
 export function EligibilitySummary({
   zkConnectRequest,
   requestGroupsMetadata,
+  claimRequestEligibilities,
 }: Props) {
   const isOr = zkConnectRequest?.requestContent?.operators[0] === "OR";
 
@@ -81,7 +84,13 @@ export function EligibilitySummary({
         const claimType = group?.claim?.claimType;
         const requestedValue = group?.claim?.value;
 
-        const isEligible = true;
+        const claimRequestEligibility = claimRequestEligibilities.find(
+          (claimRequestEligibility) =>
+            claimRequestEligibility?.claimRequest?.groupId ===
+            group?.groupMetadata?.id
+        );
+
+        const isEligible = Boolean(claimRequestEligibility?.accountData);
 
         return (
           <div key={index + "summaryItem"}>
@@ -106,7 +115,11 @@ export function EligibilitySummary({
                 color={isEligible ? "#A0F2E0" : "#323E64"}
               />
               {getHumanReadableGroupName(group?.groupMetadata?.name)}
-              {claimType === ClaimType.GT ? (
+              {claimType === ClaimType.GTE ? (
+                <ValueComparator isEligible={isEligible}>
+                  {">="} {requestedValue}
+                </ValueComparator>
+              ) : claimType === ClaimType.GT ? (
                 <ValueComparator isEligible={isEligible}>
                   {">"} {requestedValue}
                 </ValueComparator>
@@ -115,7 +128,7 @@ export function EligibilitySummary({
                   {requestedValue}
                 </ValueComparator>
               ) : claimType === ClaimType.LT ? (
-                <ValueComparator isEligible={false}>
+                <ValueComparator isEligible={isEligible}>
                   {"<"} {requestedValue}
                 </ValueComparator>
               ) : claimType === ClaimType.LTE ? (

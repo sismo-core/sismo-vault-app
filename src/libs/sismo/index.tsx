@@ -16,14 +16,18 @@ export type Sismo = {
     importedAccounts: ImportedAccount[],
     vaultSecret: string
   ) => Promise<ZkConnectResponse>;
-  getStatementsGroupsMetadata: (
+  getRequestGroupMetadata: (
     zkConnectRequest: ZkConnectRequest
   ) => Promise<StatementGroupMetadata[]>;
-  getStatementsEligibilities: (
+  getClaimRequestEligibilities: (
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[]
   ) => Promise<StatementEligibility[]>;
-  verifyZkConnectRequest: (request: ZkConnectRequest) => Promise<any>;
+  getAuthRequestEligibilities: (
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ) => Promise<StatementEligibility[]>;
+  // verifyZkConnectRequest: (request: ZkConnectRequest) => Promise<any>;
   getFactoryApp: (appId: string) => Promise<FactoryApp>;
   getGroupMetadata: (
     groupId: string,
@@ -118,6 +122,7 @@ export default function SismoProvider({
         // verifyZkConnectRequest,
         getGroupMetadata,
         getFactoryApp,
+        getRequestGroupMetadata,
         getClaimRequestEligibilities,
         generateResponse,
         getAuthRequestEligibilities,

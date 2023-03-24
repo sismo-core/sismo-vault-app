@@ -67,14 +67,20 @@ export default function ConnectFlow({
   const vault = useVault();
   const [vaultSliderOpen, setVaultSliderOpen] = useState(false);
   const [eligibleAccountData, setEligibleAccountData] = useState<AccountData>();
+  const [claimRequestEligibilities, setClaimRequestEligibilities] = useState<
+    any[]
+  >([]);
   const [step, setStep] = useState<Step>("SignIn");
   const [loadingEligible, setLoadingEligible] = useState(true);
-  const { getStatementsEligibilities } = useSismo();
+  const { getClaimRequestEligibilities } = useSismo();
 
   //TODO use statements in components
 
   //Test Eligibility
   useEffect(() => {
+    console.log("zkConnectRequest ", zkConnectRequest);
+    console.log("requestGroupsMetadata ", requestGroupsMetadata);
+
     if (!vault?.importedAccounts) return;
     if (!zkConnectRequest) return;
     if (!requestGroupsMetadata) return;
@@ -83,23 +89,33 @@ export default function ConnectFlow({
       if (!zkConnectRequest?.requestContent) {
         return;
       }
+
       try {
         setLoadingEligible(true);
-        const statementsEligibility = await getStatementsEligibilities(
+
+        console.log("HERE");
+        const claimRequestEligibilities = await getClaimRequestEligibilities(
           zkConnectRequest,
           vault.importedAccounts
         );
+
+        console.log("claimRequestEligibility ", claimRequestEligibilities);
         //TODO use statements in components
-        setEligibleAccountData(statementsEligibility[0].accountData);
+        setClaimRequestEligibilities(claimRequestEligibilities);
         setLoadingEligible(false);
       } catch (e) {
         Sentry.captureException(e);
         setLoadingEligible(false);
+        console.log("ERROR", e);
       }
     };
     testEligibility();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vault?.importedAccounts, zkConnectRequest]);
+  }, [
+    getClaimRequestEligibilities,
+    requestGroupsMetadata,
+    vault?.importedAccounts,
+    zkConnectRequest,
+  ]);
 
   const redirect = (response: ZkConnectResponse) => {
     localStorage.removeItem("prove_referrer");
@@ -163,32 +179,32 @@ export default function ConnectFlow({
   }, []);
 
   // 2 seconds routing after imports and proof generation
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
+  // useEffect(() => {
+  //   let timeout: NodeJS.Timeout;
 
-    if (eligibleAccountData) {
-      if (step === "ImportEligibleAccount") {
-        timeout = setTimeout(() => {
-          onStepChange("GenerateZkProof");
-        }, 2000);
-        return;
-      }
-    }
+  //   if (eligibleAccountData) {
+  //     if (step === "ImportEligibleAccount") {
+  //       timeout = setTimeout(() => {
+  //         onStepChange("GenerateZkProof");
+  //       }, 2000);
+  //       return;
+  //     }
+  //   }
 
-    if (
-      requestGroupsMetadata &&
-      !eligibleAccountData &&
-      step === "GenerateZkProof"
-    ) {
-      onStepChange("ImportEligibleAccount");
-      return;
-    }
+  //   if (
+  //     requestGroupsMetadata &&
+  //     !eligibleAccountData &&
+  //     step === "GenerateZkProof"
+  //   ) {
+  //     onStepChange("ImportEligibleAccount");
+  //     return;
+  //   }
 
-    return () => {
-      clearTimeout(timeout);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eligibleAccountData, step, onStepChange]);
+  //   return () => {
+  //     clearTimeout(timeout);
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [eligibleAccountData, step, onStepChange]);
 
   const goBack = () => {
     if (window.opener) {
@@ -239,11 +255,14 @@ export default function ConnectFlow({
               <ImportEligibleAccount
                 zkConnectRequest={zkConnectRequest}
                 requestGroupsMetadata={requestGroupsMetadata}
-                eligibleAccountData={eligibleAccountData}
+                claimRequestEligibilities={claimRequestEligibilities}
                 loadingEligible={loadingEligible}
+                onNext={() => {
+                  setStep("GenerateZkProof");
+                }}
               />
             )}
-            {/* {step === "GenerateZkProof" && (
+            {step === "GenerateZkProof" && (
               <GenerateZkProof
                 zkConnectRequest={zkConnectRequest}
                 requestGroupsMetadata={requestGroupsMetadata}
@@ -253,7 +272,7 @@ export default function ConnectFlow({
                   }, 2000);
                 }}
               />
-            )} */}
+            )}
           </LayoutFlow>
         )}
       </Container>

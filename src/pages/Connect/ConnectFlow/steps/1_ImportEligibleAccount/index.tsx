@@ -12,6 +12,8 @@ import { Gem } from "../../../../../components/SismoReactIcon";
 import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { EligibilitySummary } from "./components/EligibilitySummary";
 import { ZkConnectRequest } from "../../../localTypes";
+import { ClaimRequestEligibility } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+import { useEffect } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -130,17 +132,19 @@ const LoadingFeedBack = styled(FeedBack)`
 `;
 
 type Props = {
-  eligibleAccountData: AccountData;
+  claimRequestEligibilities: ClaimRequestEligibility[];
   requestGroupsMetadata: RequestGroupMetadata[];
   zkConnectRequest: ZkConnectRequest;
   loadingEligible: boolean;
+  onNext: () => void;
 };
 
 export default function ImportEligibleAccount({
-  eligibleAccountData,
+  claimRequestEligibilities,
   requestGroupsMetadata,
   zkConnectRequest,
   loadingEligible,
+  onNext,
 }: Props) {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
@@ -153,6 +157,32 @@ export default function ImportEligibleAccount({
       accountTypes: ["ethereum", "github", "twitter"],
     });
   }
+
+  // DO LOGIC OR / AND
+
+  const isZkConnectRequestEligible =
+    zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
+      const claimRequestEligibility = claimRequestEligibilities.find(
+        (claimRequestEligibility) =>
+          claimRequestEligibility?.claimRequest?.groupId ===
+          dataRequest.claimRequest.groupId
+      );
+
+      return Boolean(claimRequestEligibility?.accountData);
+    });
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (isZkConnectRequestEligible) {
+      timeout = setTimeout(() => {
+        onNext();
+      }, 3000);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [isZkConnectRequestEligible, onNext]);
 
   return (
     <>
@@ -191,6 +221,7 @@ export default function ImportEligibleAccount({
           <EligibilitySummary
             zkConnectRequest={zkConnectRequest}
             requestGroupsMetadata={requestGroupsMetadata}
+            claimRequestEligibilities={claimRequestEligibilities}
           />
         </Summary>
 
@@ -232,7 +263,7 @@ export default function ImportEligibleAccount({
             <Button
               primary
               style={{ width: 252 }}
-              onClick={() => !eligibleAccountData && onImport()}
+              onClick={() => onImport()}
               loading={importAccount.importing === "account" || loadingEligible}
               disabled={
                 importAccount.importing === "account" || loadingEligible

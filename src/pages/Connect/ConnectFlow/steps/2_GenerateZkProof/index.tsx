@@ -11,6 +11,7 @@ import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
 import { GroupMetadata } from "../../../../../libs/sismo-client";
 // import { ZkConnectResponse } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { ZkConnectResponse, ZkConnectRequest } from "../../../localTypes";
+import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 
 const Container = styled.div`
   display: flex;
@@ -100,12 +101,12 @@ const LoadingFeedBack = styled(FeedBack)`
 
 type Props = {
   zkConnectRequest: ZkConnectRequest;
-  groupMetadata: GroupMetadata;
+  requestGroupsMetadata: RequestGroupMetadata[];
   onNext: (zkResponse: ZkConnectResponse) => void;
 };
 
 export default function GenerateZkProof({
-  groupMetadata,
+  requestGroupsMetadata,
   zkConnectRequest,
   onNext,
 }: Props) {
@@ -129,7 +130,9 @@ export default function GenerateZkProof({
       setIsGenerated(true);
       setErrorProof(false);
       setLoadingProof(false);
-      //onNext(zkResponse);
+
+      console.log("zkResponse", zkResponse);
+      // onNext(zkResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {
         scope.setLevel("fatal");
@@ -160,7 +163,9 @@ export default function GenerateZkProof({
       {!isGenerated && loadingProof && (
         <LoadingWrapper>
           <Schema>
-            <ShardAnimation groupMetadata={[groupMetadata]} />
+            <ShardAnimation
+              groupMetadata={[requestGroupsMetadata[0]?.groupMetadata]}
+            />
           </Schema>
           <LoadingFeedBack>Generating ZK Proof...</LoadingFeedBack>
         </LoadingWrapper>

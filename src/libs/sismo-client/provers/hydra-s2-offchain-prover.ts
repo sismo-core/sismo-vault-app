@@ -96,6 +96,8 @@ export class HydraS2OffchainProver extends Prover {
     }
 
     switch (claimType) {
+      case ClaimType.NONE:
+        return null;
       case ClaimType.EQ:
         for (const [identifier, value] of Object.entries(
           eligibleAccountsTreeData
@@ -111,9 +113,9 @@ export class HydraS2OffchainProver extends Prover {
           }
         }
         return null;
-
-      default:
+      case ClaimType.GTE || ClaimType.USER_SELECT:
         let maxAccountData: AccountData = null;
+
         for (const [identifier, value] of Object.entries(
           eligibleAccountsTreeData
         )) {
@@ -126,16 +128,23 @@ export class HydraS2OffchainProver extends Prover {
               identifier,
               value: BigNumber.from(value).toNumber(),
             };
-          } else {
-            if (BigNumber.from(value).toNumber() > maxAccountData.value) {
-              maxAccountData = {
-                identifier,
-                value: BigNumber.from(value).toNumber(),
-              };
-            }
           }
+          if (
+            maxAccountData &&
+            BigNumber.from(value).toNumber() > maxAccountData?.value
+          ) {
+            maxAccountData = {
+              identifier,
+              value: BigNumber.from(value).toNumber(),
+            };
+          }
+
           return maxAccountData;
         }
+        return null;
+
+      default:
+        throw new Error("Invalid claim type");
     }
   }
 

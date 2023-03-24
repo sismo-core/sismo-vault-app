@@ -228,14 +228,6 @@ export default function SignIn({
     }
   }, [factoryApp]);
 
-  console.log({
-    factoryApp,
-    vault: vault?.loadingActiveSession,
-    zkConnectRequest,
-    imgLoaded,
-    requestGroupsMetadata,
-  });
-
   const loading = zkConnectRequest
     ? !factoryApp ||
       vault.loadingActiveSession ||
