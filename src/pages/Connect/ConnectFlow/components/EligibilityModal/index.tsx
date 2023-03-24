@@ -8,6 +8,7 @@ import Icon from "../../../../../components/Icon";
 import { ArrowSquareOut } from "phosphor-react";
 import { GroupMetadata } from "../../../../../libs/sismo-client";
 import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { getHumanReadableGroupName } from "../../../utils/getHumanReadableGroupName";
 
 const Container = styled.div`
   display: flex;
@@ -248,12 +249,6 @@ export default function EligibilityModal({
     ?.replace(/-/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
 
-  const getHumanReadableGroupName = (groupMetadata: GroupMetadata) => {
-    return groupMetadata?.name
-      ?.replace(/-/g, " ")
-      .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
-  };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -267,8 +262,9 @@ export default function EligibilityModal({
           <GroupsSelector>
             {requestGroupsMetadata?.map((requestGroupMetadata) => {
               const groupMetadata = requestGroupMetadata?.groupMetadata;
-              const humanReadableGroupName =
-                getHumanReadableGroupName(groupMetadata);
+              const humanReadableGroupName = getHumanReadableGroupName(
+                groupMetadata?.name
+              );
               return (
                 <GroupItem
                   key={groupMetadata?.id + "/groupSelectorModal"}

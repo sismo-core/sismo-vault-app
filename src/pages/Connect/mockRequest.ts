@@ -16,7 +16,7 @@ export const dataRequestMock1: DataRequest = {
 };
 export const dataRequestMock2: DataRequest = {
   claimRequest: {
-    groupId: "0x16e2614a2005a163d2416dcec3003d7a",
+    groupId: "0x8d5e3ee2049c1c7d363ea88b2b424877",
     groupTimestamp: "latest",
     value: 2,
     claimType: 1,
@@ -24,16 +24,16 @@ export const dataRequestMock2: DataRequest = {
   },
   messageSignatureRequest: "my custom message",
 };
-export const dataRequestMock3: DataRequest = {
-  claimRequest: {
-    groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
-    groupTimestamp: "latest",
-    value: 5,
-    claimType: 2,
-    extraData: "",
-  },
-  messageSignatureRequest: "my custom message",
-};
+// export const dataRequestMock3: DataRequest = {
+//   claimRequest: {
+//     groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
+//     groupTimestamp: "latest",
+//     value: 5,
+//     claimType: 2,
+//     extraData: "",
+//   },
+//   messageSignatureRequest: "my custom message",
+// };
 export const dataRequestMock4: DataRequest = {
   claimRequest: {
     groupId: "0x682544d549b8a461d7fe3e589846bb7b",
@@ -49,7 +49,7 @@ export const zkConnectRequestContentMock: ZkConnectRequestContent = {
   dataRequests: [
     dataRequestMock1,
     dataRequestMock2,
-    dataRequestMock3,
+    // dataRequestMock3,
     dataRequestMock4,
   ],
   operators: ["AND", "AND", "AND"],

@@ -237,6 +237,7 @@ export default function ConnectFlow({
           >
             {step === "ImportEligibleAccount" && (
               <ImportEligibleAccount
+                zkConnectRequest={zkConnectRequest}
                 requestGroupsMetadata={requestGroupsMetadata}
                 eligibleAccountData={eligibleAccountData}
                 loadingEligible={loadingEligible}

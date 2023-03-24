@@ -12,20 +12,20 @@ export const getZkConnectRequest = (
   let _callbackPath = searchParams.get("callbackPath");
 
   // REMOVE ALL URL PARAMS EXCEPT FOR DEV_BETA
-  if (env.name !== "DEV_BETA") {
-    const url = new URL(window.location.href);
-    const deleteParams = [
-      "version",
-      "appId",
-      "requestContent",
-      "namespace",
-      "callbackPath",
-    ];
-    deleteParams.forEach((param) => {
-      url.searchParams.delete(param);
-    });
-    window.history.replaceState({}, "", url.toString());
-  }
+  // if (env.name !== "DEV_BETA") {
+  //   const url = new URL(window.location.href);
+  //   const deleteParams = [
+  //     "version",
+  //     "appId",
+  //     "requestContent",
+  //     "namespace",
+  //     "callbackPath",
+  //   ];
+  //   deleteParams.forEach((param) => {
+  //     url.searchParams.delete(param);
+  //   });
+  //   window.history.replaceState({}, "", url.toString());
+  // }
 
   const request: ZkConnectRequest = {
     namespace: _namespace,

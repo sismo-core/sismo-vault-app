@@ -58,10 +58,6 @@ const ContentContainer = styled.div`
   /* @media (max-width: 1140px) {
     margin-top: -90px;
   }
-
-
-
-
   @media (max-width: 600px) {
     margin-top: 80px;
   } */
