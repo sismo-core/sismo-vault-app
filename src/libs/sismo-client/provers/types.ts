@@ -1,5 +1,9 @@
 import { ImportedAccount } from "../../vault-client";
-import { ClaimType } from "../zk-connect-prover/zk-connect-v2";
+import {
+  ClaimType,
+  DevConfig,
+  DevGroup,
+} from "../zk-connect-prover/zk-connect-v2";
 import { BigNumberish } from "ethers";
 
 export type GroupTimestamp = number | "latest";
@@ -21,7 +25,7 @@ export type GetEligibilityInputs = {
   groupTimestamp: GroupTimestamp;
   requestedValue: number;
   claimType: ClaimType;
-  devAddresses?: devAddressesType;
+  devGroup: DevGroup;
 };
 
 export type OffchainProofRequest = {
@@ -33,7 +37,7 @@ export type OffchainProofRequest = {
   groupTimestamp?: GroupTimestamp;
   requestedValue?: number;
   claimType?: ClaimType;
-  devAddresses?: devAddressesType;
+  devConfig?: DevConfig;
 };
 
 export type AccountData = {

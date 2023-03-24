@@ -1,6 +1,7 @@
 import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
 import {
-  getAccountsTreeInputs,
+  GetAccountsTreeInputs,
+  GetAccountsTreeEligibilityInputs,
   OffChainAccountTreeMetadata,
   OffChainGroupProperties,
 } from "./types";
@@ -29,7 +30,7 @@ export class OffchainRegistryTreeReader extends RegistryTreeReader {
     groupId,
     timestamp,
     account,
-  }: getAccountsTreeInputs): Promise<KVMerkleTree> {
+  }: GetAccountsTreeInputs): Promise<KVMerkleTree> {
     const accountsTreeChunk = await this.getAccountsTreeChunk({
       groupId,
       timestamp,
@@ -55,11 +56,7 @@ export class OffchainRegistryTreeReader extends RegistryTreeReader {
     groupId,
     timestamp,
     accounts,
-  }: {
-    groupId: string;
-    timestamp: number | "latest";
-    accounts: string[];
-  }): Promise<MerkleTreeData> {
+  }: GetAccountsTreeEligibilityInputs): Promise<MerkleTreeData> {
     const merkleTreesData = await Promise.all(
       accounts.map(async (account) => {
         const accountsTreeChunk = await this.getAccountsTreeChunk({
@@ -94,7 +91,7 @@ export class OffchainRegistryTreeReader extends RegistryTreeReader {
     groupId,
     timestamp,
     account,
-  }: getAccountsTreeInputs): Promise<OffChainAccountTreeMetadata> {
+  }: GetAccountsTreeInputs): Promise<OffChainAccountTreeMetadata> {
     const groupAccountsTrees = await this.getGroupAccountsTrees({
       groupId,
       timestamp,

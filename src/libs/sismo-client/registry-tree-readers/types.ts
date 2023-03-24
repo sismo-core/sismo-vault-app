@@ -10,13 +10,13 @@ export type RegistryTree = {
   treeUrl: string;
 };
 
-export type getAccountsTreeInputs = OffChainGroupProperties & {
+export type DevAddresses = string[] | Record<string, Number | BigNumberish>;
+
+export type GetAccountsTreeInputs = OffChainGroupProperties & {
   account: string;
 };
 
-export type DevAddresses = string[] | Record<string, Number | BigNumberish>;
-
-export type getAccountsTreeEligibilityInputs = OffChainGroupProperties & {
+export type GetAccountsTreeEligibilityInputs = OffChainGroupProperties & {
   accounts: string[];
 };
 

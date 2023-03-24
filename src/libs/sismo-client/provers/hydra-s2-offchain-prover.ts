@@ -13,6 +13,7 @@ import {
   KVMerkleTree,
 } from "@sismo-core/hydra-s2";
 import { OffchainRegistryTreeReader } from "../registry-tree-readers/offchain-registry-tree-reader";
+import { DevRegistryTreeReader } from "../registry-tree-readers/dev-registry-tree-reader";
 import { Cache } from "../caches";
 import { ethers, BigNumber } from "ethers";
 import { CommitmentMapper } from "..";
@@ -25,14 +26,20 @@ import {
 import { Prover } from "./prover";
 import env from "../../../environment";
 import { overrideEligibleGroupDataFormatter } from "../../zk-connect/utils";
-import { ClaimType } from "../zk-connect-prover/zk-connect-v2";
+import { ClaimType, DevGroup } from "../zk-connect-prover/zk-connect-v2";
+import { GetAccountsTreeInputs } from "../registry-tree-readers/types";
 
 export class HydraS2OffchainProver extends Prover {
-  registryTreeReader: OffchainRegistryTreeReader;
+  registryTreeReader: OffchainRegistryTreeReader | DevRegistryTreeReader;
 
-  constructor({ cache }: { cache: Cache }) {
+  constructor({ cache, devConfig }: { cache?: Cache; devConfig?: boolean }) {
     super();
-    this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
+    if (devConfig) {
+      this.registryTreeReader = new DevRegistryTreeReader();
+    }
+    if (!devConfig) {
+      this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
+    }
   }
 
   public async generateProof({
@@ -44,7 +51,7 @@ export class HydraS2OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     claimType,
-    devAddresses,
+    devConfig,
   }: OffchainProofRequest): Promise<SnarkProof> {
     const commitmentMapperPubKey =
       env.sismoDestination.commitmentMapperPubKey.map((string) =>
@@ -65,7 +72,7 @@ export class HydraS2OffchainProver extends Prover {
       groupTimestamp,
       requestedValue,
       claimType,
-      devAddresses: devAddresses,
+      devConfig,
     });
 
     const proof = await prover.generateSnarkProof(userParams);
@@ -78,13 +85,22 @@ export class HydraS2OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     claimType,
+    devGroup,
   }: GetEligibilityInputs): Promise<AccountData> {
+    const accountsTreeEligibilityInputs = devGroup
+      ? devGroup
+      : ({
+          accounts,
+          groupId,
+          groupTimestamp,
+        } as any);
+
+    // BETTER TYPE HERE
+
     const eligibleAccountsTreeData =
-      await this.registryTreeReader.getAccountsTreeEligibility({
-        groupId,
-        timestamp: groupTimestamp,
-        accounts,
-      });
+      await this.registryTreeReader.getAccountsTreeEligibility(
+        accountsTreeEligibilityInputs
+      );
 
     if (eligibleAccountsTreeData === null) {
       return null;
@@ -217,7 +233,7 @@ export class HydraS2OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     claimType,
-    devAddresses,
+    devConfig,
   }: OffchainProofRequest): Promise<UserParams> {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
@@ -249,30 +265,30 @@ export class HydraS2OffchainProver extends Prover {
       if (hasDataRequest) {
         let accountsTree: KVMerkleTree;
         let registryTree: KVMerkleTree;
-        if (!devAddresses) {
-          accountsTree = await this.registryTreeReader.getAccountsTree({
-            groupId,
-            account: source.identifier,
-            timestamp: groupTimestamp,
-          });
 
-          registryTree = await this.registryTreeReader.getRegistryTree();
-        } else {
-          const poseidon = await buildPoseidon();
-          accountsTree = new KVMerkleTree(
-            overrideEligibleGroupDataFormatter(devAddresses),
-            poseidon,
-            20
-          );
-          const accountsTreeValue = this.encodeAccountsTreeValue(
-            groupId,
-            groupTimestamp
-          );
-          const registryTreeData = {
-            [accountsTree.getRoot().toHexString()]: accountsTreeValue,
-          };
-          registryTree = new KVMerkleTree(registryTreeData, poseidon, 20);
-        }
+        const devGroup = devConfig.devGroups.find(
+          (devGroup) => devGroup.groupId === groupId
+        );
+
+        const accountsTreeInputs = devConfig
+          ? devGroup
+          : ({
+              groupId,
+              account: source.identifier,
+              timestamp: groupTimestamp,
+            } as any);
+
+        // BETTER TYPE HERE
+
+        const registryTreeInputs = devConfig ? devConfig.devGroups : null;
+
+        accountsTree = await this.registryTreeReader.getAccountsTree(
+          accountsTreeInputs
+        );
+
+        registryTree = await this.registryTreeReader.getRegistryTree(
+          registryTreeInputs
+        );
 
         const claimedValue = BigNumber.from(requestedValue);
 

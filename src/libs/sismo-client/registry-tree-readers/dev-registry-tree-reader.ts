@@ -10,31 +10,21 @@ import { ethers, BigNumber } from "ethers";
 import { DevGroup } from "../zk-connect-prover/zk-connect-v2";
 
 export class DevRegistryTreeReader extends RegistryTreeReader {
-  public async getAccountsTree({
-    devGroup,
-  }: {
-    devGroup: DevGroup;
-  }): Promise<KVMerkleTree> {
+  public async getAccountsTree(devGroup: DevGroup): Promise<KVMerkleTree> {
     const poseidon = await buildPoseidon();
 
-    let groupData = await this.getAccountsTreeData({ devGroup });
+    let groupData = await this.getAccountsTreeData(devGroup);
 
     let _accountsTree = new KVMerkleTree(groupData, poseidon, 20);
     return _accountsTree;
   }
 
-  public async getRegistryTree({
-    devGroups,
-  }: {
-    devGroups: DevGroup[];
-  }): Promise<KVMerkleTree> {
+  public async getRegistryTree(devGroups: DevGroup[]): Promise<KVMerkleTree> {
     const poseidon = await buildPoseidon();
     const registryTreeData = {};
 
     for (const devGroup of devGroups) {
-      const accountsTree = await this.getAccountsTree({
-        devGroup,
-      });
+      const accountsTree = await this.getAccountsTree(devGroup);
 
       const accountsTreeValue = this.encodeAccountsTreeValue(
         devGroup.groupId,
@@ -48,14 +38,11 @@ export class DevRegistryTreeReader extends RegistryTreeReader {
     return registryTree;
   }
 
-  public async getAccountsTreeEligibility({
-    accounts,
-    devGroup,
-  }: {
-    accounts: string[];
-    devGroup: DevGroup;
-  }): Promise<MerkleTreeData> {
-    const merkleTreesData = await this.getAccountsTreeData({ devGroup });
+  public async getAccountsTreeEligibility(
+    devGroup: DevGroup
+  ): Promise<MerkleTreeData> {
+    // TO CHECK IF WE NEED ACCOUNTS ARRAY
+    const merkleTreesData = await this.getAccountsTreeData(devGroup);
     return merkleTreesData;
   }
 
@@ -79,11 +66,9 @@ export class DevRegistryTreeReader extends RegistryTreeReader {
     return accountsTreeValue;
   };
 
-  protected async getAccountsTreeData({
-    devGroup,
-  }: {
-    devGroup: DevGroup;
-  }): Promise<MerkleTreeData> {
+  protected async getAccountsTreeData(
+    devGroup: DevGroup
+  ): Promise<MerkleTreeData> {
     let groupData: MerkleTreeData = {};
 
     const devAddresses = devGroup?.data;
