@@ -1,10 +1,10 @@
 import {
-  StatementEligibility,
-  StatementGroupMetadata,
-  ZkConnectProver as ZkConnectProverV1,
+  ClaimRequestEligibility,
+  RequestGroupMetadata,
+  ZkConnectProver as ZkConnectProverV2,
   ZkConnectRequest,
   ZkConnectResponse,
-} from "../zk-connect-prover/zk-connect-v1";
+} from "../zk-connect-prover/zk-connect-v2";
 import { Cache } from "../caches";
 import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
 import env from "../../../environment";
@@ -15,7 +15,7 @@ export class SismoClient {
   private factoryProvider: FactoryProvider;
   private groupProvider: GroupProvider;
   private zkConnectProvers: {
-    "zk-connect-v1": ZkConnectProverV1;
+    "zk-connect-v2": ZkConnectProverV2;
   };
 
   constructor({ cache }: { cache: Cache }) {
@@ -24,7 +24,7 @@ export class SismoClient {
     });
     this.groupProvider = new GroupProvider({ hubApiUrl: env.hubApiUrl });
     this.zkConnectProvers = {
-      "zk-connect-v1": new ZkConnectProverV1({
+      "zk-connect-v2": new ZkConnectProverV2({
         factoryProvider: this.factoryProvider,
         cache: cache,
       }),
@@ -39,22 +39,29 @@ export class SismoClient {
     return await this.factoryProvider.getFactoryApp(appId);
   }
 
-  public async getStatementsGroupsMetadata(
+  public async getRequestGroupsMetadata(
     zkConnectRequest: ZkConnectRequest
-  ): Promise<StatementGroupMetadata[]> {
-    if (!zkConnectRequest.dataRequest) return null;
-    const statementGroupMetadata: StatementGroupMetadata[] = [];
-    for (let statement of zkConnectRequest.dataRequest.statementRequests) {
-      const groupMetadata = await this.groupProvider.getGroupMetadata(
-        statement.groupId,
-        statement.groupTimestamp
+  ): Promise<RequestGroupMetadata[]> {
+    const hasClaimRequest =
+      zkConnectRequest?.requestContent?.dataRequests?.some(
+        (dataRequest) => dataRequest?.claimRequest?.groupId
       );
-      statementGroupMetadata.push({
+
+    if (!hasClaimRequest) return null;
+    const requestGroupsMetadata: RequestGroupMetadata[] = [];
+
+    for (const dataRequest of zkConnectRequest.requestContent.dataRequests) {
+      const claimRequest = dataRequest?.claimRequest;
+      if (!claimRequest) continue;
+      const groupMetadata = await this.getGroupMetadata(
+        claimRequest.groupId,
+        claimRequest.groupTimestamp
+      );
+      requestGroupsMetadata.push({
         groupMetadata,
-        statement,
+        claim: claimRequest,
       });
     }
-    return statementGroupMetadata;
   }
 
   public async getStatementsEligibilities(

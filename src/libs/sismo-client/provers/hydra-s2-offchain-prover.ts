@@ -49,7 +49,6 @@ export class HydraS2OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     claimType,
-    devConfig,
   }: OffchainProofRequest): Promise<SnarkProof> {
     const commitmentMapperPubKey =
       env.sismoDestination.commitmentMapperPubKey.map((string) =>
@@ -70,7 +69,6 @@ export class HydraS2OffchainProver extends Prover {
       groupTimestamp,
       requestedValue,
       claimType,
-      devConfig,
     });
 
     const proof = await prover.generateSnarkProof(userParams);
@@ -83,7 +81,6 @@ export class HydraS2OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     claimType,
-    devGroup,
   }: GetEligibilityInputs): Promise<AccountData> {
     const eligibleAccountsTreeData =
       await this.registryTreeReader.getAccountsTreeEligibility({
@@ -223,7 +220,6 @@ export class HydraS2OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     claimType,
-    devConfig,
   }: OffchainProofRequest): Promise<UserParams> {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
