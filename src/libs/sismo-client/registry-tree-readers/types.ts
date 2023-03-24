@@ -1,3 +1,6 @@
+import { BigNumberish } from "ethers";
+import { devAddressesType } from "../provers/types";
+
 export type RegistryTree = {
   root: string;
   metadata: {
@@ -10,6 +13,8 @@ export type RegistryTree = {
 export type getAccountsTreeInputs = OffChainGroupProperties & {
   account: string;
 };
+
+export type DevAddresses = string[] | Record<string, Number | BigNumberish>;
 
 export type getAccountsTreeEligibilityInputs = OffChainGroupProperties & {
   accounts: string[];

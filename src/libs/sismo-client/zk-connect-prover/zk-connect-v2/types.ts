@@ -41,6 +41,21 @@ export type ZkConnectRequest = {
   version: string;
 };
 
+export type DevAddresses = string[] | Record<string, Number | BigNumberish>;
+
+export type DevConfig = {
+  enabled?: boolean; // https://dev.vault-beta.sismo.io/
+  modalOutput: "bytes" | "typescript" | null; // if bytes, open a modal with the ZkConnectResponse direclty encoded in bytes + registryTreeRoot displayed
+  // Allow to customize data for each groupId
+  devGroups?: DevGroup[];
+};
+
+export type DevGroup = {
+  groupId: string;
+  groupTimestamp: number | "latest";
+  data: DevAddresses;
+};
+
 export type ZkConnectRequestContent = {
   dataRequests: DataRequest[];
   // should be dataRequests.length - 1 and all the same for now

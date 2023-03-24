@@ -16,7 +16,7 @@ const Container = styled.div`
   }
 `;
 
-const GroupItem = styled.div`
+const GroupItem = styled.div<{ isEligible: boolean }>`
   display: flex;
   align-items: center;
   padding: 4px 8px;
@@ -24,6 +24,8 @@ const GroupItem = styled.div`
   font-size: 14px;
   line-height: 20px;
   font-family: ${(props) => props.theme.fonts.medium};
+  color: ${(props) =>
+    props.isEligible ? props.theme.colors.green1 : props.theme.colors.blue0};
 `;
 
 const OrSperator = styled.div`
@@ -45,10 +47,13 @@ const OrText = styled.div`
   font-family: ${(props) => props.theme.fonts.medium};
 `;
 
-const ValueComparator = styled.div`
+const ValueComparator = styled.div<{ isEligible: boolean }>`
   padding: 0px 6px;
   height: 18px;
-  background: ${(props) => props.theme.colors.blue9};
+  background: ${(props) =>
+    props.isEligible ? props.theme.colors.green1 : props.theme.colors.blue9};
+  color: ${(props) =>
+    props.isEligible ? props.theme.colors.blue11 : props.theme.colors.blue0};
   border-radius: 20px;
   font-size: 12px;
   line-height: 18px;
@@ -76,12 +81,14 @@ export function EligibilitySummary({
         const claimType = group?.claim?.claimType;
         const requestedValue = group?.claim?.value;
 
+        const isEligible = true;
+
         return (
           <>
             {index > 0 && isOr && (
               <OrSperator>
                 <Line />
-                <OrText>OR</OrText>
+                <OrText>or</OrText>
                 <Line />
               </OrSperator>
             )}
@@ -90,21 +97,29 @@ export function EligibilitySummary({
                 <Line />
               </OrSperator>
             )}
-            <GroupItem key={index + "/eligibilitySummary"}>
-              <CheckCircle size={16} color={"#323E64"} />
+            <GroupItem
+              key={index + "/eligibilitySummary"}
+              isEligible={isEligible}
+            >
+              <CheckCircle
+                size={16}
+                color={isEligible ? "#A0F2E0" : "#323E64"}
+              />
               {getHumanReadableGroupName(group?.groupMetadata?.name)}
               {claimType === ClaimType.GT ? (
-                <ValueComparator>
+                <ValueComparator isEligible={isEligible}>
                   {">"} {requestedValue}
                 </ValueComparator>
               ) : claimType === ClaimType.EQ ? (
-                <ValueComparator>{requestedValue}</ValueComparator>
+                <ValueComparator isEligible={isEligible}>
+                  {requestedValue}
+                </ValueComparator>
               ) : claimType === ClaimType.LT ? (
-                <ValueComparator>
+                <ValueComparator isEligible={false}>
                   {"<"} {requestedValue}
                 </ValueComparator>
               ) : claimType === ClaimType.LTE ? (
-                <ValueComparator>
+                <ValueComparator isEligible={isEligible}>
                   {"<="} {requestedValue}
                 </ValueComparator>
               ) : null}

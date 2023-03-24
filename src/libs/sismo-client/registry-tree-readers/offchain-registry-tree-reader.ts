@@ -9,16 +9,19 @@ import { RegistryTreeReader } from "./registry-tree-reader";
 import env from "../../../environment";
 import { ChunkedGroups } from "./chunked-groups";
 import { fetchJsonTree } from "./services/available-data";
+import { fetchAvailableGroups } from "./services/available-data";
+import { ChainNameToId } from "../contracts/commons";
+import { OffchainAvailableGroups } from "./types";
 
 export class OffchainRegistryTreeReader extends RegistryTreeReader {
   private _chunkedGroups: ChunkedGroups;
+  private _attesterName: string;
+  private _chainName: string;
 
   constructor({ cache }: { cache: Cache }) {
-    super({
-      cache,
-      attesterName: "hydra-s1-off-chain",
-      chainName: env.chainName,
-    });
+    super();
+    this._attesterName = "hydra-s1-off-chain";
+    this._chainName = env.chainName;
     this._chunkedGroups = new ChunkedGroups({ cache });
   }
 
@@ -135,5 +138,13 @@ export class OffchainRegistryTreeReader extends RegistryTreeReader {
     }
 
     return filteredAccountsTrees;
+  }
+
+  protected async getAvailableGroups(): Promise<OffchainAvailableGroups> {
+    const { availableGroups } = await fetchAvailableGroups(
+      this._attesterName,
+      ChainNameToId[this._chainName]
+    );
+    return availableGroups as OffchainAvailableGroups;
   }
 }
