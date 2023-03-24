@@ -1,8 +1,7 @@
 import { ImportedAccount } from "../../vault-client";
-import { StatementComparator } from "@sismo-core/zk-connect-client";
+import { ClaimType } from "../zk-connect-prover/zk-connect-v2";
 import { BigNumberish } from "ethers";
 
-export type RequestedValue = number | BigNumberish | "USER_SELECTED_VALUE";
 export type GroupTimestamp = number | "latest";
 
 export type RequestIdentifierInputs = {
@@ -20,8 +19,8 @@ export type GetEligibilityInputs = {
   accounts: string[];
   groupId: string;
   groupTimestamp: GroupTimestamp;
-  requestedValue: RequestedValue;
-  comparator: StatementComparator;
+  requestedValue: number;
+  claimType: ClaimType;
   devAddresses?: devAddressesType;
 };
 
@@ -32,8 +31,8 @@ export type OffchainProofRequest = {
   groupId?: string;
   source?: ImportedAccount;
   groupTimestamp?: GroupTimestamp;
-  requestedValue?: RequestedValue;
-  comparator?: StatementComparator;
+  requestedValue?: number;
+  claimType?: ClaimType;
   devAddresses?: devAddressesType;
 };
 

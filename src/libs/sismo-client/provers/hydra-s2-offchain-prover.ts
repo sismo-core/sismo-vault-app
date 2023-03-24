@@ -25,6 +25,7 @@ import {
 import { Prover } from "./prover";
 import env from "../../../environment";
 import { overrideEligibleGroupDataFormatter } from "../../zk-connect/utils";
+import { ClaimType } from "../zk-connect-prover/zk-connect-v2";
 
 export class HydraS2OffchainProver extends Prover {
   registryTreeReader: OffchainRegistryTreeReader;
@@ -42,7 +43,7 @@ export class HydraS2OffchainProver extends Prover {
     groupId,
     groupTimestamp,
     requestedValue,
-    comparator,
+    claimType,
     devAddresses,
   }: OffchainProofRequest): Promise<SnarkProof> {
     const commitmentMapperPubKey =
@@ -63,7 +64,7 @@ export class HydraS2OffchainProver extends Prover {
       groupId,
       groupTimestamp,
       requestedValue,
-      comparator,
+      claimType,
       devAddresses: devAddresses,
     });
 
@@ -76,7 +77,7 @@ export class HydraS2OffchainProver extends Prover {
     groupId,
     groupTimestamp,
     requestedValue,
-    comparator,
+    claimType,
   }: GetEligibilityInputs): Promise<AccountData> {
     const eligibleAccountsTreeData =
       await this.registryTreeReader.getAccountsTreeEligibility({
@@ -89,40 +90,47 @@ export class HydraS2OffchainProver extends Prover {
       return null;
     }
 
-    if (comparator === "EQ") {
-      for (const [identifier, value] of Object.entries(
-        eligibleAccountsTreeData
-      )) {
-        if (BigNumber.from(value).toNumber() === value) {
-          return {
-            identifier,
-            value: BigNumber.from(value).toNumber(),
-          };
-        }
-      }
-      return null;
-    }
-
-    if (requestedValue === "USER_SELECTED_VALUE" || comparator === "GTE") {
-      let maxAccountData: AccountData = null;
-      for (const [identifier, value] of Object.entries(
-        eligibleAccountsTreeData
-      )) {
-        if (maxAccountData === null) {
-          maxAccountData = {
-            identifier,
-            value: BigNumber.from(value).toNumber(),
-          };
-        } else {
-          if (BigNumber.from(value).toNumber() > maxAccountData.value) {
-            maxAccountData = {
+    switch (claimType) {
+      case ClaimType.EQ:
+        for (const [identifier, value] of Object.entries(
+          eligibleAccountsTreeData
+        )) {
+          if (
+            BigNumber.from(value).toNumber() ===
+            BigNumber.from(requestedValue).toNumber()
+          ) {
+            return {
               identifier,
               value: BigNumber.from(value).toNumber(),
             };
           }
         }
-      }
-      return maxAccountData;
+        return null;
+
+      default:
+        let maxAccountData: AccountData = null;
+        for (const [identifier, value] of Object.entries(
+          eligibleAccountsTreeData
+        )) {
+          if (
+            maxAccountData === null &&
+            BigNumber.from(value).toNumber() >=
+              BigNumber.from(requestedValue).toNumber()
+          ) {
+            maxAccountData = {
+              identifier,
+              value: BigNumber.from(value).toNumber(),
+            };
+          } else {
+            if (BigNumber.from(value).toNumber() > maxAccountData.value) {
+              maxAccountData = {
+                identifier,
+                value: BigNumber.from(value).toNumber(),
+              };
+            }
+          }
+          return maxAccountData;
+        }
     }
   }
 
@@ -208,7 +216,7 @@ export class HydraS2OffchainProver extends Prover {
     groupId,
     groupTimestamp,
     requestedValue,
-    comparator,
+    claimType,
     devAddresses,
   }: OffchainProofRequest): Promise<UserParams> {
     const vaultInput: VaultInput = {
@@ -236,7 +244,7 @@ export class HydraS2OffchainProver extends Prover {
       };
 
       const hasDataRequest =
-        namespace && groupId && groupTimestamp && requestedValue && comparator;
+        namespace && groupId && groupTimestamp && requestedValue && claimType;
 
       if (hasDataRequest) {
         let accountsTree: KVMerkleTree;
@@ -266,16 +274,11 @@ export class HydraS2OffchainProver extends Prover {
           registryTree = new KVMerkleTree(registryTreeData, poseidon, 20);
         }
 
-        const claimedValue =
-          requestedValue === "USER_SELECTED_VALUE"
-            ? accountsTree.getValue(source.identifier)
-            : BigNumber.from(requestedValue);
-
-        const parsedComparator = "GTE" ? 0 : 1;
+        const claimedValue = BigNumber.from(requestedValue);
 
         const statementInput: StatementInput = {
           value: BigNumber.from(claimedValue),
-          comparator: parsedComparator,
+          comparator: claimType,
           registryTree: registryTree,
           accountsTree: accountsTree,
         };

@@ -71,17 +71,17 @@ export class ZkConnectProver {
         continue;
       }
       if (statement.provingScheme === "hydra-s2.1") {
-        const accountData = await this.prover.getEligibility({
-          accounts: importedAccounts.map((account) => account.identifier),
-          groupId: statement.groupId,
-          groupTimestamp: statement.groupTimestamp,
-          comparator: statement.comparator,
-          requestedValue: statement.requestedValue,
-        });
-        statementsEligibility.push({
-          statement,
-          accountData,
-        });
+        // const accountData = await this.prover.getEligibility({
+        //   accounts: importedAccounts.map((account) => account.identifier),
+        //   groupId: statement.groupId,
+        //   groupTimestamp: statement.groupTimestamp,
+        //   comparator: statement.comparator,
+        //   requestedValue: statement.requestedValue,
+        // });
+        // statementsEligibility.push({
+        //   statement,
+        //   accountData,
+        // });
       } else {
         console.error(
           `Proving scheme ${statement.provingScheme} not yet supported`
@@ -122,22 +122,22 @@ export class ZkConnectProver {
             importedAccount.identifier ===
             statementEligibility.accountData.identifier
         );
-        const snarkProof = await this.prover.generateProof({
-          appId,
-          source,
-          vaultSecret,
-          namespace,
-          groupId: statement.groupId,
-          groupTimestamp: statement.groupTimestamp,
-          requestedValue: statement.requestedValue,
-          comparator: statement.comparator,
-          devAddresses,
-        });
-        zkConnectResponse.verifiableStatements.push({
-          value: BigNumber.from(snarkProof.input[7]).toNumber(),
-          proof: snarkProof,
-          ...statement,
-        });
+        // const snarkProof = await this.prover.generateProof({
+        //   appId,
+        //   source,
+        //   vaultSecret,
+        //   namespace,
+        //   groupId: statement.groupId,
+        //   groupTimestamp: statement.groupTimestamp,
+        //   requestedValue: BigNumber.from(statement.requestedValue).toNumber(),
+        //   claimType: statement.comparator,
+        //   devAddresses,
+        // });
+        // zkConnectResponse.verifiableStatements.push({
+        //   value: BigNumber.from(snarkProof.input[7]).toNumber(),
+        //   proof: snarkProof,
+        //   ...statement,
+        // });
       }
     } else {
       const snarkProof = await this.prover.generateProof({
