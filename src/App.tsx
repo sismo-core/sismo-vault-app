@@ -15,8 +15,6 @@ import MainScrollManagerProvider from "./libs/main-scroll-manager";
 import EnvsMonitoring from "./libs/envs-monitoring";
 import { SismoClient } from "./libs/sismo-client";
 import { IndexDbCache } from "./libs/sismo-client/caches/indexdb-cache";
-import { getZkConnectRequest } from "./libs/sismo-client/zk-connect-prover/zk-connect-v2";
-import { useSearchParams } from "react-router-dom";
 
 const FONTS_LIST = [
   "BebasNeuePro-Regular",
