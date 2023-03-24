@@ -1,22 +1,17 @@
-import { Cache } from "../caches";
-import { ChainNameToId } from "../contracts/commons";
-import { OffchainAvailableGroups } from "./types";
 import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
-import { OffChainAccountTreeMetadata } from "./types";
-import { DevConfig, DevGroup } from "../zk-connect-prover/zk-connect-v2";
 import {
-  GetAccountsTreeInputs,
-  GetAccountsTreeEligibilityInputs,
+  OffchainGetAccountsTreeInputs,
+  OffchainGetAccountsTreeEligibilityInputs,
 } from "./types";
 
 export abstract class RegistryTreeReader {
   public abstract getAccountsTree(
-    args: GetAccountsTreeInputs | DevGroup
+    inputs: OffchainGetAccountsTreeInputs
   ): Promise<KVMerkleTree>;
-  public abstract getRegistryTree(
-    args: DevGroup[] | null
-  ): Promise<KVMerkleTree>;
+
+  public abstract getRegistryTree(): Promise<KVMerkleTree>;
+
   public abstract getAccountsTreeEligibility(
-    args: GetAccountsTreeEligibilityInputs | DevGroup
+    inputs: OffchainGetAccountsTreeEligibilityInputs
   ): Promise<MerkleTreeData>;
 }

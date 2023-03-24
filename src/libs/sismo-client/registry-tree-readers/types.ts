@@ -1,5 +1,4 @@
 import { BigNumberish } from "ethers";
-import { devAddressesType } from "../provers/types";
 
 export type RegistryTree = {
   root: string;
@@ -12,11 +11,15 @@ export type RegistryTree = {
 
 export type DevAddresses = string[] | Record<string, Number | BigNumberish>;
 
-export type GetAccountsTreeInputs = OffChainGroupProperties & {
+export type OffchainGetAccountsTreeInputs = {
+  groupId: string;
+  timestamp: number | "latest";
   account: string;
 };
 
-export type GetAccountsTreeEligibilityInputs = OffChainGroupProperties & {
+export type OffchainGetAccountsTreeEligibilityInputs = {
+  groupId: string;
+  timestamp: number | "latest";
   accounts: string[];
 };
 

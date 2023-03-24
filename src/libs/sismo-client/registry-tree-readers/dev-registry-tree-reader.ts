@@ -8,10 +8,27 @@ import { RegistryTreeReader } from "./registry-tree-reader";
 import { buildPoseidon } from "@sismo-core/hydra-s2";
 import { ethers, BigNumber } from "ethers";
 import { DevGroup } from "../zk-connect-prover/zk-connect-v2";
+import {
+  OffchainGetAccountsTreeInputs,
+  OffchainGetAccountsTreeEligibilityInputs,
+} from "./types";
 
 export class DevRegistryTreeReader extends RegistryTreeReader {
-  public async getAccountsTree(devGroup: DevGroup): Promise<KVMerkleTree> {
+  private _devGroups: DevGroup[];
+
+  constructor({ devGroups }: { devGroups: DevGroup[] }) {
+    super();
+    this._devGroups = devGroups;
+  }
+
+  public async getAccountsTree({
+    groupId,
+  }: OffchainGetAccountsTreeInputs): Promise<KVMerkleTree> {
     const poseidon = await buildPoseidon();
+
+    const devGroup = this._devGroups.find(
+      (devGroup) => devGroup.groupId === groupId
+    );
 
     let groupData = await this.getAccountsTreeData(devGroup);
 
@@ -19,12 +36,14 @@ export class DevRegistryTreeReader extends RegistryTreeReader {
     return _accountsTree;
   }
 
-  public async getRegistryTree(devGroups: DevGroup[]): Promise<KVMerkleTree> {
+  public async getRegistryTree(): Promise<KVMerkleTree> {
     const poseidon = await buildPoseidon();
     const registryTreeData = {};
 
-    for (const devGroup of devGroups) {
-      const accountsTree = await this.getAccountsTree(devGroup);
+    for (const devGroup of this._devGroups) {
+      const accountsTree = await this.getAccountsTree({
+        groupId: devGroup.groupId,
+      } as OffchainGetAccountsTreeInputs);
 
       const accountsTreeValue = this.encodeAccountsTreeValue(
         devGroup.groupId,
@@ -38,10 +57,13 @@ export class DevRegistryTreeReader extends RegistryTreeReader {
     return registryTree;
   }
 
-  public async getAccountsTreeEligibility(
-    devGroup: DevGroup
-  ): Promise<MerkleTreeData> {
+  public async getAccountsTreeEligibility({
+    groupId,
+  }: OffchainGetAccountsTreeEligibilityInputs): Promise<MerkleTreeData> {
     // TO CHECK IF WE NEED ACCOUNTS ARRAY
+    const devGroup = this._devGroups.find(
+      (devGroup) => devGroup.groupId === groupId
+    );
     const merkleTreesData = await this.getAccountsTreeData(devGroup);
     return merkleTreesData;
   }

@@ -1,4 +1,3 @@
-import { buildPoseidon } from "@sismo-core/crypto";
 import { ImportedAccount } from "../../vault-client";
 import {
   EddsaPublicKey,
@@ -25,19 +24,18 @@ import {
 } from "./types";
 import { Prover } from "./prover";
 import env from "../../../environment";
-import { overrideEligibleGroupDataFormatter } from "../../zk-connect/utils";
-import { ClaimType, DevGroup } from "../zk-connect-prover/zk-connect-v2";
-import { GetAccountsTreeInputs } from "../registry-tree-readers/types";
+import { ClaimType, DevConfig } from "../zk-connect-prover/zk-connect-v2";
 
 export class HydraS2OffchainProver extends Prover {
   registryTreeReader: OffchainRegistryTreeReader | DevRegistryTreeReader;
 
-  constructor({ cache, devConfig }: { cache?: Cache; devConfig?: boolean }) {
+  constructor({ cache, devConfig }: { cache?: Cache; devConfig?: DevConfig }) {
     super();
     if (devConfig) {
-      this.registryTreeReader = new DevRegistryTreeReader();
-    }
-    if (!devConfig) {
+      this.registryTreeReader = new DevRegistryTreeReader({
+        devGroups: devConfig.devGroups,
+      });
+    } else {
       this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
     }
   }
@@ -87,20 +85,12 @@ export class HydraS2OffchainProver extends Prover {
     claimType,
     devGroup,
   }: GetEligibilityInputs): Promise<AccountData> {
-    const accountsTreeEligibilityInputs = devGroup
-      ? devGroup
-      : ({
-          accounts,
-          groupId,
-          groupTimestamp,
-        } as any);
-
-    // BETTER TYPE HERE
-
     const eligibleAccountsTreeData =
-      await this.registryTreeReader.getAccountsTreeEligibility(
-        accountsTreeEligibilityInputs
-      );
+      await this.registryTreeReader.getAccountsTreeEligibility({
+        accounts,
+        groupId,
+        timestamp: groupTimestamp,
+      });
 
     if (eligibleAccountsTreeData === null) {
       return null;
@@ -266,29 +256,13 @@ export class HydraS2OffchainProver extends Prover {
         let accountsTree: KVMerkleTree;
         let registryTree: KVMerkleTree;
 
-        const devGroup = devConfig.devGroups.find(
-          (devGroup) => devGroup.groupId === groupId
-        );
+        accountsTree = await this.registryTreeReader.getAccountsTree({
+          groupId,
+          account: source.identifier,
+          timestamp: groupTimestamp,
+        });
 
-        const accountsTreeInputs = devConfig
-          ? devGroup
-          : ({
-              groupId,
-              account: source.identifier,
-              timestamp: groupTimestamp,
-            } as any);
-
-        // BETTER TYPE HERE
-
-        const registryTreeInputs = devConfig ? devConfig.devGroups : null;
-
-        accountsTree = await this.registryTreeReader.getAccountsTree(
-          accountsTreeInputs
-        );
-
-        registryTree = await this.registryTreeReader.getRegistryTree(
-          registryTreeInputs
-        );
+        registryTree = await this.registryTreeReader.getRegistryTree();
 
         const claimedValue = BigNumber.from(requestedValue);
 
