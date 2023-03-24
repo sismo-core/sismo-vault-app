@@ -59,19 +59,31 @@ export default function SismoProvider({
     [client]
   );
 
-  const getStatementsGroupsMetadata = useCallback(
+  const getRequestGroupMetadata = useCallback(
     (zkConnectRequest: ZkConnectRequest) => {
-      return client.getStatementsGroupsMetadata(zkConnectRequest);
+      return client.getRequestGroupsMetadata(zkConnectRequest);
     },
     [client]
   );
 
-  const getStatementsEligibilities = useCallback(
+  const getClaimRequestEligibilities = useCallback(
     (
       zkConnectRequest: ZkConnectRequest,
       importedAccounts: ImportedAccount[]
     ) => {
-      return client.getStatementsEligibilities(
+      return client.getClaimRequestEligibilities(
+        zkConnectRequest,
+        importedAccounts
+      );
+    },
+    [client]
+  );
+  const getAuthRequestEligibilities = useCallback(
+    (
+      zkConnectRequest: ZkConnectRequest,
+      importedAccounts: ImportedAccount[]
+    ) => {
+      return client.getAuthRequestEligibilities(
         zkConnectRequest,
         importedAccounts
       );
@@ -93,22 +105,22 @@ export default function SismoProvider({
     [client]
   );
 
-  const verifyZkConnectRequest = useCallback(
-    (request: ZkConnectRequest) => {
-      return client.verifyZkConnectRequest(request);
-    },
-    [client]
-  );
+  // const verifyZkConnectRequest = useCallback(
+  //   (request: ZkConnectRequest) => {
+  //     return client.verifyZkConnectRequest(request);
+  //   },
+  //   [client]
+  // );
 
   return (
     <SismoClientContext.Provider
       value={{
-        verifyZkConnectRequest,
+        // verifyZkConnectRequest,
         getGroupMetadata,
         getFactoryApp,
-        getStatementsEligibilities,
+        getClaimRequestEligibilities,
         generateResponse,
-        getStatementsGroupsMetadata,
+        getAuthRequestEligibilities,
       }}
     >
       {children}
