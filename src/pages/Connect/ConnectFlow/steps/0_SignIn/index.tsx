@@ -307,7 +307,10 @@ export default function SignIn({
                           (requestGroupMetadata, index) => (
                             <>
                               <ShardTag
-                                key={index + "/statement-request"}
+                                key={
+                                  requestGroupMetadata?.groupMetadata?.id +
+                                  "/statement-request/and"
+                                }
                                 groupMetadata={
                                   requestGroupMetadata?.groupMetadata
                                 }
@@ -344,7 +347,10 @@ export default function SignIn({
                                 </OrSperator>
                               )}
                               <ShardTag
-                                key={index + "/statement-request"}
+                                key={
+                                  requestGroupMetadata?.groupMetadata?.id +
+                                  "/statement-request/or"
+                                }
                                 groupMetadata={
                                   requestGroupMetadata?.groupMetadata
                                 }

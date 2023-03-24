@@ -84,7 +84,7 @@ export function EligibilitySummary({
         const isEligible = true;
 
         return (
-          <>
+          <div key={index + "summaryItem"}>
             {index > 0 && isOr && (
               <OrSperator>
                 <Line />
@@ -124,7 +124,7 @@ export function EligibilitySummary({
                 </ValueComparator>
               ) : null}
             </GroupItem>
-          </>
+          </div>
         );
       })}
     </Container>

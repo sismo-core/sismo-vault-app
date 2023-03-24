@@ -194,7 +194,10 @@ export default function LayoutFlow({
                             "OR" &&
                             index !== 0 && <div>or</div>}
                           <ShardTag
-                            key={index + "/statement-request"}
+                            key={
+                              requestGroupMetadata?.groupMetadata?.id +
+                              "/statement-request/layout"
+                            }
                             groupMetadata={requestGroupMetadata?.groupMetadata}
                             claimType={requestGroupMetadata?.claim?.claimType}
                             requestedValue={
