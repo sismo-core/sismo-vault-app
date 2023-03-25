@@ -7,6 +7,7 @@ import { FactoryProvider } from "../../providers/factory-provider";
 import {
   ClaimRequestEligibility,
   AuthRequestEligibility,
+  DataRequestEligibility,
   ZkConnectRequest,
   ZkConnectResponse,
   DevConfig,
@@ -45,50 +46,111 @@ export class ZkConnectProver {
     if (!factoryApp) return false;
   }
 
+  public async getDataRequestEligibilities(
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<DataRequestEligibility[]> {
+    const dataRequestEligibilities: DataRequestEligibility[] = [];
+
+    for (const dataRequest of zkConnectRequest?.requestContent?.dataRequests) {
+      const authRequestEligibility = await this.getAuthRequestEligibility(
+        dataRequest?.authRequest,
+        importedAccounts
+      );
+
+      const claimRequestEligibility = await this.getClaimRequestEligibility(
+        dataRequest?.claimRequest,
+        importedAccounts
+      );
+
+      dataRequestEligibilities.push({
+        authRequestEligibility,
+        claimRequestEligibility,
+      });
+    }
+
+    return dataRequestEligibilities;
+  }
+
+  private async getClaimRequestEligibility(
+    claimRequest: Claim,
+    importedAccounts: ImportedAccount[]
+  ): Promise<ClaimRequestEligibility> {
+    if (!claimRequest) return null;
+
+    const _accounts = importedAccounts?.map((account) => account.identifier);
+
+    const accountData = await this.prover.getEligibility({
+      accounts: _accounts,
+      groupId: claimRequest.groupId,
+      groupTimestamp: claimRequest.groupTimestamp,
+      requestedValue: claimRequest.value,
+      claimType: claimRequest.claimType,
+    });
+    return {
+      claimRequest: claimRequest,
+      accountData: accountData,
+    };
+  }
+
   public async getClaimRequestEligibilities(
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[]
   ): Promise<ClaimRequestEligibility[]> {
-    const claimRequestEligibilities: ClaimRequestEligibility[] = [];
     const claimRequests: Claim[] = [];
-
-    const hasClaimRequest =
-      zkConnectRequest?.requestContent?.dataRequests?.some(
-        (dataRequest) => dataRequest?.claimRequest?.groupId
-      );
-
-    if (!hasClaimRequest) return null;
 
     for (const dataRequest of zkConnectRequest?.requestContent?.dataRequests) {
       if (!dataRequest?.claimRequest?.groupId) continue;
-      claimRequests.push(dataRequest.claimRequest);
+      claimRequests.push(dataRequest?.claimRequest);
     }
 
-    const _accounts = importedAccounts?.map((account) => account.identifier);
+    if (!Boolean(claimRequests?.length)) return [];
 
-    const accountDatas = await Promise.all(
+    const claimRequestEligibilities = await Promise.all(
       claimRequests.map(async (claimRequest) => {
-        return await this.prover.getEligibility({
-          accounts: _accounts,
-          groupId: claimRequest.groupId,
-          groupTimestamp: claimRequest.groupTimestamp,
-          requestedValue: claimRequest.value,
-          claimType: claimRequest.claimType,
-        });
+        return this.getClaimRequestEligibility(claimRequest, importedAccounts);
       })
     );
 
-    for (const accountData of accountDatas) {
-      const _claimRequestEligibility: ClaimRequestEligibility = {
-        claimRequest: claimRequests[accountDatas.indexOf(accountData)],
-        accountData: accountData,
-      };
+    console.log("ClaimRequestEligibilities", claimRequestEligibilities);
+    return claimRequestEligibilities;
+  }
 
-      claimRequestEligibilities.push(_claimRequestEligibility);
+  private async getAuthRequestEligibility(
+    authRequest: Auth,
+    importedAccounts: ImportedAccount[]
+  ): Promise<AuthRequestEligibility> {
+    if (!authRequest) return null;
+
+    let accounts: ImportedAccount[];
+
+    switch (authRequest?.authType) {
+      case AuthType.ANON:
+        accounts = importedAccounts;
+        break;
+      case AuthType.GITHUB:
+        accounts = importedAccounts?.filter(
+          (importedAccount) => importedAccount?.type === "github"
+        );
+        break;
+      case AuthType.TWITTER:
+        accounts = importedAccounts?.filter(
+          (importedAccount) => importedAccount?.type === "twitter"
+        );
+        break;
+      case AuthType.EVM_ACCOUNT:
+        accounts = importedAccounts?.filter(
+          (importedAccount) => importedAccount?.type === "ethereum"
+        );
+        break;
+      default:
+        break;
     }
 
-    console.log("claimRequestEligibilities", claimRequestEligibilities);
-    return claimRequestEligibilities;
+    return {
+      authRequest: authRequest,
+      accounts: accounts,
+    };
   }
 
   public async getAuthRequestEligibilities(
@@ -105,37 +167,15 @@ export class ZkConnectProver {
     for (const dataRequest of zkConnectRequest?.requestContent?.dataRequests) {
       if (!dataRequest?.authRequest?.authType) continue;
 
-      let accounts = [];
+      const authRequestEligibility = await this.getAuthRequestEligibility(
+        dataRequest?.authRequest,
+        importedAccounts
+      );
 
-      switch (dataRequest?.authRequest?.authType) {
-        case AuthType.ANON:
-          accounts = importedAccounts;
-          break;
-        case AuthType.GITHUB:
-          accounts = importedAccounts?.filter(
-            (importedAccount) => importedAccount?.type === "github"
-          );
-          break;
-        case AuthType.TWITTER:
-          accounts = importedAccounts?.filter(
-            (importedAccount) => importedAccount?.type === "twitter"
-          );
-          break;
-        case AuthType.EVM_ACCOUNT:
-          accounts = importedAccounts?.filter(
-            (importedAccount) => importedAccount?.type === "ethereum"
-          );
-          break;
-        default:
-          break;
-      }
-
-      authRequestEligibilities.push({
-        authRequest: dataRequest?.authRequest,
-        accounts: accounts?.map((account) => account.identifier),
-      });
+      authRequestEligibilities.push(authRequestEligibility);
     }
 
+    console.log("AuthRequestEligibilities", authRequestEligibilities);
     return authRequestEligibilities;
   }
 
@@ -154,6 +194,11 @@ export class ZkConnectProver {
     };
 
     const dataRequests = zkConnectRequest?.requestContent?.dataRequests;
+
+    // const dataRequestEligibilities = await this.getDataRequestEligibilities(
+    //   zkConnectRequest,
+    //   importedAccounts
+    // )
 
     const claimRequestEligibilities = await this.getClaimRequestEligibilities(
       zkConnectRequest,

@@ -15,8 +15,8 @@ export type RequestGroupMetadata = {
 };
 
 export type DataRequestEligibility = {
-  requestClaimEligibilities: ClaimRequestEligibility[];
-  requestAuthEligibilities: AuthRequestEligibility[];
+  claimRequestEligibility: ClaimRequestEligibility;
+  authRequestEligibility: AuthRequestEligibility;
 };
 
 export type ClaimRequestEligibility = {

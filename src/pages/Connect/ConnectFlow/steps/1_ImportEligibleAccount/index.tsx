@@ -170,47 +170,25 @@ export default function ImportEligibleAccount({
 
   // REFACTOR LOGIC
   if (zkConnectRequest?.requestContent?.operators[0] === "AND") {
-    isZkConnectRequestEligible =
-      zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
-        const claimRequestEligibility = claimRequestEligibilities.find(
-          (claimRequestEligibility) =>
-            claimRequestEligibility?.claimRequest?.groupId ===
-            dataRequest.claimRequest.groupId
-        );
+    isZkConnectRequestEligible = claimRequestEligibilities.every(
+      (claimRequestEligibility) => {
         return claimRequestEligibility?.accountData &&
           Object?.keys(claimRequestEligibility?.accountData)?.length
           ? true
           : false;
-      });
-
-    // const isAuthRequestEligible =
-    //   zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
-    //     const authRequestEligibility = authRequestEligibilities.find(
-    //       (authRequestEligibility) =>
-    //         authRequestEligibility?.authRequest.authType ===
-    //         dataRequest.authRequest.authType
-    //     );
-    //     return authRequestEligibility?.accounts?.length > 0;
-    //   });
-
-    // isZkConnectRequestEligible =
-    //   isAuthRequestEligible && isClaimRequestEligible;
+      }
+    );
   }
 
   if (zkConnectRequest?.requestContent?.operators[0] === "OR") {
-    isZkConnectRequestEligible =
-      zkConnectRequest?.requestContent?.dataRequests?.some((dataRequest) => {
-        const claimRequestEligibility = claimRequestEligibilities.find(
-          (claimRequestEligibility) =>
-            claimRequestEligibility?.claimRequest?.groupId ===
-            dataRequest.claimRequest.groupId
-        );
-
+    isZkConnectRequestEligible = claimRequestEligibilities.some(
+      (claimRequestEligibility) => {
         return claimRequestEligibility?.accountData &&
           Object?.keys(claimRequestEligibility?.accountData)?.length
           ? true
           : false;
-      });
+      }
+    );
   }
 
   return (
