@@ -78,11 +78,11 @@ export const dataRequestMock5: DataRequest = {
 
 export const zkConnectRequestContentMock: ZkConnectRequestContent = {
   dataRequests: [
-    // dataRequestMock1,
-    // dataRequestMock2,
-    //dataRequestMock3,
+    dataRequestMock1,
+    dataRequestMock2,
+    dataRequestMock3,
     // dataRequestMock4,
-    dataRequestMock5,
+    // dataRequestMock5,
   ],
   operators: ["AND"],
 };
