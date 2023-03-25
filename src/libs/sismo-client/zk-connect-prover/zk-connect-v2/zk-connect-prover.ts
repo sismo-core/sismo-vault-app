@@ -108,7 +108,8 @@ export class ZkConnectProver {
       let accounts = [];
 
       switch (dataRequest?.authRequest?.authType) {
-        case AuthType.ANON | AuthType.NONE:
+        case AuthType.ANON:
+          accounts = importedAccounts;
           break;
         case AuthType.GITHUB:
           accounts = importedAccounts?.filter(
@@ -192,63 +193,74 @@ export class ZkConnectProver {
         );
 
         if (
-          !claimRequestEligibility?.accountData ||
-          !Object?.keys(claimRequestEligibility?.accountData)?.length
-        )
-          return;
+          claimRequestEligibility?.accountData &&
+          Object?.keys(claimRequestEligibility?.accountData)?.length
+        ) {
+          const source = importedAccounts.find(
+            (importedAccount) =>
+              importedAccount?.identifier ===
+              claimRequestEligibility?.accountData?.identifier
+          );
 
-        const source = importedAccounts.find(
-          (importedAccount) =>
-            importedAccount?.identifier ===
-            claimRequestEligibility?.accountData?.identifier
-        );
-
-        _generateProofInputs = {
-          ..._generateProofInputs,
-          source,
-          vaultSecret: "0",
-          groupId: claimRequestEligibility?.claimRequest?.groupId,
-          groupTimestamp: claimRequestEligibility?.claimRequest?.groupTimestamp,
-          requestedValue: claimRequestEligibility?.claimRequest?.value,
-          claimType: claimRequestEligibility?.claimRequest?.claimType,
-        };
+          _generateProofInputs = {
+            ..._generateProofInputs,
+            source,
+            vaultSecret: "0",
+            groupId: claimRequestEligibility?.claimRequest?.groupId,
+            groupTimestamp:
+              claimRequestEligibility?.claimRequest?.groupTimestamp,
+            requestedValue: claimRequestEligibility?.claimRequest?.value,
+            claimType: claimRequestEligibility?.claimRequest?.claimType,
+          };
+        }
       }
 
-      // if (dataRequest?.authRequest) {
-      //   const authRequestEligibility = authRequestEligibilities?.find(
-      //     (authRequestEligibility) =>
-      //       authRequestEligibility?.authRequest?.authType ===
-      //       dataRequest?.authRequest?.authType
-      //   );
+      if (dataRequest?.authRequest) {
+        const authRequestEligibility = authRequestEligibilities?.find(
+          (authRequestEligibility) =>
+            authRequestEligibility?.authRequest?.authType ===
+            dataRequest?.authRequest?.authType
+        );
 
-      // if (
-      //   !authRequestEligibility?.accountData ||
-      //   !Object?.keys(authRequestEligibility?.accountData)?.length
-      // )
-      //   return;
+        if (dataRequest?.authRequest?.authType === AuthType.NONE) {
+          _generateProofInputs = { ..._generateProofInputs };
+        }
 
-      //   const destination = importedAccounts.find((importedAccount) => {
-      //     const importedAccountType: AuthType =
-      //       importedAccount?.type === "ethereum"
-      //         ? AuthType.EVM_ACCOUNT
-      //         : importedAccount?.type === "github"
-      //         ? AuthType.GITHUB
-      //         : importedAccount?.type === "twitter"
-      //         ? AuthType.TWITTER
-      //         : AuthType.NONE;
+        if (dataRequest?.authRequest?.authType === AuthType.ANON) {
+          // WHAT TO SEND IF ANON
+        }
 
-      //     return (
-      //       importedAccountType ===
-      //       authRequestEligibility?.authRequest?.authType
-      //     );
-      //   });
+        if (
+          (dataRequest?.authRequest?.authType === AuthType.GITHUB ||
+            dataRequest?.authRequest?.authType === AuthType.TWITTER ||
+            dataRequest?.authRequest?.authType === AuthType.EVM_ACCOUNT) &&
+          authRequestEligibility?.accounts?.length > 0
+        ) {
+          const destination = importedAccounts.find((importedAccount) => {
+            const importedAccountType: AuthType =
+              importedAccount?.type === "ethereum"
+                ? AuthType.EVM_ACCOUNT
+                : importedAccount?.type === "github"
+                ? AuthType.GITHUB
+                : importedAccount?.type === "twitter"
+                ? AuthType.TWITTER
+                : AuthType.NONE;
 
-      //   _generateProofInputs = {
-      //     ..._generateProofInputs,
-      //     destination,
-      //     vaultSecret,
-      //   };
-      // }
+            return (
+              importedAccountType ===
+              authRequestEligibility?.authRequest?.authType
+            );
+          });
+
+          if (destination) {
+            _generateProofInputs = {
+              ..._generateProofInputs,
+              destination,
+              vaultSecret,
+            };
+          }
+        }
+      }
       const snarkProof = await this.prover.generateProof(_generateProofInputs);
       return {
         auth: dataRequest?.authRequest
