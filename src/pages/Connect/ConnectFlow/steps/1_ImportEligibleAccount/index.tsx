@@ -170,7 +170,7 @@ export default function ImportEligibleAccount({
 
   // REFACTOR LOGIC
   if (zkConnectRequest?.requestContent?.operators[0] === "AND") {
-    const isClaimRequestEligible =
+    isZkConnectRequestEligible =
       zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
         const claimRequestEligibility = claimRequestEligibilities.find(
           (claimRequestEligibility) =>
@@ -183,18 +183,18 @@ export default function ImportEligibleAccount({
           : false;
       });
 
-    const isAuthRequestEligible =
-      zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
-        const authRequestEligibility = authRequestEligibilities.find(
-          (authRequestEligibility) =>
-            authRequestEligibility?.authRequest.authType ===
-            dataRequest.authRequest.authType
-        );
-        return authRequestEligibility?.accounts?.length > 0;
-      });
+    // const isAuthRequestEligible =
+    //   zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
+    //     const authRequestEligibility = authRequestEligibilities.find(
+    //       (authRequestEligibility) =>
+    //         authRequestEligibility?.authRequest.authType ===
+    //         dataRequest.authRequest.authType
+    //     );
+    //     return authRequestEligibility?.accounts?.length > 0;
+    //   });
 
-    isZkConnectRequestEligible =
-      isAuthRequestEligible && isClaimRequestEligible;
+    // isZkConnectRequestEligible =
+    //   isAuthRequestEligible && isClaimRequestEligible;
   }
 
   if (zkConnectRequest?.requestContent?.operators[0] === "OR") {

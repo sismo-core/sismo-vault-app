@@ -276,7 +276,7 @@ export class HydraS2OffchainProver extends Prover {
       const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);
       userParams["source"] = {
         ...hydraS2Account,
-        verificationEnabled: true,
+        verificationEnabled: false,
       };
       //TODO set to true once commitment mapper is fixed
 

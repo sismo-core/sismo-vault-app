@@ -87,7 +87,7 @@ export function EligibilitySummary({
 
   return (
     <Container>
-      {authRequestEligibilities?.length &&
+      {/* {authRequestEligibilities?.length &&
         authRequestEligibilities.map((authRequestEligibility, index) => {
           const authType = authRequestEligibility?.authRequest?.authType;
           const readableAuthType =
@@ -126,7 +126,7 @@ export function EligibilitySummary({
               </GroupItem>
             </div>
           );
-        })}
+        })} */}
 
       {requestGroupsMetadata?.length &&
         requestGroupsMetadata.map((group, index) => {
