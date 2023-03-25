@@ -173,9 +173,7 @@ export default function GenerateZkProof({
         {!isGenerated && loadingProof && (
           <LoadingWrapper>
             <Schema>
-              <ShardAnimation
-                groupMetadata={[requestGroupsMetadata[0]?.groupMetadata]}
-              />
+              <ShardAnimation />
             </Schema>
             <LoadingFeedBack>Generating ZK Proof...</LoadingFeedBack>
           </LoadingWrapper>

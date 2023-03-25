@@ -263,7 +263,8 @@ export class HydraS2OffchainProver extends Prover {
     };
 
     if (destination) {
-      const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);
+      const hydraS2Account: HydraS2Account =
+        this.getHydraS2Account(destination);
       userParams["destination"] = {
         ...hydraS2Account,
         verificationEnabled: true,
@@ -271,10 +272,11 @@ export class HydraS2OffchainProver extends Prover {
     }
 
     if (source) {
+      console.log("SOURCE");
       const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);
       userParams["source"] = {
         ...hydraS2Account,
-        verificationEnabled: false,
+        verificationEnabled: true,
       };
       //TODO set to true once commitment mapper is fixed
 

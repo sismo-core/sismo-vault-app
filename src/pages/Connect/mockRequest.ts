@@ -66,12 +66,23 @@ export const dataRequestMock3: DataRequest = {
 //   messageSignatureRequest: "my custom message",
 // };
 
+export const dataRequestMock5: DataRequest = {
+  authRequest: {
+    authType: 4,
+    anonMode: false,
+    userId: "0",
+    extraData: "",
+  },
+  messageSignatureRequest: "my custom message",
+};
+
 export const zkConnectRequestContentMock: ZkConnectRequestContent = {
   dataRequests: [
-    dataRequestMock1,
-    dataRequestMock2,
+    // dataRequestMock1,
+    // dataRequestMock2,
     //dataRequestMock3,
     // dataRequestMock4,
+    dataRequestMock5,
   ],
   operators: ["AND"],
 };

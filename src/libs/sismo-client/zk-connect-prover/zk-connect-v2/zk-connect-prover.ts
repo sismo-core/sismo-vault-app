@@ -227,7 +227,11 @@ export class ZkConnectProver {
         }
 
         if (dataRequest?.authRequest?.authType === AuthType.ANON) {
-          // WHAT TO SEND IF ANON
+          // IS THESE INPUTS CORRECT IN ANON
+          _generateProofInputs = {
+            ..._generateProofInputs,
+            vaultSecret,
+          };
         }
 
         if (

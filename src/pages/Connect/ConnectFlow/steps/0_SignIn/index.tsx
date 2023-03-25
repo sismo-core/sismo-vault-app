@@ -228,7 +228,11 @@ export default function SignIn({
     }
   }, [factoryApp]);
 
-  const loading = zkConnectRequest
+  const hasClaimRequest = zkConnectRequest?.requestContent?.dataRequests.some(
+    (dataRequest) => dataRequest?.claimRequest?.groupId
+  );
+
+  const loading = hasClaimRequest
     ? !factoryApp ||
       vault.loadingActiveSession ||
       !zkConnectRequest ||
