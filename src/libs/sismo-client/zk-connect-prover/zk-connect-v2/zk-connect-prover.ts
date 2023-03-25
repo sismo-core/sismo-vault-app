@@ -87,6 +87,7 @@ export class ZkConnectProver {
       claimRequestEligibilities.push(_claimRequestEligibility);
     }
 
+    console.log("claimRequestEligibilities", claimRequestEligibilities);
     return claimRequestEligibilities;
   }
 
@@ -170,88 +171,102 @@ export class ZkConnectProver {
       } as OffchainProofRequest;
 
       if (dataRequest?.messageSignatureRequest) {
+        let preparedSignedMessage: string;
+        if (typeof dataRequest?.messageSignatureRequest === "string") {
+          preparedSignedMessage = dataRequest?.messageSignatureRequest;
+        } else {
+          preparedSignedMessage = JSON.stringify(
+            dataRequest?.messageSignatureRequest
+          );
+        }
         _generateProofInputs["extradata"] = ethers.utils.keccak256(
-          dataRequest?.messageSignatureRequest
+          ethers.utils.toUtf8Bytes(preparedSignedMessage)
         );
-
-        if (dataRequest?.claimRequest) {
-          const claimRequestEligibility = claimRequestEligibilities.find(
-            (claimRequestEligibility) =>
-              claimRequestEligibility?.claimRequest?.groupId ===
-              dataRequest?.claimRequest?.groupId
-          );
-
-          const source = importedAccounts.find(
-            (importedAccount) =>
-              importedAccount?.identifier ===
-              claimRequestEligibility?.accountData?.identifier
-          );
-
-          _generateProofInputs = {
-            ..._generateProofInputs,
-            appId,
-            source,
-            vaultSecret: "0",
-            groupId: claimRequestEligibility?.claimRequest?.groupId,
-            groupTimestamp:
-              claimRequestEligibility?.claimRequest?.groupTimestamp,
-            requestedValue: claimRequestEligibility?.claimRequest?.value,
-            claimType: claimRequestEligibility?.claimRequest?.claimType,
-          };
-        }
-
-        if (dataRequest?.authRequest) {
-          const authRequestEligibility = authRequestEligibilities?.find(
-            (authRequestEligibility) =>
-              authRequestEligibility?.authRequest?.authType ===
-              dataRequest?.authRequest?.authType
-          );
-
-          const destination = importedAccounts.find((importedAccount) => {
-            const importedAccountType: AuthType =
-              importedAccount?.type === "ethereum"
-                ? AuthType.EVM_ACCOUNT
-                : importedAccount?.type === "github"
-                ? AuthType.GITHUB
-                : importedAccount?.type === "twitter"
-                ? AuthType.TWITTER
-                : AuthType.NONE;
-
-            return (
-              importedAccountType ===
-              authRequestEligibility?.authRequest?.authType
-            );
-          });
-
-          _generateProofInputs = {
-            ..._generateProofInputs,
-            appId,
-            destination,
-            vaultSecret,
-            namespace,
-          };
-        }
-        const snarkProof = await this.prover.generateProof(
-          _generateProofInputs
-        );
-        return {
-          auth: dataRequest?.authRequest
-            ? dataRequest?.authRequest
-            : ({
-                authType: AuthType.NONE,
-              } as Auth),
-          claim: dataRequest?.claimRequest
-            ? dataRequest?.claimRequest
-            : ({
-                claimType: ClaimType.NONE,
-              } as Claim),
-          signedMessage: dataRequest?.messageSignatureRequest,
-          proof: snarkProof.toBytes(),
-          extraData: dataRequest?.claimRequest
-            ? dataRequest?.claimRequest?.extraData
-            : dataRequest?.authRequest?.extraData,
-        } as unknown as ZkConnectProof;
       }
+
+      if (dataRequest?.claimRequest) {
+        const claimRequestEligibility = claimRequestEligibilities.find(
+          (claimRequestEligibility) =>
+            claimRequestEligibility?.claimRequest?.groupId ===
+            dataRequest?.claimRequest?.groupId
+        );
+
+        if (
+          !claimRequestEligibility?.accountData ||
+          !Object?.keys(claimRequestEligibility?.accountData)?.length
+        )
+          return;
+
+        const source = importedAccounts.find(
+          (importedAccount) =>
+            importedAccount?.identifier ===
+            claimRequestEligibility?.accountData?.identifier
+        );
+
+        _generateProofInputs = {
+          ..._generateProofInputs,
+          source,
+          vaultSecret: "0",
+          groupId: claimRequestEligibility?.claimRequest?.groupId,
+          groupTimestamp: claimRequestEligibility?.claimRequest?.groupTimestamp,
+          requestedValue: claimRequestEligibility?.claimRequest?.value,
+          claimType: claimRequestEligibility?.claimRequest?.claimType,
+        };
+      }
+
+      // if (dataRequest?.authRequest) {
+      //   const authRequestEligibility = authRequestEligibilities?.find(
+      //     (authRequestEligibility) =>
+      //       authRequestEligibility?.authRequest?.authType ===
+      //       dataRequest?.authRequest?.authType
+      //   );
+
+      // if (
+      //   !authRequestEligibility?.accountData ||
+      //   !Object?.keys(authRequestEligibility?.accountData)?.length
+      // )
+      //   return;
+
+      //   const destination = importedAccounts.find((importedAccount) => {
+      //     const importedAccountType: AuthType =
+      //       importedAccount?.type === "ethereum"
+      //         ? AuthType.EVM_ACCOUNT
+      //         : importedAccount?.type === "github"
+      //         ? AuthType.GITHUB
+      //         : importedAccount?.type === "twitter"
+      //         ? AuthType.TWITTER
+      //         : AuthType.NONE;
+
+      //     return (
+      //       importedAccountType ===
+      //       authRequestEligibility?.authRequest?.authType
+      //     );
+      //   });
+
+      //   _generateProofInputs = {
+      //     ..._generateProofInputs,
+      //     destination,
+      //     vaultSecret,
+      //   };
+      // }
+      const snarkProof = await this.prover.generateProof(_generateProofInputs);
+      return {
+        auth: dataRequest?.authRequest
+          ? dataRequest?.authRequest
+          : ({
+              authType: AuthType.NONE,
+            } as Auth),
+        claim: dataRequest?.claimRequest
+          ? dataRequest?.claimRequest
+          : ({
+              claimType: ClaimType.NONE,
+            } as Claim),
+        signedMessage: dataRequest?.messageSignatureRequest,
+        proof: snarkProof.toBytes(),
+        extraData: dataRequest?.claimRequest
+          ? dataRequest?.claimRequest?.extraData
+          : dataRequest?.authRequest?.extraData,
+      } as unknown as ZkConnectProof;
     });
 
     const zkConnectProofs = await Promise.all(zkConnectResponsePromises);

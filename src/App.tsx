@@ -26,8 +26,12 @@ const FONTS_LIST = [
   "Inter-Medium",
 ];
 
+const url = new URL(window.location.href);
+const devConfig = url.searchParams.get("devConfig");
+
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),
+  // devConfig: devConfig ? JSON.parse(devConfig) : null,
 });
 
 const removeHexadecimalNumbers = (event: Sentry.Event) => {

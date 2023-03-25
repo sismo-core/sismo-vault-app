@@ -53,6 +53,7 @@ export class HydraS2OffchainProver extends Prover {
     groupTimestamp,
     requestedValue,
     claimType,
+    extraData,
   }: OffchainProofRequest): Promise<SnarkProof> {
     const commitmentMapperPubKey =
       env.sismoDestination.commitmentMapperPubKey.map((string) =>
@@ -74,6 +75,7 @@ export class HydraS2OffchainProver extends Prover {
       groupTimestamp,
       requestedValue,
       claimType,
+      extraData,
     });
 
     const proof = await prover.generateSnarkProof(userParams);
@@ -255,7 +257,6 @@ export class HydraS2OffchainProver extends Prover {
 
     if (destination) {
       const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);
-
       userParams["destination"] = {
         ...hydraS2Account,
         verificationEnabled: true,
@@ -264,7 +265,6 @@ export class HydraS2OffchainProver extends Prover {
 
     if (source) {
       const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);
-
       userParams["source"] = {
         ...hydraS2Account,
         verificationEnabled: true,
@@ -304,6 +304,10 @@ export class HydraS2OffchainProver extends Prover {
         userParams["requestIdentifier"] = requestIdentifier;
         userParams["statement"] = statementInput;
       }
+    }
+
+    if (extraData) {
+      userParams["extraData"] = extraData;
     }
 
     return userParams;

@@ -158,7 +158,7 @@ export default function LayoutFlow({
 
   return (
     <>
-      {Boolean(requestGroupsMetadata) && (
+      {Boolean(requestGroupsMetadata?.length) && (
         <EligibilityModal
           isOpen={modalIsOpen}
           onClose={() => setModalIsOpen(false)}
@@ -167,14 +167,14 @@ export default function LayoutFlow({
         />
       )}
       <Container>
-        <HeaderBlock hasClaimRequest={Boolean(requestGroupsMetadata)}>
+        <HeaderBlock hasClaimRequest={Boolean(requestGroupsMetadata?.length)}>
           <HeaderTitle url={referrerUrl} />
-          {!Boolean(requestGroupsMetadata) && (
+          {!Boolean(requestGroupsMetadata?.length) && (
             <BadgeWrapper>
               <BadgeImg src={factoryApp?.logoUrl} alt={factoryApp?.name} />
             </BadgeWrapper>
           )}
-          {Boolean(requestGroupsMetadata) && (
+          {Boolean(requestGroupsMetadata?.length) && (
             <Summary>
               <BadgeWrapper>
                 <BadgeImg src={factoryApp?.logoUrl} alt={factoryApp?.name} />
@@ -186,7 +186,7 @@ export default function LayoutFlow({
                   to verify that you own
                 </FirstLine>
                 <SecondLine>
-                  {Boolean(requestGroupsMetadata) &&
+                  {Boolean(requestGroupsMetadata?.length) &&
                     requestGroupsMetadata?.map(
                       (requestGroupMetadata, index) => (
                         <>

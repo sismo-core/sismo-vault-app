@@ -78,9 +78,6 @@ export default function ConnectFlow({
 
   //Test Eligibility
   useEffect(() => {
-    console.log("zkConnectRequest ", zkConnectRequest);
-    console.log("requestGroupsMetadata ", requestGroupsMetadata);
-
     if (!vault?.importedAccounts) return;
     if (!zkConnectRequest) return;
     if (!requestGroupsMetadata) return;
@@ -92,14 +89,10 @@ export default function ConnectFlow({
 
       try {
         setLoadingEligible(true);
-
-        console.log("HERE");
         const claimRequestEligibilities = await getClaimRequestEligibilities(
           zkConnectRequest,
           vault.importedAccounts
         );
-
-        console.log("claimRequestEligibility ", claimRequestEligibilities);
         //TODO use statements in components
         setClaimRequestEligibilities(claimRequestEligibilities);
         setLoadingEligible(false);

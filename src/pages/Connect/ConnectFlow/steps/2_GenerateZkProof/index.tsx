@@ -12,6 +12,7 @@ import { GroupMetadata } from "../../../../../libs/sismo-client";
 // import { ZkConnectResponse } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { ZkConnectResponse, ZkConnectRequest } from "../../../localTypes";
 import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+import ProofModal from "./components/ProofModal";
 
 const Container = styled.div`
   display: flex;
@@ -113,7 +114,9 @@ export default function GenerateZkProof({
   const vault = useVault();
   const [loadingProof, setLoadingProof] = useState(true);
   const [isGenerated, setIsGenerated] = useState(false);
+  const [proofModalOpen, setProofModalOpen] = useState(false);
   const [, setErrorProof] = useState(false);
+  const [response, setResponse] = useState<any | null>(null);
   const { generateResponse } = useSismo();
 
   const generate = useCallback(async () => {
@@ -130,8 +133,9 @@ export default function GenerateZkProof({
       setIsGenerated(true);
       setErrorProof(false);
       setLoadingProof(false);
-
+      setResponse(zkResponse);
       console.log("zkResponse", zkResponse);
+      setProofModalOpen(true);
       // onNext(zkResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {
@@ -150,38 +154,47 @@ export default function GenerateZkProof({
   }, [generate]);
 
   return (
-    <Container>
-      <Summary>
-        <HeaderWrapper>
-          <ContentHeader>
-            <Gem color={colors.blue0} size={19} />
-            ZK Proof Generation
-          </ContentHeader>
-        </HeaderWrapper>
-      </Summary>
-
-      {!isGenerated && loadingProof && (
-        <LoadingWrapper>
-          <Schema>
-            <ShardAnimation
-              groupMetadata={[requestGroupsMetadata[0]?.groupMetadata]}
-            />
-          </Schema>
-          <LoadingFeedBack>Generating ZK Proof...</LoadingFeedBack>
-        </LoadingWrapper>
+    <>
+      {response && (
+        <ProofModal
+          response={response}
+          isOpen={proofModalOpen}
+          onClose={() => setProofModalOpen(false)}
+        />
       )}
+      <Container>
+        <Summary>
+          <HeaderWrapper>
+            <ContentHeader>
+              <Gem color={colors.blue0} size={19} />
+              ZK Proof Generation
+            </ContentHeader>
+          </HeaderWrapper>
+        </Summary>
 
-      {isGenerated && (
-        <SuccessWrapper>
-          <ProofSuccessWrapper>
-            <GemProof size={58} color={colors.purple2} />
-          </ProofSuccessWrapper>
-          <FeedBack>
-            <div>ZK Proof generated!</div>
-            <Check size={18} color={colors.green1} weight="bold" />
-          </FeedBack>
-        </SuccessWrapper>
-      )}
-    </Container>
+        {!isGenerated && loadingProof && (
+          <LoadingWrapper>
+            <Schema>
+              <ShardAnimation
+                groupMetadata={[requestGroupsMetadata[0]?.groupMetadata]}
+              />
+            </Schema>
+            <LoadingFeedBack>Generating ZK Proof...</LoadingFeedBack>
+          </LoadingWrapper>
+        )}
+
+        {isGenerated && (
+          <SuccessWrapper>
+            <ProofSuccessWrapper>
+              <GemProof size={58} color={colors.purple2} />
+            </ProofSuccessWrapper>
+            <FeedBack>
+              <div>ZK Proof generated!</div>
+              <Check size={18} color={colors.green1} weight="bold" />
+            </FeedBack>
+          </SuccessWrapper>
+        )}
+      </Container>
+    </>
   );
 }

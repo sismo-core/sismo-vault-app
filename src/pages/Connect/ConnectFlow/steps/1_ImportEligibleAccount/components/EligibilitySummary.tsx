@@ -90,7 +90,11 @@ export function EligibilitySummary({
             group?.groupMetadata?.id
         );
 
-        const isEligible = Boolean(claimRequestEligibility?.accountData);
+        const isEligible =
+          claimRequestEligibility?.accountData &&
+          Object?.keys(claimRequestEligibility?.accountData)?.length
+            ? true
+            : false;
 
         return (
           <div key={index + "summaryItem"}>

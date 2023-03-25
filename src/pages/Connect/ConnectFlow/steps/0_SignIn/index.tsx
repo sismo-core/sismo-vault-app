@@ -266,7 +266,7 @@ export default function SignIn({
           initialGroupId={initialGroupId}
         />
       )}
-      <Container hasDataRequest={Boolean(requestGroupsMetadata)}>
+      <Container hasDataRequest={Boolean(requestGroupsMetadata?.length)}>
         <HeaderTitle url={referrerUrl} style={{ marginBottom: 20 }} />
 
         {loading && <Skeleton />}
@@ -297,30 +297,26 @@ export default function SignIn({
                       {requestGroupsMetadata?.length > 0 &&
                         requestGroupsMetadata?.map(
                           (requestGroupMetadata, index) => (
-                            <>
-                              <ShardTag
-                                key={
-                                  requestGroupMetadata?.groupMetadata?.id +
-                                  "/statement-request/and"
-                                }
-                                groupMetadata={
-                                  requestGroupMetadata?.groupMetadata
-                                }
-                                claimType={
-                                  requestGroupMetadata?.claim?.claimType
-                                }
-                                requestedValue={
-                                  BigNumber.from(
-                                    requestGroupMetadata?.claim?.value
-                                  ).toNumber() || 1
-                                }
-                                onModal={() =>
-                                  onShardClick(
-                                    requestGroupMetadata?.groupMetadata?.id
-                                  )
-                                }
-                              />
-                            </>
+                            <ShardTag
+                              key={
+                                requestGroupMetadata?.groupMetadata?.id +
+                                "/statement-request/and"
+                              }
+                              groupMetadata={
+                                requestGroupMetadata?.groupMetadata
+                              }
+                              claimType={requestGroupMetadata?.claim?.claimType}
+                              requestedValue={
+                                BigNumber.from(
+                                  requestGroupMetadata?.claim?.value
+                                ).toNumber() || 1
+                              }
+                              onModal={() =>
+                                onShardClick(
+                                  requestGroupMetadata?.groupMetadata?.id
+                                )
+                              }
+                            />
                           )
                         )}
                     </AndWrapper>
@@ -330,7 +326,12 @@ export default function SignIn({
                       {requestGroupsMetadata?.length > 0 &&
                         requestGroupsMetadata?.map(
                           (requestGroupMetadata, index) => (
-                            <>
+                            <div
+                              key={
+                                requestGroupMetadata?.groupMetadata?.id +
+                                "/statement-request/or"
+                              }
+                            >
                               {index !== 0 && (
                                 <OrSperator>
                                   <Line />
@@ -339,10 +340,6 @@ export default function SignIn({
                                 </OrSperator>
                               )}
                               <ShardTag
-                                key={
-                                  requestGroupMetadata?.groupMetadata?.id +
-                                  "/statement-request/or"
-                                }
                                 groupMetadata={
                                   requestGroupMetadata?.groupMetadata
                                 }
@@ -360,7 +357,7 @@ export default function SignIn({
                                   )
                                 }
                               />
-                            </>
+                            </div>
                           )
                         )}
                     </OrWrapper>

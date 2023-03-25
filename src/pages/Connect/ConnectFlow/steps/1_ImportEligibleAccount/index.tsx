@@ -1,10 +1,9 @@
 import { useImportAccount } from "../../../../Modals/ImportAccount/provider";
 import styled from "styled-components";
 import Button from "../../../../../components/Button";
-import { Check, Info, ArrowsOutSimple } from "phosphor-react";
+import { Info, ArrowsOutSimple } from "phosphor-react";
 import colors from "../../../../../theme/colors";
 import HoverTooltip from "../../../../../components/HoverTooltip";
-import { AccountData } from "../../../../../libs/sismo-client/provers/types";
 import { useVault } from "../../../../../libs/vault";
 import EligibilityModal from "../../components/EligibilityModal";
 import { useState } from "react";
@@ -158,35 +157,45 @@ export default function ImportEligibleAccount({
     });
   }
 
-  // DO LOGIC OR / AND
+  const hasRequestGroupsMetadata = requestGroupsMetadata?.length > 0;
 
-  const isZkConnectRequestEligible =
-    zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
-      const claimRequestEligibility = claimRequestEligibilities.find(
-        (claimRequestEligibility) =>
-          claimRequestEligibility?.claimRequest?.groupId ===
-          dataRequest.claimRequest.groupId
-      );
+  let isZkConnectRequestEligible: boolean;
 
-      return Boolean(claimRequestEligibility?.accountData);
-    });
+  if (zkConnectRequest?.requestContent?.operators[0] === "AND") {
+    isZkConnectRequestEligible =
+      zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
+        const claimRequestEligibility = claimRequestEligibilities.find(
+          (claimRequestEligibility) =>
+            claimRequestEligibility?.claimRequest?.groupId ===
+            dataRequest.claimRequest.groupId
+        );
 
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (isZkConnectRequestEligible) {
-      timeout = setTimeout(() => {
-        onNext();
-      }, 3000);
-    }
+        return claimRequestEligibility?.accountData &&
+          Object?.keys(claimRequestEligibility?.accountData)?.length
+          ? true
+          : false;
+      });
+  }
 
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [isZkConnectRequestEligible, onNext]);
+  if (zkConnectRequest?.requestContent?.operators[0] === "OR") {
+    isZkConnectRequestEligible =
+      zkConnectRequest?.requestContent?.dataRequests?.some((dataRequest) => {
+        const claimRequestEligibility = claimRequestEligibilities.find(
+          (claimRequestEligibility) =>
+            claimRequestEligibility?.claimRequest?.groupId ===
+            dataRequest.claimRequest.groupId
+        );
+
+        return claimRequestEligibility?.accountData &&
+          Object?.keys(claimRequestEligibility?.accountData)?.length
+          ? true
+          : false;
+      });
+  }
 
   return (
     <>
-      {Boolean(requestGroupsMetadata) && (
+      {hasRequestGroupsMetadata && (
         <EligibilityModal
           isOpen={modalIsOpen}
           onClose={() => setModalIsOpen(false)}
@@ -195,16 +204,6 @@ export default function ImportEligibleAccount({
         />
       )}
       <Container>
-        {/* {isBannerVisible && (
-          <Banner>
-            <InfoWrapper>
-              <Info size={21.5} weight="thin" />
-            </InfoWrapper>
-            Your current imported accounts do not meet the requirements to
-            generate ZK proof. Consider adding another account.
-          </Banner>
-        )} */}
-
         <Summary>
           <HeaderWrapper>
             <ContentHeader>
@@ -212,7 +211,7 @@ export default function ImportEligibleAccount({
               ZK Proof Generation
             </ContentHeader>
 
-            {Boolean(requestGroupsMetadata) && (
+            {hasRequestGroupsMetadata && (
               <HeaderSubtitle>
                 Import an eligible account into your Data Vault to verify:
               </HeaderSubtitle>
@@ -236,7 +235,7 @@ export default function ImportEligibleAccount({
           </ArrowWrapper>
         </EligibilityLink>
 
-        {Boolean(requestGroupsMetadata) && (
+        {hasRequestGroupsMetadata && (
           <CallToAction>
             <TooltipWrapper>
               Why Importing?
@@ -260,25 +259,38 @@ export default function ImportEligibleAccount({
                 <Info size={12} color={colors.blue4} weight="bold" />
               </HoverTooltip>
             </TooltipWrapper>
-            <Button
-              primary
-              style={{ width: 252 }}
-              onClick={() => onImport()}
-              loading={importAccount.importing === "account" || loadingEligible}
-              disabled={
-                importAccount.importing === "account" || loadingEligible
-              }
-            >
-              {loadingEligible ? (
-                "Checking..."
-              ) : (
-                <>
-                  {importAccount.importing !== "account"
-                    ? `Import eligible account`
-                    : `Checking eligibility`}
-                </>
-              )}
-            </Button>
+            {!isZkConnectRequestEligible && (
+              <Button
+                primary
+                style={{ width: 252 }}
+                onClick={() => onImport()}
+                loading={
+                  importAccount.importing === "account" || loadingEligible
+                }
+                disabled={
+                  importAccount.importing === "account" || loadingEligible
+                }
+              >
+                {importAccount.importing !== "account"
+                  ? `Import eligible account`
+                  : `Checking eligibility`}
+              </Button>
+            )}
+            {isZkConnectRequestEligible && (
+              <Button
+                success
+                style={{ width: 252 }}
+                onClick={() => onNext()}
+                loading={
+                  importAccount.importing === "account" || loadingEligible
+                }
+                disabled={
+                  importAccount.importing === "account" || loadingEligible
+                }
+              >
+                Generate ZK proof
+              </Button>
+            )}
           </CallToAction>
         )}
       </Container>
