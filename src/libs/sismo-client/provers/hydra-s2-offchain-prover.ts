@@ -78,7 +78,11 @@ export class HydraS2OffchainProver extends Prover {
       extraData,
     });
 
+    console.log("userParams", userParams);
+
     const proof = await prover.generateSnarkProof(userParams);
+
+    console.log("proof", proof);
     return proof;
   }
 
@@ -157,6 +161,9 @@ export class HydraS2OffchainProver extends Prover {
     const secret = CommitmentMapper.generateCommitmentMapperSecret(
       account.seed
     );
+
+    console.log(account);
+
     const commitmentReceipt = [
       BigNumber.from(account.commitmentReceipt[0]),
       BigNumber.from(account.commitmentReceipt[1]),
@@ -289,7 +296,12 @@ export class HydraS2OffchainProver extends Prover {
 
         const statementInput: StatementInput = {
           value: BigNumber.from(claimedValue),
-          comparator: claimType,
+          comparator:
+            claimType === ClaimType.GTE
+              ? 0
+              : claimType === ClaimType.EQ
+              ? 1
+              : null,
           registryTree: registryTree,
           accountsTree: accountsTree,
         };

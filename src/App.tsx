@@ -31,7 +31,7 @@ const devConfig = url.searchParams.get("devConfig");
 
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),
-  // devConfig: devConfig ? JSON.parse(devConfig) : null,
+  devConfig: devConfig ? JSON.parse(devConfig) : null,
 });
 
 const removeHexadecimalNumbers = (event: Sentry.Event) => {

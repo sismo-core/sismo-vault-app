@@ -189,15 +189,16 @@ export default function LayoutFlow({
                   {Boolean(requestGroupsMetadata?.length) &&
                     requestGroupsMetadata?.map(
                       (requestGroupMetadata, index) => (
-                        <>
+                        <div
+                          key={
+                            requestGroupMetadata?.groupMetadata?.id +
+                            "/statement-request/layout"
+                          }
+                        >
                           {zkConnectRequest?.requestContent?.operators[0] ===
                             "OR" &&
                             index !== 0 && <div>or</div>}
                           <ShardTag
-                            key={
-                              requestGroupMetadata?.groupMetadata?.id +
-                              "/statement-request/layout"
-                            }
                             groupMetadata={requestGroupMetadata?.groupMetadata}
                             claimType={requestGroupMetadata?.claim?.claimType}
                             requestedValue={
@@ -211,7 +212,7 @@ export default function LayoutFlow({
                               )
                             }
                           />
-                        </>
+                        </div>
                       )
                     )}
                 </SecondLine>

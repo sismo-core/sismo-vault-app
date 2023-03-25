@@ -77,7 +77,7 @@ export const zkConnectRequestContentMock: ZkConnectRequestContent = {
 };
 
 export const zkConnectRequestMock: ZkConnectRequest = {
-  appId: "0x37bb3224298ac0e3ac3cb78a1caa292b",
+  appId: "0x4dd4246069a00f8155e70b1827f12e32",
   namespace: "main",
   callbackPath: null,
   version: "zk-connect-v2",
@@ -90,7 +90,7 @@ searchParams.set("appId", zkConnectRequestMock.appId);
 searchParams.set("namespace", zkConnectRequestMock.namespace);
 searchParams.set("callbackPath", zkConnectRequestMock.callbackPath);
 searchParams.set("requestContent", JSON.stringify(zkConnectRequestContentMock));
-// searchParams.set("devConfig", JSON.stringify(devConfig));
+searchParams.set("devConfig", JSON.stringify(devConfig));
 
 export const zkConnectRequestMockUrl = url.toString();
 
