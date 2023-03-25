@@ -19,6 +19,10 @@ import {
   RequestGroupMetadata,
 } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { ZkConnectResponse } from "../localTypes";
+import {
+  AuthRequestEligibility,
+  ClaimRequestEligibility,
+} from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 
 const Container = styled.div`
   position: relative;
@@ -68,11 +72,15 @@ export default function ConnectFlow({
   const [vaultSliderOpen, setVaultSliderOpen] = useState(false);
   const [eligibleAccountData, setEligibleAccountData] = useState<AccountData>();
   const [claimRequestEligibilities, setClaimRequestEligibilities] = useState<
-    any[]
+    ClaimRequestEligibility[]
+  >([]);
+  const [authRequestEligibilities, setAuthRequestEligibilities] = useState<
+    AuthRequestEligibility[]
   >([]);
   const [step, setStep] = useState<Step>("SignIn");
   const [loadingEligible, setLoadingEligible] = useState(true);
-  const { getClaimRequestEligibilities } = useSismo();
+  const { getClaimRequestEligibilities, getAuthRequestEligibilities } =
+    useSismo();
 
   //TODO use statements in components
 
@@ -93,8 +101,13 @@ export default function ConnectFlow({
           zkConnectRequest,
           vault.importedAccounts
         );
+        const authRequestEligibilities = await getAuthRequestEligibilities(
+          zkConnectRequest,
+          vault.importedAccounts
+        );
         //TODO use statements in components
         setClaimRequestEligibilities(claimRequestEligibilities);
+        setAuthRequestEligibilities(authRequestEligibilities);
         setLoadingEligible(false);
       } catch (e) {
         Sentry.captureException(e);
@@ -104,9 +117,10 @@ export default function ConnectFlow({
     };
     testEligibility();
   }, [
+    getAuthRequestEligibilities,
     getClaimRequestEligibilities,
     requestGroupsMetadata,
-    vault?.importedAccounts,
+    vault.importedAccounts,
     zkConnectRequest,
   ]);
 
@@ -224,10 +238,6 @@ export default function ConnectFlow({
             requestGroupsMetadata={requestGroupsMetadata}
             referrerUrl={referrerUrl}
             onNext={() => {
-              if (!requestGroupsMetadata) {
-                setStep("GenerateZkProof");
-                return;
-              }
               setStep("ImportEligibleAccount");
               return;
             }}
@@ -248,6 +258,7 @@ export default function ConnectFlow({
               <ImportEligibleAccount
                 zkConnectRequest={zkConnectRequest}
                 requestGroupsMetadata={requestGroupsMetadata}
+                authRequestEligibilities={authRequestEligibilities}
                 claimRequestEligibilities={claimRequestEligibilities}
                 loadingEligible={loadingEligible}
                 onNext={() => {

@@ -11,7 +11,10 @@ import { Gem } from "../../../../../components/SismoReactIcon";
 import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { EligibilitySummary } from "./components/EligibilitySummary";
 import { ZkConnectRequest } from "../../../localTypes";
-import { ClaimRequestEligibility } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+import {
+  AuthRequestEligibility,
+  ClaimRequestEligibility,
+} from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 import { useEffect } from "react";
 
 const Container = styled.div`
@@ -132,6 +135,7 @@ const LoadingFeedBack = styled(FeedBack)`
 
 type Props = {
   claimRequestEligibilities: ClaimRequestEligibility[];
+  authRequestEligibilities: AuthRequestEligibility[];
   requestGroupsMetadata: RequestGroupMetadata[];
   zkConnectRequest: ZkConnectRequest;
   loadingEligible: boolean;
@@ -140,6 +144,7 @@ type Props = {
 
 export default function ImportEligibleAccount({
   claimRequestEligibilities,
+  authRequestEligibilities,
   requestGroupsMetadata,
   zkConnectRequest,
   loadingEligible,
@@ -161,20 +166,35 @@ export default function ImportEligibleAccount({
 
   let isZkConnectRequestEligible: boolean;
 
+  console.log("AUTH", authRequestEligibilities);
+
+  // REFACTOR LOGIC
   if (zkConnectRequest?.requestContent?.operators[0] === "AND") {
-    isZkConnectRequestEligible =
+    const isClaimRequestEligible =
       zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
         const claimRequestEligibility = claimRequestEligibilities.find(
           (claimRequestEligibility) =>
             claimRequestEligibility?.claimRequest?.groupId ===
             dataRequest.claimRequest.groupId
         );
-
         return claimRequestEligibility?.accountData &&
           Object?.keys(claimRequestEligibility?.accountData)?.length
           ? true
           : false;
       });
+
+    const isAuthRequestEligible =
+      zkConnectRequest?.requestContent?.dataRequests?.every((dataRequest) => {
+        const authRequestEligibility = authRequestEligibilities.find(
+          (authRequestEligibility) =>
+            authRequestEligibility?.authRequest.authType ===
+            dataRequest.authRequest.authType
+        );
+        return authRequestEligibility?.accounts?.length > 0;
+      });
+
+    isZkConnectRequestEligible =
+      isAuthRequestEligible && isClaimRequestEligible;
   }
 
   if (zkConnectRequest?.requestContent?.operators[0] === "OR") {
@@ -221,6 +241,7 @@ export default function ImportEligibleAccount({
             zkConnectRequest={zkConnectRequest}
             requestGroupsMetadata={requestGroupsMetadata}
             claimRequestEligibilities={claimRequestEligibilities}
+            authRequestEligibilities={authRequestEligibilities}
           />
         </Summary>
 

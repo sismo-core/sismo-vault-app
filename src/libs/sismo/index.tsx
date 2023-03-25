@@ -1,11 +1,12 @@
 import React, { useCallback, useContext } from "react";
 import { SismoClient } from "../sismo-client";
 import {
-  StatementEligibility,
-  StatementGroupMetadata,
+  AuthRequestEligibility,
+  ClaimRequestEligibility,
+  RequestGroupMetadata,
   ZkConnectRequest,
   ZkConnectResponse,
-} from "../sismo-client/zk-connect-prover/zk-connect-v1";
+} from "../sismo-client/zk-connect-prover/zk-connect-v2";
 import { FactoryApp } from "../sismo-client";
 import { GroupMetadata } from "../sismo-client/providers/group-provider";
 import { ImportedAccount } from "../vault-client";
@@ -18,15 +19,15 @@ export type Sismo = {
   ) => Promise<ZkConnectResponse>;
   getRequestGroupMetadata: (
     zkConnectRequest: ZkConnectRequest
-  ) => Promise<StatementGroupMetadata[]>;
+  ) => Promise<RequestGroupMetadata[]>;
   getClaimRequestEligibilities: (
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[]
-  ) => Promise<StatementEligibility[]>;
+  ) => Promise<ClaimRequestEligibility[]>;
   getAuthRequestEligibilities: (
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[]
-  ) => Promise<StatementEligibility[]>;
+  ) => Promise<AuthRequestEligibility[]>;
   // verifyZkConnectRequest: (request: ZkConnectRequest) => Promise<any>;
   getFactoryApp: (appId: string) => Promise<FactoryApp>;
   getGroupMetadata: (
