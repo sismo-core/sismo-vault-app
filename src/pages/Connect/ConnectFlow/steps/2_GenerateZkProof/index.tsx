@@ -155,13 +155,11 @@ export default function GenerateZkProof({
 
   return (
     <>
-      {response && (
-        <ProofModal
-          response={response}
-          isOpen={proofModalOpen}
-          onClose={() => setProofModalOpen(false)}
-        />
-      )}
+      <ProofModal
+        response={response}
+        isOpen={proofModalOpen}
+        onClose={() => setProofModalOpen(false)}
+      />
       <Container>
         <Summary>
           <HeaderWrapper>

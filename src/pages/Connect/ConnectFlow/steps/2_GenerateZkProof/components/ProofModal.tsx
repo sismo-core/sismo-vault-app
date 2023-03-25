@@ -12,6 +12,7 @@ const Container = styled.div`
   color: ${(props) => props.theme.colors.blue0};
   background-color: ${(props) => props.theme.colors.blue11};
   border-radius: 10px;
+  word-break: break-all;
 
   @media (max-width: 900px) {
     height: auto;
