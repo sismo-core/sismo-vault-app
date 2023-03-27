@@ -17,6 +17,7 @@ export type RequestGroupMetadata = {
 export type DataRequestEligibility = {
   claimRequestEligibility: ClaimRequestEligibility;
   authRequestEligibility: AuthRequestEligibility;
+  messageSignatureRequest?: any;
 };
 
 export type ClaimRequestEligibility = {
