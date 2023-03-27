@@ -19,7 +19,7 @@ export const devConfig = {
       groupId: "0x8d5e3ee2049c1c7d363ea88b2b424877",
       groupTimestamp: "latest",
       data: {
-        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+        "0x938f169352008d35e065F153be53b3D3C07Bcd91": 3,
       },
     },
   ],
@@ -84,7 +84,7 @@ export const zkConnectRequestContentMock: ZkConnectRequestContent = {
     // dataRequestMock4,
     // dataRequestMock5,
   ],
-  operators: ["AND"],
+  operators: ["OR"],
 };
 
 export const zkConnectRequestMock: ZkConnectRequest = {
@@ -94,7 +94,7 @@ export const zkConnectRequestMock: ZkConnectRequest = {
   version: "zk-connect-v2",
 };
 
-const url = new URL("http://localhost:3000/connect");
+const url = new URL("http://localhost:3001/connect");
 const searchParams = url.searchParams;
 searchParams.set("version", zkConnectRequestMock.version);
 searchParams.set("appId", zkConnectRequestMock.appId);

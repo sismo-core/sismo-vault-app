@@ -199,6 +199,8 @@ export class ZkConnectProver {
     importedAccounts: ImportedAccount[],
     vaultSecret: string
   ): Promise<ZkConnectResponse> {
+    // TODO ADD ERROR HANDLING IF NO ELIGIBILITY
+
     const appId = zkConnectRequest.appId;
     const namespace = zkConnectRequest.namespace;
     const zkConnectResponse: ZkConnectResponse = {
@@ -208,22 +210,10 @@ export class ZkConnectProver {
       proofs: [],
     };
 
-    const dataRequests = zkConnectRequest?.requestContent?.dataRequests;
-
     const dataRequestEligibilities = await this.getDataRequestEligibilities(
       zkConnectRequest,
       importedAccounts
     );
-
-    // const claimRequestEligibilities = await this.getClaimRequestEligibilities(
-    //   zkConnectRequest,
-    //   importedAccounts
-    // );
-
-    // const authRequestEligibilities = await this.getAuthRequestEligibilities(
-    //   zkConnectRequest,
-    //   importedAccounts
-    // );
 
     const zkConnectResponsePromises = dataRequestEligibilities?.map(
       async (dataRequestEligibility) => {
