@@ -129,8 +129,8 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
       setErrorProof(false);
       setLoadingProof(false);
       setResponse(zkResponse);
-      setProofModalOpen(true);
-      // onNext(zkResponse);
+      // setProofModalOpen(true);
+      onNext(zkResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {
         scope.setLevel("fatal");

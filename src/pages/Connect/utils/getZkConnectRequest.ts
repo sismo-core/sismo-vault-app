@@ -38,6 +38,13 @@ export const getZkConnectRequest = (
   };
 
   if (request.requestContent) {
+    if (
+      !request.requestContent.operators ||
+      request.requestContent.operators.length === 0
+    ) {
+      request.requestContent.operators = ["AND"];
+    }
+
     for (let i = 0; i < request.requestContent.dataRequests.length; i++) {
       if (request.requestContent.dataRequests[i].claimRequest) {
         request.requestContent.dataRequests[i].claimRequest.groupTimestamp =

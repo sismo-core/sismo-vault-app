@@ -71,6 +71,8 @@ export class ZkConnectProver {
       });
     }
 
+    console.log("dataRequestEligibilities", dataRequestEligibilities);
+
     return dataRequestEligibilities;
   }
 

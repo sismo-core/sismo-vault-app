@@ -209,10 +209,10 @@ export default function Pages(): JSX.Element {
 
           <Route path="/redirect" element={<Redirect />} />
 
-          <Route
+          {/* <Route
             path="*"
             element={<Navigate to={`/connect`} replace={true} />}
-          />
+          /> */}
         </Routes>
       </BrowserRouter>
     </>
