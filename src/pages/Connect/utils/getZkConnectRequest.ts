@@ -1,6 +1,11 @@
 //import { ZkConnectRequest } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
-import { ZkConnectRequest } from "../localTypes";
-import env from "../../../environment";
+import {
+  AuthType,
+  Claim,
+  ClaimType,
+  ZkConnectRequest,
+  Auth,
+} from "../localTypes";
 
 export const getZkConnectRequest = (
   searchParams: URLSearchParams
@@ -45,25 +50,85 @@ export const getZkConnectRequest = (
       request.requestContent.operators = ["AND"];
     }
 
-    for (let i = 0; i < request.requestContent.dataRequests.length; i++) {
-      if (request.requestContent.dataRequests[i].claimRequest) {
-        request.requestContent.dataRequests[i].claimRequest.groupTimestamp =
-          typeof request.requestContent.dataRequests[i].claimRequest
-            .groupTimestamp === "undefined"
-            ? "latest"
-            : request.requestContent.dataRequests[i].claimRequest
-                .groupTimestamp;
-        request.requestContent.dataRequests[i].claimRequest.value =
-          typeof request.requestContent.dataRequests[i].claimRequest.value ===
-          "undefined"
-            ? 1
-            : request.requestContent.dataRequests[i].claimRequest.value;
+    if (request.devConfig) {
+      request.devConfig.modalOutput =
+        typeof request.devConfig.modalOutput === "undefined"
+          ? null
+          : request.devConfig.modalOutput;
+    }
 
-        request.requestContent.dataRequests[i].claimRequest.claimType =
-          typeof request.requestContent.dataRequests[i].claimRequest
-            .claimType === "undefined"
-            ? 0
-            : request.requestContent.dataRequests[i].claimRequest.claimType;
+    for (let i = 0; i < request.requestContent.dataRequests.length; i++) {
+      /* ****************************************** */
+      /* ****** SET DEFAULT FOR AUTH  ************* */
+      /* ****************************************** */
+
+      if (!request.requestContent.dataRequests[i].authRequest) {
+        request.requestContent.dataRequests[i].authRequest = {
+          authType: AuthType.EMPTY,
+        } as Auth;
+
+        if (request.requestContent.dataRequests[i].authRequest) {
+          request.requestContent.dataRequests[i].authRequest.authType =
+            typeof request.requestContent.dataRequests[i].authRequest
+              .authType === "undefined"
+              ? AuthType.ANON
+              : request.requestContent.dataRequests[i].authRequest.authType;
+
+          request.requestContent.dataRequests[i].authRequest.anonMode =
+            typeof request.requestContent.dataRequests[i].authRequest
+              .anonMode === "undefined"
+              ? false
+              : request.requestContent.dataRequests[i].authRequest.anonMode;
+
+          request.requestContent.dataRequests[i].authRequest.userId =
+            typeof request.requestContent.dataRequests[i].authRequest.userId ===
+            "undefined"
+              ? "0"
+              : request.requestContent.dataRequests[i].authRequest.userId;
+
+          request.requestContent.dataRequests[i].authRequest.extraData =
+            typeof request.requestContent.dataRequests[i].authRequest
+              .extraData === "undefined"
+              ? ""
+              : request.requestContent.dataRequests[i].authRequest.extraData;
+        }
+
+        /* ****************************************** */
+        /* ****** SET DEFAULT FOR CLAIM ************* */
+        /* ****************************************** */
+
+        if (!request.requestContent.dataRequests[i].claimRequest) {
+          request.requestContent.dataRequests[i].claimRequest = {
+            claimType: ClaimType.EMPTY,
+          } as Claim;
+        }
+
+        if (request.requestContent.dataRequests[i].claimRequest) {
+          request.requestContent.dataRequests[i].claimRequest.groupTimestamp =
+            typeof request.requestContent.dataRequests[i].claimRequest
+              .groupTimestamp === "undefined"
+              ? "latest"
+              : request.requestContent.dataRequests[i].claimRequest
+                  .groupTimestamp;
+
+          request.requestContent.dataRequests[i].claimRequest.value =
+            typeof request.requestContent.dataRequests[i].claimRequest.value ===
+            "undefined"
+              ? 1
+              : request.requestContent.dataRequests[i].claimRequest.value;
+
+          request.requestContent.dataRequests[i].claimRequest.claimType =
+            typeof request.requestContent.dataRequests[i].claimRequest
+              .claimType === "undefined"
+              ? ClaimType.GTE
+              : request.requestContent.dataRequests[i].claimRequest.claimType;
+
+          request.requestContent.dataRequests[i].claimRequest.extraData =
+            typeof request.requestContent.dataRequests[i].claimRequest
+              .extraData === "undefined"
+              ? ""
+              : request.requestContent.dataRequests[i].claimRequest.extraData;
+        }
       }
     }
   }
