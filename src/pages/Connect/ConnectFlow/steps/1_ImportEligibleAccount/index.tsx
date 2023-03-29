@@ -7,7 +7,7 @@ import HoverTooltip from "../../../../../components/HoverTooltip";
 import EligibilityModal from "../../components/EligibilityModal";
 import { useState } from "react";
 import { Gem } from "../../../../../components/SismoReactIcon";
-import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 import { EligibilitySummary } from "./components/EligibilitySummary";
 import { ZkConnectRequest } from "../../../localTypes";
 import {
@@ -107,29 +107,6 @@ const TooltipContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
-`;
-
-const FeedBack = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-
-  font-size: 16px;
-  line-height: 22px;
-  ${(props) => props.theme.fonts.medium};
-  color: ${(props) => props.theme.colors.blue0};
-  gap: 15px;
-
-  height: 55px;
-
-  margin-top: 32px;
-  margin-bottom: 46px;
-  box-sizing: border-box;
-`;
-
-const LoadingFeedBack = styled(FeedBack)`
-  font-style: italic;
 `;
 
 type Props = {

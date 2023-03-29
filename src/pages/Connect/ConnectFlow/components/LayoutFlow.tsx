@@ -5,11 +5,9 @@ import HeaderTitle from "./HeaderTitle";
 import Stepper from "./Stepper";
 import VaultSlider from "./VaultSlider";
 import { useImportAccount } from "../../../Modals/ImportAccount/provider";
-//import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import { ZkConnectRequest } from "../../localTypes";
 import ShardTag from "./ShardTag";
-import { BigNumber } from "ethers";
-import { FactoryApp, GroupMetadata } from "../../../../libs/sismo-client";
+import { FactoryApp } from "../../../../libs/sismo-client";
 import EligibilityModal from "./EligibilityModal";
 import {
   GroupMetadataDataRequestEligibility,

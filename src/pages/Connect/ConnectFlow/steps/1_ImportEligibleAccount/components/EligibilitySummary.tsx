@@ -1,11 +1,9 @@
 import styled from "styled-components";
 import { ZkConnectRequest } from "../../../../localTypes";
-import { RequestGroupMetadata } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { RequestGroupMetadata } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 import { CheckCircle } from "phosphor-react";
 import { getHumanReadableGroupName } from "../../../../utils/getHumanReadableGroupName";
 import {
-  ClaimRequestEligibility,
-  AuthRequestEligibility,
   GroupMetadataDataRequestEligibility,
   ClaimType,
   AuthType,

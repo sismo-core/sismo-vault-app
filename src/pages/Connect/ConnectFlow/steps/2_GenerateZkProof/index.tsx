@@ -5,13 +5,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useVault } from "../../../../../libs/vault";
 import { useSismo } from "../../../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-// import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import ShardAnimation from "../../components/ShardAnimation";
 import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
-import { GroupMetadata } from "../../../../../libs/sismo-client";
-// import { ZkConnectResponse } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { ZkConnectResponse, ZkConnectRequest } from "../../../localTypes";
-import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 import ProofModal from "./components/ProofModal";
 
 const Container = styled.div`
@@ -130,13 +126,13 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
       setLoadingProof(false);
       setResponse(zkResponse);
 
-      // if (
-      //   zkConnectRequest?.devConfig?.modalOutput === "bytes" ||
-      //   zkConnectRequest?.devConfig?.modalOutput === "typescript"
-      // ) {
-      //   setProofModalOpen(true);
-      //   return;
-      // }
+      if (
+        zkConnectRequest?.devConfig?.modalOutput === "bytes" ||
+        zkConnectRequest?.devConfig?.modalOutput === "typescript"
+      ) {
+        setProofModalOpen(true);
+        return;
+      }
       onNext(zkResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {

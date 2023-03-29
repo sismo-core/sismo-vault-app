@@ -6,8 +6,7 @@ import EligibleLink from "./components/EligibleLink";
 import Generation from "./components/Generation";
 import Icon from "../../../../../components/Icon";
 import { ArrowSquareOut } from "phosphor-react";
-import { GroupMetadata } from "../../../../../libs/sismo-client";
-import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 import { getHumanReadableGroupName } from "../../../utils/getHumanReadableGroupName";
 
 const Container = styled.div`

@@ -13,7 +13,6 @@ import AlphaNotification from "../components/ZikiNotification";
 import Connect from "./Connect";
 import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
-import { Navigate } from "react-router-dom";
 
 import { getMockUrl } from "./Connect/mockRequest";
 

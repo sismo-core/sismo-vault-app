@@ -2,7 +2,6 @@ import styled from "styled-components";
 import Lottie from "react-lottie";
 import colors from "../../../../theme/colors";
 import animationData from "../assets/hammer.json";
-import { GroupMetadata } from "../../../../libs/sismo-client";
 
 const Container = styled.div`
   position: relative;

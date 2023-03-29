@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import SignIn from "./steps/0_SignIn";
 import ImportEligibleAccount from "./steps/1_ImportEligibleAccount";
@@ -7,17 +7,12 @@ import LayoutFlow from "./components/LayoutFlow";
 import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-import { AccountData } from "../../../libs/sismo-client/provers/types";
 import { ArrowLeft } from "phosphor-react";
-//import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import { ZkConnectRequest } from "../localTypes";
 import env from "../../../environment";
 import { FactoryApp } from "../../../libs/sismo-client";
 import { ZkConnectResponse } from "../localTypes";
 import {
-  AuthRequestEligibility,
-  ClaimRequestEligibility,
-  DataRequestEligibility,
   GroupMetadataDataRequestEligibility,
   RequestGroupMetadata,
 } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";

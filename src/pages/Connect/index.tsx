@@ -5,14 +5,11 @@ import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
 import ConnectFlow from "./ConnectFlow";
 import * as Sentry from "@sentry/react";
-//import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import { ZkConnectRequest } from "./localTypes";
 import { FactoryApp } from "../../libs/sismo-client";
 import { useSismo } from "../../libs/sismo";
 import { getZkConnectRequest } from "./utils/getZkConnectRequest";
 import { getReferrer } from "./utils/getReferrerApp";
-// import { StatementGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
-import { GroupMetadata } from "../../libs/sismo-client";
 import {
   RequestGroupMetadata,
   ClaimType,
