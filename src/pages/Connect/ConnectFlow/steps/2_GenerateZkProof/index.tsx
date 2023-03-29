@@ -132,7 +132,7 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
 
       if (
         zkConnectRequest?.devConfig?.modalOutput === "bytes" ||
-        "typescript"
+        zkConnectRequest?.devConfig?.modalOutput === "typescript"
       ) {
         setProofModalOpen(true);
         return;

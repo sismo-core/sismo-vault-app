@@ -121,7 +121,7 @@ searchParams.set("appId", zkConnectRequestMock.appId);
 searchParams.set("namespace", zkConnectRequestMock.namespace);
 searchParams.set("callbackPath", zkConnectRequestMock.callbackPath);
 searchParams.set("requestContent", JSON.stringify(zkConnectRequestContentMock));
-//searchParams.set("devConfig", JSON.stringify(devConfig));
+searchParams.set("devConfig", JSON.stringify(devConfig));
 
 export const zkConnectRequestMockUrl = url.toString();
 

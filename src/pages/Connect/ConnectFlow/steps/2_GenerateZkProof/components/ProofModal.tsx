@@ -29,7 +29,7 @@ const Container = styled.div`
 const GroupItem = styled.div<{ isSelected: boolean }>`
   display: flex;
   align-items: center;
-  padding: 1px 10px 1px 6px;
+  padding: 1px 10px 1px 10px;
   gap: 6px;
   font-size: 16px;
   line-height: 24px;
@@ -52,6 +52,14 @@ const GroupItem = styled.div<{ isSelected: boolean }>`
   `}
 `;
 
+const SelectorWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: -20px;
+`;
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -66,13 +74,26 @@ export default function ProofModal({
   type,
 }: Props): JSX.Element {
   const [selectedType, setSelectedType] = useState<"bytes" | "typescript">(
-    type
+    type === "typescript" ? "typescript" : "bytes"
   );
 
-  const readableResponse =
-    type === "bytes"
-      ? getZkConnectResponseABIEncode(response)
-      : JSON.stringify(response);
+  const [readableResponse, setReadableResponse] = useState<string>(
+    type === "typescript"
+      ? JSON.stringify(response)
+      : getZkConnectResponseABIEncode(response)
+  );
+
+  useEffect(() => {
+    if (selectedType === "bytes") {
+      setReadableResponse(getZkConnectResponseABIEncode(response));
+    } else {
+      setReadableResponse(JSON.stringify(response));
+    }
+  }, [selectedType, response]);
+
+  function copyToClipboard() {
+    navigator.clipboard.writeText(readableResponse);
+  }
 
   return (
     <Modal
@@ -84,19 +105,21 @@ export default function ProofModal({
     >
       {response && (
         <Container>
-          <GroupItem
-            isSelected={selectedType === "bytes"}
-            onClick={() => setSelectedType("bytes")}
-          >
-            <span>{type}</span>
-          </GroupItem>
-          <GroupItem
-            isSelected={selectedType === "typescript"}
-            onClick={() => setSelectedType("typescript")}
-          >
-            <span>{type}</span>
-          </GroupItem>
-          {readableResponse}
+          <SelectorWrapper>
+            <GroupItem
+              isSelected={selectedType === "bytes"}
+              onClick={() => setSelectedType("bytes")}
+            >
+              <span>{"Bytes"}</span>
+            </GroupItem>
+            <GroupItem
+              isSelected={selectedType === "typescript"}
+              onClick={() => setSelectedType("typescript")}
+            >
+              <span>{"Typescript"}</span>
+            </GroupItem>
+          </SelectorWrapper>
+          <div onClick={copyToClipboard}>{readableResponse}</div>
         </Container>
       )}
     </Modal>
