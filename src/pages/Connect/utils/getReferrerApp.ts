@@ -1,4 +1,4 @@
-import { ZkConnectRequest } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { ZkConnectRequest } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 
 export type ReferrerApp = {
   referrer: string;

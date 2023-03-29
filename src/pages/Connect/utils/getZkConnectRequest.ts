@@ -1,4 +1,3 @@
-//import { ZkConnectRequest } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import {
   AuthType,
   Claim,
