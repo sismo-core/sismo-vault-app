@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import styled from "styled-components";
 import Button from "../../../../../components/Button";
 import { useVault } from "../../../../../libs/vault";
@@ -12,10 +12,15 @@ import colors from "../../../../../theme/colors";
 //import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import { ZkConnectRequest } from "../../../localTypes";
 import ShardTag from "../../components/ShardTag";
-import { BigNumber } from "ethers";
-import { FactoryApp, GroupMetadata } from "../../../../../libs/sismo-client";
-import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { FactoryApp } from "../../../../../libs/sismo-client";
+import {
+  RequestGroupMetadata,
+  ClaimType,
+  AuthType,
+  GroupMetadataDataRequestEligibility,
+} from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 import EligibilityModal from "../../components/EligibilityModal";
+import AuthTag from "../../components/AuthTag";
 
 const Container = styled.div<{ hasDataRequest: boolean }>`
   background-color: ${(props) => props.theme.colors.blue11};
@@ -89,6 +94,13 @@ const AndWrapper = styled(GroupWrapper)`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+const AndInner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 `;
 
 const OrWrapper = styled(GroupWrapper)`
@@ -191,11 +203,15 @@ type Props = {
   factoryApp: FactoryApp;
   zkConnectRequest: ZkConnectRequest;
   requestGroupsMetadata: RequestGroupMetadata[] | null;
+  groupMetadataDataRequestEligibilities:
+    | GroupMetadataDataRequestEligibility[]
+    | null;
   referrerUrl: string;
   onNext: () => void;
 };
 
 export default function SignIn({
+  groupMetadataDataRequestEligibilities,
   requestGroupsMetadata,
   zkConnectRequest,
   referrerUrl,
@@ -228,17 +244,17 @@ export default function SignIn({
     }
   }, [factoryApp]);
 
-  const hasClaimRequest = zkConnectRequest?.requestContent?.dataRequests.some(
-    (dataRequest) => dataRequest?.claimRequest?.groupId
-  );
-
-  const loading = hasClaimRequest
+  const loading = requestGroupsMetadata
     ? !factoryApp ||
       vault.loadingActiveSession ||
       !zkConnectRequest ||
       !imgLoaded ||
-      !requestGroupsMetadata
-    : !factoryApp || vault.loadingActiveSession || !imgLoaded;
+      !requestGroupsMetadata ||
+      !groupMetadataDataRequestEligibilities
+    : !factoryApp ||
+      vault.loadingActiveSession ||
+      !imgLoaded ||
+      !groupMetadataDataRequestEligibilities;
 
   let consolidatedMessageSignatureRequest: string = "";
 
@@ -255,6 +271,11 @@ export default function SignIn({
     setModalIsOpen(true);
     setInitialGroupId(groupId);
   }
+
+  console.log(
+    "data request eligibilities",
+    groupMetadataDataRequestEligibilities
+  );
 
   return (
     <>
@@ -291,82 +312,105 @@ export default function SignIn({
                 </SecondLine>
               </ContentTitle>
 
-              {requestGroupsMetadata && (
-                <>
-                  <DataRequested>Requested Data:</DataRequested>
-                  {(!zkConnectRequest?.requestContent?.operators?.length ||
-                    zkConnectRequest?.requestContent?.operators[0] ===
-                      "AND") && (
-                    <AndWrapper>
-                      {requestGroupsMetadata?.length > 0 &&
-                        requestGroupsMetadata?.map(
-                          (requestGroupMetadata, index) => (
+              <DataRequested>Requested Data:</DataRequested>
+              {(!zkConnectRequest?.requestContent?.operators?.length ||
+                zkConnectRequest?.requestContent?.operators[0] === "AND") && (
+                <AndWrapper>
+                  {groupMetadataDataRequestEligibilities.length > 0 &&
+                    groupMetadataDataRequestEligibilities?.map(
+                      (dataRequestEligibility, index) => (
+                        <AndInner key={index + "/statement-request/and"}>
+                          {dataRequestEligibility?.claimRequestEligibility
+                            ?.claimRequest?.claimType !== ClaimType.EMPTY && (
                             <ShardTag
-                              key={
-                                requestGroupMetadata?.groupMetadata?.id +
-                                "/statement-request/and"
-                              }
                               groupMetadata={
-                                requestGroupMetadata?.groupMetadata
+                                dataRequestEligibility?.claimRequestEligibility
+                                  ?.groupMetadata
                               }
-                              claimType={requestGroupMetadata?.claim?.claimType}
+                              claimType={
+                                dataRequestEligibility?.claimRequestEligibility
+                                  ?.claimRequest?.claimType
+                              }
                               requestedValue={
-                                BigNumber.from(
-                                  requestGroupMetadata?.claim?.value
-                                ).toNumber() || 1
+                                dataRequestEligibility?.claimRequestEligibility
+                                  ?.claimRequest?.value
                               }
                               onModal={() =>
                                 onShardClick(
-                                  requestGroupMetadata?.groupMetadata?.id
+                                  dataRequestEligibility
+                                    ?.claimRequestEligibility?.groupMetadata?.id
                                 )
                               }
                             />
-                          )
-                        )}
-                    </AndWrapper>
-                  )}
-                  {zkConnectRequest?.requestContent?.operators[0] === "OR" && (
-                    <OrWrapper>
-                      {requestGroupsMetadata?.length > 0 &&
-                        requestGroupsMetadata?.map(
-                          (requestGroupMetadata, index) => (
-                            <div
-                              key={
-                                requestGroupMetadata?.groupMetadata?.id +
-                                "/statement-request/or"
+                          )}
+                          {dataRequestEligibility?.authRequestEligibility
+                            ?.authRequest?.authType !== AuthType.EMPTY && (
+                            <AuthTag
+                              authRequest={
+                                dataRequestEligibility?.authRequestEligibility
+                                  ?.authRequest
                               }
-                            >
-                              {index !== 0 && (
-                                <OrSperator>
-                                  <Line />
-                                  <OrText>or</OrText>
-                                  <Line />
-                                </OrSperator>
-                              )}
+                            />
+                          )}
+                        </AndInner>
+                      )
+                    )}
+                </AndWrapper>
+              )}
+              {zkConnectRequest?.requestContent?.operators[0] === "OR" && (
+                <OrWrapper>
+                  {groupMetadataDataRequestEligibilities.length > 0 &&
+                    groupMetadataDataRequestEligibilities?.map(
+                      (dataRequestEligibility, index) => (
+                        <Fragment key={index + "/statement-request/or"}>
+                          {index !== 0 && (
+                            <OrSperator>
+                              <Line />
+                              <OrText>or</OrText>
+                              <Line />
+                            </OrSperator>
+                          )}
+                          <AndInner>
+                            {dataRequestEligibility?.claimRequestEligibility
+                              ?.claimRequest?.claimType !== ClaimType.EMPTY && (
                               <ShardTag
                                 groupMetadata={
-                                  requestGroupMetadata?.groupMetadata
+                                  dataRequestEligibility
+                                    ?.claimRequestEligibility?.groupMetadata
                                 }
                                 claimType={
-                                  requestGroupMetadata?.claim?.claimType
+                                  dataRequestEligibility
+                                    ?.claimRequestEligibility?.claimRequest
+                                    ?.claimType
                                 }
                                 requestedValue={
-                                  BigNumber.from(
-                                    requestGroupMetadata?.claim?.value
-                                  ).toNumber() || 1
+                                  dataRequestEligibility
+                                    ?.claimRequestEligibility?.claimRequest
+                                    ?.value
                                 }
                                 onModal={() =>
                                   onShardClick(
-                                    requestGroupMetadata?.groupMetadata?.id
+                                    dataRequestEligibility
+                                      ?.claimRequestEligibility?.groupMetadata
+                                      ?.id
                                   )
                                 }
                               />
-                            </div>
-                          )
-                        )}
-                    </OrWrapper>
-                  )}
-                </>
+                            )}
+                            {dataRequestEligibility?.authRequestEligibility
+                              ?.authRequest?.authType !== AuthType.EMPTY && (
+                              <AuthTag
+                                authRequest={
+                                  dataRequestEligibility?.authRequestEligibility
+                                    ?.authRequest
+                                }
+                              />
+                            )}
+                          </AndInner>
+                        </Fragment>
+                      )
+                    )}
+                </OrWrapper>
               )}
 
               {consolidatedMessageSignatureRequest && (

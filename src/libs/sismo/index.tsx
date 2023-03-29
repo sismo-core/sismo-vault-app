@@ -3,6 +3,7 @@ import { SismoClient } from "../sismo-client";
 import {
   AuthRequestEligibility,
   ClaimRequestEligibility,
+  DataRequestEligibility,
   RequestGroupMetadata,
   ZkConnectRequest,
   ZkConnectResponse,
@@ -20,6 +21,10 @@ export type Sismo = {
   getRequestGroupMetadata: (
     zkConnectRequest: ZkConnectRequest
   ) => Promise<RequestGroupMetadata[]>;
+  getDataRequestEligibilities: (
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ) => Promise<DataRequestEligibility[]>;
   getClaimRequestEligibilities: (
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[]
@@ -67,6 +72,19 @@ export default function SismoProvider({
   const getRequestGroupMetadata = useCallback(
     (zkConnectRequest: ZkConnectRequest) => {
       return client.getRequestGroupsMetadata(zkConnectRequest);
+    },
+    [client]
+  );
+
+  const getDataRequestEligibilities = useCallback(
+    (
+      zkConnectRequest: ZkConnectRequest,
+      importedAccounts: ImportedAccount[]
+    ) => {
+      return client.getDataRequestEligibilities(
+        zkConnectRequest,
+        importedAccounts
+      );
     },
     [client]
   );
@@ -127,6 +145,7 @@ export default function SismoProvider({
         getClaimRequestEligibilities,
         generateResponse,
         getAuthRequestEligibilities,
+        getDataRequestEligibilities,
       }}
     >
       {children}

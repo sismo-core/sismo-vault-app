@@ -60,6 +60,8 @@ export class HydraS2OffchainProver extends Prover {
         BigNumber.from(string)
       ) as EddsaPublicKey;
 
+    console.log("commitmentMapperPubKey", commitmentMapperPubKey);
+
     const prover = new HydraS2Prover(commitmentMapperPubKey, {
       wasmPath: "/hydra/s2_v1/hydra-s2.wasm",
       zkeyPath: "/hydra/s2_v1/hydra-s2.zkey",
@@ -78,11 +80,7 @@ export class HydraS2OffchainProver extends Prover {
       extraData,
     });
 
-    console.log("userParams", userParams);
-
     const proof = await prover.generateSnarkProof(userParams);
-
-    console.log("proof", proof);
     return proof;
   }
 
@@ -105,7 +103,7 @@ export class HydraS2OffchainProver extends Prover {
     }
 
     switch (claimType) {
-      case ClaimType.NONE:
+      case ClaimType.EMPTY:
         return null;
       case ClaimType.EQ:
         for (const [identifier, value] of Object.entries(
@@ -272,11 +270,12 @@ export class HydraS2OffchainProver extends Prover {
     }
 
     if (source) {
-      console.log("SOURCE");
+      console.log("SOURCE", source);
+
       const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);
       userParams["source"] = {
         ...hydraS2Account,
-        verificationEnabled: false,
+        verificationEnabled: true,
       };
       //TODO set to true once commitment mapper is fixed
 

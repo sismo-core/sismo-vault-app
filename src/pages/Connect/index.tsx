@@ -13,7 +13,7 @@ import { getZkConnectRequest } from "./utils/getZkConnectRequest";
 import { getReferrer } from "./utils/getReferrerApp";
 // import { StatementGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { GroupMetadata } from "../../libs/sismo-client";
-import { RequestGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { RequestGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 
 const Container = styled.div`
   position: relative;

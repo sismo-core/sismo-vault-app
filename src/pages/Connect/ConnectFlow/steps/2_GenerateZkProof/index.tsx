@@ -102,15 +102,10 @@ const LoadingFeedBack = styled(FeedBack)`
 
 type Props = {
   zkConnectRequest: ZkConnectRequest;
-  requestGroupsMetadata: RequestGroupMetadata[];
   onNext: (zkResponse: ZkConnectResponse) => void;
 };
 
-export default function GenerateZkProof({
-  requestGroupsMetadata,
-  zkConnectRequest,
-  onNext,
-}: Props) {
+export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
   const vault = useVault();
   const [loadingProof, setLoadingProof] = useState(true);
   const [isGenerated, setIsGenerated] = useState(false);

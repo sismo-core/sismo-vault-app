@@ -1,6 +1,7 @@
 import {
   ClaimRequestEligibility,
   AuthRequestEligibility,
+  DataRequestEligibility,
   RequestGroupMetadata,
   ZkConnectProver as ZkConnectProverV2,
   ZkConnectRequest,
@@ -65,6 +66,24 @@ export class SismoClient {
         claim: claimRequest,
       });
     }
+  }
+
+  public async getDataRequestEligibilities(
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<DataRequestEligibility[]> {
+    if (!this.zkConnectProvers[zkConnectRequest.version])
+      throw new Error(
+        `Version of the request not supported ${zkConnectRequest.version}`
+      );
+    const zkConnectProver = this.zkConnectProvers[
+      zkConnectRequest.version
+    ] as ZkConnectProverV2;
+
+    return await zkConnectProver.getDataRequestEligibilities(
+      zkConnectRequest,
+      importedAccounts
+    );
   }
 
   public async getClaimRequestEligibilities(

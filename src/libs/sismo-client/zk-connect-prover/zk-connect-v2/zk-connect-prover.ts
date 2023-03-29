@@ -78,11 +78,10 @@ export class ZkConnectProver {
     claimRequest: Claim,
     importedAccounts: ImportedAccount[]
   ): Promise<ClaimRequestEligibility> {
-    // TO BE REVIEWED IF NULL
     if (!claimRequest)
       return {
         claimRequest: {
-          claimType: ClaimType.NONE,
+          claimType: ClaimType.EMPTY,
         } as Claim,
         accountData: {} as AccountData,
       };
@@ -135,7 +134,7 @@ export class ZkConnectProver {
     if (!authRequest)
       return {
         authRequest: {
-          authType: AuthType.NONE,
+          authType: AuthType.EMPTY,
         } as Auth,
         accounts: accounts,
       };
@@ -210,17 +209,70 @@ export class ZkConnectProver {
       proofs: [],
     };
 
-    const dataRequestEligibilities = await this.getDataRequestEligibilities(
+    let dataRequestEligibilities = await this.getDataRequestEligibilities(
       zkConnectRequest,
       importedAccounts
     );
 
-    const zkConnectResponsePromises = dataRequestEligibilities?.map(
+    /* ********************************************* */
+    /* ******* FILTER ELIGIBLE DATA REQUESTS ******* */
+    /* ********************************************* */
+
+    let selectedDataRequestEligibilities = [];
+
+    if (zkConnectRequest?.requestContent?.operators[0] === "AND") {
+      selectedDataRequestEligibilities = dataRequestEligibilities;
+    }
+
+    if (zkConnectRequest?.requestContent?.operators[0] === "OR") {
+      for (const dataRequestEligibility of dataRequestEligibilities) {
+        const hasClaimRequest =
+          dataRequestEligibility?.claimRequestEligibility?.claimRequest
+            ?.claimType !== ClaimType.EMPTY;
+        const hasAuthRequest =
+          dataRequestEligibility?.authRequestEligibility?.authRequest
+            ?.authType !== AuthType.EMPTY;
+
+        const isClaimEligible =
+          dataRequestEligibility?.claimRequestEligibility?.accountData &&
+          Object.keys(
+            dataRequestEligibility?.claimRequestEligibility?.accountData
+          ).length > 0;
+
+        const isAuthEligible =
+          dataRequestEligibility?.authRequestEligibility?.accounts?.length > 0;
+
+        if (
+          hasClaimRequest &&
+          hasAuthRequest &&
+          isClaimEligible &&
+          isAuthEligible
+        ) {
+          selectedDataRequestEligibilities.push(dataRequestEligibility);
+        }
+        if (hasClaimRequest && isClaimEligible) {
+          selectedDataRequestEligibilities.push(dataRequestEligibility);
+        }
+        if (hasAuthRequest && isAuthEligible) {
+          selectedDataRequestEligibilities.push(dataRequestEligibility);
+        }
+      }
+    }
+
+    if (selectedDataRequestEligibilities?.length === 0)
+      throw new Error("No eligible data requests");
+
+    const zkConnectResponsePromises = selectedDataRequestEligibilities?.map(
       async (dataRequestEligibility) => {
         let _generateProofInputs = {
-          appId,
+          appId: "0",
           namespace,
+          vaultSecret, // VAULT SECRET MUST BE ADDED TO THE PROOF FOR THE CIRCUIT
         } as OffchainProofRequest;
+
+        /* ********************************************* */
+        /* ********* MESSAGE SIGNATURE REQUEST ********* */
+        /* ********************************************* */
 
         if (dataRequestEligibility?.messageSignatureRequest) {
           let preparedSignedMessage: string;
@@ -239,48 +291,74 @@ export class ZkConnectProver {
           );
         }
 
-        if (dataRequestEligibility?.claimRequestEligibility) {
+        /* ********************************************* */
+        /* ************** CLAIM REQUEST **************** */
+        /* ********************************************* */
+
+        if (
+          dataRequestEligibility?.claimRequestEligibility?.claimRequest
+            ?.claimType !== ClaimType.EMPTY
+        ) {
           const claimRequestEligibility =
             dataRequestEligibility?.claimRequestEligibility;
-          if (
-            claimRequestEligibility?.accountData &&
-            Object?.keys(claimRequestEligibility?.accountData)?.length
-          ) {
-            const source = importedAccounts.find(
-              (importedAccount) =>
-                importedAccount?.identifier ===
-                dataRequestEligibility?.claimRequestEligibility?.accountData
-                  ?.identifier
-            );
 
-            _generateProofInputs = {
-              ..._generateProofInputs,
-              source,
-              vaultSecret: "0",
-              groupId: claimRequestEligibility?.claimRequest?.groupId,
-              groupTimestamp:
-                claimRequestEligibility?.claimRequest?.groupTimestamp,
-              requestedValue: claimRequestEligibility?.claimRequest?.value,
-              claimType: claimRequestEligibility?.claimRequest?.claimType,
-            };
-          }
+          if (
+            !claimRequestEligibility?.accountData ||
+            !Object?.keys(claimRequestEligibility?.accountData)?.length
+          )
+            throw new Error("No account found for this claim request");
+
+          const source = importedAccounts.find(
+            (importedAccount) =>
+              importedAccount?.identifier ===
+              dataRequestEligibility?.claimRequestEligibility?.accountData
+                ?.identifier
+          );
+
+          if (!source)
+            throw new Error("No eligible account found for this claim request");
+
+          _generateProofInputs = {
+            ..._generateProofInputs,
+            source,
+            groupId: claimRequestEligibility?.claimRequest?.groupId,
+            groupTimestamp:
+              claimRequestEligibility?.claimRequest?.groupTimestamp,
+            requestedValue: claimRequestEligibility?.claimRequest?.value,
+            claimType: claimRequestEligibility?.claimRequest?.claimType,
+          };
         }
 
-        if (dataRequestEligibility?.authRequestEligibility) {
+        /* ********************************************* */
+        /* ************** AUTH REQUEST ***************** */
+        /* ********************************************* */
+
+        if (
+          dataRequestEligibility?.authRequestEligibility?.authRequest
+            ?.authType !== AuthType.EMPTY
+        ) {
           const authRequestEligibility =
             dataRequestEligibility?.authRequestEligibility;
-
-          if (authRequestEligibility?.authRequest?.authType === AuthType.NONE) {
-            _generateProofInputs = { ..._generateProofInputs };
-          }
 
           if (authRequestEligibility?.authRequest?.authType === AuthType.ANON) {
             // IS THESE INPUTS CORRECT IN ANON
             _generateProofInputs = {
               ..._generateProofInputs,
               vaultSecret,
+              appId,
             };
           }
+
+          if (
+            (authRequestEligibility?.authRequest?.authType ===
+              AuthType.GITHUB ||
+              authRequestEligibility?.authRequest?.authType ===
+                AuthType.TWITTER ||
+              authRequestEligibility?.authRequest?.authType ===
+                AuthType.EVM_ACCOUNT) &&
+            !Boolean(authRequestEligibility?.accounts?.length)
+          )
+            throw new Error("No account found for this auth request");
 
           if (
             (authRequestEligibility?.authRequest?.authType ===
@@ -299,13 +377,16 @@ export class ZkConnectProver {
                   ? AuthType.GITHUB
                   : importedAccount?.type === "twitter"
                   ? AuthType.TWITTER
-                  : AuthType.NONE;
+                  : AuthType.EMPTY;
 
               return (
                 importedAccountType ===
                 authRequestEligibility?.authRequest?.authType
               );
             });
+
+            if (!destination)
+              throw new Error("No eligible account found for auth request");
 
             if (destination) {
               _generateProofInputs = {
@@ -324,13 +405,7 @@ export class ZkConnectProver {
           claim: dataRequestEligibility?.claimRequestEligibility?.claimRequest,
           signedMessage: dataRequestEligibility?.messageSignatureRequest,
           proof: snarkProof.toBytes(),
-          // WHAT TO PUT IN EXTRA DATA
-          extraData: dataRequestEligibility?.claimRequestEligibility
-            ?.claimRequest
-            ? dataRequestEligibility?.claimRequestEligibility?.claimRequest
-                ?.extraData
-            : dataRequestEligibility?.authRequestEligibility?.authRequest
-                ?.extraData,
+          extraData: "",
         } as unknown as ZkConnectProof;
       }
     );

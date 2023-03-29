@@ -52,7 +52,7 @@ export type Claim = {
 };
 
 export enum ClaimType {
-  NONE,
+  EMPTY,
   GTE,
   GT,
   EQ,
@@ -74,7 +74,7 @@ export type Auth = {
 };
 
 export enum AuthType {
-  NONE, //  vaultSecret 0
+  EMPTY, //  vaultSecret 0
   ANON, //vaultInput
   GITHUB, // destination
   TWITTER,

@@ -4,7 +4,6 @@ import Button from "../../../../../components/Button";
 import { Info, ArrowsOutSimple } from "phosphor-react";
 import colors from "../../../../../theme/colors";
 import HoverTooltip from "../../../../../components/HoverTooltip";
-import { useVault } from "../../../../../libs/vault";
 import EligibilityModal from "../../components/EligibilityModal";
 import { useState } from "react";
 import { Gem } from "../../../../../components/SismoReactIcon";
@@ -12,10 +11,10 @@ import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connec
 import { EligibilitySummary } from "./components/EligibilitySummary";
 import { ZkConnectRequest } from "../../../localTypes";
 import {
-  AuthRequestEligibility,
-  ClaimRequestEligibility,
+  GroupMetadataDataRequestEligibility,
+  AuthType,
+  ClaimType,
 } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
-import { useEffect } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -134,8 +133,7 @@ const LoadingFeedBack = styled(FeedBack)`
 `;
 
 type Props = {
-  claimRequestEligibilities: ClaimRequestEligibility[];
-  authRequestEligibilities: AuthRequestEligibility[];
+  groupMetadataDataRequestEligibilities: GroupMetadataDataRequestEligibility[];
   requestGroupsMetadata: RequestGroupMetadata[];
   zkConnectRequest: ZkConnectRequest;
   loadingEligible: boolean;
@@ -143,8 +141,7 @@ type Props = {
 };
 
 export default function ImportEligibleAccount({
-  claimRequestEligibilities,
-  authRequestEligibilities,
+  groupMetadataDataRequestEligibilities,
   requestGroupsMetadata,
   zkConnectRequest,
   loadingEligible,
@@ -153,7 +150,6 @@ export default function ImportEligibleAccount({
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const importAccount = useImportAccount();
-  const vault = useVault();
 
   function onImport() {
     importAccount.open({
@@ -164,29 +160,58 @@ export default function ImportEligibleAccount({
 
   const hasRequestGroupsMetadata = requestGroupsMetadata?.length > 0;
 
-  let isZkConnectRequestEligible: boolean;
+  let isZkConnectRequestEligible: boolean = true;
 
-  console.log("AUTH", authRequestEligibilities);
+  function getIsEligible(
+    groupMetadataDataRequestEligibility: GroupMetadataDataRequestEligibility
+  ) {
+    let isClaimEligible = true;
+    let isAuthEligible = true;
+
+    if (
+      groupMetadataDataRequestEligibility?.authRequestEligibility?.authRequest
+        ?.authType !== AuthType.EMPTY
+    ) {
+      isAuthEligible = false;
+      isAuthEligible = Boolean(
+        groupMetadataDataRequestEligibility?.authRequestEligibility?.accounts
+          ?.length
+      );
+    }
+
+    if (
+      groupMetadataDataRequestEligibility?.claimRequestEligibility?.claimRequest
+        ?.claimType !== ClaimType.EMPTY
+    ) {
+      isClaimEligible = false;
+      isClaimEligible =
+        groupMetadataDataRequestEligibility?.claimRequestEligibility
+          ?.accountData &&
+        Boolean(
+          Object?.keys(
+            groupMetadataDataRequestEligibility?.claimRequestEligibility
+              ?.accountData
+          )?.length
+        );
+    }
+
+    const isEligible = isClaimEligible && isAuthEligible;
+    return isEligible;
+  }
 
   // REFACTOR LOGIC
   if (zkConnectRequest?.requestContent?.operators[0] === "AND") {
-    isZkConnectRequestEligible = claimRequestEligibilities.every(
-      (claimRequestEligibility) => {
-        return claimRequestEligibility?.accountData &&
-          Object?.keys(claimRequestEligibility?.accountData)?.length
-          ? true
-          : false;
+    isZkConnectRequestEligible = groupMetadataDataRequestEligibilities.every(
+      (groupMetadataDataRequestEligibility) => {
+        return getIsEligible(groupMetadataDataRequestEligibility);
       }
     );
   }
 
   if (zkConnectRequest?.requestContent?.operators[0] === "OR") {
-    isZkConnectRequestEligible = claimRequestEligibilities.some(
-      (claimRequestEligibility) => {
-        return claimRequestEligibility?.accountData &&
-          Object?.keys(claimRequestEligibility?.accountData)?.length
-          ? true
-          : false;
+    isZkConnectRequestEligible = groupMetadataDataRequestEligibilities.some(
+      (groupMetadataDataRequestEligibility) => {
+        return getIsEligible(groupMetadataDataRequestEligibility);
       }
     );
   }
@@ -218,8 +243,9 @@ export default function ImportEligibleAccount({
           <EligibilitySummary
             zkConnectRequest={zkConnectRequest}
             requestGroupsMetadata={requestGroupsMetadata}
-            claimRequestEligibilities={claimRequestEligibilities}
-            authRequestEligibilities={authRequestEligibilities}
+            groupMetadataDataRequestEligibilities={
+              groupMetadataDataRequestEligibilities
+            }
           />
         </Summary>
 

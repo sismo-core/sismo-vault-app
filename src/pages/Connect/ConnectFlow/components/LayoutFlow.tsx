@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, Fragment } from "react";
 import { capitalizeFirstLetter } from "../../../../utils/capitalizeFirstLetter";
 import HeaderTitle from "./HeaderTitle";
 import Stepper from "./Stepper";
@@ -11,7 +11,13 @@ import ShardTag from "./ShardTag";
 import { BigNumber } from "ethers";
 import { FactoryApp, GroupMetadata } from "../../../../libs/sismo-client";
 import EligibilityModal from "./EligibilityModal";
-import { RequestGroupMetadata } from "../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import {
+  GroupMetadataDataRequestEligibility,
+  RequestGroupMetadata,
+  AuthType,
+  ClaimType,
+} from "../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+import AuthTag from "./AuthTag";
 
 const Container = styled.div`
   position: relative;
@@ -112,6 +118,9 @@ const StepperBlock = styled(Stepper)<{ stepperWidth: number }>`
 
 type Props = {
   requestGroupsMetadata: RequestGroupMetadata[];
+  groupMetadataDataRequestEligibilities:
+    | GroupMetadataDataRequestEligibility[]
+    | null;
   zkConnectRequest: ZkConnectRequest;
   referrerUrl: string;
   hostName: string;
@@ -125,6 +134,7 @@ type Props = {
 
 export default function LayoutFlow({
   requestGroupsMetadata,
+  groupMetadataDataRequestEligibilities,
   zkConnectRequest,
   hostName,
   referrerUrl,
@@ -186,33 +196,46 @@ export default function LayoutFlow({
                   to verify that you own
                 </FirstLine>
                 <SecondLine>
-                  {Boolean(requestGroupsMetadata?.length) &&
-                    requestGroupsMetadata?.map(
-                      (requestGroupMetadata, index) => (
-                        <div
-                          key={
-                            requestGroupMetadata?.groupMetadata?.id +
-                            "/statement-request/layout"
-                          }
-                        >
+                  {groupMetadataDataRequestEligibilities.length > 0 &&
+                    groupMetadataDataRequestEligibilities?.map(
+                      (dataRequestEligibility, index) => (
+                        <Fragment key={index + "/statement-request/layout"}>
                           {zkConnectRequest?.requestContent?.operators[0] ===
                             "OR" &&
                             index !== 0 && <div>or</div>}
-                          <ShardTag
-                            groupMetadata={requestGroupMetadata?.groupMetadata}
-                            claimType={requestGroupMetadata?.claim?.claimType}
-                            requestedValue={
-                              BigNumber.from(
-                                requestGroupMetadata?.claim?.value
-                              ).toNumber() || 1
-                            }
-                            onModal={() =>
-                              onShardClick(
-                                requestGroupMetadata?.groupMetadata?.id
-                              )
-                            }
-                          />
-                        </div>
+                          {dataRequestEligibility?.claimRequestEligibility
+                            ?.claimRequest?.claimType !== ClaimType.EMPTY && (
+                            <ShardTag
+                              groupMetadata={
+                                dataRequestEligibility?.claimRequestEligibility
+                                  ?.groupMetadata
+                              }
+                              claimType={
+                                dataRequestEligibility?.claimRequestEligibility
+                                  ?.claimRequest?.claimType
+                              }
+                              requestedValue={
+                                dataRequestEligibility?.claimRequestEligibility
+                                  ?.claimRequest?.value
+                              }
+                              onModal={() =>
+                                onShardClick(
+                                  dataRequestEligibility
+                                    ?.claimRequestEligibility?.groupMetadata?.id
+                                )
+                              }
+                            />
+                          )}
+                          {dataRequestEligibility?.authRequestEligibility
+                            ?.authRequest?.authType !== AuthType.EMPTY && (
+                            <AuthTag
+                              authRequest={
+                                dataRequestEligibility?.authRequestEligibility
+                                  ?.authRequest
+                              }
+                            />
+                          )}
+                        </Fragment>
                       )
                     )}
                 </SecondLine>

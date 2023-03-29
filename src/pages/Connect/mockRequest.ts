@@ -33,6 +33,12 @@ export const dataRequestMock1: DataRequest = {
     claimType: 1,
     extraData: "",
   },
+  authRequest: {
+    authType: 4,
+    anonMode: false,
+    userId: "0",
+    extraData: "",
+  },
   messageSignatureRequest: "my custom message",
 };
 export const dataRequestMock2: DataRequest = {

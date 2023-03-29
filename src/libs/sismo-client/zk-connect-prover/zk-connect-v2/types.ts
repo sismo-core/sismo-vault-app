@@ -9,6 +9,18 @@ import { ImportedAccount } from "../../../vault-client";
 /** ********* ZK CONNECT PROVER TYPES ********** */
 /** ********************************************* */
 
+export type GroupMetadataDataRequestEligibility = {
+  claimRequestEligibility: GroupMetadataClaimRequestEligibility;
+  authRequestEligibility: AuthRequestEligibility;
+  messageSignatureRequest?: any;
+};
+
+export type GroupMetadataClaimRequestEligibility = {
+  claimRequest: Claim;
+  accountData: AccountData;
+  groupMetadata: GroupMetadata;
+};
+
 export type RequestGroupMetadata = {
   claim: Claim;
   groupMetadata: GroupMetadata;
@@ -81,7 +93,7 @@ export type Claim = {
 };
 
 export enum ClaimType {
-  NONE,
+  EMPTY,
   GTE,
   GT,
   EQ,
@@ -103,7 +115,7 @@ export type Auth = {
 };
 
 export enum AuthType {
-  NONE,
+  EMPTY,
   ANON,
   GITHUB,
   TWITTER,

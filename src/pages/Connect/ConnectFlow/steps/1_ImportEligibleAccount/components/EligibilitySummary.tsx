@@ -1,11 +1,14 @@
 import styled from "styled-components";
-import { ZkConnectRequest, ClaimType, AuthType } from "../../../../localTypes";
+import { ZkConnectRequest } from "../../../../localTypes";
 import { RequestGroupMetadata } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { CheckCircle } from "phosphor-react";
 import { getHumanReadableGroupName } from "../../../../utils/getHumanReadableGroupName";
 import {
   ClaimRequestEligibility,
   AuthRequestEligibility,
+  GroupMetadataDataRequestEligibility,
+  ClaimType,
+  AuthType,
 } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 
 const Container = styled.div`
@@ -71,125 +74,119 @@ const ValueComparator = styled.div<{ isEligible: boolean }>`
 type Props = {
   zkConnectRequest: ZkConnectRequest;
   requestGroupsMetadata: RequestGroupMetadata[];
-  claimRequestEligibilities: ClaimRequestEligibility[];
-  authRequestEligibilities: AuthRequestEligibility[];
+  groupMetadataDataRequestEligibilities: GroupMetadataDataRequestEligibility[];
 };
 
 export function EligibilitySummary({
   zkConnectRequest,
   requestGroupsMetadata,
-  claimRequestEligibilities,
-  authRequestEligibilities,
+  groupMetadataDataRequestEligibilities,
 }: Props) {
   const isOr = zkConnectRequest?.requestContent?.operators[0] === "OR";
 
-  console.log("AUTHREQUEST", authRequestEligibilities);
-
   return (
     <Container>
-      {/* {authRequestEligibilities?.length &&
-        authRequestEligibilities.map((authRequestEligibility, index) => {
-          const authType = authRequestEligibility?.authRequest?.authType;
-          const readableAuthType =
-            authType === AuthType.EVM_ACCOUNT
-              ? "Ethereum"
-              : authType === AuthType.GITHUB
-              ? "Github"
-              : authType === AuthType.TWITTER
-              ? "Twitter"
-              : null;
+      {groupMetadataDataRequestEligibilities.length > 0 &&
+        groupMetadataDataRequestEligibilities?.map(
+          (dataRequestEligibility, index) => {
+            const claimType =
+              dataRequestEligibility?.claimRequestEligibility?.claimRequest
+                ?.claimType;
+            const requestedValue =
+              dataRequestEligibility?.claimRequestEligibility?.claimRequest
+                ?.value;
 
-          console.log("readableAuthType", readableAuthType);
+            const isClaimEligible =
+              dataRequestEligibility?.claimRequestEligibility?.accountData &&
+              Object?.keys(
+                dataRequestEligibility?.claimRequestEligibility?.accountData
+              )?.length
+                ? true
+                : false;
 
-          const isEligible = Boolean(authRequestEligibility?.accounts?.length);
+            const isAuthEligible =
+              dataRequestEligibility?.authRequestEligibility?.accounts?.length >
+              0;
 
-          return (
-            <div key={index + "summaryItemAuth"}>
-              {index > 0 && isOr && (
-                <OrSperator>
-                  <Line />
-                  <OrText>or</OrText>
-                  <Line />
-                </OrSperator>
-              )}
-              {index > 0 && !isOr && (
-                <OrSperator>
-                  <Line />
-                </OrSperator>
-              )}
-              <GroupItem isEligible={isEligible}>
-                <CheckCircle
-                  size={16}
-                  color={isEligible ? "#A0F2E0" : "#323E64"}
-                />
-                {readableAuthType}
-              </GroupItem>
-            </div>
-          );
-        })} */}
+            const authType =
+              dataRequestEligibility?.authRequestEligibility?.authRequest
+                ?.authType;
 
-      {requestGroupsMetadata?.length &&
-        requestGroupsMetadata.map((group, index) => {
-          const claimType = group?.claim?.claimType;
-          const requestedValue = group?.claim?.value;
+            const humanReadableType =
+              authType === AuthType.EVM_ACCOUNT
+                ? "Ethereum Account"
+                : authType === AuthType.GITHUB
+                ? "Github account"
+                : authType === AuthType.TWITTER
+                ? "Twitter account"
+                : authType === AuthType.ANON
+                ? "Vault Id"
+                : null;
 
-          const claimRequestEligibility = claimRequestEligibilities.find(
-            (claimRequestEligibility) =>
-              claimRequestEligibility?.claimRequest?.groupId ===
-              group?.groupMetadata?.id
-          );
+            return (
+              <div key={index + "summaryItem"}>
+                {index > 0 && isOr && (
+                  <OrSperator>
+                    <Line />
+                    <OrText>or</OrText>
+                    <Line />
+                  </OrSperator>
+                )}
+                {index > 0 && !isOr && (
+                  <OrSperator>
+                    <Line />
+                  </OrSperator>
+                )}
+                {dataRequestEligibility?.claimRequestEligibility?.claimRequest
+                  ?.claimType !== ClaimType.EMPTY && (
+                  <GroupItem isEligible={isClaimEligible}>
+                    <CheckCircle
+                      size={16}
+                      color={isClaimEligible ? "#A0F2E0" : "#323E64"}
+                    />
 
-          const isEligible =
-            claimRequestEligibility?.accountData &&
-            Object?.keys(claimRequestEligibility?.accountData)?.length
-              ? true
-              : false;
+                    {getHumanReadableGroupName(
+                      dataRequestEligibility?.claimRequestEligibility
+                        ?.groupMetadata?.name
+                    )}
+                    {claimType === ClaimType.GTE ? (
+                      <ValueComparator isEligible={isClaimEligible}>
+                        {">="} {requestedValue}
+                      </ValueComparator>
+                    ) : claimType === ClaimType.GT ? (
+                      <ValueComparator isEligible={isClaimEligible}>
+                        {">"} {requestedValue}
+                      </ValueComparator>
+                    ) : claimType === ClaimType.EQ ? (
+                      <ValueComparator isEligible={isClaimEligible}>
+                        {requestedValue}
+                      </ValueComparator>
+                    ) : claimType === ClaimType.LT ? (
+                      <ValueComparator isEligible={isClaimEligible}>
+                        {"<"} {requestedValue}
+                      </ValueComparator>
+                    ) : claimType === ClaimType.LTE ? (
+                      <ValueComparator isEligible={isClaimEligible}>
+                        {"<="} {requestedValue}
+                      </ValueComparator>
+                    ) : null}
+                  </GroupItem>
+                )}
+                {dataRequestEligibility?.authRequestEligibility?.authRequest
+                  ?.authType !== AuthType.EMPTY && (
+                  <GroupItem isEligible={isAuthEligible}>
+                    <CheckCircle
+                      size={16}
+                      color={isAuthEligible ? "#A0F2E0" : "#323E64"}
+                    />
 
-          return (
-            <div key={index + "summaryItem"}>
-              {index > 0 && isOr && (
-                <OrSperator>
-                  <Line />
-                  <OrText>or</OrText>
-                  <Line />
-                </OrSperator>
-              )}
-              {index > 0 && !isOr && (
-                <OrSperator>
-                  <Line />
-                </OrSperator>
-              )}
-              <GroupItem isEligible={isEligible}>
-                <CheckCircle
-                  size={16}
-                  color={isEligible ? "#A0F2E0" : "#323E64"}
-                />
-                {getHumanReadableGroupName(group?.groupMetadata?.name)}
-                {claimType === ClaimType.GTE ? (
-                  <ValueComparator isEligible={isEligible}>
-                    {">="} {requestedValue}
-                  </ValueComparator>
-                ) : claimType === ClaimType.GT ? (
-                  <ValueComparator isEligible={isEligible}>
-                    {">"} {requestedValue}
-                  </ValueComparator>
-                ) : claimType === ClaimType.EQ ? (
-                  <ValueComparator isEligible={isEligible}>
-                    {requestedValue}
-                  </ValueComparator>
-                ) : claimType === ClaimType.LT ? (
-                  <ValueComparator isEligible={isEligible}>
-                    {"<"} {requestedValue}
-                  </ValueComparator>
-                ) : claimType === ClaimType.LTE ? (
-                  <ValueComparator isEligible={isEligible}>
-                    {"<="} {requestedValue}
-                  </ValueComparator>
-                ) : null}
-              </GroupItem>
-            </div>
-          );
-        })}
+                    {humanReadableType}
+                  </GroupItem>
+                )}
+              </div>
+            );
+          }
+        )}
     </Container>
   );
 }
