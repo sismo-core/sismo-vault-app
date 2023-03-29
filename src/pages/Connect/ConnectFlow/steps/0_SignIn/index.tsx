@@ -227,6 +227,10 @@ export default function SignIn({
   // const proveName = badge?.name?.split(" ZK Badge")[0] || null;
   // const article = ["a", "e", "i", "o", "u"].includes(badge?.name) ? "an" : "a";
 
+  const hasClaim = zkConnectRequest?.requestContent?.dataRequests?.some(
+    (dataRequest) => dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY
+  );
+
   useEffect(() => {
     const loadImage = (url) => {
       return new Promise((resolve, reject) => {
@@ -244,7 +248,7 @@ export default function SignIn({
     }
   }, [factoryApp]);
 
-  const loading = requestGroupsMetadata
+  const loading = hasClaim
     ? !factoryApp ||
       vault.loadingActiveSession ||
       !zkConnectRequest ||
@@ -271,12 +275,6 @@ export default function SignIn({
     setModalIsOpen(true);
     setInitialGroupId(groupId);
   }
-
-  console.log(
-    "data request eligibilities",
-    groupMetadataDataRequestEligibilities
-  );
-
   return (
     <>
       <ConnectVaultModal

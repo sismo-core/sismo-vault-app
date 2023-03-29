@@ -129,7 +129,6 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
       setErrorProof(false);
       setLoadingProof(false);
       setResponse(zkResponse);
-      console.log("zkResponse", zkResponse);
       setProofModalOpen(true);
       // onNext(zkResponse);
     } catch (e) {

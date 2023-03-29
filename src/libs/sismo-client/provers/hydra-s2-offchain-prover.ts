@@ -38,7 +38,6 @@ export class HydraS2OffchainProver extends Prover {
       });
     } else {
       console.log("///////////// PRODMODE /////////////");
-      console.log("devConfig", devConfig);
       this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
     }
   }
@@ -59,8 +58,6 @@ export class HydraS2OffchainProver extends Prover {
       env.sismoDestination.commitmentMapperPubKey.map((string) =>
         BigNumber.from(string)
       ) as EddsaPublicKey;
-
-    console.log("commitmentMapperPubKey", commitmentMapperPubKey);
 
     const prover = new HydraS2Prover(commitmentMapperPubKey, {
       wasmPath: "/hydra/s2_v1/hydra-s2.wasm",
@@ -159,9 +156,6 @@ export class HydraS2OffchainProver extends Prover {
     const secret = CommitmentMapper.generateCommitmentMapperSecret(
       account.seed
     );
-
-    console.log(account);
-
     const commitmentReceipt = [
       BigNumber.from(account.commitmentReceipt[0]),
       BigNumber.from(account.commitmentReceipt[1]),
@@ -270,8 +264,6 @@ export class HydraS2OffchainProver extends Prover {
     }
 
     if (source) {
-      console.log("SOURCE", source);
-
       const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);
       userParams["source"] = {
         ...hydraS2Account,

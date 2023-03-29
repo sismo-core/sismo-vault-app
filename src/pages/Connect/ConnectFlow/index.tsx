@@ -74,11 +74,7 @@ export default function ConnectFlow({
   ] = useState<GroupMetadataDataRequestEligibility[] | null>(null);
   const [step, setStep] = useState<Step>("SignIn");
   const [loadingEligible, setLoadingEligible] = useState(true);
-  const {
-    getClaimRequestEligibilities,
-    getAuthRequestEligibilities,
-    getDataRequestEligibilities,
-  } = useSismo();
+  const { getDataRequestEligibilities } = useSismo();
 
   //TODO use statements in components
 
@@ -129,8 +125,6 @@ export default function ConnectFlow({
     };
     testEligibility();
   }, [
-    getAuthRequestEligibilities,
-    getClaimRequestEligibilities,
     getDataRequestEligibilities,
     requestGroupsMetadata,
     vault.importedAccounts,

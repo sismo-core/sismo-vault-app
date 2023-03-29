@@ -119,8 +119,6 @@ export class ZkConnectProver {
         return this.getClaimRequestEligibility(claimRequest, importedAccounts);
       })
     );
-
-    console.log("ClaimRequestEligibilities", claimRequestEligibilities);
     return claimRequestEligibilities;
   }
 
@@ -188,8 +186,6 @@ export class ZkConnectProver {
       );
       authRequestEligibilities.push(authRequestEligibility);
     }
-
-    console.log("AuthRequestEligibilities", authRequestEligibilities);
     return authRequestEligibilities;
   }
 
@@ -249,15 +245,18 @@ export class ZkConnectProver {
           isAuthEligible
         ) {
           selectedDataRequestEligibilities.push(dataRequestEligibility);
-        }
-        if (hasClaimRequest && isClaimEligible) {
+        } else if (hasClaimRequest && isClaimEligible) {
           selectedDataRequestEligibilities.push(dataRequestEligibility);
-        }
-        if (hasAuthRequest && isAuthEligible) {
+        } else if (hasAuthRequest && isAuthEligible) {
           selectedDataRequestEligibilities.push(dataRequestEligibility);
         }
       }
     }
+
+    console.log(
+      "selectedDataRequestEligibilities",
+      selectedDataRequestEligibilities
+    );
 
     if (selectedDataRequestEligibilities?.length === 0)
       throw new Error("No eligible data requests");
