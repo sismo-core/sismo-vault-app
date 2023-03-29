@@ -149,7 +149,7 @@ export function EligibilitySummary({
                       dataRequestEligibility?.claimRequestEligibility
                         ?.groupMetadata?.name
                     )}
-                    {claimType === ClaimType.GTE ? (
+                    {claimType === ClaimType.GTE && requestedValue > 1 ? (
                       <ValueComparator isEligible={isClaimEligible}>
                         {">="} {requestedValue}
                       </ValueComparator>
