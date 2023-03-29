@@ -101,7 +101,7 @@ export class DevRegistryTreeReader extends RegistryTreeReader {
 
     const devAddresses = devGroup?.data;
     if (devAddresses?.length > 0) {
-      for (const key in devAddresses) {
+      for (const key of devAddresses as string[]) {
         groupData[key.toLowerCase()] = 1;
       }
     }
