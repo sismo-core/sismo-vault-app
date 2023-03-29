@@ -80,19 +80,17 @@ export default function ConnectFlow({
 
   //Test Eligibility
   useEffect(() => {
-    if (!vault?.importedAccounts) return;
     if (!zkConnectRequest) return;
 
     const testEligibility = async () => {
       if (!zkConnectRequest?.requestContent) {
         return;
       }
-
       try {
         setLoadingEligible(true);
         const dataRequestEligibilities = await getDataRequestEligibilities(
           zkConnectRequest,
-          vault.importedAccounts
+          vault?.importedAccounts || []
         );
 
         const groupMetadataDataRequestEligibilities =

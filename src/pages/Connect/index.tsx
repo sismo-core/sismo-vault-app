@@ -13,7 +13,10 @@ import { getZkConnectRequest } from "./utils/getZkConnectRequest";
 import { getReferrer } from "./utils/getReferrerApp";
 // import { StatementGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
 import { GroupMetadata } from "../../libs/sismo-client";
-import { RequestGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+import {
+  RequestGroupMetadata,
+  ClaimType,
+} from "../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 
 const Container = styled.div`
   position: relative;
@@ -93,6 +96,38 @@ export default function Connect(): JSX.Element {
     const request = getZkConnectRequest(searchParams);
     setZkConnectRequest(request);
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!zkConnectRequest) return;
+
+    if (zkConnectRequest?.devConfig) {
+      const claimRequests =
+        zkConnectRequest?.requestContent?.dataRequests?.filter(
+          (dataRequest) =>
+            dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY
+        );
+      const claimGroupIds = claimRequests?.map(
+        (claimRequest) => claimRequest?.claimRequest?.groupId
+      );
+      const devConfigGroupIds = zkConnectRequest?.devConfig?.devGroups?.map(
+        (group) => group?.groupId
+      );
+
+      const missingGroups = claimGroupIds?.filter(
+        (groupId) => !devConfigGroupIds?.includes(groupId)
+      );
+
+      if (missingGroups?.length > 0) {
+        setIsWrongUrl({
+          status: true,
+          message:
+            "Invalid devConfig: claimRequest groups are not defined in your devConfig. Please add the following groups to your devConfig: " +
+            missingGroups.join(", "),
+        });
+        return;
+      }
+    }
+  }, [zkConnectRequest]);
 
   //Verify request validity
   useEffect(() => {

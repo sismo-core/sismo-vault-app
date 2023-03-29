@@ -242,12 +242,21 @@ export class ZkConnectProver {
           hasClaimRequest &&
           hasAuthRequest &&
           isClaimEligible &&
-          isAuthEligible
+          isAuthEligible &&
+          selectedDataRequestEligibilities?.length === 0
         ) {
           selectedDataRequestEligibilities.push(dataRequestEligibility);
-        } else if (hasClaimRequest && isClaimEligible) {
+        } else if (
+          hasClaimRequest &&
+          isClaimEligible &&
+          selectedDataRequestEligibilities?.length === 0
+        ) {
           selectedDataRequestEligibilities.push(dataRequestEligibility);
-        } else if (hasAuthRequest && isAuthEligible) {
+        } else if (
+          hasAuthRequest &&
+          isAuthEligible &&
+          selectedDataRequestEligibilities?.length === 0
+        ) {
           selectedDataRequestEligibilities.push(dataRequestEligibility);
         }
       }
@@ -398,9 +407,9 @@ export class ZkConnectProver {
           auth: dataRequestEligibility?.authRequestEligibility?.authRequest,
           claim: dataRequestEligibility?.claimRequestEligibility?.claimRequest,
           signedMessage: dataRequestEligibility?.messageSignatureRequest,
-          proof: snarkProof.toBytes(),
+          proofData: snarkProof.toBytes(),
           extraData: "",
-        } as unknown as ZkConnectProof;
+        } as ZkConnectProof;
       }
     );
 

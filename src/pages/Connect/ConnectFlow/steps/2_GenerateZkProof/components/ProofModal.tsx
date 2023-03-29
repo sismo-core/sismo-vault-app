@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Modal from "../../../../../../components/Modal";
+import getZkConnectResponseABIEncode from "../../../../utils/getZkConnectResponseABIEncode";
 
 const Container = styled.div`
   display: flex;
@@ -36,6 +37,8 @@ export default function ProofModal({
   onClose,
   response,
 }: Props): JSX.Element {
+  console.log("ProofModal", response);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -44,7 +47,9 @@ export default function ProofModal({
       outsideClosable
       zIndex={2008}
     >
-      <Container>{JSON.stringify(response)}</Container>
+      {response && (
+        <Container>{getZkConnectResponseABIEncode(response)}</Container>
+      )}
     </Modal>
   );
 }

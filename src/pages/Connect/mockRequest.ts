@@ -99,9 +99,9 @@ export const dataRequestMock5: DataRequest = {
 export const zkConnectRequestContentMock: ZkConnectRequestContent = {
   dataRequests: [
     dataRequestMock1,
-    dataRequestMock2,
+    //dataRequestMock2,
     // dataRequestMock3,
-    dataRequestMock4,
+    // dataRequestMock4,
     //  dataRequestMock5,
   ],
   operators: ["AND"],
@@ -114,14 +114,14 @@ export const zkConnectRequestMock: ZkConnectRequest = {
   version: "zk-connect-v2",
 };
 
-const url = new URL("http://localhost:3001/connect");
+const url = new URL("http://localhost:3000/connect");
 const searchParams = url.searchParams;
 searchParams.set("version", zkConnectRequestMock.version);
 searchParams.set("appId", zkConnectRequestMock.appId);
 searchParams.set("namespace", zkConnectRequestMock.namespace);
 searchParams.set("callbackPath", zkConnectRequestMock.callbackPath);
 searchParams.set("requestContent", JSON.stringify(zkConnectRequestContentMock));
-searchParams.set("devConfig", JSON.stringify(devConfig));
+//searchParams.set("devConfig", JSON.stringify(devConfig));
 
 export const zkConnectRequestMockUrl = url.toString();
 
