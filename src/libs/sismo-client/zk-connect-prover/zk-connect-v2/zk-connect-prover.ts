@@ -253,11 +253,6 @@ export class ZkConnectProver {
       }
     }
 
-    console.log(
-      "selectedDataRequestEligibilities",
-      selectedDataRequestEligibilities
-    );
-
     if (selectedDataRequestEligibilities?.length === 0)
       throw new Error("No eligible data requests");
 

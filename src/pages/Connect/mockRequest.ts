@@ -19,7 +19,21 @@ export const devConfig = {
       groupId: "0x8d5e3ee2049c1c7d363ea88b2b424877",
       groupTimestamp: "latest",
       data: {
-        "0x938f169352008d35e065F153be53b3D3C07Bcd91": 3,
+        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+      },
+    },
+    {
+      groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
+      groupTimestamp: "latest",
+      data: {
+        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+      },
+    },
+    {
+      groupId: "0x682544d549b8a461d7fe3e589846bb7b",
+      groupTimestamp: "latest",
+      data: {
+        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
       },
     },
   ],
@@ -61,16 +75,16 @@ export const dataRequestMock3: DataRequest = {
   },
   messageSignatureRequest: "my custom message",
 };
-// export const dataRequestMock4: DataRequest = {
-//   claimRequest: {
-//     groupId: "0x682544d549b8a461d7fe3e589846bb7b",
-//     groupTimestamp: "latest",
-//     value: 2,
-//     claimType: 1,
-//     extraData: "",
-//   },
-//   messageSignatureRequest: "my custom message",
-// };
+export const dataRequestMock4: DataRequest = {
+  claimRequest: {
+    groupId: "0x682544d549b8a461d7fe3e589846bb7b",
+    groupTimestamp: "latest",
+    value: 2,
+    claimType: 1,
+    extraData: "",
+  },
+  messageSignatureRequest: "my custom message",
+};
 
 export const dataRequestMock5: DataRequest = {
   authRequest: {
@@ -87,10 +101,10 @@ export const zkConnectRequestContentMock: ZkConnectRequestContent = {
     dataRequestMock1,
     dataRequestMock2,
     // dataRequestMock3,
-    // dataRequestMock4,
-    // dataRequestMock5,
+    dataRequestMock4,
+    //  dataRequestMock5,
   ],
-  operators: ["OR"],
+  operators: ["AND"],
 };
 
 export const zkConnectRequestMock: ZkConnectRequest = {
