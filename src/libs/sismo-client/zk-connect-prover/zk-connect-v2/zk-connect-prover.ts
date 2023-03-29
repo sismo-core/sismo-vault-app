@@ -291,7 +291,7 @@ export class ZkConnectProver {
               dataRequestEligibility?.messageSignatureRequest
             );
           }
-          _generateProofInputs["extradata"] = ethers.utils.keccak256(
+          _generateProofInputs["extraData"] = ethers.utils.keccak256(
             ethers.utils.toUtf8Bytes(preparedSignedMessage)
           );
         }
@@ -402,6 +402,7 @@ export class ZkConnectProver {
             }
           }
         }
+        console.log("_generateProofInputs", _generateProofInputs);
         const snarkProof = await this.prover.generateProof(
           _generateProofInputs
         );

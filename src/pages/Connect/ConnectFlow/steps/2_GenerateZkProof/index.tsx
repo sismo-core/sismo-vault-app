@@ -130,13 +130,13 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
       setLoadingProof(false);
       setResponse(zkResponse);
 
-      if (
-        zkConnectRequest?.devConfig?.modalOutput === "bytes" ||
-        zkConnectRequest?.devConfig?.modalOutput === "typescript"
-      ) {
-        setProofModalOpen(true);
-        return;
-      }
+      // if (
+      //   zkConnectRequest?.devConfig?.modalOutput === "bytes" ||
+      //   zkConnectRequest?.devConfig?.modalOutput === "typescript"
+      // ) {
+      //   setProofModalOpen(true);
+      //   return;
+      // }
       onNext(zkResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {

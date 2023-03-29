@@ -59,8 +59,6 @@ export class HydraS2OffchainProver extends Prover {
         BigNumber.from(string)
       ) as EddsaPublicKey;
 
-    console.log("source", source);
-
     const prover = new HydraS2Prover(commitmentMapperPubKey, {
       wasmPath: "/hydra/s2_v1/hydra-s2.wasm",
       zkeyPath: "/hydra/s2_v1/hydra-s2.zkey",
