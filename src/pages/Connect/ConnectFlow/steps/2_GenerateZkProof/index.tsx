@@ -129,7 +129,14 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
       setErrorProof(false);
       setLoadingProof(false);
       setResponse(zkResponse);
-      // setProofModalOpen(true);
+
+      if (
+        zkConnectRequest?.devConfig?.modalOutput === "bytes" ||
+        "typescript"
+      ) {
+        setProofModalOpen(true);
+        return;
+      }
       onNext(zkResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {
@@ -152,6 +159,7 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
       <ProofModal
         response={response}
         isOpen={proofModalOpen}
+        type={zkConnectRequest?.devConfig?.modalOutput}
         onClose={() => setProofModalOpen(false)}
       />
       <Container>

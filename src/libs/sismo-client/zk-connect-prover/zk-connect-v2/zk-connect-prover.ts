@@ -411,6 +411,7 @@ export class ZkConnectProver {
           signedMessage: dataRequestEligibility?.messageSignatureRequest,
           proofData: snarkProof.toBytes(),
           extraData: "",
+          provingScheme: "hydra-s2.1",
         } as ZkConnectProof;
       }
     );

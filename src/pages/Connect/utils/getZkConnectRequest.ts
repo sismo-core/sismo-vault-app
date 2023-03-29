@@ -39,8 +39,8 @@ export const getZkConnectRequest = (
 
   if (request.requestContent) {
     if (
-      !request.requestContent.operators ||
-      request.requestContent.operators.length === 0
+      !request?.requestContent?.operators ||
+      request?.requestContent?.operators?.length === 0
     ) {
       request.requestContent.operators = ["AND"];
     }

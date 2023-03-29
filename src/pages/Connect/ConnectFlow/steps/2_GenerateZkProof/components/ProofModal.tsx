@@ -26,18 +26,53 @@ const Container = styled.div`
   }
 `;
 
+const GroupItem = styled.div<{ isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  padding: 1px 10px 1px 6px;
+  gap: 6px;
+  font-size: 16px;
+  line-height: 24px;
+  font-family: ${(props) => props.theme.fonts.medium};
+  cursor: pointer;
+  border-radius: 10px;
+  box-sizing: border-box;
+
+  ${(props) =>
+    !props.isSelected
+      ? `
+    background-color: ${props.theme.colors.blue10};
+    color: ${props.theme.colors.blue1};
+    border: 1px solid ${props.theme.colors.blue10};
+  `
+      : `
+    background-color: ${props.theme.colors.blue9};
+    color: ${props.theme.colors.green1};
+    border: 1px solid ${props.theme.colors.green1};
+  `}
+`;
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
   response: any;
+  type: "bytes" | "typescript";
 };
 
 export default function ProofModal({
   isOpen,
   onClose,
   response,
+  type,
 }: Props): JSX.Element {
-  console.log("ProofModal", response);
+  const [selectedType, setSelectedType] = useState<"bytes" | "typescript">(
+    type
+  );
+
+  const readableResponse =
+    type === "bytes"
+      ? getZkConnectResponseABIEncode(response)
+      : JSON.stringify(response);
 
   return (
     <Modal
@@ -45,10 +80,24 @@ export default function ProofModal({
       onClose={onClose}
       animated
       outsideClosable
-      zIndex={2008}
+      zIndex={2010}
     >
       {response && (
-        <Container>{getZkConnectResponseABIEncode(response)}</Container>
+        <Container>
+          <GroupItem
+            isSelected={selectedType === "bytes"}
+            onClick={() => setSelectedType("bytes")}
+          >
+            <span>{type}</span>
+          </GroupItem>
+          <GroupItem
+            isSelected={selectedType === "typescript"}
+            onClick={() => setSelectedType("typescript")}
+          >
+            <span>{type}</span>
+          </GroupItem>
+          {readableResponse}
+        </Container>
       )}
     </Modal>
   );
