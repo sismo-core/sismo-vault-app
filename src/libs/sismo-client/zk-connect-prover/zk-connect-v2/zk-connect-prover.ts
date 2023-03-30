@@ -290,7 +290,7 @@ export class ZkConnectProver {
             );
           }
           _generateProofInputs["extraData"] = ethers.utils.keccak256(
-            ethers.utils.toUtf8Bytes(preparedSignedMessage)
+            ethers.utils.hexlify(preparedSignedMessage)
           );
         }
 

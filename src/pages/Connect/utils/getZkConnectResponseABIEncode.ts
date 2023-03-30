@@ -57,7 +57,8 @@ export default function getZkConnectResponseABIEncode(
           return {
             claim: claimForEncoding,
             auth: authForEncoding,
-            signedMessage: ethers.utils.toUtf8Bytes(proof?.signedMessage ?? ""),
+            signedMessage:
+              proof?.signedMessage ?? ethers.utils.formatBytes32String(""),
             provingScheme: ethers.utils.hexZeroPad(
               ethers.utils.formatBytes32String(
                 proof?.provingScheme ?? "hydra-s2.1"
