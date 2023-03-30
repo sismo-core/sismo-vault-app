@@ -160,6 +160,7 @@ const MessageTitle = styled.div`
 
 const Message = styled.div`
   font-family: ${(props) => props.theme.fonts.medium};
+  word-break: break-all;
 `;
 
 const SecondLine = styled.div`
