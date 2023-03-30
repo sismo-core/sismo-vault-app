@@ -48,6 +48,8 @@ export const getZkConnectResponseBytes = (
             extraData: ethers.utils.toUtf8Bytes(proof?.claim?.extraData ?? ""),
           } as Claim;
 
+          console.log("claimForEncoding", claimForEncoding);
+
           const authForEncoding = {
             authType: proof?.auth?.authType ?? AuthType.EMPTY,
             anonMode: proof?.auth?.anonMode ?? false,
@@ -73,6 +75,5 @@ export const getZkConnectResponseBytes = (
       },
     ]
   );
-
   return zkResponseABIEncoded;
 };

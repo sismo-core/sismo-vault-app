@@ -114,8 +114,7 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
     setLoadingProof(true);
     setErrorProof(false);
     try {
-      const owner = vault.owners[0];
-      const vaultSecret = await vault.getVaultSecret(owner);
+      const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
       const zkResponse = await generateResponse(
         zkConnectRequest,
         vault.importedAccounts,
