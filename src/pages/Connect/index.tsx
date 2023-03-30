@@ -69,7 +69,7 @@ export type EligibleGroup = {
   [account: string]: number;
 };
 
-export const PWS_VERSION = "zk-connect-v1";
+export const PWS_VERSION = "zk-connect-v2";
 
 export default function Connect(): JSX.Element {
   const [searchParams] = useSearchParams();
@@ -96,6 +96,54 @@ export default function Connect(): JSX.Element {
 
   useEffect(() => {
     if (!zkConnectRequest) return;
+  }, [zkConnectRequest]);
+
+  //Verify request validity
+  useEffect(() => {
+    if (!zkConnectRequest) return;
+    if (!zkConnectRequest.version || zkConnectRequest.version !== PWS_VERSION) {
+      setIsWrongUrl({
+        status: true,
+        message: "Invalid version query parameter: " + zkConnectRequest.version,
+      });
+      return;
+    }
+    if (!zkConnectRequest.appId) {
+      setIsWrongUrl({
+        status: true,
+        message: "Invalid appId query parameter: " + zkConnectRequest.appId,
+      });
+      return;
+    }
+    if (!zkConnectRequest.namespace) {
+      setIsWrongUrl({
+        status: true,
+        message:
+          "Invalid namespace query parameter: " + zkConnectRequest.namespace,
+      });
+      return;
+    }
+
+    if (zkConnectRequest?.requestContent?.dataRequests) {
+      for (const dataRequest of zkConnectRequest?.requestContent
+        ?.dataRequests) {
+        if (
+          dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY &&
+          dataRequest?.claimRequest?.claimType !== ClaimType.GTE &&
+          dataRequest?.claimRequest?.claimType !== ClaimType.EQ &&
+          typeof dataRequest?.claimRequest?.claimType !== "undefined"
+        ) {
+          setIsWrongUrl({
+            status: true,
+            message:
+              "Invalid claimType: claimType" +
+              dataRequest?.claimRequest?.claimType +
+              " will be supported soon. Please use GTE or EQ for now.",
+          });
+          return;
+        }
+      }
+    }
 
     if (zkConnectRequest?.devConfig) {
       const claimRequests =
@@ -123,33 +171,6 @@ export default function Connect(): JSX.Element {
         });
         return;
       }
-    }
-  }, [zkConnectRequest]);
-
-  //Verify request validity
-  useEffect(() => {
-    if (!zkConnectRequest) return;
-    if (!zkConnectRequest.version) {
-      setIsWrongUrl({
-        status: true,
-        message: "Invalid version query parameter: " + zkConnectRequest.version,
-      });
-      return;
-    }
-    if (!zkConnectRequest.appId) {
-      setIsWrongUrl({
-        status: true,
-        message: "Invalid appId query parameter: " + zkConnectRequest.appId,
-      });
-      return;
-    }
-    if (!zkConnectRequest.namespace) {
-      setIsWrongUrl({
-        status: true,
-        message:
-          "Invalid namespace query parameter: " + zkConnectRequest.namespace,
-      });
-      return;
     }
   }, [zkConnectRequest, factoryApp]);
 
@@ -209,7 +230,7 @@ export default function Connect(): JSX.Element {
                   : "")
         );
       } catch (e) {
-        console.log("Referrer error");
+        if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
           message: "Invalid referrer: " + document.referrer,
@@ -257,6 +278,7 @@ export default function Connect(): JSX.Element {
 
         setRequestGroupsMetadata(requestGroupsMetadata);
       } catch (e) {
+        if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
           message: "Invalid Claim requests: " + e,
@@ -293,6 +315,7 @@ export default function Connect(): JSX.Element {
         );
 
         if (!isAuthorized) {
+          if (isWrongUrl?.status) return;
           setIsWrongUrl({
             status: true,
             message: `The domain "${_referrerName}" is not an authorized domain for the appId ${zkConnectRequest.appId}. If this is your app, please make sure to add your domain to your zkConnect app from the factory.`,
@@ -301,6 +324,7 @@ export default function Connect(): JSX.Element {
         }
         setFactoryApp(factoryApp);
       } catch (e) {
+        if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
           message: "Invalid appId: " + zkConnectRequest.appId,
@@ -313,7 +337,7 @@ export default function Connect(): JSX.Element {
     setReferrer();
     getGroupMetadataData();
     getFactoryAppData();
-  }, [zkConnectRequest, getFactoryApp, getGroupMetadata]);
+  }, [zkConnectRequest, getFactoryApp, getGroupMetadata, isWrongUrl?.status]);
 
   return (
     <Container>

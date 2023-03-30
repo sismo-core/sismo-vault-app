@@ -2,6 +2,7 @@ import {
   ZkConnectRequest,
   ZkConnectRequestContent,
   DataRequest,
+  AuthType,
 } from "./localTypes";
 
 export const devConfig = {
@@ -39,6 +40,14 @@ export const devConfig = {
   ],
 };
 
+export const dataRequestMockError: DataRequest = {
+  claimRequest: {
+    groupId: "0xe9ed316946d3d98dfcd829a53ec9822e",
+  } as any,
+  authRequest: {
+    authType: AuthType.ANON,
+  } as any,
+};
 export const dataRequestMock1: DataRequest = {
   claimRequest: {
     groupId: "0xe9ed316946d3d98dfcd829a53ec9822e",
@@ -98,7 +107,8 @@ export const dataRequestMock5: DataRequest = {
 
 export const zkConnectRequestContentMock: ZkConnectRequestContent = {
   dataRequests: [
-    dataRequestMock1,
+    dataRequestMockError,
+    //dataRequestMock1,
     //dataRequestMock2,
     // dataRequestMock3,
     // dataRequestMock4,
@@ -108,7 +118,7 @@ export const zkConnectRequestContentMock: ZkConnectRequestContent = {
 };
 
 export const zkConnectRequestMock: ZkConnectRequest = {
-  appId: "0x4dd4246069a00f8155e70b1827f12e32",
+  appId: "0xf68985adfc209fafebfb1a956913e7fa",
   namespace: "main",
   callbackPath: null,
   version: "zk-connect-v2",

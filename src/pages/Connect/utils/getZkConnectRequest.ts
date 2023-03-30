@@ -91,43 +91,43 @@ export const getZkConnectRequest = (
               ? ""
               : request.requestContent.dataRequests[i].authRequest.extraData;
         }
+      }
 
-        /* ****************************************** */
-        /* ****** SET DEFAULT FOR CLAIM ************* */
-        /* ****************************************** */
+      /* ****************************************** */
+      /* ****** SET DEFAULT FOR CLAIM ************* */
+      /* ****************************************** */
 
-        if (!request.requestContent.dataRequests[i].claimRequest) {
-          request.requestContent.dataRequests[i].claimRequest = {
-            claimType: ClaimType.EMPTY,
-          } as Claim;
-        }
+      if (!request.requestContent.dataRequests[i].claimRequest) {
+        request.requestContent.dataRequests[i].claimRequest = {
+          claimType: ClaimType.EMPTY,
+        } as Claim;
+      }
 
-        if (request.requestContent.dataRequests[i].claimRequest) {
-          request.requestContent.dataRequests[i].claimRequest.groupTimestamp =
-            typeof request.requestContent.dataRequests[i].claimRequest
-              .groupTimestamp === "undefined"
-              ? "latest"
-              : request.requestContent.dataRequests[i].claimRequest
-                  .groupTimestamp;
+      if (request.requestContent.dataRequests[i].claimRequest) {
+        request.requestContent.dataRequests[i].claimRequest.groupTimestamp =
+          typeof request.requestContent.dataRequests[i].claimRequest
+            .groupTimestamp === "undefined"
+            ? "latest"
+            : request.requestContent.dataRequests[i].claimRequest
+                .groupTimestamp;
 
-          request.requestContent.dataRequests[i].claimRequest.value =
-            typeof request.requestContent.dataRequests[i].claimRequest.value ===
-            "undefined"
-              ? 1
-              : request.requestContent.dataRequests[i].claimRequest.value;
+        request.requestContent.dataRequests[i].claimRequest.value =
+          typeof request.requestContent.dataRequests[i].claimRequest.value ===
+          "undefined"
+            ? 1
+            : request.requestContent.dataRequests[i].claimRequest.value;
 
-          request.requestContent.dataRequests[i].claimRequest.claimType =
-            typeof request.requestContent.dataRequests[i].claimRequest
-              .claimType === "undefined"
-              ? ClaimType.GTE
-              : request.requestContent.dataRequests[i].claimRequest.claimType;
+        request.requestContent.dataRequests[i].claimRequest.claimType =
+          typeof request.requestContent.dataRequests[i].claimRequest
+            .claimType === "undefined"
+            ? ClaimType.GTE
+            : request.requestContent.dataRequests[i].claimRequest.claimType;
 
-          request.requestContent.dataRequests[i].claimRequest.extraData =
-            typeof request.requestContent.dataRequests[i].claimRequest
-              .extraData === "undefined"
-              ? ""
-              : request.requestContent.dataRequests[i].claimRequest.extraData;
-        }
+        request.requestContent.dataRequests[i].claimRequest.extraData =
+          typeof request.requestContent.dataRequests[i].claimRequest
+            .extraData === "undefined"
+            ? ""
+            : request.requestContent.dataRequests[i].claimRequest.extraData;
       }
     }
   }
