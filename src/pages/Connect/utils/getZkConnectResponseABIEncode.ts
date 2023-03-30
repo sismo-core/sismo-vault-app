@@ -7,6 +7,8 @@ export default function getZkConnectResponseABIEncode(
 ) {
   if (!zkConnectResponse) return null;
 
+  console.log("zkConnectResponse: ", zkConnectResponse);
+
   const AbiCoder = new ethers.utils.AbiCoder();
 
   const zkResponseABIEncoded = AbiCoder.encode(
@@ -33,7 +35,7 @@ export default function getZkConnectResponseABIEncode(
         proofs: zkConnectResponse.proofs.map((proof) => {
           const claimForEncoding = {
             groupId: ethers.utils.hexZeroPad(
-              ethers.utils.hexlify(proof?.claim?.groupId ?? "0x0"),
+              ethers.utils.hexlify(proof?.claim?.groupId ?? "0x00"),
               16
             ),
             groupTimestamp:
@@ -41,7 +43,10 @@ export default function getZkConnectResponseABIEncode(
                 ? BigNumber.from(
                     ethers.utils.formatBytes32String("latest")
                   ).shr(128)
-                : proof?.claim?.groupTimestamp,
+                : proof?.claim?.groupTimestamp ??
+                  BigNumber.from(
+                    ethers.utils.formatBytes32String("latest")
+                  ).shr(128),
             value: proof?.claim?.value ?? 1,
             claimType: proof?.claim?.claimType ?? ClaimType.EMPTY,
             extraData: ethers.utils.toUtf8Bytes(proof?.claim?.extraData ?? ""),

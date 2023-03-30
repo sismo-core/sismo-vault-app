@@ -65,32 +65,32 @@ export const getZkConnectRequest = (
         request.requestContent.dataRequests[i].authRequest = {
           authType: AuthType.EMPTY,
         } as Auth;
+      }
 
-        if (request.requestContent.dataRequests[i].authRequest) {
-          request.requestContent.dataRequests[i].authRequest.authType =
-            typeof request.requestContent.dataRequests[i].authRequest
-              .authType === "undefined"
-              ? AuthType.ANON
-              : request.requestContent.dataRequests[i].authRequest.authType;
+      if (request.requestContent.dataRequests[i].authRequest) {
+        request.requestContent.dataRequests[i].authRequest.authType =
+          typeof request.requestContent.dataRequests[i].authRequest.authType ===
+          "undefined"
+            ? AuthType.ANON
+            : request.requestContent.dataRequests[i].authRequest.authType;
 
-          request.requestContent.dataRequests[i].authRequest.anonMode =
-            typeof request.requestContent.dataRequests[i].authRequest
-              .anonMode === "undefined"
-              ? false
-              : request.requestContent.dataRequests[i].authRequest.anonMode;
+        request.requestContent.dataRequests[i].authRequest.anonMode =
+          typeof request.requestContent.dataRequests[i].authRequest.anonMode ===
+          "undefined"
+            ? false
+            : request.requestContent.dataRequests[i].authRequest.anonMode;
 
-          request.requestContent.dataRequests[i].authRequest.userId =
-            typeof request.requestContent.dataRequests[i].authRequest.userId ===
-            "undefined"
-              ? "0"
-              : request.requestContent.dataRequests[i].authRequest.userId;
+        request.requestContent.dataRequests[i].authRequest.userId =
+          typeof request.requestContent.dataRequests[i].authRequest.userId ===
+          "undefined"
+            ? "0"
+            : request.requestContent.dataRequests[i].authRequest.userId;
 
-          request.requestContent.dataRequests[i].authRequest.extraData =
-            typeof request.requestContent.dataRequests[i].authRequest
-              .extraData === "undefined"
-              ? ""
-              : request.requestContent.dataRequests[i].authRequest.extraData;
-        }
+        request.requestContent.dataRequests[i].authRequest.extraData =
+          typeof request.requestContent.dataRequests[i].authRequest
+            .extraData === "undefined"
+            ? ""
+            : request.requestContent.dataRequests[i].authRequest.extraData;
       }
 
       /* ****************************************** */
@@ -133,5 +133,7 @@ export const getZkConnectRequest = (
   }
 
   request.namespace = request.namespace || "main";
+
+  console.log("request: ", request);
   return request;
 };

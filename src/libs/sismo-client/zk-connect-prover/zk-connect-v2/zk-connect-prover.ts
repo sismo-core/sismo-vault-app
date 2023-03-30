@@ -78,7 +78,7 @@ export class ZkConnectProver {
     claimRequest: Claim,
     importedAccounts: ImportedAccount[]
   ): Promise<ClaimRequestEligibility> {
-    if (!claimRequest)
+    if (!claimRequest || claimRequest?.claimType === ClaimType.EMPTY)
       return {
         claimRequest: {
           claimType: ClaimType.EMPTY,
@@ -129,7 +129,7 @@ export class ZkConnectProver {
     let accounts: ImportedAccount[];
 
     // TO BE REVIEWED IF NULL
-    if (!authRequest)
+    if (!authRequest || authRequest?.authType === AuthType.EMPTY)
       return {
         authRequest: {
           authType: AuthType.EMPTY,

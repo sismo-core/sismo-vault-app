@@ -22,6 +22,7 @@ const Container = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 100%;
+  flex-grow: 1;
 `;
 
 const HeaderWrapper = styled.div`
@@ -135,7 +136,7 @@ export default function ImportEligibleAccount({
     });
   }
 
-  const hasRequestGroupsMetadata = requestGroupsMetadata?.length > 0;
+  const hasRequest = groupMetadataDataRequestEligibilities?.length > 0;
 
   let isZkConnectRequestEligible: boolean = true;
 
@@ -195,7 +196,7 @@ export default function ImportEligibleAccount({
 
   return (
     <>
-      {hasRequestGroupsMetadata && (
+      {requestGroupsMetadata?.length > 0 && (
         <EligibilityModal
           isOpen={modalIsOpen}
           onClose={() => setModalIsOpen(false)}
@@ -211,7 +212,7 @@ export default function ImportEligibleAccount({
               ZK Proof Generation
             </ContentHeader>
 
-            {hasRequestGroupsMetadata && (
+            {hasRequest && (
               <HeaderSubtitle>
                 Import an eligible account into your Data Vault to verify:
               </HeaderSubtitle>
@@ -226,18 +227,20 @@ export default function ImportEligibleAccount({
           />
         </Summary>
 
-        <EligibilityLink
-          onClick={() => {
-            setModalIsOpen(true);
-          }}
-        >
-          Eligibility
-          <ArrowWrapper>
-            <ArrowsOutSimple size={13.74} color={colors.blue2} />
-          </ArrowWrapper>
-        </EligibilityLink>
+        {requestGroupsMetadata?.length > 0 && (
+          <EligibilityLink
+            onClick={() => {
+              setModalIsOpen(true);
+            }}
+          >
+            Eligibility
+            <ArrowWrapper>
+              <ArrowsOutSimple size={13.74} color={colors.blue2} />
+            </ArrowWrapper>
+          </EligibilityLink>
+        )}
 
-        {hasRequestGroupsMetadata && (
+        {hasRequest && (
           <CallToAction>
             <TooltipWrapper>
               Why Importing?

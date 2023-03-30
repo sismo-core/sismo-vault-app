@@ -98,6 +98,8 @@ const ContentWrapper = styled.div`
 `;
 
 const ContentBlock = styled.div`
+  display: flex;
+  flex-direction: column;
   position: relative;
   background-color: ${(props) => props.theme.colors.blue11};
   border-radius: 10px;
