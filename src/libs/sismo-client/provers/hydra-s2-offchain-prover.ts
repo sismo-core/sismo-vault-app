@@ -11,7 +11,6 @@ import {
   StatementInput,
   KVMerkleTree,
 } from "@sismo-core/hydra-s2";
-import { OffchainRegistryTreeReader } from "../registry-tree-readers/offchain-registry-tree-reader";
 import { DevRegistryTreeReader } from "../registry-tree-readers/dev-registry-tree-reader";
 import { Cache } from "../caches";
 import { ethers, BigNumber } from "ethers";
@@ -25,13 +24,14 @@ import {
 import { Prover } from "./prover";
 import env from "../../../environment";
 import { ClaimType, DevConfig } from "../zk-connect-prover/zk-connect-v2";
+import { RegistryTreeReader } from "../registry-tree-readers/registry-tree-reader";
 
 export class HydraS2OffchainProver extends Prover {
-  registryTreeReader: OffchainRegistryTreeReader | DevRegistryTreeReader;
+  registryTreeReader: RegistryTreeReader | DevRegistryTreeReader;
 
   constructor({ cache }: { cache?: Cache }) {
     super();
-    this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
+    this.registryTreeReader = new RegistryTreeReader({ cache });
   }
 
   public async initDevConfig(devConfig?: DevConfig) {

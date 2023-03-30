@@ -4,16 +4,16 @@ import {
   SNARK_FIELD,
 } from "@sismo-core/hydra-s2";
 
-import { RegistryTreeReader } from "./registry-tree-reader";
 import { buildPoseidon } from "@sismo-core/hydra-s2";
 import { ethers, BigNumber } from "ethers";
 import { DevGroup } from "../zk-connect-prover/zk-connect-v2";
 import {
   OffchainGetAccountsTreeInputs,
   OffchainGetAccountsTreeEligibilityInputs,
+  RegistryTreeReaderBase,
 } from "./types";
 
-export class DevRegistryTreeReader extends RegistryTreeReader {
+export class DevRegistryTreeReader extends RegistryTreeReaderBase {
   private _devGroups: DevGroup[];
 
   constructor({ devGroups }: { devGroups: DevGroup[] }) {
