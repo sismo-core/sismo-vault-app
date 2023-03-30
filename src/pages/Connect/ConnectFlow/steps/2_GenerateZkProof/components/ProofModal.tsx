@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Modal from "../../../../../../components/Modal";
 import { ZkConnectResponse } from "../../../../localTypes";
+import { getZkConnectResponseBytes } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2/utils/getZkConnectResponseBytes";
 
 const Container = styled.div`
   display: flex;
@@ -82,7 +83,7 @@ export default function ProofModal({
     proofs: response?.proofs,
   };
 
-  const bytesResponse = response?.zkConnectResponseBytes;
+  const bytesResponse = getZkConnectResponseBytes(response);
 
   const [readableResponse, setReadableResponse] = useState<string>(
     selectedType === "typescript"
