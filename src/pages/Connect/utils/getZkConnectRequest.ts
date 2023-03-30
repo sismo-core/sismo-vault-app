@@ -54,6 +54,13 @@ export const getZkConnectRequest = (
         typeof request.devConfig.displayRawResponse === "undefined"
           ? false
           : request.devConfig.displayRawResponse;
+
+      for (let i = 0; i < request.devConfig?.devGroups?.length; i++) {
+        request.devConfig.devGroups[i].groupTimestamp =
+          typeof request.devConfig.devGroups[i].groupTimestamp === "undefined"
+            ? "latest"
+            : request.devConfig.devGroups[i].groupTimestamp;
+      }
     }
 
     for (let i = 0; i < request.requestContent.dataRequests.length; i++) {
