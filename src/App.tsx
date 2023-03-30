@@ -15,6 +15,7 @@ import MainScrollManagerProvider from "./libs/main-scroll-manager";
 import EnvsMonitoring from "./libs/envs-monitoring";
 import { SismoClient } from "./libs/sismo-client";
 import { IndexDbCache } from "./libs/sismo-client/caches/indexdb-cache";
+import { DevConfig } from "./pages/Connect/localTypes";
 
 const FONTS_LIST = [
   "BebasNeuePro-Regular",
@@ -29,9 +30,11 @@ const FONTS_LIST = [
 const url = new URL(window.location.href);
 const devConfig = url.searchParams.get("devConfig");
 
+const parsedDevConfig: DevConfig = JSON.parse(devConfig);
+
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),
-  devConfig: devConfig ? JSON.parse(devConfig) : null,
+  devConfig: parsedDevConfig?.enabled !== false ? parsedDevConfig : null,
 });
 
 const removeHexadecimalNumbers = (event: Sentry.Event) => {
