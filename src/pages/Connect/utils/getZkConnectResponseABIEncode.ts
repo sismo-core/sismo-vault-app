@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import { ZkConnectResponse } from "../localTypes";
 import { Auth, Claim, AuthType, ClaimType } from "../localTypes";
 
@@ -27,7 +27,7 @@ export default function getZkConnectResponseABIEncode(
           16
         ),
         version: ethers.utils.hexZeroPad(
-          ethers.utils.toUtf8Bytes(zkConnectResponse?.version),
+          ethers.utils.formatBytes32String(zkConnectResponse?.version),
           32
         ),
         proofs: zkConnectResponse.proofs.map((proof) => {
@@ -36,12 +36,12 @@ export default function getZkConnectResponseABIEncode(
               ethers.utils.hexlify(proof?.claim?.groupId ?? "0x0"),
               16
             ),
-            groupTimestamp: ethers.utils.hexZeroPad(
-              ethers.utils.toUtf8Bytes(
-                proof?.claim?.groupTimestamp?.toString() ?? "latest"
-              ),
-              16
-            ),
+            groupTimestamp:
+              proof?.claim?.groupTimestamp === "latest"
+                ? BigNumber.from(
+                    ethers.utils.formatBytes32String("latest")
+                  ).shr(128)
+                : proof?.claim?.groupTimestamp,
             value: proof?.claim?.value ?? 1,
             claimType: proof?.claim?.claimType ?? ClaimType.EMPTY,
             extraData: ethers.utils.toUtf8Bytes(proof?.claim?.extraData ?? ""),
@@ -59,7 +59,9 @@ export default function getZkConnectResponseABIEncode(
             auth: authForEncoding,
             signedMessage: ethers.utils.toUtf8Bytes(proof?.signedMessage ?? ""),
             provingScheme: ethers.utils.hexZeroPad(
-              ethers.utils.toUtf8Bytes(proof?.provingScheme ?? "hydra-s2.1"),
+              ethers.utils.formatBytes32String(
+                proof?.provingScheme ?? "hydra-s2.1"
+              ),
               32
             ),
             proofData: proof.proofData,
