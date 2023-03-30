@@ -7,22 +7,22 @@ import {
 
 export const devConfig = {
   enabled: true,
-  //displayRawResponse: true,
+  displayRawResponse: true,
   devGroups: [
     {
       groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
       groupTimestamp: "latest",
       data: {
-        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 4,
+        "0x0E75b92ED9f77aC17A6e7fE6B171A3a66C6b638B": 4,
       },
     },
-    {
-      groupId: "0x8d5e3ee2049c1c7d363ea88b2b424877",
-      groupTimestamp: "latest",
-      data: {
-        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
-      },
-    },
+    // {
+    //   groupId: "0x8d5e3ee2049c1c7d363ea88b2b424877",
+    //   groupTimestamp: "latest",
+    //   data: {
+    //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+    //   },
+    // },
     // {
     //   groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
     //   groupTimestamp: "latest",
@@ -31,13 +31,13 @@ export const devConfig = {
 
     //   },
     // },
-    {
-      groupId: "0x682544d549b8a461d7fe3e589846bb7b",
-      groupTimestamp: "latest",
-      data: {
-        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
-      },
-    },
+    // {
+    //   groupId: "0x682544d549b8a461d7fe3e589846bb7b",
+    //   groupTimestamp: "latest",
+    //   data: {
+    //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+    //   },
+    // },
   ],
 };
 
@@ -119,7 +119,7 @@ export const zkConnectRequestContentMock: ZkConnectRequestContent = {
 };
 
 export const zkConnectRequestMock: ZkConnectRequest = {
-  appId: "0x4dd4246069a00f8155e70b1827f12e32",
+  appId: "0xf68985adfc209fafebfb1a956913e7fa",
   namespace: "main",
   callbackPath: null,
   version: "zk-connect-v2",
@@ -137,5 +137,5 @@ searchParams.set("devConfig", JSON.stringify(devConfig));
 export const zkConnectRequestMockUrl = url.toString();
 
 export function getMockUrl() {
-  console.log(zkConnectRequestMockUrl);
+  // console.log(zkConnectRequestMockUrl);
 }

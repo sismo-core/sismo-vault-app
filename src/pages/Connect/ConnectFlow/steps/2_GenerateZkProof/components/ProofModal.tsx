@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Modal from "../../../../../../components/Modal";
-import getZkConnectResponseABIEncode from "../../../../utils/getZkConnectResponseABIEncode";
+import { ZkConnectResponse } from "../../../../localTypes";
 
 const Container = styled.div`
   display: flex;
@@ -63,7 +63,7 @@ const SelectorWrapper = styled.div`
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  response: any;
+  response: ZkConnectResponse;
 };
 
 export default function ProofModal({
@@ -75,18 +75,28 @@ export default function ProofModal({
     "bytes"
   );
 
+  const typescriptResponse = {
+    appId: response?.appId,
+    namespace: response?.namespace,
+    version: response?.version,
+    proofs: response?.proofs,
+  };
+
+  const bytesResponse = response?.zkConnectResponseBytes;
+
   const [readableResponse, setReadableResponse] = useState<string>(
     selectedType === "typescript"
-      ? JSON.stringify(response)
-      : getZkConnectResponseABIEncode(response)
+      ? JSON.stringify(typescriptResponse)
+      : bytesResponse
   );
 
   useEffect(() => {
     if (selectedType === "bytes") {
-      setReadableResponse(getZkConnectResponseABIEncode(response));
+      setReadableResponse(bytesResponse);
     } else {
-      setReadableResponse(JSON.stringify(response));
+      setReadableResponse(JSON.stringify(typescriptResponse));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedType, response]);
 
   function copyToClipboard() {
@@ -117,7 +127,9 @@ export default function ProofModal({
               <span>{"Typescript"}</span>
             </GroupItem>
           </SelectorWrapper>
-          <div onClick={copyToClipboard}>{readableResponse}</div>
+          <div style={{ cursor: "pointer" }} onClick={copyToClipboard}>
+            {readableResponse}
+          </div>
         </Container>
       )}
     </Modal>

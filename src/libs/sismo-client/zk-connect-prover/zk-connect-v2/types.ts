@@ -133,6 +133,7 @@ export type ZkConnectResponse = Pick<
   "appId" | "namespace" | "version"
 > & {
   proofs: ZkConnectProof[];
+  zkConnectResponseBytes?: string;
 };
 
 export type ZkConnectProof = {

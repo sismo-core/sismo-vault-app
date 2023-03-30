@@ -133,7 +133,5 @@ export const getZkConnectRequest = (
   }
 
   request.namespace = request.namespace || "main";
-
-  console.log("request: ", request);
   return request;
 };
