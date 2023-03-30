@@ -86,17 +86,16 @@ export default function Connect(): JSX.Element {
     message: null,
   });
 
-  const { getGroupMetadata, getFactoryApp } = useSismo();
+  const { getGroupMetadata, getFactoryApp, initDevConfig } = useSismo();
 
   //Get the request
   useEffect(() => {
     const request = getZkConnectRequest(searchParams);
+    if (request?.devConfig && request?.devConfig?.enabled !== false) {
+      initDevConfig(request);
+    }
     setZkConnectRequest(request);
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (!zkConnectRequest) return;
-  }, [zkConnectRequest]);
+  }, [initDevConfig, searchParams]);
 
   //Verify request validity
   useEffect(() => {

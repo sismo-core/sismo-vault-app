@@ -13,6 +13,7 @@ import { GroupMetadata } from "../sismo-client/providers/group-provider";
 import { ImportedAccount } from "../vault-client";
 
 export type Sismo = {
+  initDevConfig: (zkConnectRequest: ZkConnectRequest) => void;
   generateResponse: (
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[],
@@ -54,6 +55,13 @@ export default function SismoProvider({
   children: React.ReactNode;
   client: SismoClient;
 }): JSX.Element {
+  const initDevConfig = useCallback(
+    (zkConnectRequest: ZkConnectRequest) => {
+      return client.initDevConfig(zkConnectRequest);
+    },
+    [client]
+  );
+
   const generateResponse = useCallback(
     (
       zkConnectRequest: ZkConnectRequest,
@@ -139,6 +147,7 @@ export default function SismoProvider({
     <SismoClientContext.Provider
       value={{
         // verifyZkConnectRequest,
+        initDevConfig,
         getGroupMetadata,
         getFactoryApp,
         getRequestGroupMetadata,

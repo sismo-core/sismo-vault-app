@@ -52,6 +52,7 @@ export type ZkConnectRequest = {
   requestContent?: ZkConnectRequestContent; // updated
   callbackPath?: string;
   version: string;
+  devConfig?: DevConfig;
 };
 
 export type DevAddresses = string[] | Record<string, Number | BigNumberish>;

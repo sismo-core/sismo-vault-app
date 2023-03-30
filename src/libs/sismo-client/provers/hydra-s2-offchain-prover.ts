@@ -29,15 +29,20 @@ import { ClaimType, DevConfig } from "../zk-connect-prover/zk-connect-v2";
 export class HydraS2OffchainProver extends Prover {
   registryTreeReader: OffchainRegistryTreeReader | DevRegistryTreeReader;
 
-  constructor({ cache, devConfig }: { cache?: Cache; devConfig?: DevConfig }) {
+  constructor({ cache }: { cache?: Cache }) {
     super();
-    if (devConfig) {
+    this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
+  }
+
+  public async initDevConfig(devConfig?: DevConfig) {
+    if (devConfig && devConfig?.enabled !== false) {
+      if (devConfig?.devGroups?.length === 0)
+        throw new Error("devGroups is required in devConfig");
+
       console.log("///////////// DEVMODE /////////////");
       this.registryTreeReader = new DevRegistryTreeReader({
         devGroups: devConfig.devGroups,
       });
-    } else {
-      this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
     }
   }
 

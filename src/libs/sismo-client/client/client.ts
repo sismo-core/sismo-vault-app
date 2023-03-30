@@ -6,7 +6,6 @@ import {
   ZkConnectProver as ZkConnectProverV2,
   ZkConnectRequest,
   ZkConnectResponse,
-  DevConfig,
 } from "../zk-connect-prover/zk-connect-v2";
 import { Cache } from "../caches";
 import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
@@ -21,7 +20,7 @@ export class SismoClient {
     "zk-connect-v2": ZkConnectProverV2;
   };
 
-  constructor({ cache, devConfig }: { cache: Cache; devConfig?: DevConfig }) {
+  constructor({ cache }: { cache: Cache }) {
     this.factoryProvider = new FactoryProvider({
       factoryApiUrl: env.factoryApiUrl,
     });
@@ -30,9 +29,21 @@ export class SismoClient {
       "zk-connect-v2": new ZkConnectProverV2({
         factoryProvider: this.factoryProvider,
         cache: cache,
-        devConfig,
       }),
     };
+  }
+
+  public async initDevConfig(zkConnectRequest: ZkConnectRequest) {
+    if (!this.zkConnectProvers[zkConnectRequest.version])
+      throw new Error(
+        `Version of the request not supported ${zkConnectRequest.version}`
+      );
+    const zkConnectProver = this.zkConnectProvers[
+      zkConnectRequest.version
+    ] as ZkConnectProverV2;
+
+    if (zkConnectRequest?.devConfig?.enabled !== false)
+      await zkConnectProver.initDevConfig(zkConnectRequest?.devConfig);
   }
 
   public async getGroupMetadata(groupId: string, timestamp: "latest" | number) {

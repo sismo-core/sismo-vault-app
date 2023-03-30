@@ -27,14 +27,16 @@ export class ZkConnectProver {
   constructor({
     factoryProvider,
     cache,
-    devConfig,
   }: {
     factoryProvider: FactoryProvider;
     cache: Cache;
-    devConfig?: DevConfig;
   }) {
-    this.prover = new HydraS2OffchainProver({ cache, devConfig });
+    this.prover = new HydraS2OffchainProver({ cache });
     this.factoryProvider = factoryProvider;
+  }
+
+  public async initDevConfig(devConfig?: DevConfig) {
+    await this.prover.initDevConfig(devConfig);
   }
 
   public async verifyRequest(zkConnectRequest: ZkConnectRequest) {
