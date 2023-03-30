@@ -91,7 +91,11 @@ export default function Connect(): JSX.Element {
   //Get the request
   useEffect(() => {
     const request = getZkConnectRequest(searchParams);
-    if (request?.devConfig && request?.devConfig?.enabled !== false) {
+    if (
+      request?.devConfig &&
+      request?.devConfig?.enabled !== false &&
+      request?.devConfig?.devGroups?.length > 0
+    ) {
       initDevConfig(request);
     }
     setZkConnectRequest(request);
@@ -161,7 +165,10 @@ export default function Connect(): JSX.Element {
         (groupId) => !devConfigGroupIds?.includes(groupId)
       );
 
-      if (missingGroups?.length > 0) {
+      if (
+        missingGroups?.length > 0 &&
+        zkConnectRequest?.devConfig?.devGroups?.length > 0
+      ) {
         setIsWrongUrl({
           status: true,
           message:
