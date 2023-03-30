@@ -71,8 +71,6 @@ export class ZkConnectProver {
       });
     }
 
-    console.log("dataRequestEligibilities", dataRequestEligibilities);
-
     return dataRequestEligibilities;
   }
 
@@ -326,6 +324,7 @@ export class ZkConnectProver {
           _generateProofInputs = {
             ..._generateProofInputs,
             source,
+            appId,
             groupId: claimRequestEligibility?.claimRequest?.groupId,
             groupTimestamp:
               claimRequestEligibility?.claimRequest?.groupTimestamp,
@@ -402,7 +401,6 @@ export class ZkConnectProver {
             }
           }
         }
-        console.log("_generateProofInputs", _generateProofInputs);
         const snarkProof = await this.prover.generateProof(
           _generateProofInputs
         );
