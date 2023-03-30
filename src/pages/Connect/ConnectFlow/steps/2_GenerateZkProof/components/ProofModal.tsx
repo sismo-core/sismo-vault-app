@@ -64,21 +64,19 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   response: any;
-  type: "bytes" | "typescript";
 };
 
 export default function ProofModal({
   isOpen,
   onClose,
   response,
-  type,
 }: Props): JSX.Element {
   const [selectedType, setSelectedType] = useState<"bytes" | "typescript">(
-    type === "typescript" ? "typescript" : "bytes"
+    "bytes"
   );
 
   const [readableResponse, setReadableResponse] = useState<string>(
-    type === "typescript"
+    selectedType === "typescript"
       ? JSON.stringify(response)
       : getZkConnectResponseABIEncode(response)
   );

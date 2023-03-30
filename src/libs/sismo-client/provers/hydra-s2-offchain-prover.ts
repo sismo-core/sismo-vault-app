@@ -37,7 +37,6 @@ export class HydraS2OffchainProver extends Prover {
         devGroups: devConfig.devGroups,
       });
     } else {
-      console.log("///////////// PRODMODE /////////////");
       this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
     }
   }
@@ -76,8 +75,6 @@ export class HydraS2OffchainProver extends Prover {
       claimType,
       extraData,
     });
-
-    console.log("userParams", userParams);
 
     const proof = await prover.generateSnarkProof(userParams);
     return proof;

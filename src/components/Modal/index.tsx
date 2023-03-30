@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import ReactDOM from "react-dom";
 import styled from "styled-components";
 import { useMainScrollManager } from "../../libs/main-scroll-manager";
 import useOnClickOutside from "../../utils/useClickOutside";
@@ -177,7 +178,7 @@ export default function Modal({
     }
   }, [isOpen]);
 
-  return (
+  return ReactDOM.createPortal(
     <>
       {disabled && <Disabled zIndex={zIndex}></Disabled>}
       <Background
@@ -205,6 +206,7 @@ export default function Modal({
           {children}
         </Content>
       </Container>
-    </>
+    </>,
+    document.getElementById("modal-root")
   );
 }

@@ -35,9 +35,9 @@ const Container = styled.div<{ scrollbarWidth: number; displayNav: boolean }>`
   position: relative;
   width: 100%;
   box-sizing: border-box;
-  z-index: 5;
   padding: 0px 60px;
   padding-right: ${(props) => 60 - props.scrollbarWidth}px;
+  z-index: 5;
 
   @media (max-width: 1240px) {
     display: none;

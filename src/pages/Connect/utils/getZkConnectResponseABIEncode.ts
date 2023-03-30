@@ -9,8 +9,6 @@ export default function getZkConnectResponseABIEncode(
 
   const AbiCoder = new ethers.utils.AbiCoder();
 
-  console.log("zkConnectResponse", zkConnectResponse);
-
   const zkResponseABIEncoded = AbiCoder.encode(
     [
       "tuple(bytes16 appId, bytes16 namespace, bytes32 version, tuple(tuple(bytes16 groupId, bytes16 groupTimestamp, uint256 value, uint8 claimType, bytes extraData) claim, tuple(uint8 authType, bool anonMode, uint256 userId, bytes extraData) auth, bytes signedMessage, bytes32 provingScheme,bytes proofData,bytes extraData)[] proofs) zkConnectResponse",

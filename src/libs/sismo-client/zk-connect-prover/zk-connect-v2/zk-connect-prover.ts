@@ -313,9 +313,8 @@ export class ZkConnectProver {
 
           const source = importedAccounts.find(
             (importedAccount) =>
-              importedAccount?.identifier ===
-              dataRequestEligibility?.claimRequestEligibility?.accountData
-                ?.identifier
+              importedAccount?.identifier?.toLowerCase() ===
+              dataRequestEligibility?.claimRequestEligibility?.accountData?.identifier?.toLowerCase()
           );
 
           if (!source)

@@ -15,7 +15,7 @@ export type ZkConnectRequest = {
 
 export type DevConfig = {
   enabled?: boolean; // https://dev.vault-beta.sismo.io/
-  modalOutput: "bytes" | "typescript" | null; // if bytes, open a modal with the ZkConnectResponse direclty encoded in bytes + registryTreeRoot displayed
+  displayRawResponse?: boolean;
   // Allow to customize data for each groupId
   devGroups?: DevGroup[];
 };

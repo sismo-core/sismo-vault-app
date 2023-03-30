@@ -60,18 +60,32 @@ export class DevRegistryTreeReader extends RegistryTreeReader {
     groupId,
     accounts,
   }: OffchainGetAccountsTreeEligibilityInputs): Promise<MerkleTreeData> {
-    // TO CHECK IF WE NEED ACCOUNTS ARRAY
     const devGroup = this._devGroups.find(
       (devGroup) => devGroup.groupId === groupId
     );
 
     const merkleTreesData = await this.getAccountsTreeData(devGroup);
 
-    if (!Object.keys(merkleTreesData).find((key) => accounts.includes(key))) {
+    if (!Object.keys(merkleTreesData)?.length) {
       return {};
     }
 
-    return merkleTreesData;
+    const filteredMerkleTreesData = Object.keys(merkleTreesData).reduce(
+      (acc, key) => {
+        for (let i = 0; i < accounts?.length; i++) {
+          if (
+            accounts[i]?.toString()?.toLowerCase() ===
+            key?.toString()?.toLowerCase()
+          ) {
+            acc[key] = merkleTreesData[key];
+          }
+        }
+        return acc;
+      },
+      {}
+    );
+
+    return filteredMerkleTreesData;
   }
 
   protected encodeAccountsTreeValue = (

@@ -7,10 +7,10 @@ import {
 
 export const devConfig = {
   enabled: true,
-  modalOutput: "typescript",
+  //displayRawResponse: true,
   devGroups: [
     {
-      groupId: "0xe9ed316946d3d98dfcd829a53ec9822e",
+      groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
       groupTimestamp: "latest",
       data: {
         "0x938f169352008d35e065F153be53b3D3C07Bcd90": 4,
@@ -23,13 +23,14 @@ export const devConfig = {
         "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
       },
     },
-    {
-      groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
-      groupTimestamp: "latest",
-      data: {
-        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
-      },
-    },
+    // {
+    //   groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
+    //   groupTimestamp: "latest",
+    //   data: {
+    //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+
+    //   },
+    // },
     {
       groupId: "0x682544d549b8a461d7fe3e589846bb7b",
       groupTimestamp: "latest",
@@ -42,7 +43,7 @@ export const devConfig = {
 
 export const dataRequestMockError: DataRequest = {
   claimRequest: {
-    groupId: "0xe9ed316946d3d98dfcd829a53ec9822e",
+    groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
   } as any,
   authRequest: {
     authType: AuthType.ANON,
@@ -118,7 +119,7 @@ export const zkConnectRequestContentMock: ZkConnectRequestContent = {
 };
 
 export const zkConnectRequestMock: ZkConnectRequest = {
-  appId: "0xf68985adfc209fafebfb1a956913e7fa",
+  appId: "0x4dd4246069a00f8155e70b1827f12e32",
   namespace: "main",
   callbackPath: null,
   version: "zk-connect-v2",

@@ -112,13 +112,13 @@ export function EligibilitySummary({
 
             const humanReadableType =
               authType === AuthType.EVM_ACCOUNT
-                ? "Ethereum Account"
+                ? "Ethereum account"
                 : authType === AuthType.GITHUB
                 ? "Github account"
                 : authType === AuthType.TWITTER
                 ? "Twitter account"
                 : authType === AuthType.ANON
-                ? "Vault Id"
+                ? "Anon user id"
                 : null;
 
             return (

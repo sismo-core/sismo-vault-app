@@ -126,10 +126,7 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
       setLoadingProof(false);
       setResponse(zkResponse);
 
-      if (
-        zkConnectRequest?.devConfig?.modalOutput === "bytes" ||
-        zkConnectRequest?.devConfig?.modalOutput === "typescript"
-      ) {
+      if (zkConnectRequest?.devConfig?.displayRawResponse) {
         setProofModalOpen(true);
         return;
       }
@@ -155,7 +152,6 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
       <ProofModal
         response={response}
         isOpen={proofModalOpen}
-        type={zkConnectRequest?.devConfig?.modalOutput}
         onClose={() => setProofModalOpen(false)}
       />
       <Container>

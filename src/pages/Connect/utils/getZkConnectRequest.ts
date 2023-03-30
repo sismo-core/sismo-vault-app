@@ -50,10 +50,10 @@ export const getZkConnectRequest = (
     }
 
     if (request.devConfig) {
-      request.devConfig.modalOutput =
-        typeof request.devConfig.modalOutput === "undefined"
-          ? null
-          : request.devConfig.modalOutput;
+      request.devConfig.displayRawResponse =
+        typeof request.devConfig.displayRawResponse === "undefined"
+          ? false
+          : request.devConfig.displayRawResponse;
     }
 
     for (let i = 0; i < request.requestContent.dataRequests.length; i++) {
