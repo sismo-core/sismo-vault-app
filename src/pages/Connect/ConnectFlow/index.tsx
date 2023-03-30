@@ -16,6 +16,7 @@ import {
   GroupMetadataDataRequestEligibility,
   RequestGroupMetadata,
 } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+import { getZkConnectResponseBytes } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v2/utils/getZkConnectResponseBytes";
 
 const Container = styled.div`
   position: relative;
@@ -128,7 +129,9 @@ export default function ConnectFlow({
     localStorage.removeItem("prove_referrer");
     let url = callbackUrl;
     if (response) {
-      url += `?zkConnectResponse=${JSON.stringify(response)}`;
+      url += `?zkConnectResponse=${JSON.stringify(
+        response
+      )}&zkConnectResponseBytes=${getZkConnectResponseBytes(response)}`;
     }
     if (window.opener) {
       window.opener.postMessage(response, url); //If it's a popup, this will send a message to the opener which is here zkdrop.io
