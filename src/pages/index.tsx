@@ -13,7 +13,8 @@ import AlphaNotification from "../components/ZikiNotification";
 import Connect from "./Connect";
 import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
-import { Navigate } from "react-router-dom";
+
+import { getMockUrl } from "./Connect/mockRequest";
 
 export default function Pages(): JSX.Element {
   const [githubCode, setGithubCode] = useState(null);
@@ -30,6 +31,8 @@ export default function Pages(): JSX.Element {
   }, [vault.isConnected]);
 
   const myVaultIsOpen = useRef<Boolean>(false);
+
+  getMockUrl();
 
   /*********************************************************/
   /************************ MY VAULT ***********************/
@@ -205,10 +208,10 @@ export default function Pages(): JSX.Element {
 
           <Route path="/redirect" element={<Redirect />} />
 
-          <Route
+          {/* <Route
             path="*"
             element={<Navigate to={`/connect`} replace={true} />}
-          />
+          /> */}
         </Routes>
       </BrowserRouter>
     </>

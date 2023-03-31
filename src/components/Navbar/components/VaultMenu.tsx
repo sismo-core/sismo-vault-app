@@ -12,12 +12,12 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 5;
 `;
 
 const Menu = styled.div<{ isOpen: boolean }>`
   ${(props) => props.isOpen && "background-color: #13203D;"}
   border-radius: 5px;
-  z-index: 13;
   position: relative;
   min-width: 182px;
   @media (max-width: 500px) {

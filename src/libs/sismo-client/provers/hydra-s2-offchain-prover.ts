@@ -1,4 +1,3 @@
-import { buildPoseidon } from "@sismo-core/crypto";
 import { ImportedAccount } from "../../vault-client";
 import {
   EddsaPublicKey,
@@ -12,7 +11,7 @@ import {
   StatementInput,
   KVMerkleTree,
 } from "@sismo-core/hydra-s2";
-import { OffchainRegistryTreeReader } from "../registry-tree-readers/offchain-registry-tree-reader";
+import { DevRegistryTreeReader } from "../registry-tree-readers/dev-registry-tree-reader";
 import { Cache } from "../caches";
 import { ethers, BigNumber } from "ethers";
 import { CommitmentMapper } from "..";
@@ -24,26 +23,40 @@ import {
 } from "./types";
 import { Prover } from "./prover";
 import env from "../../../environment";
-import { overrideEligibleGroupDataFormatter } from "../../zk-connect/utils";
+import { ClaimType, DevConfig } from "../zk-connect-prover/zk-connect-v2";
+import { RegistryTreeReader } from "../registry-tree-readers/registry-tree-reader";
 
 export class HydraS2OffchainProver extends Prover {
-  registryTreeReader: OffchainRegistryTreeReader;
+  registryTreeReader: RegistryTreeReader | DevRegistryTreeReader;
 
-  constructor({ cache }: { cache: Cache }) {
+  constructor({ cache }: { cache?: Cache }) {
     super();
-    this.registryTreeReader = new OffchainRegistryTreeReader({ cache });
+    this.registryTreeReader = new RegistryTreeReader({ cache });
+  }
+
+  public async initDevConfig(devConfig?: DevConfig) {
+    if (devConfig && devConfig?.enabled !== false) {
+      if (devConfig?.devGroups?.length === 0)
+        throw new Error("devGroups is required in devConfig");
+
+      console.log("///////////// DEVMODE /////////////");
+      this.registryTreeReader = new DevRegistryTreeReader({
+        devGroups: devConfig.devGroups,
+      });
+    }
   }
 
   public async generateProof({
     appId,
     source,
+    destination,
     vaultSecret,
     namespace,
     groupId,
     groupTimestamp,
     requestedValue,
-    comparator,
-    devAddresses,
+    claimType,
+    extraData,
   }: OffchainProofRequest): Promise<SnarkProof> {
     const commitmentMapperPubKey =
       env.sismoDestination.commitmentMapperPubKey.map((string) =>
@@ -58,13 +71,14 @@ export class HydraS2OffchainProver extends Prover {
     const userParams = await this.prepareSnarkProofRequest({
       appId,
       source,
+      destination,
       vaultSecret,
       namespace,
       groupId,
       groupTimestamp,
       requestedValue,
-      comparator,
-      devAddresses: devAddresses,
+      claimType,
+      extraData,
     });
 
     const proof = await prover.generateSnarkProof(userParams);
@@ -76,53 +90,69 @@ export class HydraS2OffchainProver extends Prover {
     groupId,
     groupTimestamp,
     requestedValue,
-    comparator,
+    claimType,
   }: GetEligibilityInputs): Promise<AccountData> {
     const eligibleAccountsTreeData =
       await this.registryTreeReader.getAccountsTreeEligibility({
+        accounts,
         groupId,
         timestamp: groupTimestamp,
-        accounts,
       });
 
     if (eligibleAccountsTreeData === null) {
       return null;
     }
 
-    if (comparator === "EQ") {
-      for (const [identifier, value] of Object.entries(
-        eligibleAccountsTreeData
-      )) {
-        if (BigNumber.from(value).toNumber() === value) {
-          return {
-            identifier,
-            value: BigNumber.from(value).toNumber(),
-          };
-        }
-      }
-      return null;
-    }
-
-    if (requestedValue === "USER_SELECTED_VALUE" || comparator === "GTE") {
-      let maxAccountData: AccountData = null;
-      for (const [identifier, value] of Object.entries(
-        eligibleAccountsTreeData
-      )) {
-        if (maxAccountData === null) {
-          maxAccountData = {
-            identifier,
-            value: BigNumber.from(value).toNumber(),
-          };
-        } else {
-          if (BigNumber.from(value).toNumber() > maxAccountData.value) {
-            maxAccountData = {
+    switch (claimType) {
+      case ClaimType.EMPTY:
+        return null;
+      case ClaimType.EQ:
+        for (const [identifier, value] of Object.entries(
+          eligibleAccountsTreeData
+        )) {
+          if (
+            BigNumber.from(value).toNumber() ===
+            BigNumber.from(requestedValue).toNumber()
+          ) {
+            return {
               identifier,
               value: BigNumber.from(value).toNumber(),
             };
           }
         }
-      }
-      return maxAccountData;
+        return null;
+      case ClaimType.GTE || ClaimType.USER_SELECT:
+        let maxAccountData: AccountData = null;
+
+        for (const [identifier, value] of Object.entries(
+          eligibleAccountsTreeData
+        )) {
+          if (
+            maxAccountData === null &&
+            BigNumber.from(value).toNumber() >=
+              BigNumber.from(requestedValue).toNumber()
+          ) {
+            maxAccountData = {
+              identifier,
+              value: BigNumber.from(value).toNumber(),
+            };
+          }
+          if (
+            maxAccountData &&
+            BigNumber.from(value).toNumber() > maxAccountData?.value
+          ) {
+            maxAccountData = {
+              identifier,
+              value: BigNumber.from(value).toNumber(),
+            };
+          }
+
+          return maxAccountData;
+        }
+        return null;
+
+      default:
+        throw new Error("Invalid claim type");
     }
   }
 
@@ -203,13 +233,14 @@ export class HydraS2OffchainProver extends Prover {
   protected async prepareSnarkProofRequest({
     appId,
     source,
+    destination,
     vaultSecret,
     namespace,
     groupId,
     groupTimestamp,
     requestedValue,
-    comparator,
-    devAddresses,
+    claimType,
+    extraData,
   }: OffchainProofRequest): Promise<UserParams> {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
@@ -227,55 +258,48 @@ export class HydraS2OffchainProver extends Prover {
       vault: vaultInput,
     };
 
+    if (destination) {
+      const hydraS2Account: HydraS2Account =
+        this.getHydraS2Account(destination);
+      userParams["destination"] = {
+        ...hydraS2Account,
+        verificationEnabled: true,
+      };
+    }
+
     if (source) {
       const hydraS2Account: HydraS2Account = this.getHydraS2Account(source);
-
       userParams["source"] = {
         ...hydraS2Account,
         verificationEnabled: true,
       };
+      //TODO set to true once commitment mapper is fixed
 
       const hasDataRequest =
-        namespace && groupId && groupTimestamp && requestedValue && comparator;
+        namespace && groupId && groupTimestamp && requestedValue && claimType;
 
       if (hasDataRequest) {
         let accountsTree: KVMerkleTree;
         let registryTree: KVMerkleTree;
-        if (!devAddresses) {
-          accountsTree = await this.registryTreeReader.getAccountsTree({
-            groupId,
-            account: source.identifier,
-            timestamp: groupTimestamp,
-          });
 
-          registryTree = await this.registryTreeReader.getRegistryTree();
-        } else {
-          const poseidon = await buildPoseidon();
-          accountsTree = new KVMerkleTree(
-            overrideEligibleGroupDataFormatter(devAddresses),
-            poseidon,
-            20
-          );
-          const accountsTreeValue = this.encodeAccountsTreeValue(
-            groupId,
-            groupTimestamp
-          );
-          const registryTreeData = {
-            [accountsTree.getRoot().toHexString()]: accountsTreeValue,
-          };
-          registryTree = new KVMerkleTree(registryTreeData, poseidon, 20);
-        }
+        accountsTree = await this.registryTreeReader.getAccountsTree({
+          groupId,
+          account: source.identifier,
+          timestamp: groupTimestamp,
+        });
 
-        const claimedValue =
-          requestedValue === "USER_SELECTED_VALUE"
-            ? accountsTree.getValue(source.identifier)
-            : BigNumber.from(requestedValue);
+        registryTree = await this.registryTreeReader.getRegistryTree();
 
-        const parsedComparator = "GTE" ? 0 : 1;
+        const claimedValue = BigNumber.from(requestedValue);
 
         const statementInput: StatementInput = {
           value: BigNumber.from(claimedValue),
-          comparator: parsedComparator,
+          comparator:
+            claimType === ClaimType.GTE
+              ? 0
+              : claimType === ClaimType.EQ
+              ? 1
+              : null,
           registryTree: registryTree,
           accountsTree: accountsTree,
         };
@@ -290,6 +314,10 @@ export class HydraS2OffchainProver extends Prover {
         userParams["requestIdentifier"] = requestIdentifier;
         userParams["statement"] = statementInput;
       }
+    }
+
+    if (extraData) {
+      userParams["extraData"] = extraData;
     }
 
     return userParams;

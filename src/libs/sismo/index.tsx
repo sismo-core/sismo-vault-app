@@ -1,29 +1,40 @@
 import React, { useCallback, useContext } from "react";
 import { SismoClient } from "../sismo-client";
 import {
-  StatementEligibility,
-  StatementGroupMetadata,
+  AuthRequestEligibility,
+  ClaimRequestEligibility,
+  DataRequestEligibility,
+  RequestGroupMetadata,
   ZkConnectRequest,
   ZkConnectResponse,
-} from "../sismo-client/zk-connect-prover/zk-connect-v1";
+} from "../sismo-client/zk-connect-prover/zk-connect-v2";
 import { FactoryApp } from "../sismo-client";
 import { GroupMetadata } from "../sismo-client/providers/group-provider";
 import { ImportedAccount } from "../vault-client";
 
 export type Sismo = {
+  initDevConfig: (zkConnectRequest: ZkConnectRequest) => void;
   generateResponse: (
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[],
     vaultSecret: string
   ) => Promise<ZkConnectResponse>;
-  getStatementsGroupsMetadata: (
+  getRequestGroupMetadata: (
     zkConnectRequest: ZkConnectRequest
-  ) => Promise<StatementGroupMetadata[]>;
-  getStatementsEligibilities: (
+  ) => Promise<RequestGroupMetadata[]>;
+  getDataRequestEligibilities: (
     zkConnectRequest: ZkConnectRequest,
     importedAccounts: ImportedAccount[]
-  ) => Promise<StatementEligibility[]>;
-  verifyZkConnectRequest: (request: ZkConnectRequest) => Promise<any>;
+  ) => Promise<DataRequestEligibility[]>;
+  getClaimRequestEligibilities: (
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ) => Promise<ClaimRequestEligibility[]>;
+  getAuthRequestEligibilities: (
+    zkConnectRequest: ZkConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ) => Promise<AuthRequestEligibility[]>;
+  // verifyZkConnectRequest: (request: ZkConnectRequest) => Promise<any>;
   getFactoryApp: (appId: string) => Promise<FactoryApp>;
   getGroupMetadata: (
     groupId: string,
@@ -44,6 +55,13 @@ export default function SismoProvider({
   children: React.ReactNode;
   client: SismoClient;
 }): JSX.Element {
+  const initDevConfig = useCallback(
+    (zkConnectRequest: ZkConnectRequest) => {
+      return client.initDevConfig(zkConnectRequest);
+    },
+    [client]
+  );
+
   const generateResponse = useCallback(
     (
       zkConnectRequest: ZkConnectRequest,
@@ -59,19 +77,44 @@ export default function SismoProvider({
     [client]
   );
 
-  const getStatementsGroupsMetadata = useCallback(
+  const getRequestGroupMetadata = useCallback(
     (zkConnectRequest: ZkConnectRequest) => {
-      return client.getStatementsGroupsMetadata(zkConnectRequest);
+      return client.getRequestGroupsMetadata(zkConnectRequest);
     },
     [client]
   );
 
-  const getStatementsEligibilities = useCallback(
+  const getDataRequestEligibilities = useCallback(
     (
       zkConnectRequest: ZkConnectRequest,
       importedAccounts: ImportedAccount[]
     ) => {
-      return client.getStatementsEligibilities(
+      return client.getDataRequestEligibilities(
+        zkConnectRequest,
+        importedAccounts
+      );
+    },
+    [client]
+  );
+
+  const getClaimRequestEligibilities = useCallback(
+    (
+      zkConnectRequest: ZkConnectRequest,
+      importedAccounts: ImportedAccount[]
+    ) => {
+      return client.getClaimRequestEligibilities(
+        zkConnectRequest,
+        importedAccounts
+      );
+    },
+    [client]
+  );
+  const getAuthRequestEligibilities = useCallback(
+    (
+      zkConnectRequest: ZkConnectRequest,
+      importedAccounts: ImportedAccount[]
+    ) => {
+      return client.getAuthRequestEligibilities(
         zkConnectRequest,
         importedAccounts
       );
@@ -93,22 +136,25 @@ export default function SismoProvider({
     [client]
   );
 
-  const verifyZkConnectRequest = useCallback(
-    (request: ZkConnectRequest) => {
-      return client.verifyZkConnectRequest(request);
-    },
-    [client]
-  );
+  // const verifyZkConnectRequest = useCallback(
+  //   (request: ZkConnectRequest) => {
+  //     return client.verifyZkConnectRequest(request);
+  //   },
+  //   [client]
+  // );
 
   return (
     <SismoClientContext.Provider
       value={{
-        verifyZkConnectRequest,
+        // verifyZkConnectRequest,
+        initDevConfig,
         getGroupMetadata,
         getFactoryApp,
-        getStatementsEligibilities,
+        getRequestGroupMetadata,
+        getClaimRequestEligibilities,
         generateResponse,
-        getStatementsGroupsMetadata,
+        getAuthRequestEligibilities,
+        getDataRequestEligibilities,
       }}
     >
       {children}

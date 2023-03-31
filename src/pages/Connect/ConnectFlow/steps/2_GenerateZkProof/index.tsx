@@ -5,11 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useVault } from "../../../../../libs/vault";
 import { useSismo } from "../../../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
 import ShardAnimation from "../../components/ShardAnimation";
 import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
-import { GroupMetadata } from "../../../../../libs/sismo-client";
-import { ZkConnectResponse } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import { ZkConnectResponse, ZkConnectRequest } from "../../../localTypes";
+import ProofModal from "./components/ProofModal";
 
 const Container = styled.div`
   display: flex;
@@ -99,27 +98,23 @@ const LoadingFeedBack = styled(FeedBack)`
 
 type Props = {
   zkConnectRequest: ZkConnectRequest;
-  groupMetadata: GroupMetadata;
   onNext: (zkResponse: ZkConnectResponse) => void;
 };
 
-export default function GenerateZkProof({
-  groupMetadata,
-  zkConnectRequest,
-  onNext,
-}: Props) {
+export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
   const vault = useVault();
   const [loadingProof, setLoadingProof] = useState(true);
   const [isGenerated, setIsGenerated] = useState(false);
+  const [proofModalOpen, setProofModalOpen] = useState(false);
   const [, setErrorProof] = useState(false);
+  const [response, setResponse] = useState<any | null>(null);
   const { generateResponse } = useSismo();
 
   const generate = useCallback(async () => {
     setLoadingProof(true);
     setErrorProof(false);
     try {
-      const owner = vault.owners[0];
-      const vaultSecret = await vault.getVaultSecret(owner);
+      const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
       const zkResponse = await generateResponse(
         zkConnectRequest,
         vault.importedAccounts,
@@ -128,6 +123,12 @@ export default function GenerateZkProof({
       setIsGenerated(true);
       setErrorProof(false);
       setLoadingProof(false);
+      setResponse(zkResponse);
+
+      if (zkConnectRequest?.devConfig?.displayRawResponse) {
+        setProofModalOpen(true);
+        return;
+      }
       onNext(zkResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {
@@ -146,36 +147,43 @@ export default function GenerateZkProof({
   }, [generate]);
 
   return (
-    <Container>
-      <Summary>
-        <HeaderWrapper>
-          <ContentHeader>
-            <Gem color={colors.blue0} size={19} />
-            ZK Proof Generation
-          </ContentHeader>
-        </HeaderWrapper>
-      </Summary>
+    <>
+      <ProofModal
+        response={response}
+        isOpen={proofModalOpen}
+        onClose={() => setProofModalOpen(false)}
+      />
+      <Container>
+        <Summary>
+          <HeaderWrapper>
+            <ContentHeader>
+              <Gem color={colors.blue0} size={19} />
+              ZK Proof Generation
+            </ContentHeader>
+          </HeaderWrapper>
+        </Summary>
 
-      {!isGenerated && loadingProof && (
-        <LoadingWrapper>
-          <Schema>
-            <ShardAnimation groupMetadata={[groupMetadata]} />
-          </Schema>
-          <LoadingFeedBack>Generating ZK Proof...</LoadingFeedBack>
-        </LoadingWrapper>
-      )}
+        {!isGenerated && loadingProof && (
+          <LoadingWrapper>
+            <Schema>
+              <ShardAnimation />
+            </Schema>
+            <LoadingFeedBack>Generating ZK Proof...</LoadingFeedBack>
+          </LoadingWrapper>
+        )}
 
-      {isGenerated && (
-        <SuccessWrapper>
-          <ProofSuccessWrapper>
-            <GemProof size={58} color={colors.purple2} />
-          </ProofSuccessWrapper>
-          <FeedBack>
-            <div>ZK Proof generated!</div>
-            <Check size={18} color={colors.green1} weight="bold" />
-          </FeedBack>
-        </SuccessWrapper>
-      )}
-    </Container>
+        {isGenerated && (
+          <SuccessWrapper>
+            <ProofSuccessWrapper>
+              <GemProof size={58} color={colors.purple2} />
+            </ProofSuccessWrapper>
+            <FeedBack>
+              <div>ZK Proof generated!</div>
+              <Check size={18} color={colors.green1} weight="bold" />
+            </FeedBack>
+          </SuccessWrapper>
+        )}
+      </Container>
+    </>
   );
 }

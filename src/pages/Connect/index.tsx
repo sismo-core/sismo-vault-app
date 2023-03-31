@@ -5,12 +5,15 @@ import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
 import ConnectFlow from "./ConnectFlow";
 import * as Sentry from "@sentry/react";
-import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
+import { ZkConnectRequest } from "./localTypes";
 import { FactoryApp } from "../../libs/sismo-client";
 import { useSismo } from "../../libs/sismo";
 import { getZkConnectRequest } from "./utils/getZkConnectRequest";
 import { getReferrer } from "./utils/getReferrerApp";
-import { StatementGroupMetadata } from "../../libs/sismo-client/zk-connect-prover/zk-connect-v1";
+import {
+  RequestGroupMetadata,
+  ClaimType,
+} from "../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 
 const Container = styled.div`
   position: relative;
@@ -46,13 +49,14 @@ const ContentContainer = styled.div`
   height: 720px;
   position: relative;
 
+  @media (max-width: 900px) {
+    width: 100%;
+    margin-top: -60px;
+  }
+
   /* margin-top: -100px; */
   /* @media (max-width: 1140px) {
     margin-top: -90px;
-  }
-
-  @media (max-width: 800px) {
-    margin-top: -60px;
   }
   @media (max-width: 600px) {
     margin-top: 80px;
@@ -65,15 +69,15 @@ export type EligibleGroup = {
   [account: string]: number;
 };
 
-export const PWS_VERSION = "zk-connect-v1";
+export const PWS_VERSION = "zk-connect-v2";
 
 export default function Connect(): JSX.Element {
   const [searchParams] = useSearchParams();
   const [factoryApp, setFactoryApp] = useState<FactoryApp>(null);
   const [zkConnectRequest, setZkConnectRequest] =
     useState<ZkConnectRequest>(null);
-  const [statementsGroupsMetadata, setStatementsGroupsMetadata] =
-    useState<StatementGroupMetadata[]>(null);
+  const [requestGroupsMetadata, setRequestGroupsMetadata] =
+    useState<RequestGroupMetadata[]>(null);
   const [hostName, setHostname] = useState<string>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
   const [callbackUrl, setCallbackUrl] = useState(null);
@@ -82,18 +86,25 @@ export default function Connect(): JSX.Element {
     message: null,
   });
 
-  const { getStatementsGroupsMetadata, getFactoryApp } = useSismo();
+  const { getGroupMetadata, getFactoryApp, initDevConfig } = useSismo();
 
   //Get the request
   useEffect(() => {
     const request = getZkConnectRequest(searchParams);
+    if (
+      request?.devConfig &&
+      request?.devConfig?.enabled !== false &&
+      request?.devConfig?.devGroups?.length > 0
+    ) {
+      initDevConfig(request);
+    }
     setZkConnectRequest(request);
-  }, [searchParams]);
+  }, [initDevConfig, searchParams]);
 
   //Verify request validity
   useEffect(() => {
     if (!zkConnectRequest) return;
-    if (!zkConnectRequest.version) {
+    if (!zkConnectRequest.version || zkConnectRequest.version !== PWS_VERSION) {
       setIsWrongUrl({
         status: true,
         message: "Invalid version query parameter: " + zkConnectRequest.version,
@@ -114,6 +125,58 @@ export default function Connect(): JSX.Element {
           "Invalid namespace query parameter: " + zkConnectRequest.namespace,
       });
       return;
+    }
+
+    if (zkConnectRequest?.requestContent?.dataRequests) {
+      for (const dataRequest of zkConnectRequest?.requestContent
+        ?.dataRequests) {
+        if (
+          dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY &&
+          dataRequest?.claimRequest?.claimType !== ClaimType.GTE &&
+          dataRequest?.claimRequest?.claimType !== ClaimType.EQ &&
+          typeof dataRequest?.claimRequest?.claimType !== "undefined"
+        ) {
+          setIsWrongUrl({
+            status: true,
+            message:
+              "Invalid claimType: claimType" +
+              dataRequest?.claimRequest?.claimType +
+              " will be supported soon. Please use GTE or EQ for now.",
+          });
+          return;
+        }
+      }
+    }
+
+    if (zkConnectRequest?.devConfig) {
+      const claimRequests =
+        zkConnectRequest?.requestContent?.dataRequests?.filter(
+          (dataRequest) =>
+            dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY
+        );
+      const claimGroupIds = claimRequests?.map(
+        (claimRequest) => claimRequest?.claimRequest?.groupId
+      );
+      const devConfigGroupIds = zkConnectRequest?.devConfig?.devGroups?.map(
+        (group) => group?.groupId
+      );
+
+      const missingGroups = claimGroupIds?.filter(
+        (groupId) => !devConfigGroupIds?.includes(groupId)
+      );
+
+      if (
+        missingGroups?.length > 0 &&
+        zkConnectRequest?.devConfig?.devGroups?.length > 0
+      ) {
+        setIsWrongUrl({
+          status: true,
+          message:
+            "Invalid devConfig: claimRequest groups are not defined in your devConfig. Please add the following groups to your devConfig: " +
+            missingGroups.join(", "),
+        });
+        return;
+      }
     }
   }, [zkConnectRequest, factoryApp]);
 
@@ -173,7 +236,7 @@ export default function Connect(): JSX.Element {
                   : "")
         );
       } catch (e) {
-        console.log("Referrer error");
+        if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
           message: "Invalid referrer: " + document.referrer,
@@ -183,17 +246,48 @@ export default function Connect(): JSX.Element {
     }
 
     async function getGroupMetadataData() {
-      if (!zkConnectRequest.dataRequest) {
-        setStatementsGroupsMetadata(null);
+      if (
+        !zkConnectRequest.requestContent?.dataRequests.some(
+          (dataRequest) => dataRequest?.claimRequest?.groupId
+        )
+      ) {
+        setRequestGroupsMetadata(null);
         return;
       }
       try {
-        const res = await getStatementsGroupsMetadata(zkConnectRequest);
-        setStatementsGroupsMetadata(res);
+        const _claimRequests = [];
+
+        for (const dataRequest of zkConnectRequest?.requestContent
+          ?.dataRequests) {
+          if (dataRequest?.claimRequest?.groupId) {
+            _claimRequests.push(dataRequest.claimRequest);
+          }
+        }
+
+        const res = await Promise.all(
+          _claimRequests.map((_claimRequest) => {
+            return getGroupMetadata(
+              _claimRequest?.groupId,
+              _claimRequest?.groupTimestamp
+            );
+          })
+        );
+
+        const requestGroupsMetadata = _claimRequests.map(
+          (_claimRequest, index) => {
+            return {
+              claim: _claimRequest,
+              groupMetadata: res[index],
+            };
+          }
+        );
+
+        setRequestGroupsMetadata(requestGroupsMetadata);
       } catch (e) {
+        if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
-          message: "Invalid Statement request: " + e,
+          message: "Invalid Claim requests: " + e,
         });
         Sentry.captureException(e);
         console.error(e);
@@ -203,7 +297,6 @@ export default function Connect(): JSX.Element {
     async function getFactoryAppData() {
       try {
         const factoryApp = await getFactoryApp(zkConnectRequest.appId);
-
         //TODO move this in the validate useEffect
         const isAuthorized = factoryApp.authorizedDomains.some(
           (domain: string) => {
@@ -228,6 +321,7 @@ export default function Connect(): JSX.Element {
         );
 
         if (!isAuthorized) {
+          if (isWrongUrl?.status) return;
           setIsWrongUrl({
             status: true,
             message: `The domain "${_referrerName}" is not an authorized domain for the appId ${zkConnectRequest.appId}. If this is your app, please make sure to add your domain to your zkConnect app from the factory.`,
@@ -236,6 +330,7 @@ export default function Connect(): JSX.Element {
         }
         setFactoryApp(factoryApp);
       } catch (e) {
+        if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
           message: "Invalid appId: " + zkConnectRequest.appId,
@@ -248,7 +343,7 @@ export default function Connect(): JSX.Element {
     setReferrer();
     getGroupMetadataData();
     getFactoryAppData();
-  }, [zkConnectRequest, getFactoryApp, getStatementsGroupsMetadata]);
+  }, [zkConnectRequest, getFactoryApp, getGroupMetadata, isWrongUrl?.status]);
 
   return (
     <Container>
@@ -259,7 +354,7 @@ export default function Connect(): JSX.Element {
           <ConnectFlow
             factoryApp={factoryApp}
             zkConnectRequest={zkConnectRequest}
-            statementsGroupsMetadata={statementsGroupsMetadata}
+            requestGroupsMetadata={requestGroupsMetadata}
             callbackUrl={callbackUrl}
             referrerUrl={referrerUrl}
             hostName={hostName}

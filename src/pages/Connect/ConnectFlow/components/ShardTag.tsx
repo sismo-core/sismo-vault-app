@@ -1,9 +1,8 @@
 import styled from "styled-components";
-import { useState } from "react";
-import { StatementComparator } from "@sismo-core/zk-connect-client";
-import EligibilityModal from "./EligibilityModal";
 import colors from "../../../../theme/colors";
 import { GroupMetadata } from "../../../../libs/sismo-client";
+import { ClaimType } from "../../localTypes";
+//import { ClaimType } from "@sismo-core/zk-connect-client";
 
 const Container = styled.div`
   font-family: ${(props) => props.theme.fonts.medium};
@@ -29,47 +28,56 @@ const ValueComparator = styled.div`
 `;
 
 type Props = {
-  comparator: StatementComparator;
+  claimType: ClaimType;
   requestedValue: number;
   groupMetadata: GroupMetadata;
+  onModal?: (id: string) => void;
 };
 
 export default function ShardTag({
   groupMetadata,
-  comparator,
+  claimType,
   requestedValue,
+  onModal,
 }: Props) {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-
   const humanReadableGroupName = groupMetadata?.name
     ?.replace(/-/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
 
   return (
-    <>
-      <EligibilityModal
-        groupMetadata={groupMetadata}
-        isOpen={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
-      />
-      <Container onClick={() => setModalIsOpen(true)}>
-        <svg
-          width="17"
-          height="16"
-          viewBox="0 0 17 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M0.508301 5.7176L8.43936 0L16.5074 5.7176L8.43936 16L0.508301 5.7176Z"
-            fill={colors.purple2}
-          />
-        </svg>
-        {humanReadableGroupName}
+    <Container onClick={() => onModal(groupMetadata.id)}>
+      <svg
+        width="17"
+        height="16"
+        viewBox="0 0 17 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0.508301 5.7176L8.43936 0L16.5074 5.7176L8.43936 16L0.508301 5.7176Z"
+          fill={colors.purple2}
+        />
+      </svg>
+      {humanReadableGroupName}
+      {claimType === ClaimType.GTE && requestedValue > 1 ? (
         <ValueComparator>
-          {comparator === "GTE" ? ">" : "="} {requestedValue}
+          {">="} {requestedValue}
         </ValueComparator>
-      </Container>
-    </>
+      ) : claimType === ClaimType.GT ? (
+        <ValueComparator>
+          {">"} {requestedValue}
+        </ValueComparator>
+      ) : claimType === ClaimType.EQ ? (
+        <ValueComparator>{requestedValue}</ValueComparator>
+      ) : claimType === ClaimType.LT ? (
+        <ValueComparator>
+          {"<"} {requestedValue}
+        </ValueComparator>
+      ) : claimType === ClaimType.LTE ? (
+        <ValueComparator>
+          {"<="} {requestedValue}
+        </ValueComparator>
+      ) : null}
+    </Container>
   );
 }

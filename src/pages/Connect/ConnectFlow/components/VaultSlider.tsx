@@ -21,6 +21,13 @@ const Container = styled.div<{ vaultSliderOpen: boolean }>`
 
   z-index: 3;
   box-sizing: border-box;
+
+  @media (max-width: 1180px) {
+    // left: 500px;
+  }
+  @media (max-width: 900px) {
+    display: none;
+  }
 `;
 
 const VaultButton = styled.div<{ vaultSliderOpen: boolean }>`
@@ -41,6 +48,12 @@ const VaultButton = styled.div<{ vaultSliderOpen: boolean }>`
     ${(props) => (props.vaultSliderOpen ? "-8px" : "-296px")}
   );
   transition: transform 0.1s ease-in-out;
+
+  @media (max-width: 1180px) {
+    transform: translateX(
+      ${(props) => (props.vaultSliderOpen ? "-8px" : "-196px")}
+    );
+  }
 `;
 
 const VaultIconWrapper = styled.div`
@@ -118,6 +131,11 @@ const VaultContent = styled.div<{
 
   transition: transform 0.1s ease-in-out;
   z-index: -1;
+
+  @media (max-width: 1180px) {
+    width: 188px;
+    ${(props) => (props.vaultSliderOpen ? "0px" : "-188px")}
+  }
 `;
 
 const VaultTitle = styled.div<{ vaultSliderOpen: boolean }>`

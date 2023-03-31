@@ -1,11 +1,13 @@
 import styled from "styled-components";
+import { useEffect, useState } from "react";
 import Modal from "../../../../../components/Modal";
 import colors from "../../../../../theme/colors";
 import EligibleLink from "./components/EligibleLink";
 import Generation from "./components/Generation";
 import Icon from "../../../../../components/Icon";
 import { ArrowSquareOut } from "phosphor-react";
-import { GroupMetadata } from "../../../../../libs/sismo-client";
+import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+import { getHumanReadableGroupName } from "../../../utils/getHumanReadableGroupName";
 
 const Container = styled.div`
   display: flex;
@@ -166,6 +168,42 @@ const IconGithubContainer = styled.div`
   }
 `;
 
+const GroupsSelector = styled.div`
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: -40px;
+  flex-wrap: wrap;
+`;
+
+const GroupItem = styled.div<{ isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  padding: 1px 10px 1px 6px;
+  gap: 6px;
+  font-size: 16px;
+  line-height: 24px;
+  font-family: ${(props) => props.theme.fonts.medium};
+  cursor: pointer;
+  border-radius: 10px;
+  box-sizing: border-box;
+
+  ${(props) =>
+    !props.isSelected
+      ? `
+    background-color: ${props.theme.colors.blue10};
+    color: ${props.theme.colors.blue1};
+    border: 1px solid ${props.theme.colors.blue10};
+  `
+      : `
+    background-color: ${props.theme.colors.blue9};
+    color: ${props.theme.colors.green1};
+    border: 1px solid ${props.theme.colors.green1};
+  `}
+`;
+
 const IconContainer = styled.div`
   display: flex;
   align-items: flex-start;
@@ -182,14 +220,30 @@ const IconContainer = styled.div`
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  groupMetadata: GroupMetadata;
+  requestGroupsMetadata: RequestGroupMetadata[];
+  initialGroupId: string;
 };
 
 export default function EligibilityModal({
   isOpen,
   onClose,
-  groupMetadata,
+  requestGroupsMetadata,
+  initialGroupId,
 }: Props): JSX.Element {
+  const [
+    selectedRequestedGroupMetadata,
+    setSelectedGroupRequestedGroupMetadata,
+  ] = useState<RequestGroupMetadata | null>();
+
+  useEffect(() => {
+    const _selectedRequestedGroupMetadata = requestGroupsMetadata?.find(
+      (requestGroupMetadata) =>
+        requestGroupMetadata?.groupMetadata?.id === initialGroupId
+    );
+    setSelectedGroupRequestedGroupMetadata(_selectedRequestedGroupMetadata);
+  }, [initialGroupId, requestGroupsMetadata]);
+
+  const groupMetadata = selectedRequestedGroupMetadata?.groupMetadata;
   const humanReadableGroupName = groupMetadata?.name
     ?.replace(/-/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
@@ -203,6 +257,43 @@ export default function EligibilityModal({
       zIndex={2008}
     >
       <Container>
+        {requestGroupsMetadata?.length > 1 && (
+          <GroupsSelector>
+            {requestGroupsMetadata?.map((requestGroupMetadata) => {
+              const groupMetadata = requestGroupMetadata?.groupMetadata;
+              const humanReadableGroupName = getHumanReadableGroupName(
+                groupMetadata?.name
+              );
+              return (
+                <GroupItem
+                  key={groupMetadata?.id + "/groupSelectorModal"}
+                  isSelected={
+                    selectedRequestedGroupMetadata?.groupMetadata?.id ===
+                    groupMetadata?.id
+                  }
+                  onClick={() =>
+                    setSelectedGroupRequestedGroupMetadata(requestGroupMetadata)
+                  }
+                >
+                  <svg
+                    width="17"
+                    height="16"
+                    viewBox="0 0 17 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M0.508301 5.7176L8.43936 0L16.5074 5.7176L8.43936 16L0.508301 5.7176Z"
+                      fill={colors.purple2}
+                    />
+                  </svg>
+                  <span>{humanReadableGroupName}</span>
+                </GroupItem>
+              );
+            })}
+          </GroupsSelector>
+        )}
+
         <Header>
           <Id>{groupMetadata?.id}</Id>
           <Title>{humanReadableGroupName} group</Title>

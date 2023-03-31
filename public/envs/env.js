@@ -1,4 +1,4 @@
-//app.sismo.io
+//staging.sismo.io
 window.env = {
   name: "STAGING_BETA",
   disabledSentry: false,

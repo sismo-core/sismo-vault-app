@@ -1,3 +1,18 @@
+import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
+import { BigNumberish } from "ethers";
+
+export abstract class RegistryTreeReaderBase {
+  public abstract getAccountsTree(
+    inputs: OffchainGetAccountsTreeInputs
+  ): Promise<KVMerkleTree>;
+
+  public abstract getRegistryTree(): Promise<KVMerkleTree>;
+
+  public abstract getAccountsTreeEligibility(
+    inputs: OffchainGetAccountsTreeEligibilityInputs
+  ): Promise<MerkleTreeData>;
+}
+
 export type RegistryTree = {
   root: string;
   metadata: {
@@ -7,11 +22,17 @@ export type RegistryTree = {
   treeUrl: string;
 };
 
-export type getAccountsTreeInputs = OffChainGroupProperties & {
+export type DevAddresses = string[] | Record<string, Number | BigNumberish>;
+
+export type OffchainGetAccountsTreeInputs = {
+  groupId: string;
+  timestamp: number | "latest";
   account: string;
 };
 
-export type getAccountsTreeEligibilityInputs = OffChainGroupProperties & {
+export type OffchainGetAccountsTreeEligibilityInputs = {
+  groupId: string;
+  timestamp: number | "latest";
   accounts: string[];
 };
 

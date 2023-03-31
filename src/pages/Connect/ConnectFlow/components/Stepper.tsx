@@ -9,6 +9,10 @@ const Container = styled.div`
   height: 111px;
 
   box-sizing: border-box;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
 `;
 
 const LeftFlex = styled.div`
