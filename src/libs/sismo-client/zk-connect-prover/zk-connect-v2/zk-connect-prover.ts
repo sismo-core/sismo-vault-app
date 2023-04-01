@@ -18,7 +18,7 @@ import {
   Auth,
 } from "./types";
 import { AccountData } from "../../provers/types";
-import { isHexadecimal } from "./utils/isHexadecimal";
+import { isHexlify } from "./utils/isHexlify";
 
 export class ZkConnectProver {
   public version = "zk-connect-v2";
@@ -292,7 +292,7 @@ export class ZkConnectProver {
               dataRequestEligibility?.messageSignatureRequest
             );
           }
-          if (isHexadecimal(preparedSignedMessage)) {
+          if (isHexlify(preparedSignedMessage)) {
             _generateProofInputs["extraData"] = ethers.utils.keccak256(
               ethers.utils.hexlify(preparedSignedMessage)
             );
