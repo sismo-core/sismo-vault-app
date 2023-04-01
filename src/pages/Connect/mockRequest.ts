@@ -10,7 +10,7 @@ export const devConfig = {
   displayRawResponse: true,
   devGroups: [
     {
-      groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
+      groupId: "0x1fc668d70de74cf8c130af52182113f4",
       groupTimestamp: "latest",
       data: {
         "0x0E75b92ED9f77aC17A6e7fE6B171A3a66C6b638B": 4,
@@ -43,7 +43,7 @@ export const devConfig = {
 
 export const dataRequestMockError: DataRequest = {
   claimRequest: {
-    groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
+    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
   } as any,
   authRequest: {
     authType: AuthType.ANON,
@@ -119,12 +119,13 @@ export const zkConnectRequestContentMock: ZkConnectRequestContent = {
 };
 
 export const zkConnectRequestMock: ZkConnectRequest = {
-  appId: "0xf68985adfc209fafebfb1a956913e7fa",
+  appId: "0x97f25a024703a13d6cf18b84639e4c02",
   namespace: "main",
   callbackPath: null,
   version: "zk-connect-v2",
 };
 
+//const url = new URL("http://dev.vault-beta.sismo.io/connect");
 const url = new URL("http://localhost:3000/connect");
 const searchParams = url.searchParams;
 searchParams.set("version", zkConnectRequestMock.version);
@@ -132,10 +133,10 @@ searchParams.set("appId", zkConnectRequestMock.appId);
 searchParams.set("namespace", zkConnectRequestMock.namespace);
 searchParams.set("callbackPath", zkConnectRequestMock.callbackPath);
 searchParams.set("requestContent", JSON.stringify(zkConnectRequestContentMock));
-searchParams.set("devConfig", JSON.stringify(devConfig));
+//searchParams.set("devConfig", JSON.stringify(devConfig));
 
 export const zkConnectRequestMockUrl = url.toString();
 
 export function getMockUrl() {
-  // console.log(zkConnectRequestMockUrl);
+  console.log(zkConnectRequestMockUrl);
 }
