@@ -25,7 +25,7 @@ export default function Home() {
         onClose={() => setConnectIsOpen(false)}
       />
       <Container>
-        <Art src="/assets/sismo-landing-art.svg" />
+        <Art src="/assets/sismo-landing-art.svg" alt="sismo art" />
       </Container>
     </>
   );
