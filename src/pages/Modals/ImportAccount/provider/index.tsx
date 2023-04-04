@@ -202,11 +202,15 @@ export default function ImportAccountModalProvider({
     try {
       const commitmentMapperSecret =
         CommitmentMapper.generateCommitmentMapperSecret(seed);
+      const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
+
       const { commitmentReceipt, commitmentMapperPubKey, account } =
         await vault.commitmentMapper.getGithubCommitmentReceipt(
           githubCode,
-          commitmentMapperSecret
+          commitmentMapperSecret,
+          vaultSecret
         );
+
       await vault.importAccount(vault.connectedOwner, {
         identifier: account.identifier,
         seed,
@@ -262,12 +266,14 @@ export default function ImportAccountModalProvider({
     try {
       const commitmentMapperSecret =
         CommitmentMapper.generateCommitmentMapperSecret(seed);
+      const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
 
       const { commitmentReceipt, commitmentMapperPubKey, account } =
         await vault.commitmentMapper.getTwitterCommitmentReceipt(
           oauth.oauthToken,
           oauth.oauthVerifier,
-          commitmentMapperSecret
+          commitmentMapperSecret,
+          vaultSecret
         );
 
       await vault.importAccount(vault.connectedOwner, {
