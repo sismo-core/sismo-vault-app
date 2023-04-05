@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { ImportedAccount } from "../../../vault-client";
 import { Cache } from "../../caches";
 import { HydraS2OffchainProver } from "../../provers/hydra-s2-offchain-prover";
@@ -18,6 +18,7 @@ import {
   Auth,
 } from "./types";
 import { AccountData } from "../../provers/types";
+import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { isHexlify } from "./utils/isHexlify";
 
 export class ZkConnectProver {
@@ -293,13 +294,17 @@ export class ZkConnectProver {
             );
           }
           if (isHexlify(preparedSignedMessage)) {
-            _generateProofInputs["extraData"] = ethers.utils.keccak256(
+            _generateProofInputs["extraData"] = BigNumber.from(ethers.utils.keccak256(
               ethers.utils.hexlify(preparedSignedMessage)
-            );
+            ))
+            .mod(SNARK_FIELD)
+            .toHexString();
           } else {
-            _generateProofInputs["extraData"] = ethers.utils.keccak256(
+            _generateProofInputs["extraData"] = BigNumber.from(ethers.utils.keccak256(
               ethers.utils.toUtf8Bytes(preparedSignedMessage)
-            );
+            ))
+            .mod(SNARK_FIELD)
+            .toHexString();;
           }
         }
 
