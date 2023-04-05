@@ -84,10 +84,11 @@ export class CommitmentMapper {
 
   public async getGithubCommitmentReceipt(
     githubCode: string,
-    secret: string
+    accountSecret: string,
+    vaultSecret: string
   ): Promise<CommitmentMapperGithubReturn> {
     const poseidon = await buildPoseidon();
-    const commitment = poseidon([secret]).toHexString();
+    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
 
     const { data } = await axios.post(`${this.url}/commit-github-eddsa`, {
       githubCode,
@@ -117,10 +118,11 @@ export class CommitmentMapper {
   public async getTwitterCommitmentReceipt(
     twitterOauthToken: string,
     twitterOauthVerifier: string,
-    secret: string
+    accountSecret: string,
+    vaultSecret: string
   ): Promise<CommitmentMapperTwitterReturn> {
     const poseidon = await buildPoseidon();
-    const commitment = poseidon([secret]).toHexString();
+    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
 
     const { data } = await axios.post(`${this.url}/commit-twitter-eddsa`, {
       oauthToken: twitterOauthToken,

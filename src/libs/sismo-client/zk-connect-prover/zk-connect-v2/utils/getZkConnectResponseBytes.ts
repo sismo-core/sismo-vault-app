@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import { Auth, AuthType, Claim, ClaimType, ZkConnectResponse } from "../types";
+import { isHexlify } from "./isHexlify";
 
 export const getZkConnectResponseBytes = (
   zkConnectResponse: ZkConnectResponse
@@ -48,8 +49,6 @@ export const getZkConnectResponseBytes = (
             extraData: ethers.utils.toUtf8Bytes(proof?.claim?.extraData ?? ""),
           } as Claim;
 
-          console.log("claimForEncoding", claimForEncoding);
-
           const authForEncoding = {
             authType: proof?.auth?.authType ?? AuthType.EMPTY,
             anonMode: proof?.auth?.anonMode ?? false,
@@ -60,8 +59,11 @@ export const getZkConnectResponseBytes = (
           return {
             claim: claimForEncoding,
             auth: authForEncoding,
-            signedMessage:
-              proof?.signedMessage ?? ethers.utils.formatBytes32String(""),
+            signedMessage: proof?.signedMessage
+              ? isHexlify(proof?.signedMessage)
+                ? proof?.signedMessage
+                : ethers.utils.toUtf8Bytes(proof.signedMessage)
+              : ethers.utils.formatBytes32String(""),
             provingScheme: ethers.utils.hexZeroPad(
               ethers.utils.formatBytes32String(
                 proof?.provingScheme ?? "hydra-s2.1"
