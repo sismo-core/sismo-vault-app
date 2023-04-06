@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Gem } from "../../../../../components/SismoReactIcon";
 import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 import { EligibilitySummary } from "./components/EligibilitySummary";
-import { ZkConnectRequest } from "../../../localTypes";
+import { SismoConnectRequest } from "../../../localTypes";
 import {
   GroupMetadataDataRequestEligibility,
   AuthType,
@@ -113,7 +113,7 @@ const TooltipContent = styled.div`
 type Props = {
   groupMetadataDataRequestEligibilities: GroupMetadataDataRequestEligibility[];
   requestGroupsMetadata: RequestGroupMetadata[];
-  zkConnectRequest: ZkConnectRequest;
+  sismoConnectRequest: SismoConnectRequest;
   loadingEligible: boolean;
   onNext: () => void;
 };
@@ -121,7 +121,7 @@ type Props = {
 export default function ImportEligibleAccount({
   groupMetadataDataRequestEligibilities,
   requestGroupsMetadata,
-  zkConnectRequest,
+  sismoConnectRequest,
   loadingEligible,
   onNext,
 }: Props) {
@@ -138,7 +138,7 @@ export default function ImportEligibleAccount({
 
   const hasRequest = groupMetadataDataRequestEligibilities?.length > 0;
 
-  let isZkConnectRequestEligible: boolean = true;
+  let isSismoConnectRequestEligible: boolean = true;
 
   function getIsEligible(
     groupMetadataDataRequestEligibility: GroupMetadataDataRequestEligibility
@@ -178,16 +178,16 @@ export default function ImportEligibleAccount({
   }
 
   // REFACTOR LOGIC
-  if (zkConnectRequest?.requestContent?.operators[0] === "AND") {
-    isZkConnectRequestEligible = groupMetadataDataRequestEligibilities.every(
+  if (sismoConnectRequest?.requestContent?.operators[0] === "AND") {
+    isSismoConnectRequestEligible = groupMetadataDataRequestEligibilities.every(
       (groupMetadataDataRequestEligibility) => {
         return getIsEligible(groupMetadataDataRequestEligibility);
       }
     );
   }
 
-  if (zkConnectRequest?.requestContent?.operators[0] === "OR") {
-    isZkConnectRequestEligible = groupMetadataDataRequestEligibilities.some(
+  if (sismoConnectRequest?.requestContent?.operators[0] === "OR") {
+    isSismoConnectRequestEligible = groupMetadataDataRequestEligibilities.some(
       (groupMetadataDataRequestEligibility) => {
         return getIsEligible(groupMetadataDataRequestEligibility);
       }
@@ -219,7 +219,7 @@ export default function ImportEligibleAccount({
             )}
           </HeaderWrapper>
           <EligibilitySummary
-            zkConnectRequest={zkConnectRequest}
+            sismoConnectRequest={sismoConnectRequest}
             requestGroupsMetadata={requestGroupsMetadata}
             groupMetadataDataRequestEligibilities={
               groupMetadataDataRequestEligibilities
@@ -264,7 +264,7 @@ export default function ImportEligibleAccount({
                 <Info size={12} color={colors.blue4} weight="bold" />
               </HoverTooltip>
             </TooltipWrapper>
-            {!isZkConnectRequestEligible && (
+            {!isSismoConnectRequestEligible && (
               <Button
                 primary
                 style={{ width: 252 }}
@@ -281,7 +281,7 @@ export default function ImportEligibleAccount({
                   : `Checking eligibility`}
               </Button>
             )}
-            {isZkConnectRequestEligible && (
+            {isSismoConnectRequestEligible && (
               <Button
                 success
                 style={{ width: 252 }}

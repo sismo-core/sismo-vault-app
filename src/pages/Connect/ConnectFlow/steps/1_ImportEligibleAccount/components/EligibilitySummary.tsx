@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ZkConnectRequest } from "../../../../localTypes";
+import { SismoConnectRequest } from "../../../../localTypes";
 import { RequestGroupMetadata } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 import { CheckCircle } from "phosphor-react";
 import { getHumanReadableGroupName } from "../../../../utils/getHumanReadableGroupName";
@@ -70,17 +70,17 @@ const ValueComparator = styled.div<{ isEligible: boolean }>`
 `;
 
 type Props = {
-  zkConnectRequest: ZkConnectRequest;
+  sismoConnectRequest: SismoConnectRequest;
   requestGroupsMetadata: RequestGroupMetadata[];
   groupMetadataDataRequestEligibilities: GroupMetadataDataRequestEligibility[];
 };
 
 export function EligibilitySummary({
-  zkConnectRequest,
+  sismoConnectRequest,
   requestGroupsMetadata,
   groupMetadataDataRequestEligibilities,
 }: Props) {
-  const isOr = zkConnectRequest?.requestContent?.operators[0] === "OR";
+  const isOr = sismoConnectRequest?.requestContent?.operators[0] === "OR";
 
   return (
     <Container>

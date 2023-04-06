@@ -1,6 +1,6 @@
 import {
-  ZkConnectRequest,
-  ZkConnectRequestContent,
+  SismoConnectRequest,
+  SismoConnectRequestContent,
   DataRequest,
   AuthType,
 } from "./localTypes";
@@ -106,7 +106,7 @@ export const dataRequestMock5: DataRequest = {
   messageSignatureRequest: "my custom message",
 };
 
-export const zkConnectRequestContentMock: ZkConnectRequestContent = {
+export const sismoConnectRequestContentMock: SismoConnectRequestContent = {
   dataRequests: [
     dataRequestMockError,
     //dataRequestMock1,
@@ -118,7 +118,7 @@ export const zkConnectRequestContentMock: ZkConnectRequestContent = {
   operators: ["AND"],
 };
 
-export const zkConnectRequestMock: ZkConnectRequest = {
+export const sismoConnectRequestMock: SismoConnectRequest = {
   appId: "0x97f25a024703a13d6cf18b84639e4c02",
   namespace: "main",
   callbackPath: null,
@@ -128,15 +128,18 @@ export const zkConnectRequestMock: ZkConnectRequest = {
 //const url = new URL("http://dev.vault-beta.sismo.io/connect");
 const url = new URL("http://localhost:3000/connect");
 const searchParams = url.searchParams;
-searchParams.set("version", zkConnectRequestMock.version);
-searchParams.set("appId", zkConnectRequestMock.appId);
-searchParams.set("namespace", zkConnectRequestMock.namespace);
-searchParams.set("callbackPath", zkConnectRequestMock.callbackPath);
-searchParams.set("requestContent", JSON.stringify(zkConnectRequestContentMock));
+searchParams.set("version", sismoConnectRequestMock.version);
+searchParams.set("appId", sismoConnectRequestMock.appId);
+searchParams.set("namespace", sismoConnectRequestMock.namespace);
+searchParams.set("callbackPath", sismoConnectRequestMock.callbackPath);
+searchParams.set(
+  "requestContent",
+  JSON.stringify(sismoConnectRequestContentMock)
+);
 //searchParams.set("devConfig", JSON.stringify(devConfig));
 
-export const zkConnectRequestMockUrl = url.toString();
+export const sismoConnectRequestMockUrl = url.toString();
 
 export function getMockUrl() {
-  console.log(zkConnectRequestMockUrl);
+  console.log(sismoConnectRequestMockUrl);
 }

@@ -1,5 +1,4 @@
 import {
-  GroupMetadataClaimRequestEligibility,
   ClaimRequestEligibility,
   AuthRequestEligibility,
   RequestGroupMetadata,

@@ -8,10 +8,10 @@ import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
 import { ArrowLeft } from "phosphor-react";
-import { ZkConnectRequest } from "../localTypes";
+import { SismoConnectRequest } from "../localTypes";
 import env from "../../../environment";
 import { FactoryApp } from "../../../libs/sismo-client";
-import { ZkConnectResponse } from "../localTypes";
+import { SismoConnectResponse } from "../localTypes";
 
 import { getSismoConnectResponseBytes } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
 import {
@@ -48,7 +48,7 @@ export type Step =
 
 type Props = {
   factoryApp: FactoryApp;
-  zkConnectRequest: ZkConnectRequest;
+  sismoConnectRequest: SismoConnectRequest;
   requestGroupsMetadata: RequestGroupMetadata[];
   callbackUrl: string;
   referrerUrl: string;
@@ -57,7 +57,7 @@ type Props = {
 
 export default function ConnectFlow({
   factoryApp,
-  zkConnectRequest,
+  sismoConnectRequest,
   requestGroupsMetadata,
   referrerUrl,
   callbackUrl,
@@ -83,16 +83,16 @@ export default function ConnectFlow({
 
   //Test Eligibility
   useEffect(() => {
-    if (!zkConnectRequest) return;
+    if (!sismoConnectRequest) return;
 
     const testEligibility = async () => {
-      if (!zkConnectRequest?.requestContent) {
+      if (!sismoConnectRequest?.requestContent) {
         return;
       }
       try {
         setLoadingEligible(true);
         const dataRequestEligibilities = await getDataRequestEligibilities(
-          zkConnectRequest,
+          sismoConnectRequest,
           vault?.importedAccounts || []
         );
 
@@ -129,16 +129,16 @@ export default function ConnectFlow({
     getDataRequestEligibilities,
     requestGroupsMetadata,
     vault.importedAccounts,
-    zkConnectRequest,
+    sismoConnectRequest,
   ]);
 
-  const redirect = (response: ZkConnectResponse) => {
+  const redirect = (response: SismoConnectResponse) => {
     localStorage.removeItem("prove_referrer");
     let url = callbackUrl;
     if (response) {
-      url += `?zkConnectResponse=${JSON.stringify(
+      url += `?sismoConnectResponse=${JSON.stringify(
         response
-      )}&zkConnectResponseBytes=${getSismoConnectResponseBytes(response)}`;
+      )}&sismoConnectResponseBytes=${getSismoConnectResponseBytes(response)}`;
     }
     if (window.opener) {
       window.opener.postMessage(response, url); //If it's a popup, this will send a message to the opener which is here zkdrop.io
@@ -212,7 +212,7 @@ export default function ConnectFlow({
         {step === "SignIn" && (
           <SignIn
             factoryApp={factoryApp}
-            zkConnectRequest={zkConnectRequest}
+            sismoConnectRequest={sismoConnectRequest}
             requestGroupsMetadata={requestGroupsMetadata}
             groupMetadataDataRequestEligibilities={
               groupMetadataDataRequestEligibilities
@@ -233,14 +233,14 @@ export default function ConnectFlow({
             factoryApp={factoryApp}
             hostName={hostName}
             referrerUrl={referrerUrl}
-            zkConnectRequest={zkConnectRequest}
+            sismoConnectRequest={sismoConnectRequest}
             vaultSliderOpen={vaultSliderOpen}
             setVaultSliderOpen={setVaultSliderOpen}
             step={step}
           >
             {step === "ImportEligibleAccount" && (
               <ImportEligibleAccount
-                zkConnectRequest={zkConnectRequest}
+                sismoConnectRequest={sismoConnectRequest}
                 requestGroupsMetadata={requestGroupsMetadata}
                 groupMetadataDataRequestEligibilities={
                   groupMetadataDataRequestEligibilities
@@ -253,7 +253,7 @@ export default function ConnectFlow({
             )}
             {step === "GenerateZkProof" && (
               <GenerateZkProof
-                zkConnectRequest={zkConnectRequest}
+                sismoConnectRequest={sismoConnectRequest}
                 onNext={(response) => {
                   setTimeout(() => {
                     redirect(response);

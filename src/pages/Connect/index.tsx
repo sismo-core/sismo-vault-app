@@ -5,15 +5,14 @@ import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
 import ConnectFlow from "./ConnectFlow";
 import * as Sentry from "@sentry/react";
-import { ZkConnectRequest } from "./localTypes";
 import { FactoryApp } from "../../libs/sismo-client";
 import { useSismo } from "../../libs/sismo";
-import { getZkConnectRequest } from "./utils/getZkConnectRequest";
+import { getSismoConnectRequest } from "./utils/getSismoConnectRequest";
 import { getReferrer } from "./utils/getReferrerApp";
 import {
   RequestGroupMetadata,
-  ClaimType,
-} from "../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+  SismoConnectRequest,
+} from "../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
   position: relative;
@@ -74,8 +73,8 @@ export const PWS_VERSION = "zk-connect-v2";
 export default function Connect(): JSX.Element {
   const [searchParams] = useSearchParams();
   const [factoryApp, setFactoryApp] = useState<FactoryApp>(null);
-  const [zkConnectRequest, setZkConnectRequest] =
-    useState<ZkConnectRequest>(null);
+  const [sismoConnectRequest, setSismoConnectRequest] =
+    useState<SismoConnectRequest>(null);
   const [requestGroupsMetadata, setRequestGroupsMetadata] =
     useState<RequestGroupMetadata[]>(null);
   const [hostName, setHostname] = useState<string>(null);
@@ -90,7 +89,7 @@ export default function Connect(): JSX.Element {
 
   //Get the request
   useEffect(() => {
-    const request = getZkConnectRequest(searchParams);
+    const request = getSismoConnectRequest(searchParams);
     if (
       request?.devConfig &&
       request?.devConfig?.enabled !== false &&
@@ -98,37 +97,41 @@ export default function Connect(): JSX.Element {
     ) {
       initDevConfig(request);
     }
-    setZkConnectRequest(request);
+    setSismoConnectRequest(request);
   }, [initDevConfig, searchParams]);
 
   //Verify request validity
   useEffect(() => {
-    if (!zkConnectRequest) return;
-    if (!zkConnectRequest.version || zkConnectRequest.version !== PWS_VERSION) {
-      setIsWrongUrl({
-        status: true,
-        message: "Invalid version query parameter: " + zkConnectRequest.version,
-      });
-      return;
-    }
-    if (!zkConnectRequest.appId) {
-      setIsWrongUrl({
-        status: true,
-        message: "Invalid appId query parameter: " + zkConnectRequest.appId,
-      });
-      return;
-    }
-    if (!zkConnectRequest.namespace) {
+    if (!sismoConnectRequest) return;
+    if (
+      !sismoConnectRequest.version ||
+      sismoConnectRequest.version !== PWS_VERSION
+    ) {
       setIsWrongUrl({
         status: true,
         message:
-          "Invalid namespace query parameter: " + zkConnectRequest.namespace,
+          "Invalid version query parameter: " + sismoConnectRequest.version,
+      });
+      return;
+    }
+    if (!sismoConnectRequest.appId) {
+      setIsWrongUrl({
+        status: true,
+        message: "Invalid appId query parameter: " + sismoConnectRequest.appId,
+      });
+      return;
+    }
+    if (!sismoConnectRequest.namespace) {
+      setIsWrongUrl({
+        status: true,
+        message:
+          "Invalid namespace query parameter: " + sismoConnectRequest.namespace,
       });
       return;
     }
 
-    if (zkConnectRequest?.requestContent?.dataRequests) {
-      for (const dataRequest of zkConnectRequest?.requestContent
+    if (sismoConnectRequest?.requestContent?.dataRequests) {
+      for (const dataRequest of sismoConnectRequest?.requestContent
         ?.dataRequests) {
         if (
           dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY &&
@@ -148,16 +151,16 @@ export default function Connect(): JSX.Element {
       }
     }
 
-    if (zkConnectRequest?.devConfig) {
+    if (sismoConnectRequest?.devConfig) {
       const claimRequests =
-        zkConnectRequest?.requestContent?.dataRequests?.filter(
+        sismoConnectRequest?.requestContent?.dataRequests?.filter(
           (dataRequest) =>
             dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY
         );
       const claimGroupIds = claimRequests?.map(
         (claimRequest) => claimRequest?.claimRequest?.groupId
       );
-      const devConfigGroupIds = zkConnectRequest?.devConfig?.devGroups?.map(
+      const devConfigGroupIds = sismoConnectRequest?.devConfig?.devGroups?.map(
         (group) => group?.groupId
       );
 
@@ -167,7 +170,7 @@ export default function Connect(): JSX.Element {
 
       if (
         missingGroups?.length > 0 &&
-        zkConnectRequest?.devConfig?.devGroups?.length > 0
+        sismoConnectRequest?.devConfig?.devGroups?.length > 0
       ) {
         setIsWrongUrl({
           status: true,
@@ -178,11 +181,11 @@ export default function Connect(): JSX.Element {
         return;
       }
     }
-  }, [zkConnectRequest, factoryApp]);
+  }, [sismoConnectRequest, factoryApp]);
 
   //Fetch data
   useEffect(() => {
-    if (!zkConnectRequest) return;
+    if (!sismoConnectRequest) return;
 
     let _referrerName = "your app";
     let _callbackRefererPath = "";
@@ -221,18 +224,18 @@ export default function Connect(): JSX.Element {
 
         //TODO could be nice to use something like this instead of callbackUrl + hostname + referrerUrl + TDL etc..
         //And in props use ReferrerApp
-        //const referrerApp = getReferrerApp(zkConnectRequest);
+        //const referrerApp = getReferrerApp(sismoConnectRequest);
         //console.log("referrerApp", referrerApp);
 
         setHostname(_hostname);
         setReferrerUrl(_referrerHostname + _callbackRefererPath);
         setCallbackUrl(
-          zkConnectRequest.callbackPath &&
-            zkConnectRequest.callbackPath.includes("chrome-extension://")
-            ? zkConnectRequest.callbackPath
+          sismoConnectRequest.callbackPath &&
+            sismoConnectRequest.callbackPath.includes("chrome-extension://")
+            ? sismoConnectRequest.callbackPath
             : _referrerHostname +
-                (zkConnectRequest.callbackPath
-                  ? zkConnectRequest.callbackPath
+                (sismoConnectRequest.callbackPath
+                  ? sismoConnectRequest.callbackPath
                   : "")
         );
       } catch (e) {
@@ -247,7 +250,7 @@ export default function Connect(): JSX.Element {
 
     async function getGroupMetadataData() {
       if (
-        !zkConnectRequest.requestContent?.dataRequests.some(
+        !sismoConnectRequest.requestContent?.dataRequests.some(
           (dataRequest) => dataRequest?.claimRequest?.groupId
         )
       ) {
@@ -257,7 +260,7 @@ export default function Connect(): JSX.Element {
       try {
         const _claimRequests = [];
 
-        for (const dataRequest of zkConnectRequest?.requestContent
+        for (const dataRequest of sismoConnectRequest?.requestContent
           ?.dataRequests) {
           if (dataRequest?.claimRequest?.groupId) {
             _claimRequests.push(dataRequest.claimRequest);
@@ -296,7 +299,7 @@ export default function Connect(): JSX.Element {
 
     async function getFactoryAppData() {
       try {
-        const factoryApp = await getFactoryApp(zkConnectRequest.appId);
+        const factoryApp = await getFactoryApp(sismoConnectRequest.appId);
         //TODO move this in the validate useEffect
         const isAuthorized = factoryApp.authorizedDomains.some(
           (domain: string) => {
@@ -324,7 +327,7 @@ export default function Connect(): JSX.Element {
           if (isWrongUrl?.status) return;
           setIsWrongUrl({
             status: true,
-            message: `The domain "${_referrerName}" is not an authorized domain for the appId ${zkConnectRequest.appId}. If this is your app, please make sure to add your domain to your zkConnect app from the factory.`,
+            message: `The domain "${_referrerName}" is not an authorized domain for the appId ${sismoConnectRequest.appId}. If this is your app, please make sure to add your domain to your sismoConnect app from the factory.`,
           });
           return;
         }
@@ -333,7 +336,7 @@ export default function Connect(): JSX.Element {
         if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
-          message: "Invalid appId: " + zkConnectRequest.appId,
+          message: "Invalid appId: " + sismoConnectRequest.appId,
         });
         Sentry.captureException(e);
         console.error(e);
@@ -343,7 +346,12 @@ export default function Connect(): JSX.Element {
     setReferrer();
     getGroupMetadataData();
     getFactoryAppData();
-  }, [zkConnectRequest, getFactoryApp, getGroupMetadata, isWrongUrl?.status]);
+  }, [
+    sismoConnectRequest,
+    getFactoryApp,
+    getGroupMetadata,
+    isWrongUrl?.status,
+  ]);
 
   return (
     <Container>
@@ -353,7 +361,7 @@ export default function Connect(): JSX.Element {
         ) : (
           <ConnectFlow
             factoryApp={factoryApp}
-            zkConnectRequest={zkConnectRequest}
+            sismoConnectRequest={sismoConnectRequest}
             requestGroupsMetadata={requestGroupsMetadata}
             callbackUrl={callbackUrl}
             referrerUrl={referrerUrl}

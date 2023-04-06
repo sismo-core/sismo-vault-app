@@ -9,8 +9,8 @@ import ConnectVaultModal from "../../../../Modals/ConnectVaultModal";
 import Skeleton from "./components/Skeleton";
 import HoverTooltip from "../../../../../components/HoverTooltip";
 import colors from "../../../../../theme/colors";
-//import { ZkConnectRequest } from "@sismo-core/zk-connect-client";
-import { ZkConnectRequest } from "../../../localTypes";
+//import { SismoConnectRequest } from "@sismo-core/zk-connect-client";
+import { SismoConnectRequest } from "../../../localTypes";
 import ShardTag from "../../components/ShardTag";
 import { FactoryApp } from "../../../../../libs/sismo-client";
 import {
@@ -202,7 +202,7 @@ const Link = styled.a`
 
 type Props = {
   factoryApp: FactoryApp;
-  zkConnectRequest: ZkConnectRequest;
+  sismoConnectRequest: SismoConnectRequest;
   requestGroupsMetadata: RequestGroupMetadata[] | null;
   groupMetadataDataRequestEligibilities:
     | GroupMetadataDataRequestEligibility[]
@@ -214,7 +214,7 @@ type Props = {
 export default function SignIn({
   groupMetadataDataRequestEligibilities,
   requestGroupsMetadata,
-  zkConnectRequest,
+  sismoConnectRequest,
   referrerUrl,
   factoryApp,
   onNext,
@@ -228,7 +228,7 @@ export default function SignIn({
   // const proveName = badge?.name?.split(" ZK Badge")[0] || null;
   // const article = ["a", "e", "i", "o", "u"].includes(badge?.name) ? "an" : "a";
 
-  const hasClaim = zkConnectRequest?.requestContent?.dataRequests?.some(
+  const hasClaim = sismoConnectRequest?.requestContent?.dataRequests?.some(
     (dataRequest) => dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY
   );
 
@@ -252,7 +252,7 @@ export default function SignIn({
   const loading = hasClaim
     ? !factoryApp ||
       vault.loadingActiveSession ||
-      !zkConnectRequest ||
+      !sismoConnectRequest ||
       !imgLoaded ||
       !requestGroupsMetadata ||
       !groupMetadataDataRequestEligibilities
@@ -263,8 +263,9 @@ export default function SignIn({
 
   let consolidatedMessageSignatureRequest: string = "";
 
-  if (zkConnectRequest?.requestContent?.dataRequests.length) {
-    for (const dataRequest of zkConnectRequest?.requestContent?.dataRequests) {
+  if (sismoConnectRequest?.requestContent?.dataRequests.length) {
+    for (const dataRequest of sismoConnectRequest?.requestContent
+      ?.dataRequests) {
       if (dataRequest?.messageSignatureRequest) {
         consolidatedMessageSignatureRequest +=
           dataRequest?.messageSignatureRequest + " ";
@@ -312,8 +313,9 @@ export default function SignIn({
               </ContentTitle>
 
               <DataRequested>Requested Data:</DataRequested>
-              {(!zkConnectRequest?.requestContent?.operators?.length ||
-                zkConnectRequest?.requestContent?.operators[0] === "AND") && (
+              {(!sismoConnectRequest?.requestContent?.operators?.length ||
+                sismoConnectRequest?.requestContent?.operators[0] ===
+                  "AND") && (
                 <AndWrapper>
                   {groupMetadataDataRequestEligibilities.length > 0 &&
                     groupMetadataDataRequestEligibilities?.map(
@@ -356,7 +358,7 @@ export default function SignIn({
                     )}
                 </AndWrapper>
               )}
-              {zkConnectRequest?.requestContent?.operators[0] === "OR" && (
+              {sismoConnectRequest?.requestContent?.operators[0] === "OR" && (
                 <OrWrapper>
                   {groupMetadataDataRequestEligibilities.length > 0 &&
                     groupMetadataDataRequestEligibilities?.map(
@@ -428,7 +430,7 @@ export default function SignIn({
                   )
                 }
               >
-                What is zkConnect <ArrowSquareOut />
+                What is sismoConnect <ArrowSquareOut />
               </Link>
 
               {vault.isConnected ? (

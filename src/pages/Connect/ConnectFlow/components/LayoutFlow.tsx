@@ -5,7 +5,7 @@ import HeaderTitle from "./HeaderTitle";
 import Stepper from "./Stepper";
 import VaultSlider from "./VaultSlider";
 import { useImportAccount } from "../../../Modals/ImportAccount/provider";
-import { ZkConnectRequest } from "../../localTypes";
+import { SismoConnectRequest } from "../../localTypes";
 import ShardTag from "./ShardTag";
 import { FactoryApp } from "../../../../libs/sismo-client";
 import EligibilityModal from "./EligibilityModal";
@@ -121,7 +121,7 @@ type Props = {
   groupMetadataDataRequestEligibilities:
     | GroupMetadataDataRequestEligibility[]
     | null;
-  zkConnectRequest: ZkConnectRequest;
+  sismoConnectRequest: SismoConnectRequest;
   referrerUrl: string;
   hostName: string;
   vaultSliderOpen: boolean;
@@ -135,7 +135,7 @@ type Props = {
 export default function LayoutFlow({
   requestGroupsMetadata,
   groupMetadataDataRequestEligibilities,
-  zkConnectRequest,
+  sismoConnectRequest,
   hostName,
   referrerUrl,
   children,
@@ -200,7 +200,7 @@ export default function LayoutFlow({
                     groupMetadataDataRequestEligibilities?.map(
                       (dataRequestEligibility, index) => (
                         <Fragment key={index + "/statement-request/layout"}>
-                          {zkConnectRequest?.requestContent?.operators[0] ===
+                          {sismoConnectRequest?.requestContent?.operators[0] ===
                             "OR" &&
                             index !== 0 && <div>or</div>}
                           {dataRequestEligibility?.claimRequestEligibility

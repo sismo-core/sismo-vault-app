@@ -36,7 +36,7 @@ export default function HeaderTitle({ url, style }: Props) {
   return (
     <Container style={style}>
       <Title>
-        <TitleLarge>zkConnect</TitleLarge>
+        <TitleLarge>sismoConnect</TitleLarge>
       </Title>
       <Subtitle>{url}</Subtitle>
     </Container>

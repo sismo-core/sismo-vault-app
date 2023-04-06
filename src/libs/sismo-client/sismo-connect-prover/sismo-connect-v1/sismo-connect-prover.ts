@@ -429,8 +429,8 @@ export class SismoConnectProver {
 
     const promises = [...claimPromises, ...authPromises];
 
-    const zkConnectProofs = await Promise.all(promises);
-    response.proofs = zkConnectProofs;
+    const sismoConnectProofs = await Promise.all(promises);
+    response.proofs = sismoConnectProofs;
 
     return response;
   }

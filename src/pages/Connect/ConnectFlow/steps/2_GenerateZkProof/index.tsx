@@ -7,7 +7,7 @@ import { useSismo } from "../../../../../libs/sismo";
 import * as Sentry from "@sentry/react";
 import ShardAnimation from "../../components/ShardAnimation";
 import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
-import { ZkConnectResponse, ZkConnectRequest } from "../../../localTypes";
+import { SismoConnectResponse, SismoConnectRequest } from "../../../localTypes";
 import ProofModal from "./components/ProofModal";
 
 const Container = styled.div`
@@ -97,11 +97,14 @@ const LoadingFeedBack = styled(FeedBack)`
 `;
 
 type Props = {
-  zkConnectRequest: ZkConnectRequest;
-  onNext: (zkResponse: ZkConnectResponse) => void;
+  sismoConnectRequest: SismoConnectRequest;
+  onNext: (zkResponse: SismoConnectResponse) => void;
 };
 
-export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
+export default function GenerateZkProof({
+  sismoConnectRequest,
+  onNext,
+}: Props) {
   const vault = useVault();
   const [loadingProof, setLoadingProof] = useState(true);
   const [isGenerated, setIsGenerated] = useState(false);
@@ -116,7 +119,7 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
     try {
       const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
       const zkResponse = await generateResponse(
-        zkConnectRequest,
+        sismoConnectRequest,
         vault.importedAccounts,
         vaultSecret
       );
@@ -125,7 +128,7 @@ export default function GenerateZkProof({ zkConnectRequest, onNext }: Props) {
       setLoadingProof(false);
       setResponse(zkResponse);
 
-      if (zkConnectRequest?.devConfig?.displayRawResponse) {
+      if (sismoConnectRequest?.devConfig?.displayRawResponse) {
         setProofModalOpen(true);
         return;
       }

@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Modal from "../../../../../../components/Modal";
-import { ZkConnectResponse } from "../../../../localTypes";
-import { getZkConnectResponseBytes } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2/utils/getZkConnectResponseBytes";
+import { SismoConnectResponse } from "../../../../localTypes";
+import { getSismoConnectResponseBytes } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2/utils/getSismoConnectResponseBytes";
 
 const Container = styled.div`
   display: flex;
@@ -64,7 +64,7 @@ const SelectorWrapper = styled.div`
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  response: ZkConnectResponse;
+  response: SismoConnectResponse;
 };
 
 export default function ProofModal({
@@ -83,7 +83,7 @@ export default function ProofModal({
     proofs: response?.proofs,
   };
 
-  const bytesResponse = getZkConnectResponseBytes(response);
+  const bytesResponse = getSismoConnectResponseBytes(response);
 
   const [readableResponse, setReadableResponse] = useState<string>(
     selectedType === "typescript"

@@ -1,4 +1,4 @@
-import { ZkConnectRequest } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+import { SismoConnectRequest } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 
 export type ReferrerApp = {
   referrer: string;
@@ -10,7 +10,7 @@ export type ReferrerApp = {
 };
 
 export const getReferrerApp = (
-  zkConnectRequest: ZkConnectRequest
+  sismoConnectRequest: SismoConnectRequest
 ): ReferrerApp => {
   const referrer = getReferrer();
   const referrerUrl = new URL(referrer);
@@ -20,11 +20,13 @@ export const getReferrerApp = (
       : referrer.split("/")[2];
   const host = referrerUrl.host;
   const successCallbackUrl =
-    zkConnectRequest.callbackPath &&
-    zkConnectRequest.callbackPath.includes("chrome-extension://")
-      ? zkConnectRequest.callbackPath
+    sismoConnectRequest.callbackPath &&
+    sismoConnectRequest.callbackPath.includes("chrome-extension://")
+      ? sismoConnectRequest.callbackPath
       : host +
-        (zkConnectRequest.callbackPath ? zkConnectRequest.callbackPath : "");
+        (sismoConnectRequest.callbackPath
+          ? sismoConnectRequest.callbackPath
+          : "");
 
   const TLD =
     referrer.split(".")?.length > 1

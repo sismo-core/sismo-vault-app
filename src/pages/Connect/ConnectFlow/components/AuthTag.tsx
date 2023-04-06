@@ -1,6 +1,8 @@
 import styled from "styled-components";
-import { Auth, AuthType } from "../../localTypes";
-//import { ClaimType } from "@sismo-core/zk-connect-client";
+import {
+  AuthType,
+  SelectedAuthRequest,
+} from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
   font-family: ${(props) => props.theme.fonts.medium};
@@ -16,7 +18,7 @@ const Container = styled.div`
 `;
 
 type Props = {
-  authRequest: Auth;
+  authRequest: SelectedAuthRequest;
 };
 
 export default function AuthTag({ authRequest }: Props) {
@@ -29,8 +31,8 @@ export default function AuthTag({ authRequest }: Props) {
       ? "Github account"
       : authType === AuthType.TWITTER
       ? "Twitter account"
-      : authType === AuthType.ANON
-      ? "Anon user id"
+      : authType === AuthType.VAULT
+      ? "Vault user id"
       : null;
 
   return <Container>{humanReadableType}</Container>;
