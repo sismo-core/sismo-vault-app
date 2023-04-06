@@ -1,5 +1,5 @@
 import { ImportedAccount } from "../../vault-client";
-import { ClaimType } from "../zk-connect-prover/zk-connect-v2";
+import { ClaimType } from "../sismo-connect-prover/sismo-connect-v1";
 import { BigNumberish } from "ethers";
 
 export type GroupTimestamp = number | "latest";

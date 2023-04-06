@@ -23,7 +23,8 @@ import {
 } from "./types";
 import { Prover } from "./prover";
 import env from "../../../environment";
-import { ClaimType, DevConfig } from "../zk-connect-prover/zk-connect-v2";
+
+import { ClaimType, DevConfig } from "../sismo-connect-prover/sismo-connect-v1";
 import { RegistryTreeReader } from "../registry-tree-readers/registry-tree-reader";
 
 export class HydraS2OffchainProver extends Prover {
@@ -104,8 +105,6 @@ export class HydraS2OffchainProver extends Prover {
     }
 
     switch (claimType) {
-      case ClaimType.EMPTY:
-        return null;
       case ClaimType.EQ:
         for (const [identifier, value] of Object.entries(
           eligibleAccountsTreeData
@@ -121,7 +120,7 @@ export class HydraS2OffchainProver extends Prover {
           }
         }
         return null;
-      case ClaimType.GTE || ClaimType.USER_SELECT:
+      case ClaimType.GTE:
         let maxAccountData: AccountData = null;
 
         for (const [identifier, value] of Object.entries(
@@ -139,17 +138,16 @@ export class HydraS2OffchainProver extends Prover {
           }
           if (
             maxAccountData &&
-            BigNumber.from(value).toNumber() > maxAccountData?.value
+            BigNumber.from(value).toNumber() >
+              BigNumber.from(maxAccountData?.value).toNumber()
           ) {
             maxAccountData = {
               identifier,
               value: BigNumber.from(value).toNumber(),
             };
           }
-
-          return maxAccountData;
         }
-        return null;
+        return maxAccountData;
 
       default:
         throw new Error("Invalid claim type");
@@ -273,10 +271,8 @@ export class HydraS2OffchainProver extends Prover {
         ...hydraS2Account,
         verificationEnabled: true,
       };
-      //TODO set to true once commitment mapper is fixed
 
-      const hasDataRequest =
-        namespace && groupId && groupTimestamp && requestedValue && claimType;
+      const hasDataRequest = groupId && groupTimestamp && requestedValue;
 
       if (hasDataRequest) {
         let accountsTree: KVMerkleTree;

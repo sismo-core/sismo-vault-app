@@ -1,0 +1,427 @@
+import { ethers, BigNumber } from "ethers";
+import { ImportedAccount } from "../../../vault-client";
+import { Cache } from "../../caches";
+import { HydraS2OffchainProver } from "../../provers/hydra-s2-offchain-prover";
+import { OffchainProofRequest } from "../../provers/types";
+import { FactoryProvider } from "../../providers/factory-provider";
+import {
+  ClaimRequestEligibility,
+  AuthRequestEligibility,
+  SismoConnectRequest,
+  SelectedSismoConnectRequest,
+  SismoConnectResponse,
+  DevConfig,
+  ClaimRequest,
+  AuthType,
+  SismoConnectProof,
+  AuthRequest,
+  SelectedClaimRequestEligibility,
+  SelectedAuthRequestEligibility,
+  ProvingScheme,
+  SISMO_CONNECT_VERSION,
+} from "./types";
+import { isHexlify } from "./utils/isHexlify";
+import { SNARK_FIELD } from "@sismo-core/crypto";
+
+export class SismoConnectProver {
+  public version = SISMO_CONNECT_VERSION;
+  private prover: HydraS2OffchainProver;
+  private factoryProvider: FactoryProvider;
+
+  constructor({
+    factoryProvider,
+    cache,
+  }: {
+    factoryProvider: FactoryProvider;
+    cache: Cache;
+  }) {
+    this.prover = new HydraS2OffchainProver({ cache });
+    this.factoryProvider = factoryProvider;
+  }
+
+  public async initDevConfig(devConfig?: DevConfig) {
+    await this.prover.initDevConfig(devConfig);
+  }
+
+  private async getClaimRequestEligibility(
+    claimRequest: ClaimRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<ClaimRequestEligibility> {
+    const _accounts = importedAccounts?.map((account) => account.identifier);
+
+    const accountData = await this.prover.getEligibility({
+      accounts: _accounts,
+      groupId: claimRequest.groupId,
+      groupTimestamp: claimRequest.groupTimestamp,
+      requestedValue: claimRequest.value,
+      claimType: claimRequest.claimType,
+    });
+
+    const isEligible = accountData && Boolean(Object.keys(accountData)?.length);
+
+    return {
+      claimRequest: claimRequest,
+      accountData: accountData,
+      isEligible,
+    };
+  }
+
+  public async getClaimRequestEligibilities(
+    sismoConnectRequest: SismoConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<ClaimRequestEligibility[]> {
+    if (!Boolean(sismoConnectRequest?.claimRequests?.length)) return [];
+
+    const claimRequestEligibilities = await Promise.all(
+      sismoConnectRequest?.claimRequests?.map(async (claimRequest) => {
+        return this.getClaimRequestEligibility(claimRequest, importedAccounts);
+      })
+    );
+    return claimRequestEligibilities;
+  }
+
+  private async getAuthRequestEligibility(
+    authRequest: AuthRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<AuthRequestEligibility> {
+    let accounts: ImportedAccount[];
+
+    switch (authRequest?.authType) {
+      case AuthType.VAULT:
+        accounts = importedAccounts;
+        break;
+      case AuthType.GITHUB:
+        accounts = importedAccounts?.filter(
+          (importedAccount) => importedAccount?.type === "github"
+        );
+        break;
+      case AuthType.TWITTER:
+        accounts = importedAccounts?.filter(
+          (importedAccount) => importedAccount?.type === "twitter"
+        );
+        break;
+      case AuthType.EVM_ACCOUNT:
+        accounts = importedAccounts?.filter(
+          (importedAccount) => importedAccount?.type === "ethereum"
+        );
+        break;
+      default:
+        break;
+    }
+
+    return {
+      authRequest: authRequest,
+      accounts: accounts,
+      isEligible:
+        authRequest?.authType === AuthType.VAULT
+          ? true
+          : Boolean(accounts?.length),
+    };
+  }
+
+  public async getAuthRequestEligibilities(
+    sismoConnectRequest: SismoConnectRequest,
+    importedAccounts: ImportedAccount[]
+  ): Promise<AuthRequestEligibility[]> {
+    if (!Boolean(sismoConnectRequest?.claimRequests?.length)) return [];
+
+    const authRequestEligibilities = await Promise.all(
+      sismoConnectRequest?.authRequests?.map(async (authRequest) => {
+        return this.getAuthRequestEligibility(authRequest, importedAccounts);
+      })
+    );
+    return authRequestEligibilities;
+  }
+
+  public async generateResponse(
+    selectedSismoConnectRequest: SelectedSismoConnectRequest,
+    importedAccounts: ImportedAccount[],
+    vaultSecret: string
+  ): Promise<SismoConnectResponse> {
+    const appId = selectedSismoConnectRequest.appId;
+    const namespace = selectedSismoConnectRequest.namespace;
+    const response: SismoConnectResponse = {
+      appId,
+      namespace,
+      version: selectedSismoConnectRequest.version,
+      proofs: [],
+    };
+
+    /* ********************************************* */
+    /* **** PREPARE MESSAGE SIGNATURE REQUEST ****** */
+    /* ********************************************* */
+
+    let extraData = null;
+    let message =
+      selectedSismoConnectRequest?.selectedSignatureRequest?.selectedMessage ??
+      selectedSismoConnectRequest?.signatureRequest?.message;
+
+    if (message) {
+      let preparedSignedMessage: string =
+        typeof message === "string" ? message : JSON.stringify(message);
+
+      if (isHexlify(preparedSignedMessage)) {
+        extraData = BigNumber.from(
+          ethers.utils.keccak256(ethers.utils.hexlify(preparedSignedMessage))
+        )
+          .mod(SNARK_FIELD)
+          .toHexString();
+      } else {
+        extraData = BigNumber.from(
+          ethers.utils.keccak256(
+            ethers.utils.toUtf8Bytes(preparedSignedMessage)
+          )
+        )
+          .mod(SNARK_FIELD)
+          .toHexString();
+      }
+    }
+
+    /* ******************************************************** */
+    /* *** GET CLAIM REQUEST AND AUTH REQUEST ELIGIBILITIES *** */
+    /* ******************************************************** */
+
+    const claimRequestEligibilities = await this.getClaimRequestEligibilities(
+      selectedSismoConnectRequest,
+      importedAccounts
+    );
+
+    const authRequestEligibilities = await this.getAuthRequestEligibilities(
+      selectedSismoConnectRequest,
+      importedAccounts
+    );
+
+    /* ************************************************************* */
+    /* **** ADD USER SELECT INPUTS TO CLAIM REQUEST ELIGIBILITIES ** */
+    /* ************************************************************* */
+
+    const selectedClaimRequestEligibilities = claimRequestEligibilities?.map(
+      (claimRequestEligibility) => {
+        const selectedClaimRequest =
+          selectedSismoConnectRequest?.selectedClaimRequests?.find(
+            (selectedClaimRequest) =>
+              selectedClaimRequest?.groupId ===
+                claimRequestEligibility?.claimRequest?.groupId &&
+              selectedClaimRequest?.groupTimestamp ===
+                claimRequestEligibility?.claimRequest?.groupTimestamp
+          );
+
+        return {
+          selectedClaimRequest: selectedClaimRequest,
+          claimRequest: claimRequestEligibility.claimRequest,
+          accountData: claimRequestEligibility.accountData,
+          isEligible: claimRequestEligibility.isEligible,
+        } as SelectedClaimRequestEligibility;
+      }
+    );
+
+    /* ********************************************* */
+    /* ******* FILTER ELIGIBLE CLAIM REQUESTS ****** */
+    /* ********************************************* */
+
+    const filteredSelectedClaimRequestEligibilities: SelectedClaimRequestEligibility[] =
+      [];
+
+    for (let i = 0; i < selectedClaimRequestEligibilities.length; i++) {
+      const selectedClaimRequestEligibility =
+        selectedClaimRequestEligibilities[i];
+
+      if (
+        (selectedClaimRequestEligibility?.claimRequest?.isOptional === false ||
+          typeof selectedClaimRequestEligibility?.claimRequest?.isOptional ===
+            undefined) &&
+        !selectedClaimRequestEligibility?.isEligible
+      ) {
+        throw new Error("Required claim request is not eligible");
+      }
+
+      if (selectedClaimRequestEligibility?.isEligible) {
+        filteredSelectedClaimRequestEligibilities.push(
+          selectedClaimRequestEligibility
+        );
+      }
+    }
+
+    /* ****************************************************** */
+    /* ************** PREPARE CLAIM PROMISES **************** */
+    /* ****************************************************** */
+
+    let claimPromises: Promise<SismoConnectProof>[] = [];
+
+    if (filteredSelectedClaimRequestEligibilities?.length) {
+      claimPromises = filteredSelectedClaimRequestEligibilities?.map(
+        async (selectedClaimRequestEligibility) => {
+          const source = importedAccounts.find(
+            (importedAccount) =>
+              importedAccount?.identifier?.toLowerCase() ===
+              selectedClaimRequestEligibility?.accountData?.identifier?.toLowerCase()
+          );
+
+          if (!source)
+            throw new Error("No eligible account found for this claim request");
+
+          const _generateProofInputs = {
+            appId,
+            namespace,
+            vaultSecret, // VAULT SECRET MUST BE ADDED TO THE PROOF FOR THE CIRCUIT
+            extraData,
+            source,
+            groupId: selectedClaimRequestEligibility?.claimRequest?.groupId,
+            groupTimestamp:
+              selectedClaimRequestEligibility?.claimRequest?.groupTimestamp,
+            requestedValue:
+              selectedClaimRequestEligibility?.selectedClaimRequest
+                ?.selectedValue ??
+              selectedClaimRequestEligibility?.claimRequest?.value,
+            claimType: selectedClaimRequestEligibility?.claimRequest?.claimType,
+          } as OffchainProofRequest;
+
+          const snarkProof = await this.prover.generateProof(
+            _generateProofInputs
+          );
+          return {
+            claim: [selectedClaimRequestEligibility?.claimRequest],
+            signedMessage:
+              selectedSismoConnectRequest?.selectedSignatureRequest
+                ?.selectedMessage ??
+              selectedSismoConnectRequest?.signatureRequest?.message,
+            proofData: snarkProof.toBytes(),
+            extraData: "",
+            provingScheme: ProvingScheme.HYDRA_S2,
+          } as SismoConnectProof;
+        }
+      );
+    }
+
+    /* ************************************************************* */
+    /* **** ADD USER SELECT INPUTS TO CLAIM REQUEST ELIGIBILITIES ** */
+    /* ************************************************************* */
+
+    const selectedAuthRequestEligibilities = authRequestEligibilities?.map(
+      (authRequestEligibility) => {
+        const selectedAuthRequest =
+          selectedSismoConnectRequest?.selectedAuthRequests?.find(
+            (selectedAuthRequest) =>
+              selectedAuthRequest?.authType ===
+                authRequestEligibility?.authRequest?.authType &&
+              selectedAuthRequest?.userId ===
+                authRequestEligibility?.authRequest?.userId
+          );
+
+        return {
+          selectedAuthRequest: selectedAuthRequest,
+          authRequest: authRequestEligibility.authRequest,
+          accounts: authRequestEligibility.accounts,
+          isEligible: authRequestEligibility.isEligible,
+        } as SelectedAuthRequestEligibility;
+      }
+    );
+
+    /* ********************************************* */
+    /* ******* FILTER REQUIRED AUTH REQUESTS ******* */
+    /* ********************************************* */
+
+    const filteredSelectedAuthRequestEligibilities: SelectedAuthRequestEligibility[] =
+      [];
+
+    for (let i = 0; i < selectedAuthRequestEligibilities.length; i++) {
+      const selectedAuthRequestEligibility =
+        selectedAuthRequestEligibilities[i];
+
+      if (
+        (selectedAuthRequestEligibility?.authRequest?.isOptional === false ||
+          typeof selectedAuthRequestEligibility?.authRequest?.isOptional ===
+            undefined) &&
+        !selectedAuthRequestEligibility?.isEligible
+      ) {
+        throw new Error("Required auth request is not eligible");
+      }
+
+      if (selectedAuthRequestEligibility?.isEligible) {
+        filteredSelectedAuthRequestEligibilities.push(
+          selectedAuthRequestEligibility
+        );
+      }
+    }
+
+    /* ****************************************************** */
+    /* ************** PREPARE AUTH PROMISES ***************** */
+    /* ****************************************************** */
+
+    let authPromises: Promise<SismoConnectProof>[] = [];
+
+    if (filteredSelectedAuthRequestEligibilities?.length) {
+      authPromises = filteredSelectedAuthRequestEligibilities?.map(
+        async (selectedAuthRequestEligibility) => {
+          let _generateProofInputs = {
+            appId,
+            namespace,
+            vaultSecret, // VAULT SECRET MUST BE ADDED TO THE PROOF FOR THE CIRCUIT
+          } as OffchainProofRequest;
+
+          if (
+            selectedAuthRequestEligibility?.authRequest?.authType !==
+              AuthType.VAULT &&
+            selectedAuthRequestEligibility?.selectedAuthRequest?.selectedUserId
+          ) {
+            throw new Error("No account selected for this auth request");
+          }
+
+          if (
+            selectedAuthRequestEligibility?.authRequest?.authType !==
+              AuthType.VAULT &&
+            !selectedAuthRequestEligibility?.isEligible
+          ) {
+            throw new Error("No account found for this auth request");
+          }
+
+          if (
+            selectedAuthRequestEligibility?.authRequest?.authType !==
+            AuthType.VAULT
+          ) {
+            const destination = importedAccounts.find((importedAccount) => {
+              return (
+                importedAccount.identifier ===
+                selectedAuthRequestEligibility?.selectedAuthRequest
+                  ?.selectedUserId
+              );
+            });
+
+            if (!destination)
+              throw new Error(
+                "No eligible account found for this auth request"
+              );
+
+            if (destination) {
+              _generateProofInputs = {
+                ..._generateProofInputs,
+                destination,
+              };
+            }
+          }
+
+          const snarkProof = await this.prover.generateProof(
+            _generateProofInputs
+          );
+          return {
+            auth: [selectedAuthRequestEligibility?.authRequest],
+            signedMessage:
+              selectedSismoConnectRequest?.selectedSignatureRequest
+                ?.selectedMessage ??
+              selectedSismoConnectRequest?.signatureRequest?.message,
+            proofData: snarkProof.toBytes(),
+            extraData: "",
+            provingScheme: ProvingScheme.HYDRA_S2,
+          } as SismoConnectProof;
+        }
+      );
+    }
+
+    const promises = [...claimPromises, ...authPromises];
+
+    const zkConnectProofs = await Promise.all(promises);
+    response.proofs = zkConnectProofs;
+
+    return response;
+  }
+}
