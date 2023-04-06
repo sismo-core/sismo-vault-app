@@ -5,17 +5,16 @@ import HeaderTitle from "./HeaderTitle";
 import Stepper from "./Stepper";
 import VaultSlider from "./VaultSlider";
 import { useImportAccount } from "../../../Modals/ImportAccount/provider";
-import { SismoConnectRequest } from "../../localTypes";
+
 import ShardTag from "./ShardTag";
 import { FactoryApp } from "../../../../libs/sismo-client";
 import EligibilityModal from "./EligibilityModal";
-import {
-  GroupMetadataDataRequestEligibility,
-  RequestGroupMetadata,
-  AuthType,
-  ClaimType,
-} from "../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+
 import AuthTag from "./AuthTag";
+import {
+  RequestGroupMetadata,
+  SismoConnectRequest,
+} from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
   position: relative;
@@ -118,9 +117,9 @@ const StepperBlock = styled(Stepper)<{ stepperWidth: number }>`
 
 type Props = {
   requestGroupsMetadata: RequestGroupMetadata[];
-  groupMetadataDataRequestEligibilities:
-    | GroupMetadataDataRequestEligibility[]
-    | null;
+  // groupMetadataDataRequestEligibilities:
+  //   | GroupMetadataDataRequestEligibility[]
+  //   | null;
   sismoConnectRequest: SismoConnectRequest;
   referrerUrl: string;
   hostName: string;
@@ -134,7 +133,7 @@ type Props = {
 
 export default function LayoutFlow({
   requestGroupsMetadata,
-  groupMetadataDataRequestEligibilities,
+  // groupMetadataDataRequestEligibilities,
   sismoConnectRequest,
   hostName,
   referrerUrl,
@@ -195,7 +194,7 @@ export default function LayoutFlow({
                   <Bold>{capitalizeFirstLetter(factoryApp?.name)}</Bold> wants
                   to verify that you own
                 </FirstLine>
-                <SecondLine>
+                {/* <SecondLine>
                   {groupMetadataDataRequestEligibilities.length > 0 &&
                     groupMetadataDataRequestEligibilities?.map(
                       (dataRequestEligibility, index) => (
@@ -238,7 +237,7 @@ export default function LayoutFlow({
                         </Fragment>
                       )
                     )}
-                </SecondLine>
+                </SecondLine> */}
               </SummaryText>
             </Summary>
           )}

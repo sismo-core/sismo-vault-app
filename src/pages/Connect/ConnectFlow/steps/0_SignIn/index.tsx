@@ -10,17 +10,15 @@ import Skeleton from "./components/Skeleton";
 import HoverTooltip from "../../../../../components/HoverTooltip";
 import colors from "../../../../../theme/colors";
 //import { SismoConnectRequest } from "@sismo-core/zk-connect-client";
-import { SismoConnectRequest } from "../../../localTypes";
 import ShardTag from "../../components/ShardTag";
 import { FactoryApp } from "../../../../../libs/sismo-client";
-import {
-  RequestGroupMetadata,
-  ClaimType,
-  AuthType,
-  GroupMetadataDataRequestEligibility,
-} from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+
 import EligibilityModal from "../../components/EligibilityModal";
 import AuthTag from "../../components/AuthTag";
+import {
+  RequestGroupMetadata,
+  SismoConnectRequest,
+} from "../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div<{ hasDataRequest: boolean }>`
   background-color: ${(props) => props.theme.colors.blue11};
@@ -204,15 +202,15 @@ type Props = {
   factoryApp: FactoryApp;
   sismoConnectRequest: SismoConnectRequest;
   requestGroupsMetadata: RequestGroupMetadata[] | null;
-  groupMetadataDataRequestEligibilities:
-    | GroupMetadataDataRequestEligibility[]
-    | null;
+  // groupMetadataDataRequestEligibilities:
+  //   | GroupMetadataDataRequestEligibility[]
+  //   | null;
   referrerUrl: string;
   onNext: () => void;
 };
 
 export default function SignIn({
-  groupMetadataDataRequestEligibilities,
+  // groupMetadataDataRequestEligibilities,
   requestGroupsMetadata,
   sismoConnectRequest,
   referrerUrl,
@@ -228,9 +226,7 @@ export default function SignIn({
   // const proveName = badge?.name?.split(" ZK Badge")[0] || null;
   // const article = ["a", "e", "i", "o", "u"].includes(badge?.name) ? "an" : "a";
 
-  const hasClaim = sismoConnectRequest?.requestContent?.dataRequests?.some(
-    (dataRequest) => dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY
-  );
+  const hasClaim = sismoConnectRequest?.claims?.length > 0;
 
   useEffect(() => {
     const loadImage = (url) => {
@@ -254,43 +250,43 @@ export default function SignIn({
       vault.loadingActiveSession ||
       !sismoConnectRequest ||
       !imgLoaded ||
-      !requestGroupsMetadata ||
-      !groupMetadataDataRequestEligibilities
-    : !factoryApp ||
+      !requestGroupsMetadata
+    : // !groupMetadataDataRequestEligibilities
+      !factoryApp ||
       vault.loadingActiveSession ||
       !imgLoaded ||
-      !groupMetadataDataRequestEligibilities;
+      // !groupMetadataDataRequestEligibilities;
 
-  let consolidatedMessageSignatureRequest: string = "";
+      // let consolidatedMessageSignatureRequest: string = "";
 
-  if (sismoConnectRequest?.requestContent?.dataRequests.length) {
-    for (const dataRequest of sismoConnectRequest?.requestContent
-      ?.dataRequests) {
-      if (dataRequest?.messageSignatureRequest) {
-        consolidatedMessageSignatureRequest +=
-          dataRequest?.messageSignatureRequest + " ";
-      }
-    }
-  }
+      // if (sismoConnectRequest?.requestContent?.dataRequests.length) {
+      //   for (const dataRequest of sismoConnectRequest?.requestContent
+      //     ?.dataRequests) {
+      //     if (dataRequest?.messageSignatureRequest) {
+      //       consolidatedMessageSignatureRequest +=
+      //         dataRequest?.messageSignatureRequest + " ";
+      //     }
+      //   }
+      // }
 
-  function onShardClick(groupId: string) {
-    setModalIsOpen(true);
-    setInitialGroupId(groupId);
-  }
+      function onShardClick(groupId: string) {
+        setModalIsOpen(true);
+        setInitialGroupId(groupId);
+      };
   return (
     <>
       <ConnectVaultModal
         isOpen={connectIsOpen}
         onClose={() => setConnectIsOpen(false)}
       />
-      {requestGroupsMetadata && (
+      {/* {requestGroupsMetadata && (
         <EligibilityModal
           isOpen={modalIsOpen}
           onClose={() => setModalIsOpen(false)}
           requestGroupsMetadata={requestGroupsMetadata}
           initialGroupId={initialGroupId}
         />
-      )}
+      )} */}
       <Container hasDataRequest={Boolean(requestGroupsMetadata?.length)}>
         <HeaderTitle url={referrerUrl} style={{ marginBottom: 20 }} />
 
@@ -313,7 +309,7 @@ export default function SignIn({
               </ContentTitle>
 
               <DataRequested>Requested Data:</DataRequested>
-              {(!sismoConnectRequest?.requestContent?.operators?.length ||
+              {/* {(!sismoConnectRequest?.requestContent?.operators?.length ||
                 sismoConnectRequest?.requestContent?.operators[0] ===
                   "AND") && (
                 <AndWrapper>
@@ -412,14 +408,14 @@ export default function SignIn({
                       )
                     )}
                 </OrWrapper>
-              )}
-
+              )} */}
+              {/* 
               {consolidatedMessageSignatureRequest && (
                 <MessageWrapper>
                   <MessageTitle>Message Signature Request</MessageTitle>
                   <Message>{consolidatedMessageSignatureRequest}</Message>
                 </MessageWrapper>
-              )}
+              )} */}
             </TopContent>
             <ButtonGroup>
               <Link

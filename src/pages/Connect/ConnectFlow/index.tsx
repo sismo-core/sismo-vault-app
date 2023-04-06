@@ -8,15 +8,16 @@ import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
 import { ArrowLeft } from "phosphor-react";
-import { SismoConnectRequest } from "../localTypes";
 import env from "../../../environment";
 import { FactoryApp } from "../../../libs/sismo-client";
-import { SismoConnectResponse } from "../localTypes";
 
 import { getSismoConnectResponseBytes } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
 import {
+  AuthRequestEligibility,
   GroupMetadataClaimRequestEligibility,
   RequestGroupMetadata,
+  SismoConnectRequest,
+  SismoConnectResponse,
 } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
@@ -65,19 +66,19 @@ export default function ConnectFlow({
 }: Props): JSX.Element {
   const vault = useVault();
   const [vaultSliderOpen, setVaultSliderOpen] = useState(false);
-  // const [
-  //   groupMetadataDataRequestEligibilities,
-  //   setGroupMetadataDataRequestEligibilities,
-  // ] = useState<GroupMetadataDataRequestEligibility[] | null>(null);
 
   const [
-    groupMetadataClaimRequestEligibility,
-    setGroupMetadataClaimRequestEligibility,
+    groupMetadataClaimRequestEligibilities,
+    setGroupMetadataClaimRequestEligibilities,
   ] = useState<GroupMetadataClaimRequestEligibility[] | null>(null);
+
+  const [authRequestEligibilities, setAuthRequestEligibilities] =
+    useState<AuthRequestEligibility[]>(null);
 
   const [step, setStep] = useState<Step>("SignIn");
   const [loadingEligible, setLoadingEligible] = useState(true);
-  const { getDataRequestEligibilities } = useSismo();
+  const { getClaimRequestEligibilities, getAuthRequestEligibilities } =
+    useSismo();
 
   //TODO use statements in components
 
@@ -86,37 +87,45 @@ export default function ConnectFlow({
     if (!sismoConnectRequest) return;
 
     const testEligibility = async () => {
-      if (!sismoConnectRequest?.requestContent) {
+      if (
+        !sismoConnectRequest?.claims?.length &&
+        !sismoConnectRequest?.auths?.length
+      ) {
         return;
       }
       try {
         setLoadingEligible(true);
-        const dataRequestEligibilities = await getDataRequestEligibilities(
+
+        const claimRequestEligibilities = await getClaimRequestEligibilities(
           sismoConnectRequest,
           vault?.importedAccounts || []
         );
 
-        const groupMetadataDataRequestEligibilities =
-          dataRequestEligibilities.map((dataRequestEligibility) => {
+        const authRequestEligibilities = await getAuthRequestEligibilities(
+          sismoConnectRequest,
+          vault?.importedAccounts || []
+        );
+
+        const groupMetadataClaimRequestEligibilities =
+          claimRequestEligibilities.map((claimRequestEligibility) => {
             const requestGroupMetadata = requestGroupsMetadata?.find(
               (requestGroupMetadata) =>
                 requestGroupMetadata?.groupMetadata?.id ===
-                dataRequestEligibility?.claimRequestEligibility?.claimRequest
-                  ?.groupId
+                claimRequestEligibility?.claim?.groupId
             );
 
             return {
-              ...dataRequestEligibility,
-              claimRequestEligibility: {
-                ...dataRequestEligibility.claimRequestEligibility,
-                groupMetadata: requestGroupMetadata?.groupMetadata,
-              },
-            } as GroupMetadataDataRequestEligibility;
+              ...claimRequestEligibility,
+              groupMetadata: requestGroupMetadata?.groupMetadata,
+            } as GroupMetadataClaimRequestEligibility;
           });
 
-        setGroupMetadataDataRequestEligibilities(
-          groupMetadataDataRequestEligibilities
+        setAuthRequestEligibilities(authRequestEligibilities);
+
+        setGroupMetadataClaimRequestEligibilities(
+          groupMetadataClaimRequestEligibilities
         );
+
         setLoadingEligible(false);
       } catch (e) {
         Sentry.captureException(e);
@@ -126,7 +135,8 @@ export default function ConnectFlow({
     };
     testEligibility();
   }, [
-    getDataRequestEligibilities,
+    getClaimRequestEligibilities,
+    getAuthRequestEligibilities,
     requestGroupsMetadata,
     vault.importedAccounts,
     sismoConnectRequest,
@@ -214,9 +224,12 @@ export default function ConnectFlow({
             factoryApp={factoryApp}
             sismoConnectRequest={sismoConnectRequest}
             requestGroupsMetadata={requestGroupsMetadata}
-            groupMetadataDataRequestEligibilities={
-              groupMetadataDataRequestEligibilities
-            }
+            // groupMetadataClaimRequestEligibilities={
+            //   groupMetadataClaimRequestEligibilities
+            // }
+
+            // authRequestEligibilities={authRequestEligibilities}
+
             referrerUrl={referrerUrl}
             onNext={() => {
               setStep("ImportEligibleAccount");
@@ -227,9 +240,9 @@ export default function ConnectFlow({
         {step !== "SignIn" && (
           <LayoutFlow
             requestGroupsMetadata={requestGroupsMetadata}
-            groupMetadataDataRequestEligibilities={
-              groupMetadataDataRequestEligibilities
-            }
+            // groupMetadataDataRequestEligibilities={
+            //   groupMetadataDataRequestEligibilities
+            // }
             factoryApp={factoryApp}
             hostName={hostName}
             referrerUrl={referrerUrl}
@@ -242,9 +255,13 @@ export default function ConnectFlow({
               <ImportEligibleAccount
                 sismoConnectRequest={sismoConnectRequest}
                 requestGroupsMetadata={requestGroupsMetadata}
-                groupMetadataDataRequestEligibilities={
-                  groupMetadataDataRequestEligibilities
+                authRequestEligibilities={authRequestEligibilities}
+                groupMetadataClaimRequestEligibilities={
+                  groupMetadataClaimRequestEligibilities
                 }
+                // groupMetadataDataRequestEligibilities={
+                //   groupMetadataDataRequestEligibilities
+                // }
                 loadingEligible={loadingEligible}
                 onNext={() => {
                   setStep("GenerateZkProof");

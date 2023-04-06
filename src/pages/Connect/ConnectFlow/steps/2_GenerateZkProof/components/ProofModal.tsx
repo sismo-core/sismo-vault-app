@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Modal from "../../../../../../components/Modal";
-import { SismoConnectResponse } from "../../../../localTypes";
-import { getSismoConnectResponseBytes } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2/utils/getSismoConnectResponseBytes";
+import { getSismoConnectResponseBytes } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
+import { SismoConnectResponse } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
   display: flex;

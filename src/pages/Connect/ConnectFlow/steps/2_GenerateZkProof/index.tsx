@@ -7,8 +7,11 @@ import { useSismo } from "../../../../../libs/sismo";
 import * as Sentry from "@sentry/react";
 import ShardAnimation from "../../components/ShardAnimation";
 import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
-import { SismoConnectResponse, SismoConnectRequest } from "../../../localTypes";
 import ProofModal from "./components/ProofModal";
+import {
+  SismoConnectRequest,
+  SismoConnectResponse,
+} from "../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
   display: flex;

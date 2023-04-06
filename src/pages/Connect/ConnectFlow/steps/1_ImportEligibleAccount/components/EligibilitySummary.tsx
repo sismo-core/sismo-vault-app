@@ -1,13 +1,13 @@
 import styled from "styled-components";
-import { SismoConnectRequest } from "../../../../localTypes";
-import { RequestGroupMetadata } from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+
 import { CheckCircle } from "phosphor-react";
 import { getHumanReadableGroupName } from "../../../../utils/getHumanReadableGroupName";
 import {
-  GroupMetadataDataRequestEligibility,
-  ClaimType,
   AuthType,
-} from "../../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+  ClaimType,
+  RequestGroupMetadata,
+  SismoConnectRequest,
+} from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
   align-self: center;
@@ -72,19 +72,19 @@ const ValueComparator = styled.div<{ isEligible: boolean }>`
 type Props = {
   sismoConnectRequest: SismoConnectRequest;
   requestGroupsMetadata: RequestGroupMetadata[];
-  groupMetadataDataRequestEligibilities: GroupMetadataDataRequestEligibility[];
+  // groupMetadataDataRequestEligibilities: GroupMetadataDataRequestEligibility[];
 };
 
 export function EligibilitySummary({
   sismoConnectRequest,
   requestGroupsMetadata,
-  groupMetadataDataRequestEligibilities,
-}: Props) {
-  const isOr = sismoConnectRequest?.requestContent?.operators[0] === "OR";
+}: // groupMetadataDataRequestEligibilities,
+Props) {
+  //const isOr = sismoConnectRequest?.requestContent?.operators[0] === "OR";
 
   return (
     <Container>
-      {groupMetadataDataRequestEligibilities.length > 0 &&
+      {/* {groupMetadataDataRequestEligibilities.length > 0 &&
         groupMetadataDataRequestEligibilities?.map(
           (dataRequestEligibility, index) => {
             const claimType =
@@ -184,7 +184,7 @@ export function EligibilitySummary({
               </div>
             );
           }
-        )}
+        )} */}
     </Container>
   );
 }

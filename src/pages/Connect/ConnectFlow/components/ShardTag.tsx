@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
 import { GroupMetadata } from "../../../../libs/sismo-client";
-import { ClaimType } from "../../localTypes";
-//import { ClaimType } from "@sismo-core/zk-connect-client";
+import { ClaimType } from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
   font-family: ${(props) => props.theme.fonts.medium};

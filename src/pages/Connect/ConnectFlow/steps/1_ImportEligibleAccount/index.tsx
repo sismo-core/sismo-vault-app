@@ -7,14 +7,13 @@ import HoverTooltip from "../../../../../components/HoverTooltip";
 import EligibilityModal from "../../components/EligibilityModal";
 import { useState } from "react";
 import { Gem } from "../../../../../components/SismoReactIcon";
-import { RequestGroupMetadata } from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
 import { EligibilitySummary } from "./components/EligibilitySummary";
-import { SismoConnectRequest } from "../../../localTypes";
 import {
-  GroupMetadataDataRequestEligibility,
-  AuthType,
-  ClaimType,
-} from "../../../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
+  AuthRequestEligibility,
+  GroupMetadataClaimRequestEligibility,
+  RequestGroupMetadata,
+  SismoConnectRequest,
+} from "../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
   display: flex;
@@ -111,15 +110,17 @@ const TooltipContent = styled.div`
 `;
 
 type Props = {
-  groupMetadataDataRequestEligibilities: GroupMetadataDataRequestEligibility[];
   requestGroupsMetadata: RequestGroupMetadata[];
+  groupMetadataClaimRequestEligibilities: GroupMetadataClaimRequestEligibility[];
+  authRequestEligibilities: AuthRequestEligibility[];
   sismoConnectRequest: SismoConnectRequest;
   loadingEligible: boolean;
   onNext: () => void;
 };
 
 export default function ImportEligibleAccount({
-  groupMetadataDataRequestEligibilities,
+  groupMetadataClaimRequestEligibilities,
+  authRequestEligibilities,
   requestGroupsMetadata,
   sismoConnectRequest,
   loadingEligible,
@@ -136,63 +137,46 @@ export default function ImportEligibleAccount({
     });
   }
 
-  const hasRequest = groupMetadataDataRequestEligibilities?.length > 0;
-
-  let isSismoConnectRequestEligible: boolean = true;
+  const hasRequest =
+    groupMetadataClaimRequestEligibilities?.length > 0 &&
+    authRequestEligibilities?.length > 0;
 
   function getIsEligible(
-    groupMetadataDataRequestEligibility: GroupMetadataDataRequestEligibility
+    groupMetadataClaimRequestEligibilities: GroupMetadataClaimRequestEligibility[],
+    authRequestEligibilities: AuthRequestEligibility[]
   ) {
-    let isClaimEligible = true;
-    let isAuthEligible = true;
+    if (groupMetadataClaimRequestEligibilities.length) {
+      for (const groupMetadataClaimRequestEligibility of groupMetadataClaimRequestEligibilities) {
+        let isClaimEligible =
+          groupMetadataClaimRequestEligibility?.claim?.isOptional === false
+            ? groupMetadataClaimRequestEligibility?.isEligible
+            : true;
 
-    if (
-      groupMetadataDataRequestEligibility?.authRequestEligibility?.authRequest
-        ?.authType !== AuthType.EMPTY
-    ) {
-      isAuthEligible = false;
-      isAuthEligible = Boolean(
-        groupMetadataDataRequestEligibility?.authRequestEligibility?.accounts
-          ?.length
-      );
+        if (!isClaimEligible) {
+          return false;
+        }
+      }
     }
 
-    if (
-      groupMetadataDataRequestEligibility?.claimRequestEligibility?.claimRequest
-        ?.claimType !== ClaimType.EMPTY
-    ) {
-      isClaimEligible = false;
-      isClaimEligible =
-        groupMetadataDataRequestEligibility?.claimRequestEligibility
-          ?.accountData &&
-        Boolean(
-          Object?.keys(
-            groupMetadataDataRequestEligibility?.claimRequestEligibility
-              ?.accountData
-          )?.length
-        );
+    if (authRequestEligibilities.length) {
+      for (const authRequestEligibility of authRequestEligibilities) {
+        let isAuthEligible =
+          authRequestEligibility?.auth?.isOptional === false
+            ? authRequestEligibility?.isEligible
+            : true;
+
+        if (!isAuthEligible) {
+          return false;
+        }
+      }
     }
-
-    const isEligible = isClaimEligible && isAuthEligible;
-    return isEligible;
+    return true;
   }
 
-  // REFACTOR LOGIC
-  if (sismoConnectRequest?.requestContent?.operators[0] === "AND") {
-    isSismoConnectRequestEligible = groupMetadataDataRequestEligibilities.every(
-      (groupMetadataDataRequestEligibility) => {
-        return getIsEligible(groupMetadataDataRequestEligibility);
-      }
-    );
-  }
-
-  if (sismoConnectRequest?.requestContent?.operators[0] === "OR") {
-    isSismoConnectRequestEligible = groupMetadataDataRequestEligibilities.some(
-      (groupMetadataDataRequestEligibility) => {
-        return getIsEligible(groupMetadataDataRequestEligibility);
-      }
-    );
-  }
+  let isSismoConnectRequestEligible: boolean = getIsEligible(
+    groupMetadataClaimRequestEligibilities,
+    authRequestEligibilities
+  );
 
   return (
     <>
@@ -218,13 +202,13 @@ export default function ImportEligibleAccount({
               </HeaderSubtitle>
             )}
           </HeaderWrapper>
-          <EligibilitySummary
+          {/* <EligibilitySummary
             sismoConnectRequest={sismoConnectRequest}
             requestGroupsMetadata={requestGroupsMetadata}
             groupMetadataDataRequestEligibilities={
               groupMetadataDataRequestEligibilities
             }
-          />
+          /> */}
         </Summary>
 
         {requestGroupsMetadata?.length > 0 && (

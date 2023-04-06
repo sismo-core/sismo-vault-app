@@ -12,6 +12,8 @@ import { getReferrer } from "./utils/getReferrerApp";
 import {
   RequestGroupMetadata,
   SismoConnectRequest,
+  SISMO_CONNECT_VERSION,
+  ClaimType,
 } from "../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
@@ -68,8 +70,6 @@ export type EligibleGroup = {
   [account: string]: number;
 };
 
-export const PWS_VERSION = "zk-connect-v2";
-
 export default function Connect(): JSX.Element {
   const [searchParams] = useSearchParams();
   const [factoryApp, setFactoryApp] = useState<FactoryApp>(null);
@@ -105,7 +105,7 @@ export default function Connect(): JSX.Element {
     if (!sismoConnectRequest) return;
     if (
       !sismoConnectRequest.version ||
-      sismoConnectRequest.version !== PWS_VERSION
+      sismoConnectRequest.version !== SISMO_CONNECT_VERSION
     ) {
       setIsWrongUrl({
         status: true,
@@ -130,20 +130,18 @@ export default function Connect(): JSX.Element {
       return;
     }
 
-    if (sismoConnectRequest?.requestContent?.dataRequests) {
-      for (const dataRequest of sismoConnectRequest?.requestContent
-        ?.dataRequests) {
+    if (sismoConnectRequest?.claims) {
+      for (const claim of sismoConnectRequest?.claims) {
         if (
-          dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY &&
-          dataRequest?.claimRequest?.claimType !== ClaimType.GTE &&
-          dataRequest?.claimRequest?.claimType !== ClaimType.EQ &&
-          typeof dataRequest?.claimRequest?.claimType !== "undefined"
+          claim?.claimType !== ClaimType.GTE &&
+          claim?.claimType !== ClaimType.EQ &&
+          typeof claim?.claimType !== "undefined"
         ) {
           setIsWrongUrl({
             status: true,
             message:
               "Invalid claimType: claimType" +
-              dataRequest?.claimRequest?.claimType +
+              claim.claimType +
               " will be supported soon. Please use GTE or EQ for now.",
           });
           return;
@@ -151,23 +149,19 @@ export default function Connect(): JSX.Element {
       }
     }
 
-    if (sismoConnectRequest?.devConfig) {
-      const claimRequests =
-        sismoConnectRequest?.requestContent?.dataRequests?.filter(
-          (dataRequest) =>
-            dataRequest?.claimRequest?.claimType !== ClaimType.EMPTY
-        );
-      const claimGroupIds = claimRequests?.map(
-        (claimRequest) => claimRequest?.claimRequest?.groupId
+    if (
+      sismoConnectRequest?.devConfig &&
+      Boolean(sismoConnectRequest?.claims?.length)
+    ) {
+      const claimGroupIds = sismoConnectRequest?.claims?.map(
+        (claim) => claim?.groupId
       );
       const devConfigGroupIds = sismoConnectRequest?.devConfig?.devGroups?.map(
         (group) => group?.groupId
       );
-
       const missingGroups = claimGroupIds?.filter(
         (groupId) => !devConfigGroupIds?.includes(groupId)
       );
-
       if (
         missingGroups?.length > 0 &&
         sismoConnectRequest?.devConfig?.devGroups?.length > 0
@@ -249,23 +243,12 @@ export default function Connect(): JSX.Element {
     }
 
     async function getGroupMetadataData() {
-      if (
-        !sismoConnectRequest.requestContent?.dataRequests.some(
-          (dataRequest) => dataRequest?.claimRequest?.groupId
-        )
-      ) {
+      if (!sismoConnectRequest?.claims.length) {
         setRequestGroupsMetadata(null);
         return;
       }
       try {
-        const _claimRequests = [];
-
-        for (const dataRequest of sismoConnectRequest?.requestContent
-          ?.dataRequests) {
-          if (dataRequest?.claimRequest?.groupId) {
-            _claimRequests.push(dataRequest.claimRequest);
-          }
-        }
+        const _claimRequests = sismoConnectRequest?.claims;
 
         const res = await Promise.all(
           _claimRequests.map((_claimRequest) => {
