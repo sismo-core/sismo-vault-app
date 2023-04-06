@@ -9,6 +9,9 @@ import ShardAnimation from "../../components/ShardAnimation";
 import { Gem, GemProof } from "../../../../../components/SismoReactIcon";
 import ProofModal from "./components/ProofModal";
 import {
+  SelectedAuthRequest,
+  SelectedClaimRequest,
+  SelectedSismoConnectRequest,
   SismoConnectRequest,
   SismoConnectResponse,
 } from "../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
@@ -114,15 +117,46 @@ export default function GenerateZkProof({
   const [proofModalOpen, setProofModalOpen] = useState(false);
   const [, setErrorProof] = useState(false);
   const [response, setResponse] = useState<any | null>(null);
-  const { generateResponse } = useSismo();
+  const [registryTreeRoot, setRegistryTreeRoot] = useState<string | null>(null);
+  const { generateResponse, getRegistryTreeRoot } = useSismo();
 
   const generate = useCallback(async () => {
     setLoadingProof(true);
     setErrorProof(false);
     try {
       const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
+
+      // FOR TEST PURPOSES ONLY
+
+      const selectedClaims = sismoConnectRequest?.claims?.map((claim) => {
+        return {
+          ...claim,
+          selectedValue: claim.value,
+        } as SelectedClaimRequest;
+      });
+
+      const selectedAuths = sismoConnectRequest?.auths?.map((auth) => {
+        return {
+          ...auth,
+          selectedUserId: auth.userId,
+        } as SelectedAuthRequest;
+      });
+
+      const selectedSismoConnectRequest = {
+        ...sismoConnectRequest,
+        selectedClaims,
+        selectedAuths,
+        selectedSignature: sismoConnectRequest?.signature,
+      } as SelectedSismoConnectRequest;
+
+      ///////////////////////////////
+
+      const registryTreeRoot = await getRegistryTreeRoot(sismoConnectRequest);
+
+      setRegistryTreeRoot(registryTreeRoot);
+
       const zkResponse = await generateResponse(
-        sismoConnectRequest,
+        selectedSismoConnectRequest,
         vault.importedAccounts,
         vaultSecret
       );
@@ -156,6 +190,7 @@ export default function GenerateZkProof({
     <>
       <ProofModal
         response={response}
+        registryTreeRoot={registryTreeRoot}
         isOpen={proofModalOpen}
         onClose={() => setProofModalOpen(false)}
       />

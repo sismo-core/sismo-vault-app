@@ -48,6 +48,11 @@ export class HydraS2OffchainProver extends Prover {
     }
   }
 
+  public async getRegistryTreeRoot(): Promise<string> {
+    const registryTree = await this.registryTreeReader.getRegistryTree();
+    return registryTree.getRoot().toHexString();
+  }
+
   public async generateProof({
     appId,
     source,

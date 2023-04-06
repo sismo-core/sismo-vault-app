@@ -44,6 +44,10 @@ export class SismoConnectProver {
     await this.prover.initDevConfig(devConfig);
   }
 
+  public async getRegistryTreeRoot(): Promise<string> {
+    return await this.prover.getRegistryTreeRoot();
+  }
+
   private async getClaimRequestEligibility(
     claim: ClaimRequest,
     importedAccounts: ImportedAccount[]
@@ -412,7 +416,7 @@ export class SismoConnectProver {
             authType: selectedAuthRequestEligibility?.auth?.authType,
             userId:
               selectedAuthRequestEligibility?.auth?.authType === AuthType.VAULT
-                ? snarkProof.input[10].toHexString() // VAULT USER ID
+                ? "toto" //snarkProof.input[10].toHexString() // VAULT USER ID
                 : selectedAuthRequestEligibility?.selectedAuth?.selectedUserId,
             extraData: selectedAuthRequestEligibility?.auth?.extraData,
           } as Auth;

@@ -5,6 +5,7 @@ import {
   SismoConnectProver as SismoConnectProverV1,
   SismoConnectRequest,
   SismoConnectResponse,
+  SelectedSismoConnectRequest,
 } from "../sismo-connect-prover/sismo-connect-v1";
 import { Cache } from "../caches";
 import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
@@ -43,6 +44,20 @@ export class SismoClient {
 
     if (sismoConnectRequest?.devConfig?.enabled !== false)
       await sismoConnectProver.initDevConfig(sismoConnectRequest?.devConfig);
+  }
+
+  public async getRegistryTreeRoot(
+    sismoConnectRequest: SismoConnectRequest
+  ): Promise<string> {
+    if (!this.sismoConnectProvers[sismoConnectRequest.version])
+      throw new Error(
+        `Version of the request not supported ${sismoConnectRequest.version}`
+      );
+    const sismoConnectProver = this.sismoConnectProvers[
+      sismoConnectRequest.version
+    ] as SismoConnectProverV1;
+
+    return await sismoConnectProver.getRegistryTreeRoot();
   }
 
   public async getGroupMetadata(groupId: string, timestamp: "latest" | number) {
@@ -111,7 +126,7 @@ export class SismoClient {
   }
 
   public async generateResponse(
-    sismoConnectRequest: SismoConnectRequest,
+    sismoConnectRequest: SelectedSismoConnectRequest,
     importedAccounts: ImportedAccount[],
     vaultSecret: string
   ): Promise<SismoConnectResponse> {

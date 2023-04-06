@@ -4,6 +4,7 @@ import {
   AuthRequestEligibility,
   ClaimRequestEligibility,
   RequestGroupMetadata,
+  SelectedSismoConnectRequest,
   SismoConnectRequest,
   SismoConnectResponse,
 } from "../sismo-client/sismo-connect-prover/sismo-connect-v1";
@@ -13,8 +14,11 @@ import { ImportedAccount } from "../vault-client";
 
 export type Sismo = {
   initDevConfig: (sismoConnectRequest: SismoConnectRequest) => void;
+  getRegistryTreeRoot: (
+    sismoConnectRequest: SismoConnectRequest
+  ) => Promise<string>;
   generateResponse: (
-    sismoConnectRequest: SismoConnectRequest,
+    sismoConnectRequest: SelectedSismoConnectRequest,
     importedAccounts: ImportedAccount[],
     vaultSecret: string
   ) => Promise<SismoConnectResponse>;
@@ -53,6 +57,13 @@ export default function SismoProvider({
   const initDevConfig = useCallback(
     (sismoConnectRequest: SismoConnectRequest) => {
       return client.initDevConfig(sismoConnectRequest);
+    },
+    [client]
+  );
+
+  const getRegistryTreeRoot = useCallback(
+    (sismoConnectRequest: SismoConnectRequest) => {
+      return client.getRegistryTreeRoot(sismoConnectRequest);
     },
     [client]
   );
@@ -122,6 +133,7 @@ export default function SismoProvider({
     <SismoClientContext.Provider
       value={{
         initDevConfig,
+        getRegistryTreeRoot,
         getGroupMetadata,
         getFactoryApp,
         getRequestGroupMetadata,

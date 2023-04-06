@@ -65,12 +65,14 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   response: SismoConnectResponse;
+  registryTreeRoot: string;
 };
 
 export default function ProofModal({
   isOpen,
   onClose,
   response,
+  registryTreeRoot,
 }: Props): JSX.Element {
   const [selectedType, setSelectedType] = useState<"bytes" | "typescript">(
     "bytes"
@@ -128,6 +130,10 @@ export default function ProofModal({
               <span>{"Typescript"}</span>
             </GroupItem>
           </SelectorWrapper>
+          <div>
+            <span>{"Registry Tree Root: "}</span>
+            <span>{registryTreeRoot}</span>
+          </div>
           <div style={{ cursor: "pointer" }} onClick={copyToClipboard}>
             {readableResponse}
           </div>

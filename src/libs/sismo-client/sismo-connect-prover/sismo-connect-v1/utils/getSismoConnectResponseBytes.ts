@@ -6,6 +6,8 @@ export const getSismoConnectResponseBytes = (
 ) => {
   if (!sismoConnectResponse) return null;
 
+  console.log("sismoConnectResponse", sismoConnectResponse);
+
   const AbiCoder = new ethers.utils.AbiCoder();
   const zkResponseABIEncoded = AbiCoder.encode(
     [
@@ -56,43 +58,9 @@ export const getSismoConnectResponseBytes = (
           ethers.utils.formatBytes32String(""), // WHAT HAPPENS IN CASE OF USER INPUT ?
 
         proofs: sismoConnectResponse.proofs.map((proof) => {
-          const auths = proof.auths.map((auth) => {
-            const authForEncoding = {
-              authType: auth?.authType,
-              isAnon: auth?.isAnon ?? false,
-              userId: auth?.userId ?? 0,
-              extraData: ethers.utils.toUtf8Bytes(auth?.extraData ?? ""),
-            } as AuthRequest;
-
-            return authForEncoding;
-          });
-
-          const claims = proof.claims.map((claim) => {
-            const claimForEncoding = {
-              claimType: claim?.claimType,
-              groupId: ethers.utils.hexZeroPad(
-                ethers.utils.hexlify(claim?.groupId ?? "0x00"),
-                16
-              ),
-              groupTimestamp:
-                proof?.claims[0]?.groupTimestamp === "latest"
-                  ? BigNumber.from(
-                      ethers.utils.formatBytes32String("latest")
-                    ).shr(128)
-                  : proof?.claims[0]?.groupTimestamp ??
-                    BigNumber.from(
-                      ethers.utils.formatBytes32String("latest")
-                    ).shr(128),
-              value: claim?.value ?? 1,
-              extraData: ethers.utils.toUtf8Bytes(claim?.extraData ?? ""),
-            } as ClaimRequest;
-
-            return claimForEncoding;
-          });
-
-          return {
-            auths,
-            claims,
+          let _proof = {
+            auths: [],
+            claims: [],
             provingScheme: ethers.utils.hexZeroPad(
               ethers.utils.formatBytes32String(
                 proof?.provingScheme ?? "hydra-s2.1"
@@ -101,7 +69,57 @@ export const getSismoConnectResponseBytes = (
             ),
             proofData: proof.proofData,
             extraData: ethers.utils.toUtf8Bytes(proof?.extraData ?? ""),
-          };
+          } as any;
+
+          if (proof.auths?.length) {
+            const auths = proof?.auths?.map((auth) => {
+              const authForEncoding = {
+                authType: auth?.authType,
+                isAnon: auth?.isAnon ?? false,
+                userId: auth?.userId ?? 0,
+                extraData: ethers.utils.toUtf8Bytes(auth?.extraData ?? ""),
+              } as AuthRequest;
+
+              return authForEncoding;
+            });
+
+            _proof = {
+              auths: auths,
+              ..._proof,
+            };
+          }
+
+          if (proof.claims?.length) {
+            const claims = proof?.claims?.map((claim) => {
+              const claimForEncoding = {
+                claimType: claim?.claimType,
+                groupId: ethers.utils.hexZeroPad(
+                  ethers.utils.hexlify(claim?.groupId ?? "0x00"),
+                  16
+                ),
+                groupTimestamp:
+                  proof?.claims[0]?.groupTimestamp === "latest"
+                    ? BigNumber.from(
+                        ethers.utils.formatBytes32String("latest")
+                      ).shr(128)
+                    : proof?.claims[0]?.groupTimestamp ??
+                      BigNumber.from(
+                        ethers.utils.formatBytes32String("latest")
+                      ).shr(128),
+                value: claim?.value ?? 1,
+                extraData: ethers.utils.toUtf8Bytes(claim?.extraData ?? ""),
+              } as ClaimRequest;
+
+              return claimForEncoding;
+            });
+
+            _proof = {
+              claims: claims,
+              ..._proof,
+            };
+          }
+
+          return _proof;
         }),
       },
     ]
