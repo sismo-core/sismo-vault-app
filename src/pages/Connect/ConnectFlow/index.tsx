@@ -12,11 +12,12 @@ import { ZkConnectRequest } from "../localTypes";
 import env from "../../../environment";
 import { FactoryApp } from "../../../libs/sismo-client";
 import { ZkConnectResponse } from "../localTypes";
+
+import { getSismoConnectResponseBytes } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
 import {
-  GroupMetadataDataRequestEligibility,
+  GroupMetadataClaimRequestEligibility,
   RequestGroupMetadata,
-} from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v2";
-import { getZkConnectResponseBytes } from "../../../libs/sismo-client/zk-connect-prover/zk-connect-v2/utils/getZkConnectResponseBytes";
+} from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
   position: relative;
@@ -64,10 +65,16 @@ export default function ConnectFlow({
 }: Props): JSX.Element {
   const vault = useVault();
   const [vaultSliderOpen, setVaultSliderOpen] = useState(false);
+  // const [
+  //   groupMetadataDataRequestEligibilities,
+  //   setGroupMetadataDataRequestEligibilities,
+  // ] = useState<GroupMetadataDataRequestEligibility[] | null>(null);
+
   const [
-    groupMetadataDataRequestEligibilities,
-    setGroupMetadataDataRequestEligibilities,
-  ] = useState<GroupMetadataDataRequestEligibility[] | null>(null);
+    groupMetadataClaimRequestEligibility,
+    setGroupMetadataClaimRequestEligibility,
+  ] = useState<GroupMetadataClaimRequestEligibility[] | null>(null);
+
   const [step, setStep] = useState<Step>("SignIn");
   const [loadingEligible, setLoadingEligible] = useState(true);
   const { getDataRequestEligibilities } = useSismo();
@@ -131,7 +138,7 @@ export default function ConnectFlow({
     if (response) {
       url += `?zkConnectResponse=${JSON.stringify(
         response
-      )}&zkConnectResponseBytes=${getZkConnectResponseBytes(response)}`;
+      )}&zkConnectResponseBytes=${getSismoConnectResponseBytes(response)}`;
     }
     if (window.opener) {
       window.opener.postMessage(response, url); //If it's a popup, this will send a message to the opener which is here zkdrop.io
