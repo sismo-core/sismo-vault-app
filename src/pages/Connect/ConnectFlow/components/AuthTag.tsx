@@ -30,7 +30,7 @@ export default function AuthTag({ authRequest }: Props) {
       : authType === AuthType.TWITTER
       ? "Twitter account"
       : authType === AuthType.ANON
-      ? "Anon user id"
+      ? "Vault user id"
       : null;
 
   return <Container>{humanReadableType}</Container>;
