@@ -1,19 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import {
-  AuthRequest,
-  AuthType,
-  ClaimRequest,
-  ClaimType,
-  SismoConnectResponse,
-} from "../types";
-
-export type SismoConnectProof = {
-  auths?: AuthRequest[];
-  claims?: ClaimRequest[];
-  provingScheme: string;
-  proofData: string;
-  extraData: any;
-};
+import { AuthRequest, ClaimRequest, SismoConnectResponse } from "../types";
 
 export const getSismoConnectResponseBytes = (
   sismoConnectResponse: SismoConnectResponse
@@ -67,7 +53,7 @@ export const getSismoConnectResponseBytes = (
         ),
         signedMessage:
           sismoConnectResponse?.signedMessage ??
-          ethers.utils.formatBytes32String(""), // WHAT IN CASE OF USER INPUT ?
+          ethers.utils.formatBytes32String(""), // WHAT HAPPENS IN CASE OF USER INPUT ?
 
         proofs: sismoConnectResponse.proofs.map((proof) => {
           const auths = proof.auths.map((auth) => {

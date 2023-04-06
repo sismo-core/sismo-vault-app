@@ -1,3 +1,4 @@
+import { hexDataSlice, keccak256 } from "ethers/lib/utils";
 import { ImportedAccount } from "../../vault-client";
 import {
   EddsaPublicKey,
@@ -242,7 +243,7 @@ export class HydraS2OffchainProver extends Prover {
   }: OffchainProofRequest): Promise<UserParams> {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
-      namespace: appId,
+      namespace: BigNumber.from(appId).add(0).toHexString(),
     };
 
     // Return only the vault input if we are in demo mode

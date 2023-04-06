@@ -13,6 +13,7 @@ import {
   DevConfig,
   ClaimRequest,
   AuthType,
+  Auth,
   SismoConnectProof,
   AuthRequest,
   SelectedClaimRequestEligibility,
@@ -44,23 +45,23 @@ export class SismoConnectProver {
   }
 
   private async getClaimRequestEligibility(
-    claimRequest: ClaimRequest,
+    claim: ClaimRequest,
     importedAccounts: ImportedAccount[]
   ): Promise<ClaimRequestEligibility> {
     const _accounts = importedAccounts?.map((account) => account.identifier);
 
     const accountData = await this.prover.getEligibility({
       accounts: _accounts,
-      groupId: claimRequest.groupId,
-      groupTimestamp: claimRequest.groupTimestamp,
-      requestedValue: claimRequest.value,
-      claimType: claimRequest.claimType,
+      groupId: claim.groupId,
+      groupTimestamp: claim.groupTimestamp,
+      requestedValue: claim.value,
+      claimType: claim.claimType,
     });
 
     const isEligible = accountData && Boolean(Object.keys(accountData)?.length);
 
     return {
-      claimRequest: claimRequest,
+      claim: claim,
       accountData: accountData,
       isEligible,
     };
@@ -70,23 +71,23 @@ export class SismoConnectProver {
     sismoConnectRequest: SismoConnectRequest,
     importedAccounts: ImportedAccount[]
   ): Promise<ClaimRequestEligibility[]> {
-    if (!Boolean(sismoConnectRequest?.claimRequests?.length)) return [];
+    if (!Boolean(sismoConnectRequest?.claims?.length)) return [];
 
     const claimRequestEligibilities = await Promise.all(
-      sismoConnectRequest?.claimRequests?.map(async (claimRequest) => {
-        return this.getClaimRequestEligibility(claimRequest, importedAccounts);
+      sismoConnectRequest?.claims?.map(async (claim) => {
+        return this.getClaimRequestEligibility(claim, importedAccounts);
       })
     );
     return claimRequestEligibilities;
   }
 
   private async getAuthRequestEligibility(
-    authRequest: AuthRequest,
+    auth: AuthRequest,
     importedAccounts: ImportedAccount[]
   ): Promise<AuthRequestEligibility> {
     let accounts: ImportedAccount[];
 
-    switch (authRequest?.authType) {
+    switch (auth?.authType) {
       case AuthType.VAULT:
         accounts = importedAccounts;
         break;
@@ -110,12 +111,10 @@ export class SismoConnectProver {
     }
 
     return {
-      authRequest: authRequest,
+      auth: auth,
       accounts: accounts,
       isEligible:
-        authRequest?.authType === AuthType.VAULT
-          ? true
-          : Boolean(accounts?.length),
+        auth?.authType === AuthType.VAULT ? true : Boolean(accounts?.length),
     };
   }
 
@@ -123,11 +122,11 @@ export class SismoConnectProver {
     sismoConnectRequest: SismoConnectRequest,
     importedAccounts: ImportedAccount[]
   ): Promise<AuthRequestEligibility[]> {
-    if (!Boolean(sismoConnectRequest?.claimRequests?.length)) return [];
+    if (!Boolean(sismoConnectRequest?.claims?.length)) return [];
 
     const authRequestEligibilities = await Promise.all(
-      sismoConnectRequest?.authRequests?.map(async (authRequest) => {
-        return this.getAuthRequestEligibility(authRequest, importedAccounts);
+      sismoConnectRequest?.auths?.map(async (auth) => {
+        return this.getAuthRequestEligibility(auth, importedAccounts);
       })
     );
     return authRequestEligibilities;
@@ -144,17 +143,20 @@ export class SismoConnectProver {
       appId,
       namespace,
       version: selectedSismoConnectRequest.version,
+      signedMessage:
+        selectedSismoConnectRequest?.selectedSignature?.selectedMessage ??
+        selectedSismoConnectRequest?.signature?.message,
       proofs: [],
     };
 
-    /* ********************************************* */
-    /* **** PREPARE MESSAGE SIGNATURE REQUEST ****** */
-    /* ********************************************* */
+    /* ***************************************************** */
+    /* **** PREPARE EXTRADATA MESSAGE SIGNATURE REQUEST **** */
+    /* ***************************************************** */
 
     let extraData = null;
     let message =
-      selectedSismoConnectRequest?.selectedSignatureRequest?.selectedMessage ??
-      selectedSismoConnectRequest?.signatureRequest?.message;
+      selectedSismoConnectRequest?.selectedSignature?.selectedMessage ??
+      selectedSismoConnectRequest?.signature?.message;
 
     if (message) {
       let preparedSignedMessage: string =
@@ -197,18 +199,17 @@ export class SismoConnectProver {
 
     const selectedClaimRequestEligibilities = claimRequestEligibilities?.map(
       (claimRequestEligibility) => {
-        const selectedClaimRequest =
-          selectedSismoConnectRequest?.selectedClaimRequests?.find(
-            (selectedClaimRequest) =>
-              selectedClaimRequest?.groupId ===
-                claimRequestEligibility?.claimRequest?.groupId &&
-              selectedClaimRequest?.groupTimestamp ===
-                claimRequestEligibility?.claimRequest?.groupTimestamp
-          );
+        const selectedClaim = selectedSismoConnectRequest?.selectedClaims?.find(
+          (selectedClaim) =>
+            selectedClaim?.groupId ===
+              claimRequestEligibility?.claim?.groupId &&
+            selectedClaim?.groupTimestamp ===
+              claimRequestEligibility?.claim?.groupTimestamp
+        );
 
         return {
-          selectedClaimRequest: selectedClaimRequest,
-          claimRequest: claimRequestEligibility.claimRequest,
+          selectedClaim: selectedClaim,
+          claim: claimRequestEligibility.claim,
           accountData: claimRequestEligibility.accountData,
           isEligible: claimRequestEligibility.isEligible,
         } as SelectedClaimRequestEligibility;
@@ -227,8 +228,8 @@ export class SismoConnectProver {
         selectedClaimRequestEligibilities[i];
 
       if (
-        (selectedClaimRequestEligibility?.claimRequest?.isOptional === false ||
-          typeof selectedClaimRequestEligibility?.claimRequest?.isOptional ===
+        (selectedClaimRequestEligibility?.claim?.isOptional === false ||
+          typeof selectedClaimRequestEligibility?.claim?.isOptional ===
             undefined) &&
         !selectedClaimRequestEligibility?.isEligible
       ) {
@@ -266,25 +267,35 @@ export class SismoConnectProver {
             vaultSecret, // VAULT SECRET MUST BE ADDED TO THE PROOF FOR THE CIRCUIT
             extraData,
             source,
-            groupId: selectedClaimRequestEligibility?.claimRequest?.groupId,
+            groupId: selectedClaimRequestEligibility?.claim?.groupId,
             groupTimestamp:
-              selectedClaimRequestEligibility?.claimRequest?.groupTimestamp,
+              selectedClaimRequestEligibility?.claim?.groupTimestamp,
             requestedValue:
-              selectedClaimRequestEligibility?.selectedClaimRequest
-                ?.selectedValue ??
-              selectedClaimRequestEligibility?.claimRequest?.value,
-            claimType: selectedClaimRequestEligibility?.claimRequest?.claimType,
+              selectedClaimRequestEligibility?.selectedClaim?.selectedValue ??
+              selectedClaimRequestEligibility?.claim?.value,
+            claimType: selectedClaimRequestEligibility?.claim?.claimType,
           } as OffchainProofRequest;
 
           const snarkProof = await this.prover.generateProof(
             _generateProofInputs
           );
+
+          const claimResponse = {
+            claimType: selectedClaimRequestEligibility?.claim?.claimType,
+            groupId: selectedClaimRequestEligibility?.claim?.groupId,
+            groupTimestamp:
+              selectedClaimRequestEligibility?.claim?.groupTimestamp,
+            value:
+              selectedClaimRequestEligibility?.selectedClaim?.selectedValue ??
+              selectedClaimRequestEligibility?.claim?.value,
+            extraData: selectedClaimRequestEligibility?.claim?.extraData,
+          };
+
           return {
-            claim: [selectedClaimRequestEligibility?.claimRequest],
+            claim: [claimResponse],
             signedMessage:
-              selectedSismoConnectRequest?.selectedSignatureRequest
-                ?.selectedMessage ??
-              selectedSismoConnectRequest?.signatureRequest?.message,
+              selectedSismoConnectRequest?.selectedSignature?.selectedMessage ??
+              selectedSismoConnectRequest?.signature?.message,
             proofData: snarkProof.toBytes(),
             extraData: "",
             provingScheme: ProvingScheme.HYDRA_S2,
@@ -299,18 +310,15 @@ export class SismoConnectProver {
 
     const selectedAuthRequestEligibilities = authRequestEligibilities?.map(
       (authRequestEligibility) => {
-        const selectedAuthRequest =
-          selectedSismoConnectRequest?.selectedAuthRequests?.find(
-            (selectedAuthRequest) =>
-              selectedAuthRequest?.authType ===
-                authRequestEligibility?.authRequest?.authType &&
-              selectedAuthRequest?.userId ===
-                authRequestEligibility?.authRequest?.userId
-          );
+        const selectedAuth = selectedSismoConnectRequest?.selectedAuths?.find(
+          (selectedAuth) =>
+            selectedAuth?.authType === authRequestEligibility?.auth?.authType &&
+            selectedAuth?.userId === authRequestEligibility?.auth?.userId
+        );
 
         return {
-          selectedAuthRequest: selectedAuthRequest,
-          authRequest: authRequestEligibility.authRequest,
+          selectedAuth: selectedAuth,
+          auth: authRequestEligibility.auth,
           accounts: authRequestEligibility.accounts,
           isEligible: authRequestEligibility.isEligible,
         } as SelectedAuthRequestEligibility;
@@ -329,8 +337,8 @@ export class SismoConnectProver {
         selectedAuthRequestEligibilities[i];
 
       if (
-        (selectedAuthRequestEligibility?.authRequest?.isOptional === false ||
-          typeof selectedAuthRequestEligibility?.authRequest?.isOptional ===
+        (selectedAuthRequestEligibility?.auth?.isOptional === false ||
+          typeof selectedAuthRequestEligibility?.auth?.isOptional ===
             undefined) &&
         !selectedAuthRequestEligibility?.isEligible
       ) {
@@ -360,30 +368,26 @@ export class SismoConnectProver {
           } as OffchainProofRequest;
 
           if (
-            selectedAuthRequestEligibility?.authRequest?.authType !==
-              AuthType.VAULT &&
-            selectedAuthRequestEligibility?.selectedAuthRequest?.selectedUserId
+            selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT &&
+            selectedAuthRequestEligibility?.selectedAuth?.selectedUserId
           ) {
             throw new Error("No account selected for this auth request");
           }
 
           if (
-            selectedAuthRequestEligibility?.authRequest?.authType !==
-              AuthType.VAULT &&
+            selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT &&
             !selectedAuthRequestEligibility?.isEligible
           ) {
             throw new Error("No account found for this auth request");
           }
 
           if (
-            selectedAuthRequestEligibility?.authRequest?.authType !==
-            AuthType.VAULT
+            selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT
           ) {
             const destination = importedAccounts.find((importedAccount) => {
               return (
                 importedAccount.identifier ===
-                selectedAuthRequestEligibility?.selectedAuthRequest
-                  ?.selectedUserId
+                selectedAuthRequestEligibility?.selectedAuth?.selectedUserId
               );
             });
 
@@ -403,12 +407,18 @@ export class SismoConnectProver {
           const snarkProof = await this.prover.generateProof(
             _generateProofInputs
           );
+
+          const authResponse = {
+            authType: selectedAuthRequestEligibility?.auth?.authType,
+            userId:
+              selectedAuthRequestEligibility?.auth?.authType === AuthType.VAULT
+                ? snarkProof.input[10].toHexString() // VAULT USER ID
+                : selectedAuthRequestEligibility?.selectedAuth?.selectedUserId,
+            extraData: selectedAuthRequestEligibility?.auth?.extraData,
+          } as Auth;
+
           return {
-            auth: [selectedAuthRequestEligibility?.authRequest],
-            signedMessage:
-              selectedSismoConnectRequest?.selectedSignatureRequest
-                ?.selectedMessage ??
-              selectedSismoConnectRequest?.signatureRequest?.message,
+            auth: [authResponse],
             proofData: snarkProof.toBytes(),
             extraData: "",
             provingScheme: ProvingScheme.HYDRA_S2,
