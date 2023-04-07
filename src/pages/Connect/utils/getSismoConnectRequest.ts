@@ -128,7 +128,9 @@ export const getSismoConnectRequest = (
       claim.isOptional =
         typeof claim.isOptional === "undefined" ? false : claim.isOptional;
       claim.isSelectableByUser =
-        typeof claim.isSelectableByUser === "undefined"
+        claim.claimType === ClaimType.EQ
+          ? false
+          : typeof claim.isSelectableByUser === "undefined"
           ? false
           : claim.isSelectableByUser;
 

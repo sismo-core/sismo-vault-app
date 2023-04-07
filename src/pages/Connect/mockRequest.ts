@@ -49,7 +49,7 @@ export const claims: ClaimRequest[] = [
     groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
     groupTimestamp: "latest",
     isOptional: false,
-    isSelectableByUser: false,
+    isSelectableByUser: true,
     value: 1,
     extraData: "",
   } as ClaimRequest,
