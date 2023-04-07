@@ -181,6 +181,8 @@ export class SismoConnectProver {
       proofs: [],
     };
 
+    console.log("selectedSismoConnectRequest", selectedSismoConnectRequest);
+
     /* ***************************************************** */
     /* **** PREPARE EXTRADATA MESSAGE SIGNATURE REQUEST **** */
     /* ***************************************************** */

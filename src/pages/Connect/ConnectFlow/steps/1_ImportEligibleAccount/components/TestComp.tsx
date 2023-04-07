@@ -12,6 +12,7 @@ import {
 } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 import { AuthSelect } from "./AuthSelect";
 import { ClaimSelect } from "./ClaimSelect";
+import { useState } from "react";
 
 const Container = styled.div`
   align-self: center;
@@ -93,6 +94,40 @@ const ClaimList = styled.div`
   gap: 4px;
 `;
 
+const MessageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  padding: 8px;
+  gap: 10px;
+
+  width: 360px;
+  max-height: 86px;
+  overflow: auto;
+
+  background: ${(props) => props.theme.colors.blue9};
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 20px;
+
+  color: ${(props) => props.theme.colors.blue0};
+  margin-bottom: 20px;
+  box-sizing: border-box;
+
+  @media (max-width: 900px) {
+    width: 100%;
+  }
+`;
+
+const MessageTitle = styled.div`
+  font-family: ${(props) => props.theme.fonts.bold};
+`;
+
+const Message = styled.textarea`
+  font-family: ${(props) => props.theme.fonts.medium};
+  word-break: break-all;
+`;
+
 type Props = {
   selectedSismoConnectRequest: SelectedSismoConnectRequest;
   groupMetadataClaimRequestEligibilities: GroupMetadataClaimRequestEligibility[];
@@ -108,6 +143,10 @@ export function TestComp({
   authRequestEligibilities,
   onUserInput,
 }: Props) {
+  const [message, setMessage] = useState<string>(
+    selectedSismoConnectRequest?.selectedSignature?.selectedMessage || ""
+  );
+
   function onAuthChange(
     authRequestEligibility: AuthRequestEligibility,
     accountIdentifier: string
@@ -151,6 +190,20 @@ export function TestComp({
     onUserInput(newSelectedSismoConnectRequest);
   }
 
+  function onMessageChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    setMessage(event.target.value);
+
+    const newSelectedSismoConnectRequest = {
+      ...selectedSismoConnectRequest,
+      selectedSignature: {
+        ...selectedSismoConnectRequest.selectedSignature,
+        selectedMessage: event.target.value,
+      },
+    };
+
+    onUserInput(newSelectedSismoConnectRequest);
+  }
+
   return (
     <Container>
       <div>AUTH: </div>
@@ -180,6 +233,17 @@ export function TestComp({
           )
         )}
       </ClaimList>
+
+      <MessageWrapper>
+        <MessageTitle>Message Signature Request</MessageTitle>
+        <Message
+          disabled={
+            selectedSismoConnectRequest?.selectedSignature?.isSelectableByUser
+          }
+          onChange={onMessageChange}
+          value={message}
+        />
+      </MessageWrapper>
     </Container>
   );
 }

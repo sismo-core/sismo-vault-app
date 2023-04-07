@@ -78,10 +78,11 @@ export default function ProofModal({
     "bytes"
   );
 
-  const typescriptResponse = {
+  const typescriptResponse: SismoConnectResponse = {
     appId: response?.appId,
     namespace: response?.namespace,
     version: response?.version,
+    signedMessage: response?.signedMessage,
     proofs: response?.proofs,
   };
 
