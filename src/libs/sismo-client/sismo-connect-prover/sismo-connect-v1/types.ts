@@ -54,17 +54,17 @@ export type SelectedAuthRequestEligibility = AuthRequestEligibility & {
   selectedAuth: SelectedAuthRequest;
 };
 
-export type SelectedClaimRequest = ClaimRequest & {
+export type SelectedClaimRequest = Omit<ClaimRequest, "value"> & {
   selectedValue: number;
   isOptIn: boolean;
 };
 
-export type SelectedAuthRequest = AuthRequest & {
+export type SelectedAuthRequest = Omit<AuthRequest, "userId"> & {
   selectedUserId: string;
   isOptIn: boolean;
 };
 
-export type SelectedSignatureRequest = SignatureRequest & {
+export type SelectedSignatureRequest = Omit<SignatureRequest, "message"> & {
   selectedMessage: string;
 };
 

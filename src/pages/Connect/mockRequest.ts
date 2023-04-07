@@ -73,13 +73,21 @@ export const auths: AuthRequest[] = [
     extraData: "",
   },
   {
-    authType: AuthType.TWITTER,
+    authType: AuthType.EVM_ACCOUNT,
     isAnon: false,
-    userId: "971701818",
+    userId: "0x0e75b92ed9f77ac17a6e7fe6b171a3a66c6b638b",
     isOptional: false,
     isSelectableByUser: false,
     extraData: "",
   },
+  // {
+  //   authType: AuthType.TWITTER,
+  //   isAnon: false,
+  //   userId: "971701818",
+  //   isOptional: false,
+  //   isSelectableByUser: false,
+  //   extraData: "",
+  // },
 ];
 
 export const signature: SignatureRequest = {

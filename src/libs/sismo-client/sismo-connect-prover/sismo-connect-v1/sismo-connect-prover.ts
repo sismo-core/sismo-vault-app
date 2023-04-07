@@ -233,10 +233,7 @@ export class SismoConnectProver {
       (claimRequestEligibility) => {
         const selectedClaim = selectedSismoConnectRequest?.selectedClaims?.find(
           (selectedClaim) =>
-            selectedClaim?.groupId ===
-              claimRequestEligibility?.claim?.groupId &&
-            selectedClaim?.groupTimestamp ===
-              claimRequestEligibility?.claim?.groupTimestamp
+            selectedClaim?.uuid === claimRequestEligibility?.claim?.uuid
         );
 
         return {
@@ -339,15 +336,14 @@ export class SismoConnectProver {
     }
 
     /* ************************************************************* */
-    /* **** ADD USER SELECT INPUTS TO CLAIM REQUEST ELIGIBILITIES ** */
+    /* **** ADD USER SELECT INPUTS TO AUTH REQUEST ELIGIBILITIES *** */
     /* ************************************************************* */
 
     const selectedAuthRequestEligibilities = authRequestEligibilities?.map(
       (authRequestEligibility) => {
         const selectedAuth = selectedSismoConnectRequest?.selectedAuths?.find(
           (selectedAuth) =>
-            selectedAuth?.authType === authRequestEligibility?.auth?.authType &&
-            selectedAuth?.userId === authRequestEligibility?.auth?.userId
+            selectedAuth?.uuid === authRequestEligibility?.auth?.uuid
         );
 
         return {
