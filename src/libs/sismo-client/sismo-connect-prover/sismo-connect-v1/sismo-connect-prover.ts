@@ -256,7 +256,7 @@ export class SismoConnectProver {
 
     if (filteredSelectedClaimRequestEligibilities?.length) {
       claimPromises = filteredSelectedClaimRequestEligibilities?.map(
-        async (selectedClaimRequestEligibility) => {
+        async (selectedClaimRequestEligibility): Promise<SismoConnectProof> => {
           const source = importedAccounts.find(
             (importedAccount) =>
               importedAccount?.identifier?.toLowerCase() ===
@@ -297,14 +297,11 @@ export class SismoConnectProver {
           };
 
           return {
-            claim: [claimResponse],
-            signedMessage:
-              selectedSismoConnectRequest?.selectedSignature?.selectedMessage ??
-              selectedSismoConnectRequest?.signature?.message,
+            claims: [claimResponse],
             proofData: snarkProof.toBytes(),
             extraData: "",
             provingScheme: ProvingScheme.HYDRA_S2,
-          } as SismoConnectProof;
+          };
         }
       );
     }
@@ -365,7 +362,7 @@ export class SismoConnectProver {
 
     if (filteredSelectedAuthRequestEligibilities?.length) {
       authPromises = filteredSelectedAuthRequestEligibilities?.map(
-        async (selectedAuthRequestEligibility) => {
+        async (selectedAuthRequestEligibility): Promise<SismoConnectProof> => {
           let _generateProofInputs = {
             appId,
             namespace,
@@ -423,11 +420,11 @@ export class SismoConnectProver {
           } as Auth;
 
           return {
-            auth: [authResponse],
+            auths: [authResponse],
             proofData: snarkProof.toBytes(),
             extraData: "",
             provingScheme: ProvingScheme.HYDRA_S2,
-          } as SismoConnectProof;
+          };
         }
       );
     }
@@ -436,6 +433,9 @@ export class SismoConnectProver {
 
     const sismoConnectProofs = await Promise.all(promises);
     response.proofs = sismoConnectProofs;
+    response.signedMessage =
+      selectedSismoConnectRequest?.selectedSignature?.selectedMessage ??
+      selectedSismoConnectRequest?.signature?.message;
 
     return response;
   }
