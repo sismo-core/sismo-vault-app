@@ -1,5 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import { AuthRequest, ClaimRequest, SismoConnectResponse } from "../types";
+import { isHexlify } from "./isHexlify";
 
 export const getSismoConnectResponseBytes = (
   sismoConnectResponse: SismoConnectResponse
@@ -9,6 +10,7 @@ export const getSismoConnectResponseBytes = (
   console.log("sismoConnectResponse", sismoConnectResponse);
 
   const AbiCoder = new ethers.utils.AbiCoder();
+
   const zkResponseABIEncoded = AbiCoder.encode(
     [
       `tuple(
@@ -53,9 +55,11 @@ export const getSismoConnectResponseBytes = (
           ethers.utils.formatBytes32String(sismoConnectResponse?.version),
           32
         ),
-        signedMessage:
-          sismoConnectResponse?.signedMessage ??
-          ethers.utils.formatBytes32String(""), // WHAT HAPPENS IN CASE OF USER INPUT ?
+        signedMessage: sismoConnectResponse?.signedMessage
+          ? isHexlify(sismoConnectResponse?.signedMessage)
+            ? sismoConnectResponse?.signedMessage
+            : ethers.utils.toUtf8Bytes(sismoConnectResponse?.signedMessage)
+          : ethers.utils.formatBytes32String(""),
 
         proofs: sismoConnectResponse.proofs.map((proof) => {
           let _proof = {
