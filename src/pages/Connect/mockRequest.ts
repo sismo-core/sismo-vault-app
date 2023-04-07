@@ -53,6 +53,15 @@ export const claims: ClaimRequest[] = [
     value: 2,
     extraData: "",
   } as ClaimRequest,
+  {
+    claimType: ClaimType.EQ,
+    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
+    groupTimestamp: "latest",
+    isOptional: true,
+    isSelectableByUser: true,
+    value: 3,
+    extraData: "",
+  } as ClaimRequest,
 ];
 
 export const auths: AuthRequest[] = [

@@ -121,7 +121,9 @@ export function AuthSelect({
             }
           />
         )}
-        {isOptional && <span style={{ marginRight: 10 }}>(optional)</span>}
+        {authRequestEligibility?.auth?.isOptional && (
+          <span style={{ marginRight: 10 }}>(optional)</span>
+        )}
         <span>{humanReadableType}</span>
       </div>
 

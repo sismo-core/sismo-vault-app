@@ -139,7 +139,9 @@ export function ClaimSelect({
           }
         />
       )}
-      {isOptional && <div>(optional)</div>}
+      {groupMetadataClaimRequestEligibility?.claim?.isOptional && (
+        <div>(optional)</div>
+      )}
       <CheckCircle size={16} color={isClaimEligible ? "#A0F2E0" : "#323E64"} />
       {getHumanReadableGroupName(
         groupMetadataClaimRequestEligibility?.groupMetadata?.name
