@@ -3,6 +3,12 @@ import { useEffect, useState } from "react";
 import Modal from "../../../../../../components/Modal";
 import { getSismoConnectResponseBytes } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
 import { SismoConnectResponse } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import colors from "../../../../../../theme/colors";
+import fonts from "../../../../../../theme/fonts";
+import Button from "../../../../../../components/Button";
+import { CheckCircle, Columns, Copy } from "phosphor-react";
 
 const Container = styled.div`
   display: flex;
@@ -25,6 +31,20 @@ const Container = styled.div`
     width: calc(100vw - 80px);
     gap: 15px;
   }
+`;
+
+const Flex = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+`;
+
+const FlexColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  align-items: flex-end;
 `;
 
 const GroupItem = styled.div<{ isSelected: boolean }>`
@@ -77,6 +97,7 @@ export default function ProofModal({
   const [selectedType, setSelectedType] = useState<"bytes" | "typescript">(
     "bytes"
   );
+  const [isCopied, setIsCopied] = useState(false);
 
   const typescriptResponse: SismoConnectResponse = {
     appId: response?.appId,
@@ -98,12 +119,13 @@ export default function ProofModal({
     if (selectedType === "bytes") {
       setReadableResponse(bytesResponse);
     } else {
-      setReadableResponse(JSON.stringify(typescriptResponse));
+      setReadableResponse(JSON.stringify(typescriptResponse, null, 2));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedType, response]);
 
   function copyToClipboard() {
+    setIsCopied(true);
     navigator.clipboard.writeText(readableResponse);
   }
 
@@ -120,13 +142,19 @@ export default function ProofModal({
           <SelectorWrapper>
             <GroupItem
               isSelected={selectedType === "bytes"}
-              onClick={() => setSelectedType("bytes")}
+              onClick={() => {
+                setIsCopied(false);
+                setSelectedType("bytes");
+              }}
             >
               <span>{"Bytes"}</span>
             </GroupItem>
             <GroupItem
               isSelected={selectedType === "typescript"}
-              onClick={() => setSelectedType("typescript")}
+              onClick={() => {
+                setIsCopied(false);
+                setSelectedType("typescript");
+              }}
             >
               <span>{"Typescript"}</span>
             </GroupItem>
@@ -135,9 +163,40 @@ export default function ProofModal({
             <span>{"Registry Tree Root: "}</span>
             <span>{registryTreeRoot}</span>
           </div>
-          <div style={{ cursor: "pointer" }} onClick={copyToClipboard}>
-            {readableResponse}
-          </div>
+
+          <FlexColumn style={{ cursor: "pointer" }}>
+            <Button
+              onClick={copyToClipboard}
+              style={{
+                fontSize: 12,
+                height: 30,
+                padding: "0 15px",
+                width: 190,
+              }}
+            >
+              <Flex>
+                <div style={{ fontSize: 14 }}>{"Copy to clipboard"}</div>
+                {isCopied ? (
+                  <CheckCircle size={18} color={colors.green1} />
+                ) : (
+                  <Copy size={16} />
+                )}
+              </Flex>
+            </Button>
+            <SyntaxHighlighter
+              language="javascript"
+              style={docco}
+              customStyle={{
+                height: "60vh",
+                fontFamily: fonts.regular,
+                fontSize: 14,
+                backgroundColor: "white",
+              }}
+              wrapLongLines={true}
+            >
+              {readableResponse}
+            </SyntaxHighlighter>
+          </FlexColumn>
         </Container>
       )}
     </Modal>
