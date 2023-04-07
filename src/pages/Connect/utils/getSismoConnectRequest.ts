@@ -5,6 +5,28 @@ import {
   SismoConnectRequest,
 } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
+const startsWithHexadecimal = (str) => {
+  let hexRegex = /^0x[0-9a-fA-F]{6}/;
+  return hexRegex.test(str);
+};
+
+export const toSismoIdentifier = (identifier: string, authType: AuthType) => {
+  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT)
+    return identifier;
+  if (startsWithHexadecimal(identifier)) return identifier;
+
+  let prefix = null;
+  if (authType === AuthType.GITHUB) {
+    prefix = "0x0001";
+  }
+  if (authType === AuthType.TWITTER) {
+    prefix = "0x0002";
+  }
+  identifier = "0".repeat(14 - identifier.length) + identifier;
+  identifier += prefix;
+  return identifier;
+};
+
 export const getSismoConnectRequest = (
   searchParams: URLSearchParams
 ): SismoConnectRequest => {
@@ -66,7 +88,10 @@ export const getSismoConnectRequest = (
       auth.authType =
         typeof auth.authType === "undefined" ? AuthType.VAULT : auth.authType;
       auth.isAnon = typeof auth.isAnon === "undefined" ? false : auth.isAnon;
-      auth.userId = typeof auth.userId === "undefined" ? "0" : auth.userId;
+      auth.userId =
+        typeof auth.userId === "undefined"
+          ? "0"
+          : toSismoIdentifier(auth.userId, auth.authType);
       auth.isOptional =
         typeof auth.isOptional === "undefined" ? false : auth.isOptional;
       auth.isSelectableByUser =
