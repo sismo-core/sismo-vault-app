@@ -98,12 +98,14 @@ export default function ConnectFlow({
         return {
           ...auth,
           selectedUserId: auth.userId,
+          isOptIn: true,
         };
       }),
       selectedClaims: sismoConnectRequest?.claims?.map((claim) => {
         return {
           ...claim,
           selectedValue: claim.value,
+          isOptIn: true,
         };
       }),
       selectedSignature: {

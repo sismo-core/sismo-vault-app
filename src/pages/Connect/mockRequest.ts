@@ -68,18 +68,18 @@ export const auths: AuthRequest[] = [
     authType: AuthType.EVM_ACCOUNT,
     isAnon: false,
     userId: "0x441fB4f061bFC5f16EaF8BF932885c9711EBB1a2",
-    isOptional: false,
+    isOptional: true,
     isSelectableByUser: true,
     extraData: "",
   },
-  // {
-  //   authType: AuthType.TWITTER,
-  //   isAnon: false,
-  //   userId: "971701818",
-  //   isOptional: false,
-  //   isSelectableByUser: false,
-  //   extraData: "",
-  // },
+  {
+    authType: AuthType.TWITTER,
+    isAnon: false,
+    userId: "971701818",
+    isOptional: false,
+    isSelectableByUser: false,
+    extraData: "",
+  },
 ];
 
 export const signature: SignatureRequest = {
@@ -103,9 +103,9 @@ searchParams.set("version", sismoConnectRequestMock.version);
 searchParams.set("appId", sismoConnectRequestMock.appId);
 searchParams.set("namespace", sismoConnectRequestMock.namespace);
 searchParams.set("callbackPath", sismoConnectRequestMock.callbackPath);
-//searchParams.set("auths", JSON.stringify(auths));
+searchParams.set("auths", JSON.stringify(auths));
 searchParams.set("claims", JSON.stringify(claims));
-//searchParams.set("signature", JSON.stringify(signature));
+searchParams.set("signature", JSON.stringify(signature));
 searchParams.set("devConfig", JSON.stringify(devConfig));
 
 export const sismoConnectRequestMockUrl = url.toString();

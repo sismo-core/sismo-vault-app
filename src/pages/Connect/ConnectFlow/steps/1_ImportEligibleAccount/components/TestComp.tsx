@@ -9,6 +9,7 @@ import {
   SelectedSismoConnectRequest,
   GroupMetadataClaimRequestEligibility,
   AuthRequestEligibility,
+  ClaimRequest,
 } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 import { AuthSelect } from "./AuthSelect";
 import { ClaimSelect } from "./ClaimSelect";
@@ -147,6 +148,49 @@ export function TestComp({
     selectedSismoConnectRequest?.selectedSignature?.selectedMessage || ""
   );
 
+  function onClaimOptInChange(
+    groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
+    isOptIn: boolean
+  ) {
+    const newSelectedSismoConnectRequest = {
+      ...selectedSismoConnectRequest,
+      selectedClaims: selectedSismoConnectRequest.selectedClaims.map(
+        (claim) => {
+          if (claim.uuid === groupMetadataClaimRequestEligibility.claim.uuid) {
+            return {
+              ...claim,
+              isOptIn,
+            };
+          } else {
+            return claim;
+          }
+        }
+      ),
+    };
+    onUserInput(newSelectedSismoConnectRequest);
+  }
+
+  function onAuthOptInChange(
+    authRequestEligibility: AuthRequestEligibility,
+    isOptIn: boolean
+  ) {
+    console.log("onAuthOptInChange", isOptIn);
+    const newSelectedSismoConnectRequest = {
+      ...selectedSismoConnectRequest,
+      selectedAuths: selectedSismoConnectRequest.selectedAuths.map((auth) => {
+        if (auth.uuid === authRequestEligibility.auth.uuid) {
+          return {
+            ...auth,
+            isOptIn,
+          };
+        } else {
+          return auth;
+        }
+      }),
+    };
+    onUserInput(newSelectedSismoConnectRequest);
+  }
+
   function onAuthChange(
     authRequestEligibility: AuthRequestEligibility,
     accountIdentifier: string
@@ -214,6 +258,7 @@ export function TestComp({
             selectedSismoConnectRequest={selectedSismoConnectRequest}
             authRequestEligibility={authRequestEligibility}
             onAuthChange={onAuthChange}
+            onAuthOptInChange={onAuthOptInChange}
           />
         ))}
       </AuthList>
@@ -229,6 +274,7 @@ export function TestComp({
                 groupMetadataClaimRequestEligibility
               }
               onClaimChange={onClaimChange}
+              onClaimOptInChange={onClaimOptInChange}
             />
           )
         )}

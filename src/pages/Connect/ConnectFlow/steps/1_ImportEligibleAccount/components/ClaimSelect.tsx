@@ -50,15 +50,20 @@ type Props = {
     groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
     selectedValue: number
   ) => void;
+  onClaimOptInChange: (
+    groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
+    isOptIn: boolean
+  ) => void;
 };
 
 export function ClaimSelect({
   selectedSismoConnectRequest,
   groupMetadataClaimRequestEligibility,
   onClaimChange,
-}: // groupMetadataDataRequestEligibilities,
-Props) {
+  onClaimOptInChange,
+}: Props) {
   const [valueSelected, setValueSelected] = useState<number | null>(null);
+  const [isOptIn, setIsOptIn] = useState<boolean>();
 
   function onChange(
     groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
@@ -68,19 +73,34 @@ Props) {
     onClaimChange(groupMetadataClaimRequestEligibility, selectedValue);
   }
 
+  function onOptInChange(
+    groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
+    isOptIn: boolean
+  ) {
+    setIsOptIn(isOptIn);
+    onClaimOptInChange(groupMetadataClaimRequestEligibility, isOptIn);
+  }
+
   useEffect(() => {
-    const selectedValue = selectedSismoConnectRequest.selectedClaims.find(
+    const selectedClaim = selectedSismoConnectRequest.selectedClaims.find(
       (claim) =>
         claim.uuid === groupMetadataClaimRequestEligibility?.claim?.uuid
-    )?.selectedValue;
+    );
+
+    const selectedValue = selectedClaim?.selectedValue;
+    const selectedOptIn = selectedClaim?.isOptIn;
 
     setValueSelected(selectedValue);
+    setIsOptIn(selectedOptIn);
     onClaimChange(groupMetadataClaimRequestEligibility, selectedValue);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupMetadataClaimRequestEligibility]);
 
-  const isClaimEligible = groupMetadataClaimRequestEligibility?.isEligible;
+  const isClaimEligible = groupMetadataClaimRequestEligibility?.claim
+    ?.isOptional
+    ? isOptIn && groupMetadataClaimRequestEligibility?.isEligible
+    : groupMetadataClaimRequestEligibility?.isEligible;
   const claimType = groupMetadataClaimRequestEligibility?.claim?.claimType;
   const requestedValue = groupMetadataClaimRequestEligibility?.claim?.value;
 
@@ -92,7 +112,9 @@ Props) {
       groupMetadataClaimRequestEligibility?.accountData?.value
     ).toNumber();
 
-  const isOptional = groupMetadataClaimRequestEligibility?.claim?.isOptional;
+  const isOptional =
+    groupMetadataClaimRequestEligibility?.claim?.isOptional &&
+    groupMetadataClaimRequestEligibility?.isEligible;
 
   const selectableValues =
     isClaimEligible &&
@@ -102,6 +124,21 @@ Props) {
 
   return (
     <GroupItem isEligible={isClaimEligible}>
+      {isOptional && (
+        <input
+          type="checkbox"
+          name="optIn"
+          value="optIn"
+          checked={isOptIn}
+          disabled={!groupMetadataClaimRequestEligibility?.isEligible}
+          onChange={(e) =>
+            onOptInChange(
+              groupMetadataClaimRequestEligibility,
+              e.target.checked
+            )
+          }
+        />
+      )}
       {isOptional && <div>(optional)</div>}
       <CheckCircle size={16} color={isClaimEligible ? "#A0F2E0" : "#323E64"} />
       {getHumanReadableGroupName(

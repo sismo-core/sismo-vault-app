@@ -147,13 +147,6 @@ export default function ImportEligibleAccount({
     groupMetadataClaimRequestEligibilities?.length > 0 ||
     authRequestEligibilities?.length > 0;
 
-  console.log("hasRequest", hasRequest);
-  console.log(
-    "groupMetadataClaimRequestEligibilities",
-    groupMetadataClaimRequestEligibilities
-  );
-  console.log("authRequestEligibilities", authRequestEligibilities);
-
   function getIsEligible(
     groupMetadataClaimRequestEligibilities: GroupMetadataClaimRequestEligibility[],
     authRequestEligibilities: AuthRequestEligibility[]

@@ -181,8 +181,6 @@ export class SismoConnectProver {
       proofs: [],
     };
 
-    console.log("selectedSismoConnectRequest", selectedSismoConnectRequest);
-
     /* ***************************************************** */
     /* **** PREPARE EXTRADATA MESSAGE SIGNATURE REQUEST **** */
     /* ***************************************************** */
@@ -270,7 +268,10 @@ export class SismoConnectProver {
         throw new Error("Required claim request is not eligible");
       }
 
-      if (selectedClaimRequestEligibility?.isEligible) {
+      if (
+        selectedClaimRequestEligibility?.isEligible &&
+        selectedClaimRequestEligibility?.selectedClaim?.isOptIn
+      ) {
         filteredSelectedClaimRequestEligibilities.push(
           selectedClaimRequestEligibility
         );
@@ -378,7 +379,10 @@ export class SismoConnectProver {
         throw new Error("Required auth request is not eligible");
       }
 
-      if (selectedAuthRequestEligibility?.isEligible) {
+      if (
+        selectedAuthRequestEligibility?.isEligible &&
+        selectedAuthRequestEligibility?.selectedAuth?.isOptIn
+      ) {
         filteredSelectedAuthRequestEligibilities.push(
           selectedAuthRequestEligibility
         );

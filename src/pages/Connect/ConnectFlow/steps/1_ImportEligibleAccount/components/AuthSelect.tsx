@@ -27,17 +27,22 @@ type Props = {
     authRequestEligibility: AuthRequestEligibility,
     selectedUserId: string
   ) => void;
+  onAuthOptInChange: (
+    authRequestEligibility: AuthRequestEligibility,
+    isOptIn: boolean
+  ) => void;
 };
 
 export function AuthSelect({
   selectedSismoConnectRequest,
   authRequestEligibility,
   onAuthChange,
-}: // groupMetadataDataRequestEligibilities,
-Props) {
+  onAuthOptInChange,
+}: Props) {
   const [valueSelected, setValueSelected] = useState("");
+  const [isOptIn, setIsOptIn] = useState<boolean>();
 
-  function onChange(
+  function onValueChange(
     authRequestEligibility: AuthRequestEligibility,
     value: string
   ) {
@@ -45,10 +50,23 @@ Props) {
     onAuthChange(authRequestEligibility, value);
   }
 
+  function onOptInChange(
+    authRequestEligibility: AuthRequestEligibility,
+    value: boolean
+  ) {
+    if (!authRequestEligibility?.isEligible) return;
+
+    setIsOptIn(value);
+    onAuthOptInChange(authRequestEligibility, value);
+  }
+
   useEffect(() => {
-    const selectedUserId = selectedSismoConnectRequest.selectedAuths
-      .find((auth) => auth.uuid === authRequestEligibility?.auth?.uuid)
-      ?.selectedUserId?.toLowerCase();
+    const selectedAuth = selectedSismoConnectRequest.selectedAuths.find(
+      (auth) => auth.uuid === authRequestEligibility?.auth?.uuid
+    );
+    const selectedUserId = selectedAuth?.selectedUserId?.toLowerCase();
+    const selectedOptIn =
+      selectedAuth?.isOptIn && authRequestEligibility?.isEligible;
 
     if (selectedUserId === "0") {
       setValueSelected(
@@ -61,6 +79,7 @@ Props) {
       return;
     }
 
+    setIsOptIn(selectedOptIn);
     setValueSelected(selectedUserId);
     onAuthChange(authRequestEligibility, selectedUserId);
 
@@ -80,19 +99,38 @@ Props) {
       ? "Vault user id"
       : null;
 
-  const isOptional = authRequestEligibility?.auth?.isOptional;
+  const isOptional =
+    authRequestEligibility?.auth?.isOptional &&
+    authRequestEligibility?.isEligible;
+  const isEligible = authRequestEligibility?.auth?.isOptional
+    ? isOptIn && authRequestEligibility?.isEligible
+    : authRequestEligibility?.isEligible;
 
   return (
-    <AuthItem isEligible={authRequestEligibility?.isEligible}>
+    <AuthItem isEligible={isEligible}>
       <div style={{ fontSize: 14 }}>
+        {isOptional && (
+          <input
+            type="checkbox"
+            name="optIn"
+            value="optIn"
+            checked={isOptIn}
+            disabled={!authRequestEligibility?.isEligible}
+            onChange={(e) =>
+              onOptInChange(authRequestEligibility, e.target.checked)
+            }
+          />
+        )}
         {isOptional && <span style={{ marginRight: 10 }}>(optional)</span>}
         <span>{humanReadableType}</span>
       </div>
 
-      {authType !== AuthType.VAULT && (
+      {authType !== AuthType.VAULT && isEligible && (
         <select
           disabled={!authRequestEligibility?.auth?.isSelectableByUser}
-          onChange={(e) => onChange(authRequestEligibility, e.target.value)}
+          onChange={(e) =>
+            onValueChange(authRequestEligibility, e.target.value)
+          }
           value={valueSelected}
           style={{ cursor: "pointer", marginLeft: 10 }}
         >

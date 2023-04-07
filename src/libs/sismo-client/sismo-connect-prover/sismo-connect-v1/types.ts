@@ -56,10 +56,12 @@ export type SelectedAuthRequestEligibility = AuthRequestEligibility & {
 
 export type SelectedClaimRequest = ClaimRequest & {
   selectedValue: number;
+  isOptIn: boolean;
 };
 
 export type SelectedAuthRequest = AuthRequest & {
   selectedUserId: string;
+  isOptIn: boolean;
 };
 
 export type SelectedSignatureRequest = SignatureRequest & {
