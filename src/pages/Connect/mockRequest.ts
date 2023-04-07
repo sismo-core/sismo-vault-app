@@ -48,9 +48,9 @@ export const claims: ClaimRequest[] = [
     claimType: ClaimType.GTE,
     groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
     groupTimestamp: "latest",
-    isOptional: false,
+    isOptional: true,
     isSelectableByUser: true,
-    value: 1,
+    value: 2,
     extraData: "",
   } as ClaimRequest,
 ];
@@ -60,7 +60,7 @@ export const auths: AuthRequest[] = [
     authType: AuthType.VAULT,
     isAnon: false,
     userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-    isOptional: false,
+    isOptional: true,
     isSelectableByUser: false,
     extraData: "",
   },
@@ -103,7 +103,7 @@ searchParams.set("version", sismoConnectRequestMock.version);
 searchParams.set("appId", sismoConnectRequestMock.appId);
 searchParams.set("namespace", sismoConnectRequestMock.namespace);
 searchParams.set("callbackPath", sismoConnectRequestMock.callbackPath);
-searchParams.set("auths", JSON.stringify(auths));
+//searchParams.set("auths", JSON.stringify(auths));
 searchParams.set("claims", JSON.stringify(claims));
 //searchParams.set("signature", JSON.stringify(signature));
 searchParams.set("devConfig", JSON.stringify(devConfig));

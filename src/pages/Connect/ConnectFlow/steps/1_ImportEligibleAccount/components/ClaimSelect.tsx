@@ -92,6 +92,8 @@ Props) {
       groupMetadataClaimRequestEligibility?.accountData?.value
     ).toNumber();
 
+  const isOptional = groupMetadataClaimRequestEligibility?.claim?.isOptional;
+
   const selectableValues =
     isClaimEligible &&
     groupMetadataClaimRequestEligibility?.claim?.claimType === ClaimType.GTE
@@ -100,8 +102,8 @@ Props) {
 
   return (
     <GroupItem isEligible={isClaimEligible}>
+      {isOptional && <div>(optional)</div>}
       <CheckCircle size={16} color={isClaimEligible ? "#A0F2E0" : "#323E64"} />
-
       {getHumanReadableGroupName(
         groupMetadataClaimRequestEligibility?.groupMetadata?.name
       )}

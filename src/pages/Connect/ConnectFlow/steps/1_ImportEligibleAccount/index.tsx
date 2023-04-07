@@ -144,14 +144,21 @@ export default function ImportEligibleAccount({
   }
 
   const hasRequest =
-    groupMetadataClaimRequestEligibilities?.length > 0 &&
+    groupMetadataClaimRequestEligibilities?.length > 0 ||
     authRequestEligibilities?.length > 0;
+
+  console.log("hasRequest", hasRequest);
+  console.log(
+    "groupMetadataClaimRequestEligibilities",
+    groupMetadataClaimRequestEligibilities
+  );
+  console.log("authRequestEligibilities", authRequestEligibilities);
 
   function getIsEligible(
     groupMetadataClaimRequestEligibilities: GroupMetadataClaimRequestEligibility[],
     authRequestEligibilities: AuthRequestEligibility[]
   ) {
-    if (groupMetadataClaimRequestEligibilities.length) {
+    if (groupMetadataClaimRequestEligibilities?.length) {
       for (const groupMetadataClaimRequestEligibility of groupMetadataClaimRequestEligibilities) {
         let isClaimEligible =
           groupMetadataClaimRequestEligibility?.claim?.isOptional === false
@@ -164,7 +171,7 @@ export default function ImportEligibleAccount({
       }
     }
 
-    if (authRequestEligibilities.length) {
+    if (authRequestEligibilities?.length) {
       for (const authRequestEligibility of authRequestEligibilities) {
         let isAuthEligible =
           authRequestEligibility?.auth?.isOptional === false

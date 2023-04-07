@@ -126,6 +126,7 @@ export default function ConnectFlow({
 
   useEffect(() => {
     if (!sismoConnectRequest) return;
+
     const testEligibility = async () => {
       if (
         !sismoConnectRequest?.claims?.length &&
@@ -135,35 +136,40 @@ export default function ConnectFlow({
       }
       try {
         setLoadingEligible(true);
-        const claimRequestEligibilities = await getClaimRequestEligibilities(
-          sismoConnectRequest,
-          vault?.importedAccounts || []
-        );
 
-        const authRequestEligibilities = await getAuthRequestEligibilities(
-          sismoConnectRequest,
-          vault?.importedAccounts || []
-        );
+        if (sismoConnectRequest?.auths?.length) {
+          const authRequestEligibilities = await getAuthRequestEligibilities(
+            sismoConnectRequest,
+            vault?.importedAccounts || []
+          );
 
-        const groupMetadataClaimRequestEligibilities =
-          claimRequestEligibilities.map((claimRequestEligibility) => {
-            const requestGroupMetadata = requestGroupsMetadata?.find(
-              (requestGroupMetadata) =>
-                requestGroupMetadata?.groupMetadata?.id ===
-                claimRequestEligibility?.claim?.groupId
-            );
+          setAuthRequestEligibilities(authRequestEligibilities);
+        }
 
-            return {
-              ...claimRequestEligibility,
-              groupMetadata: requestGroupMetadata?.groupMetadata,
-            } as GroupMetadataClaimRequestEligibility;
-          });
+        if (sismoConnectRequest?.claims?.length) {
+          const claimRequestEligibilities = await getClaimRequestEligibilities(
+            sismoConnectRequest,
+            vault?.importedAccounts || []
+          );
 
-        setAuthRequestEligibilities(authRequestEligibilities);
-        setGroupMetadataClaimRequestEligibilities(
-          groupMetadataClaimRequestEligibilities
-        );
+          const groupMetadataClaimRequestEligibilities =
+            claimRequestEligibilities.map((claimRequestEligibility) => {
+              const requestGroupMetadata = requestGroupsMetadata?.find(
+                (requestGroupMetadata) =>
+                  requestGroupMetadata?.groupMetadata?.id ===
+                  claimRequestEligibility?.claim?.groupId
+              );
 
+              return {
+                ...claimRequestEligibility,
+                groupMetadata: requestGroupMetadata?.groupMetadata,
+              } as GroupMetadataClaimRequestEligibility;
+            });
+
+          setGroupMetadataClaimRequestEligibilities(
+            groupMetadataClaimRequestEligibilities
+          );
+        }
         setLoadingEligible(false);
       } catch (e) {
         Sentry.captureException(e);

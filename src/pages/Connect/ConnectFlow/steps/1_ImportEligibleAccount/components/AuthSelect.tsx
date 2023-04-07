@@ -80,15 +80,21 @@ Props) {
       ? "Vault user id"
       : null;
 
+  const isOptional = authRequestEligibility?.auth?.isOptional;
+
   return (
     <AuthItem isEligible={authRequestEligibility?.isEligible}>
-      <div>{humanReadableType}</div>
+      <div style={{ fontSize: 14 }}>
+        {isOptional && <span style={{ marginRight: 10 }}>(optional)</span>}
+        <span>{humanReadableType}</span>
+      </div>
+
       {authType !== AuthType.VAULT && (
         <select
           disabled={!authRequestEligibility?.auth?.isSelectableByUser}
           onChange={(e) => onChange(authRequestEligibility, e.target.value)}
           value={valueSelected}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: "pointer", marginLeft: 10 }}
         >
           {authRequestEligibility?.accounts?.map((account, index) => {
             return (

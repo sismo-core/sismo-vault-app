@@ -154,7 +154,7 @@ export class SismoConnectProver {
     sismoConnectRequest: SismoConnectRequest,
     importedAccounts: ImportedAccount[]
   ): Promise<AuthRequestEligibility[]> {
-    if (!Boolean(sismoConnectRequest?.claims?.length)) return [];
+    if (!Boolean(sismoConnectRequest?.auths?.length)) return [];
 
     const authRequestEligibilities = await Promise.all(
       sismoConnectRequest?.auths?.map(async (auth) => {

@@ -251,28 +251,12 @@ export default function SignIn({
       !sismoConnectRequest ||
       !imgLoaded ||
       !requestGroupsMetadata
-    : // !groupMetadataDataRequestEligibilities
-      !factoryApp ||
-      vault.loadingActiveSession ||
-      !imgLoaded ||
-      // !groupMetadataDataRequestEligibilities;
+    : !factoryApp || vault.loadingActiveSession || !imgLoaded;
 
-      // let consolidatedMessageSignatureRequest: string = "";
-
-      // if (sismoConnectRequest?.requestContent?.dataRequests.length) {
-      //   for (const dataRequest of sismoConnectRequest?.requestContent
-      //     ?.dataRequests) {
-      //     if (dataRequest?.messageSignatureRequest) {
-      //       consolidatedMessageSignatureRequest +=
-      //         dataRequest?.messageSignatureRequest + " ";
-      //     }
-      //   }
-      // }
-
-      function onShardClick(groupId: string) {
-        setModalIsOpen(true);
-        setInitialGroupId(groupId);
-      };
+  function onShardClick(groupId: string) {
+    setModalIsOpen(true);
+    setInitialGroupId(groupId);
+  }
   return (
     <>
       <ConnectVaultModal

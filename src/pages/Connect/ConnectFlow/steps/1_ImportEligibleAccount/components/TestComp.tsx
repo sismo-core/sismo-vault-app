@@ -77,7 +77,7 @@ const ValueComparator = styled.div<{ isEligible: boolean }>`
 const AuthList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
 `;
 
 const AuthItem = styled.div<{ isEligible: boolean }>`

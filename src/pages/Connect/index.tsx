@@ -243,7 +243,7 @@ export default function Connect(): JSX.Element {
     }
 
     async function getGroupMetadataData() {
-      if (!sismoConnectRequest?.claims.length) {
+      if (!sismoConnectRequest?.claims?.length) {
         setRequestGroupsMetadata(null);
         return;
       }
