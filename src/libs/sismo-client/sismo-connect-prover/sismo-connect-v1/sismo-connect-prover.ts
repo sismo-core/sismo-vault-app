@@ -21,6 +21,7 @@ import {
   ProvingScheme,
   SISMO_CONNECT_VERSION,
 } from "./types";
+
 import { isHexlify } from "./utils/isHexlify";
 import { SNARK_FIELD } from "@sismo-core/crypto";
 
@@ -416,7 +417,7 @@ export class SismoConnectProver {
             authType: selectedAuthRequestEligibility?.auth?.authType,
             userId:
               selectedAuthRequestEligibility?.auth?.authType === AuthType.VAULT
-                ? "toto" //snarkProof.input[10].toHexString() // VAULT USER ID
+                ? ethers.utils.hexlify(BigNumber.from(snarkProof.input[10])) // VAULT USER ID
                 : selectedAuthRequestEligibility?.selectedAuth?.selectedUserId,
             extraData: selectedAuthRequestEligibility?.auth?.extraData,
           } as Auth;
