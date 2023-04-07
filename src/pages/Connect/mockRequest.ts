@@ -105,7 +105,7 @@ searchParams.set("namespace", sismoConnectRequestMock.namespace);
 searchParams.set("callbackPath", sismoConnectRequestMock.callbackPath);
 searchParams.set("auths", JSON.stringify(auths));
 searchParams.set("claims", JSON.stringify(claims));
-searchParams.set("signature", JSON.stringify(signature));
+//searchParams.set("signature", JSON.stringify(signature));
 searchParams.set("devConfig", JSON.stringify(devConfig));
 
 export const sismoConnectRequestMockUrl = url.toString();

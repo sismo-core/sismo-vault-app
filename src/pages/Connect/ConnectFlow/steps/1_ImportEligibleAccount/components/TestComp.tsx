@@ -238,7 +238,7 @@ export function TestComp({
         <MessageTitle>Message Signature Request</MessageTitle>
         <Message
           disabled={
-            selectedSismoConnectRequest?.selectedSignature?.isSelectableByUser
+            !selectedSismoConnectRequest?.selectedSignature?.isSelectableByUser
           }
           onChange={onMessageChange}
           value={message}
