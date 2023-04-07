@@ -7,8 +7,6 @@ export const getSismoConnectResponseBytes = (
 ) => {
   if (!sismoConnectResponse) return null;
 
-  console.log("sismoConnectResponse", sismoConnectResponse);
-
   const AbiCoder = new ethers.utils.AbiCoder();
 
   const zkResponseABIEncoded = AbiCoder.encode(
@@ -22,6 +20,7 @@ export const getSismoConnectResponseBytes = (
           tuple(
             uint8 authType, 
             bool isAnon, 
+            bool isSelectableByUser,
             uint256 userId, 
             bytes extraData
             )[] auths, 
@@ -29,6 +28,7 @@ export const getSismoConnectResponseBytes = (
             uint8 claimType, 
             bytes16 groupId, 
             bytes16 groupTimestamp, 
+            bool isSelectableByUser,
             uint256 value, 
             bytes extraData
             )[] claims, 
@@ -80,6 +80,7 @@ export const getSismoConnectResponseBytes = (
               const authForEncoding = {
                 authType: auth?.authType,
                 isAnon: auth?.isAnon ?? false,
+                isSelectableByUser: auth?.isSelectableByUser ?? false,
                 userId: auth?.userId ?? 0,
                 extraData: ethers.utils.toUtf8Bytes(auth?.extraData ?? ""),
               } as AuthRequest;
@@ -88,8 +89,8 @@ export const getSismoConnectResponseBytes = (
             });
 
             _proof = {
-              auths: auths,
               ..._proof,
+              auths: auths,
             };
           }
 
@@ -110,6 +111,7 @@ export const getSismoConnectResponseBytes = (
                       BigNumber.from(
                         ethers.utils.formatBytes32String("latest")
                       ).shr(128),
+                isSelectableByUser: claim?.isSelectableByUser ?? false,
                 value: claim?.value ?? 1,
                 extraData: ethers.utils.toUtf8Bytes(claim?.extraData ?? ""),
               } as ClaimRequest;
@@ -118,8 +120,8 @@ export const getSismoConnectResponseBytes = (
             });
 
             _proof = {
-              claims: claims,
               ..._proof,
+              claims: claims,
             };
           }
 

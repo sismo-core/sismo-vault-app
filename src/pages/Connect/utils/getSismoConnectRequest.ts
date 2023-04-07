@@ -4,6 +4,7 @@ import {
   ClaimType,
   SismoConnectRequest,
 } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+import { v4 as uuidv4 } from "uuid";
 
 const startsWithHexadecimal = (str) => {
   let hexRegex = /^0x[0-9a-fA-F]{6}/;
@@ -17,13 +18,13 @@ export const toSismoIdentifier = (identifier: string, authType: AuthType) => {
 
   let prefix = null;
   if (authType === AuthType.GITHUB) {
-    prefix = "0x0001";
+    prefix = "0x1001";
   }
   if (authType === AuthType.TWITTER) {
-    prefix = "0x0002";
+    prefix = "0x1002";
   }
-  identifier = "0".repeat(14 - identifier.length) + identifier;
-  identifier += prefix;
+  identifier = "0".repeat(36 - identifier.length) + identifier;
+  identifier = prefix + identifier;
   return identifier;
 };
 
@@ -85,6 +86,7 @@ export const getSismoConnectRequest = (
 
   if (request.auths) {
     for (const auth of request.auths) {
+      auth.uuid = uuidv4();
       auth.authType =
         typeof auth.authType === "undefined" ? AuthType.VAULT : auth.authType;
       auth.isAnon = typeof auth.isAnon === "undefined" ? false : auth.isAnon;
@@ -95,7 +97,9 @@ export const getSismoConnectRequest = (
       auth.isOptional =
         typeof auth.isOptional === "undefined" ? false : auth.isOptional;
       auth.isSelectableByUser =
-        typeof auth.isSelectableByUser === "undefined"
+        auth.userId === "0"
+          ? true
+          : typeof auth.isSelectableByUser === "undefined"
           ? false
           : auth.isSelectableByUser;
       auth.extraData =
@@ -109,6 +113,7 @@ export const getSismoConnectRequest = (
 
   if (request.claims) {
     for (const claim of request.claims) {
+      claim.uuid = uuidv4();
       claim.claimType =
         typeof claim.claimType === "undefined"
           ? ClaimType.GTE

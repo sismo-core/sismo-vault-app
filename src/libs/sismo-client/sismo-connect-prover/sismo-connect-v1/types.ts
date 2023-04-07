@@ -86,6 +86,7 @@ export type SismoConnectRequest = {
 };
 
 export type AuthRequest = {
+  uuid?: string;
   authType: AuthType;
   isAnon?: boolean; //false
   userId?: string;
@@ -95,6 +96,7 @@ export type AuthRequest = {
 };
 
 export type ClaimRequest = {
+  uuid?: string;
   claimType?: ClaimType;
   groupId?: string;
   groupTimestamp?: number | "latest";
@@ -162,19 +164,32 @@ export type SismoConnectProof = {
 };
 
 export type Auth = {
+  uuid?: string;
   authType: AuthType;
   isAnon?: boolean; //false
+  isSelectableByUser?: boolean;
   userId?: string;
   extraData?: any;
 };
 
 //TODO add omit
 export type Claim = {
+  uuid?: string;
   claimType?: ClaimType;
   groupId?: string;
   groupTimestamp?: number | "latest";
+  isSelectableByUser?: boolean;
   value?: number;
   extraData?: any;
+};
+
+export type VerifiedClaim = Claim & {
+  proofId: string;
+  proofData: string;
+};
+
+export type VerifiedAuth = Auth & {
+  proofData: string;
 };
 
 export class SismoConnectVerifiedResult {
@@ -198,20 +213,68 @@ export class SismoConnectVerifiedResult {
     this.signedMessage = response.signedMessage;
   }
 
-  // public getUserId(authType: AuthType): string | undefined {
-  //   //TODO resolve from 0x001 to github
-  //   return this.auths.find(verifiedAuth => verifiedAuth.authType === authType)?.userId
-  // }
+  public getUserId(authType: AuthType): string | undefined {
+    const userId = this.auths.find(
+      (verifiedAuth) => verifiedAuth.authType === authType
+    )?.userId;
+    return resolveSismoIdentifier(userId, authType);
+  }
 
-  // public getUserIds(authType: AuthType): string[] {
-  //   //TODO resolve from 0x001 to github
-  //   return this.auths.filter(verifiedAuth => verifiedAuth.authType === authType && verifiedAuth.userId).map(auth => auth.userId) as string[]
-  // }
+  public getUserIds(authType: AuthType): string[] {
+    return this.auths
+      .filter(
+        (verifiedAuth) =>
+          verifiedAuth.authType === authType && verifiedAuth.userId
+      )
+      .map((auth) => resolveSismoIdentifier(auth.userId, authType)) as string[];
+  }
 
   public getSignedMessage(): string | undefined {
     return this.signedMessage;
   }
 }
+
+const startsWithHexadecimal = (str) => {
+  let hexRegex = /^0x[0-9a-fA-F]{6}/;
+  return hexRegex.test(str);
+};
+
+export const resolveSismoIdentifier = (
+  sismoIdentifier: string,
+  authType: AuthType
+) => {
+  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT)
+    return sismoIdentifier;
+  if (!startsWithHexadecimal(sismoIdentifier)) return sismoIdentifier;
+
+  const removeLeadingZeros = (str) => {
+    let arr = str.split("");
+    while (arr.length > 1 && arr[0] === "0") {
+      arr.shift();
+    }
+    return arr.join("");
+  };
+  sismoIdentifier = sismoIdentifier.substring(6);
+  sismoIdentifier = removeLeadingZeros(sismoIdentifier);
+  return sismoIdentifier;
+};
+
+export const toSismoIdentifier = (identifier: string, authType: AuthType) => {
+  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT)
+    return identifier;
+  if (startsWithHexadecimal(identifier)) return identifier;
+
+  let prefix = null;
+  if (authType === AuthType.GITHUB) {
+    prefix = "0x1001";
+  }
+  if (authType === AuthType.TWITTER) {
+    prefix = "0x1002";
+  }
+  identifier = "0".repeat(36 - identifier.length) + identifier;
+  identifier = prefix + identifier;
+  return identifier;
+};
 
 export class RequestBuilder {
   static buildAuths(auths: AuthRequest[] | AuthRequest): AuthRequest[] {
@@ -236,7 +299,10 @@ export class RequestBuilder {
       authRequest.extraData = authRequest.extraData ?? "";
 
       if (authRequest.userId !== "0") {
-        //TODO resolveUserId(userId) => resolve, web2 accounts, ens etc.
+        authRequest.userId = toSismoIdentifier(
+          authRequest.userId,
+          authRequest.authType
+        );
       }
     }
 
@@ -283,12 +349,3 @@ export class RequestBuilder {
     return signature;
   }
 }
-
-export type VerifiedClaim = Claim & {
-  proofId: string;
-  proofData: string;
-};
-
-export type VerifiedAuth = Auth & {
-  proofData: string;
-};

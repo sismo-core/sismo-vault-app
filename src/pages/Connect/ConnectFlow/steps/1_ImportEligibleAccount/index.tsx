@@ -12,8 +12,10 @@ import {
   AuthRequestEligibility,
   GroupMetadataClaimRequestEligibility,
   RequestGroupMetadata,
+  SelectedSismoConnectRequest,
   SismoConnectRequest,
 } from "../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+import { TestComp } from "./components/TestComp";
 
 const Container = styled.div`
   display: flex;
@@ -113,8 +115,11 @@ type Props = {
   requestGroupsMetadata: RequestGroupMetadata[];
   groupMetadataClaimRequestEligibilities: GroupMetadataClaimRequestEligibility[];
   authRequestEligibilities: AuthRequestEligibility[];
-  sismoConnectRequest: SismoConnectRequest;
+  selectedSismoConnectRequest: SelectedSismoConnectRequest;
   loadingEligible: boolean;
+  onUserInput: (
+    selectedSismoConnectRequest: SelectedSismoConnectRequest
+  ) => void;
   onNext: () => void;
 };
 
@@ -122,8 +127,9 @@ export default function ImportEligibleAccount({
   groupMetadataClaimRequestEligibilities,
   authRequestEligibilities,
   requestGroupsMetadata,
-  sismoConnectRequest,
+  selectedSismoConnectRequest,
   loadingEligible,
+  onUserInput,
   onNext,
 }: Props) {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -202,6 +208,15 @@ export default function ImportEligibleAccount({
               </HeaderSubtitle>
             )}
           </HeaderWrapper>
+          <TestComp
+            groupMetadataClaimRequestEligibilities={
+              groupMetadataClaimRequestEligibilities
+            }
+            authRequestEligibilities={authRequestEligibilities}
+            selectedSismoConnectRequest={selectedSismoConnectRequest}
+            onUserInput={onUserInput}
+          />
+
           {/* <EligibilitySummary
             sismoConnectRequest={sismoConnectRequest}
             requestGroupsMetadata={requestGroupsMetadata}

@@ -103,12 +103,12 @@ const LoadingFeedBack = styled(FeedBack)`
 `;
 
 type Props = {
-  sismoConnectRequest: SismoConnectRequest;
+  selectedSismoConnectRequest: SelectedSismoConnectRequest;
   onNext: (zkResponse: SismoConnectResponse) => void;
 };
 
 export default function GenerateZkProof({
-  sismoConnectRequest,
+  selectedSismoConnectRequest,
   onNext,
 }: Props) {
   const vault = useVault();
@@ -125,33 +125,9 @@ export default function GenerateZkProof({
     setErrorProof(false);
     try {
       const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
-
-      // FOR TEST PURPOSES ONLY
-
-      const selectedClaims = sismoConnectRequest?.claims?.map((claim) => {
-        return {
-          ...claim,
-          selectedValue: claim.value,
-        } as SelectedClaimRequest;
-      });
-
-      const selectedAuths = sismoConnectRequest?.auths?.map((auth) => {
-        return {
-          ...auth,
-          selectedUserId: auth.userId,
-        } as SelectedAuthRequest;
-      });
-
-      const selectedSismoConnectRequest = {
-        ...sismoConnectRequest,
-        selectedClaims,
-        selectedAuths,
-        selectedSignature: sismoConnectRequest?.signature,
-      } as SelectedSismoConnectRequest;
-
-      ///////////////////////////////
-
-      const registryTreeRoot = await getRegistryTreeRoot(sismoConnectRequest);
+      const registryTreeRoot = await getRegistryTreeRoot(
+        selectedSismoConnectRequest
+      );
 
       setRegistryTreeRoot(registryTreeRoot);
 
@@ -165,7 +141,7 @@ export default function GenerateZkProof({
       setLoadingProof(false);
       setResponse(zkResponse);
 
-      if (sismoConnectRequest?.devConfig?.displayRawResponse) {
+      if (selectedSismoConnectRequest?.devConfig?.displayRawResponse) {
         setProofModalOpen(true);
         return;
       }

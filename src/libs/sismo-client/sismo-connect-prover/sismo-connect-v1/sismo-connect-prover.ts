@@ -20,6 +20,7 @@ import {
   SelectedAuthRequestEligibility,
   ProvingScheme,
   SISMO_CONNECT_VERSION,
+  Claim,
 } from "./types";
 
 import { isHexlify } from "./utils/isHexlify";
@@ -92,27 +93,53 @@ export class SismoConnectProver {
   ): Promise<AuthRequestEligibility> {
     let accounts: ImportedAccount[];
 
-    switch (auth?.authType) {
-      case AuthType.VAULT:
-        accounts = importedAccounts;
-        break;
-      case AuthType.GITHUB:
-        accounts = importedAccounts?.filter(
-          (importedAccount) => importedAccount?.type === "github"
-        );
-        break;
-      case AuthType.TWITTER:
-        accounts = importedAccounts?.filter(
-          (importedAccount) => importedAccount?.type === "twitter"
-        );
-        break;
-      case AuthType.EVM_ACCOUNT:
-        accounts = importedAccounts?.filter(
-          (importedAccount) => importedAccount?.type === "ethereum"
-        );
-        break;
-      default:
-        break;
+    if (auth?.authType === AuthType.VAULT) {
+      accounts = importedAccounts;
+    }
+
+    if (auth?.authType === AuthType.GITHUB && auth?.isSelectableByUser) {
+      accounts = importedAccounts?.filter(
+        (importedAccount) => importedAccount?.type === "github"
+      );
+    }
+
+    if (auth?.authType === AuthType.GITHUB && !auth?.isSelectableByUser) {
+      accounts = importedAccounts?.filter(
+        (importedAccount) =>
+          importedAccount?.type === "twitter" &&
+          importedAccount?.identifier?.toLowerCase() ===
+            auth?.userId?.toLowerCase()
+      );
+    }
+
+    if (auth?.authType === AuthType.TWITTER && auth?.isSelectableByUser) {
+      accounts = importedAccounts?.filter(
+        (importedAccount) => importedAccount?.type === "twitter"
+      );
+    }
+
+    if (auth?.authType === AuthType.TWITTER && !auth?.isSelectableByUser) {
+      accounts = importedAccounts?.filter(
+        (importedAccount) =>
+          importedAccount?.type === "twitter" &&
+          importedAccount?.identifier?.toLowerCase() ===
+            auth?.userId?.toLowerCase()
+      );
+    }
+
+    if (auth?.authType === AuthType.EVM_ACCOUNT && auth?.isSelectableByUser) {
+      accounts = importedAccounts?.filter(
+        (importedAccount) => importedAccount?.type === "ethereum"
+      );
+    }
+
+    if (auth?.authType === AuthType.EVM_ACCOUNT && !auth?.isSelectableByUser) {
+      accounts = importedAccounts?.filter(
+        (importedAccount) =>
+          importedAccount?.type === "ethereum" &&
+          importedAccount?.identifier?.toLowerCase() ===
+            auth?.userId?.toLowerCase()
+      );
     }
 
     return {
@@ -294,7 +321,9 @@ export class SismoConnectProver {
               selectedClaimRequestEligibility?.selectedClaim?.selectedValue ??
               selectedClaimRequestEligibility?.claim?.value,
             extraData: selectedClaimRequestEligibility?.claim?.extraData,
-          };
+            isSelectableByUser:
+              selectedClaimRequestEligibility?.claim?.isSelectableByUser,
+          } as Claim;
 
           return {
             claims: [claimResponse],
@@ -371,7 +400,7 @@ export class SismoConnectProver {
 
           if (
             selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT &&
-            selectedAuthRequestEligibility?.selectedAuth?.selectedUserId
+            !selectedAuthRequestEligibility?.selectedAuth?.selectedUserId
           ) {
             throw new Error("No account selected for this auth request");
           }
@@ -388,8 +417,8 @@ export class SismoConnectProver {
           ) {
             const destination = importedAccounts.find((importedAccount) => {
               return (
-                importedAccount.identifier ===
-                selectedAuthRequestEligibility?.selectedAuth?.selectedUserId
+                importedAccount.identifier?.toLowerCase() ===
+                selectedAuthRequestEligibility?.selectedAuth?.selectedUserId?.toLowerCase()
               );
             });
 
@@ -417,6 +446,8 @@ export class SismoConnectProver {
                 ? ethers.utils.hexlify(BigNumber.from(snarkProof.input[10])) // VAULT USER ID
                 : selectedAuthRequestEligibility?.selectedAuth?.selectedUserId,
             extraData: selectedAuthRequestEligibility?.auth?.extraData,
+            isSelectableByUser:
+              selectedAuthRequestEligibility?.auth?.isSelectableByUser,
           } as Auth;
 
           return {

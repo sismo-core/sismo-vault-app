@@ -18,6 +18,8 @@ import {
   RequestGroupMetadata,
   SismoConnectRequest,
   SismoConnectResponse,
+  SelectedSismoConnectRequest,
+  SelectedAuthRequest,
 } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 const Container = styled.div`
@@ -75,17 +77,55 @@ export default function ConnectFlow({
   const [authRequestEligibilities, setAuthRequestEligibilities] =
     useState<AuthRequestEligibility[]>(null);
 
+  const [selectedSismoConnectRequest, setSelectedSismoConnectRequest] =
+    useState<SelectedSismoConnectRequest | null>(null);
+
   const [step, setStep] = useState<Step>("SignIn");
   const [loadingEligible, setLoadingEligible] = useState(true);
   const { getClaimRequestEligibilities, getAuthRequestEligibilities } =
     useSismo();
 
-  //TODO use statements in components
+  /* *************************************************** */
+  /* ************** SET INITIAL USER SELECT ************ */
+  /* *************************************************** */
 
-  //Test Eligibility
   useEffect(() => {
     if (!sismoConnectRequest) return;
 
+    const selectedSismoConnectRequest: SelectedSismoConnectRequest = {
+      ...sismoConnectRequest,
+      selectedAuths: sismoConnectRequest?.auths?.map((auth) => {
+        return {
+          ...auth,
+          selectedUserId: auth.userId,
+        };
+      }),
+      selectedClaims: sismoConnectRequest?.claims?.map((claim) => {
+        return {
+          ...claim,
+          selectedValue: claim.value,
+        };
+      }),
+      selectedSignature: {
+        ...sismoConnectRequest?.signature,
+        selectedMessage: sismoConnectRequest?.signature?.message,
+      },
+    };
+    setSelectedSismoConnectRequest(selectedSismoConnectRequest);
+  }, [sismoConnectRequest]);
+
+  const onUserInput = (
+    selectedSismoConnectRequest: SelectedSismoConnectRequest
+  ) => {
+    setSelectedSismoConnectRequest(selectedSismoConnectRequest);
+  };
+
+  /* *************************************************** */
+  /* **************** TEST ELIGIBILITY ***************** */
+  /* *************************************************** */
+
+  useEffect(() => {
+    if (!sismoConnectRequest) return;
     const testEligibility = async () => {
       if (
         !sismoConnectRequest?.claims?.length &&
@@ -95,7 +135,6 @@ export default function ConnectFlow({
       }
       try {
         setLoadingEligible(true);
-
         const claimRequestEligibilities = await getClaimRequestEligibilities(
           sismoConnectRequest,
           vault?.importedAccounts || []
@@ -121,7 +160,6 @@ export default function ConnectFlow({
           });
 
         setAuthRequestEligibilities(authRequestEligibilities);
-
         setGroupMetadataClaimRequestEligibilities(
           groupMetadataClaimRequestEligibilities
         );
@@ -142,6 +180,10 @@ export default function ConnectFlow({
     sismoConnectRequest,
   ]);
 
+  /* *************************************************** */
+  /* ******************** REDIRECT ********************* */
+  /* *************************************************** */
+
   const redirect = (response: SismoConnectResponse) => {
     localStorage.removeItem("prove_referrer");
     let url = callbackUrl;
@@ -158,14 +200,21 @@ export default function ConnectFlow({
     }
   };
 
-  // Routing to first step whenever the user is not connected
+  /* *************************************************** */
+  /* *********** SIGN OUT REDIRECT ********************* */
+  /* *************************************************** */
+
   useEffect(() => {
     if (!vault.isConnected) {
       setStep("SignIn");
     }
   }, [vault.isConnected]);
 
+  /* *************************************************** */
+  /* ********************* DEMO ************************ */
+  /* *************************************************** */
   //  Auto open vault slider when in demo mode
+
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     if (env.name === "DEMO" && step === "ImportEligibleAccount") {
@@ -253,7 +302,8 @@ export default function ConnectFlow({
           >
             {step === "ImportEligibleAccount" && (
               <ImportEligibleAccount
-                sismoConnectRequest={sismoConnectRequest}
+                selectedSismoConnectRequest={selectedSismoConnectRequest}
+                onUserInput={onUserInput}
                 requestGroupsMetadata={requestGroupsMetadata}
                 authRequestEligibilities={authRequestEligibilities}
                 groupMetadataClaimRequestEligibilities={
@@ -270,7 +320,7 @@ export default function ConnectFlow({
             )}
             {step === "GenerateZkProof" && (
               <GenerateZkProof
-                sismoConnectRequest={sismoConnectRequest}
+                selectedSismoConnectRequest={selectedSismoConnectRequest}
                 onNext={(response) => {
                   setTimeout(() => {
                     redirect(response);
