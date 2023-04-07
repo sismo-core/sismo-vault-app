@@ -396,6 +396,7 @@ export class SismoConnectProver {
             appId,
             namespace,
             vaultSecret, // VAULT SECRET MUST BE ADDED TO THE PROOF FOR THE CIRCUIT
+            extraData,
           } as OffchainProofRequest;
 
           if (
@@ -464,9 +465,6 @@ export class SismoConnectProver {
 
     const sismoConnectProofs = await Promise.all(promises);
     response.proofs = sismoConnectProofs;
-    response.signedMessage =
-      selectedSismoConnectRequest?.selectedSignature?.selectedMessage ??
-      selectedSismoConnectRequest?.signature?.message;
 
     return response;
   }
