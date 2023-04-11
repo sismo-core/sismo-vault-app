@@ -249,7 +249,12 @@ export class HydraS2OffchainProver extends Prover {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
       namespace: BigNumber.from(
-        keccak256(BigNumber.from(appId).add(0).toHexString())
+        keccak256(
+          ethers.utils.solidityPack(
+            ["uint128", "uint128"],
+            [appId, BigNumber.from(0)]
+          )
+        )
       )
         .mod(SNARK_FIELD)
         .toHexString(),
