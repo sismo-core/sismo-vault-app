@@ -91,7 +91,7 @@ export const getSismoConnectRequest = (
         typeof auth.authType === "undefined" ? AuthType.VAULT : auth.authType;
       auth.isAnon = typeof auth.isAnon === "undefined" ? false : auth.isAnon;
       auth.userId =
-        typeof auth.userId === "undefined"
+        typeof auth.userId === "undefined" || auth.userId === "0"
           ? "0"
           : toSismoIdentifier(auth.userId, auth.authType);
       auth.isOptional =
