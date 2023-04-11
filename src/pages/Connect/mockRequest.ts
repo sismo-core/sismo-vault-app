@@ -15,7 +15,7 @@ export const devConfig = {
       groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
       groupTimestamp: "latest",
       data: {
-        "0x0E75b92ED9f77aC17A6e7fE6B171A3a66C6b638B": 4,
+        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 4,
       },
     },
     // {
@@ -53,26 +53,26 @@ export const claims: ClaimRequest[] = [
     value: 2,
     extraData: "",
   } as ClaimRequest,
-  {
-    claimType: ClaimType.EQ,
-    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-    groupTimestamp: "latest",
-    isOptional: true,
-    isSelectableByUser: true,
-    value: 3,
-    extraData: "",
-  } as ClaimRequest,
+  // {
+  //   claimType: ClaimType.EQ,
+  //   groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
+  //   groupTimestamp: "latest",
+  //   isOptional: true,
+  //   isSelectableByUser: true,
+  //   value: 3,
+  //   extraData: "",
+  // } as ClaimRequest,
 ];
 
 export const auths: AuthRequest[] = [
-  {
-    authType: AuthType.VAULT,
-    isAnon: false,
-    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-    isOptional: true,
-    isSelectableByUser: false,
-    extraData: "",
-  },
+  // {
+  //   authType: AuthType.VAULT,
+  //   isAnon: false,
+  //   userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+  //   isOptional: true,
+  //   isSelectableByUser: false,
+  //   extraData: "",
+  // },
   {
     authType: AuthType.EVM_ACCOUNT,
     isAnon: false,
@@ -81,14 +81,14 @@ export const auths: AuthRequest[] = [
     isSelectableByUser: true,
     extraData: "",
   },
-  {
-    authType: AuthType.EVM_ACCOUNT,
-    isAnon: false,
-    userId: "0x0e75b92ed9f77ac17a6e7fe6b171a3a66c6b638b",
-    isOptional: false,
-    isSelectableByUser: false,
-    extraData: "",
-  },
+  // {
+  //   authType: AuthType.EVM_ACCOUNT,
+  //   isAnon: false,
+  //   userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+  //   isOptional: false,
+  //   isSelectableByUser: false,
+  //   extraData: "",
+  // },
   // {
   //   authType: AuthType.TWITTER,
   //   isAnon: false,

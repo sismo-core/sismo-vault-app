@@ -97,7 +97,7 @@ export default function ConnectFlow({
       selectedAuths: sismoConnectRequest?.auths?.map((auth) => {
         return {
           ...auth,
-          selectedUserId: auth.userId,
+          selectedUserId: auth?.userId,
           isOptIn: true,
         };
       }),
@@ -114,7 +114,7 @@ export default function ConnectFlow({
       },
     };
     setSelectedSismoConnectRequest(selectedSismoConnectRequest);
-  }, [sismoConnectRequest]);
+  }, [sismoConnectRequest, authRequestEligibilities]);
 
   const onUserInput = (
     selectedSismoConnectRequest: SelectedSismoConnectRequest

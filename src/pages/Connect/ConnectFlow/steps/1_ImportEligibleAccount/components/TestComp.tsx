@@ -195,6 +195,7 @@ export function TestComp({
     authRequestEligibility: AuthRequestEligibility,
     accountIdentifier: string
   ) {
+    console.log("onAuthChange", accountIdentifier);
     const newSelectedSismoConnectRequest = {
       ...selectedSismoConnectRequest,
       selectedAuths: selectedSismoConnectRequest.selectedAuths.map((auth) => {
@@ -208,6 +209,10 @@ export function TestComp({
         }
       }),
     };
+    console.log(
+      "newSelectedSismoConnectRequest",
+      newSelectedSismoConnectRequest
+    );
     onUserInput(newSelectedSismoConnectRequest);
   }
 

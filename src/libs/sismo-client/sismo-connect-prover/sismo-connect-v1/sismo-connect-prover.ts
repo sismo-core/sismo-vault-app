@@ -425,6 +425,13 @@ export class SismoConnectProver {
               );
             });
 
+            console.log("importedAccounts", importedAccounts);
+            console.log(
+              "selectedAuthRequestEligibility",
+              selectedAuthRequestEligibility
+            );
+            console.log("destination", destination);
+
             if (!destination)
               throw new Error(
                 "No eligible account found for this auth request"

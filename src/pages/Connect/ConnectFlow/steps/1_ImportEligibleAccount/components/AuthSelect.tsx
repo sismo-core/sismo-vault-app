@@ -55,7 +55,6 @@ export function AuthSelect({
     value: boolean
   ) {
     if (!authRequestEligibility?.isEligible) return;
-
     setIsOptIn(value);
     onAuthOptInChange(authRequestEligibility, value);
   }
@@ -68,7 +67,13 @@ export function AuthSelect({
     const selectedOptIn =
       selectedAuth?.isOptIn && authRequestEligibility?.isEligible;
 
-    if (selectedUserId === "0") {
+    if (
+      (selectedAuth?.isSelectableByUser &&
+        !authRequestEligibility?.accounts?.find(
+          (account) => account.identifier.toLowerCase() === selectedUserId
+        )) ||
+      selectedUserId === "0"
+    ) {
       setValueSelected(
         authRequestEligibility?.accounts[0]?.identifier?.toLowerCase()
       );
@@ -76,13 +81,13 @@ export function AuthSelect({
         authRequestEligibility,
         authRequestEligibility?.accounts[0]?.identifier?.toLowerCase()
       );
+      setIsOptIn(selectedOptIn);
       return;
     }
 
     setIsOptIn(selectedOptIn);
-    setValueSelected(selectedUserId);
     onAuthChange(authRequestEligibility, selectedUserId);
-
+    setValueSelected(selectedUserId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authRequestEligibility]);
 
@@ -102,6 +107,7 @@ export function AuthSelect({
   const isOptional =
     authRequestEligibility?.auth?.isOptional &&
     authRequestEligibility?.isEligible;
+
   const isEligible = authRequestEligibility?.auth?.isOptional
     ? isOptIn && authRequestEligibility?.isEligible
     : authRequestEligibility?.isEligible;

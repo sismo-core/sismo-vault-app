@@ -248,7 +248,11 @@ export class HydraS2OffchainProver extends Prover {
   }: OffchainProofRequest): Promise<UserParams> {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
-      namespace: BigNumber.from(appId).add(0).toHexString(),
+      namespace: BigNumber.from(
+        keccak256(BigNumber.from(appId).add(0).toHexString())
+      )
+        .mod(SNARK_FIELD)
+        .toHexString(),
     };
 
     // Return only the vault input if we are in demo mode

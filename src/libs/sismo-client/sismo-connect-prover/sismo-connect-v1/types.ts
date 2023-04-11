@@ -55,12 +55,12 @@ export type SelectedAuthRequestEligibility = AuthRequestEligibility & {
 };
 
 export type SelectedClaimRequest = Omit<ClaimRequest, "value"> & {
-  selectedValue: number;
+  selectedValue?: number;
   isOptIn: boolean;
 };
 
 export type SelectedAuthRequest = Omit<AuthRequest, "userId"> & {
-  selectedUserId: string;
+  selectedUserId?: string;
   isOptIn: boolean;
 };
 

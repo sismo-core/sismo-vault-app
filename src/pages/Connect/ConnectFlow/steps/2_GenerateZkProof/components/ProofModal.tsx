@@ -183,19 +183,7 @@ export default function ProofModal({
                 )}
               </Flex>
             </Button>
-            <SyntaxHighlighter
-              language="javascript"
-              style={docco}
-              customStyle={{
-                height: "60vh",
-                fontFamily: fonts.regular,
-                fontSize: 14,
-                backgroundColor: "white",
-              }}
-              wrapLongLines={true}
-            >
-              {readableResponse}
-            </SyntaxHighlighter>
+            {readableResponse}
           </FlexColumn>
         </Container>
       )}
