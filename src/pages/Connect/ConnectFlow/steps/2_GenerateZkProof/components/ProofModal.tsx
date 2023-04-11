@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import Modal from "../../../../../../components/Modal";
 import { getSismoConnectResponseBytes } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
 import { SismoConnectResponse } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import colors from "../../../../../../theme/colors";
 import fonts from "../../../../../../theme/fonts";
 import Button from "../../../../../../components/Button";
