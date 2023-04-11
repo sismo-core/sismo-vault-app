@@ -114,11 +114,12 @@ export default function ConnectFlow({
       },
     };
     setSelectedSismoConnectRequest(selectedSismoConnectRequest);
-  }, [sismoConnectRequest, authRequestEligibilities]);
+  }, [sismoConnectRequest]);
 
   const onUserInput = (
     selectedSismoConnectRequest: SelectedSismoConnectRequest
   ) => {
+    console.log("onUserInput", selectedSismoConnectRequest);
     setSelectedSismoConnectRequest(selectedSismoConnectRequest);
   };
 

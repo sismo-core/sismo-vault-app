@@ -10,7 +10,7 @@ import { useMyVault } from "./Modals/MyVault/Provider";
 import GenerateRecoveryKeyModal from "./Modals/GenerateRecoveryKey";
 import Redirect from "./Redirect";
 import AlphaNotification from "../components/ZikiNotification";
-import Connect from "./Connect";
+import Connect from "./ConnectV2";
 import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
 

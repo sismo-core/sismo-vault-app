@@ -8,3 +8,5 @@ export { BadgeDouble } from "./BadgeDouble";
 export { Gem } from "./Gem";
 export { GemProof } from "./GemProof";
 export { LogoV2 } from "./LogoV2";
+export { EthRounded } from "./EthRounded";
+export { TwitterRounded } from "./TwitterRounded";

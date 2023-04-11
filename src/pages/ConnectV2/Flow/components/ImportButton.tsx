@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import Loader from "../Loader";
-import colors from "../../theme/colors";
+import colors from "../../../../theme/colors";
+import Loader from "../../../../components/Loader";
 
 const Container = styled.button<{
   hover?: boolean;
@@ -240,8 +240,8 @@ export default function Button({
       verySmall={verySmall}
     >
       {loading && (
-        <LoaderContainer small={small} verySmall center={!Boolean(children)}>
-          <Loader color={fontColor} size={small ? 10 : verySmall ? 9 : 13} />
+        <LoaderContainer small={small} verySmall center={true}>
+          <Loader color={fontColor} size={small || verySmall ? 10 : 13} />
         </LoaderContainer>
       )}
       <Content
