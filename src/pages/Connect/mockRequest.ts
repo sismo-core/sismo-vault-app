@@ -64,6 +64,8 @@ export const claims: ClaimRequest[] = [
   // } as ClaimRequest,
 ];
 
+//0x1878EA9134D500A3cEF3E89589ECA3656EECf48f
+
 export const auths: AuthRequest[] = [
   {
     authType: AuthType.VAULT,
@@ -76,7 +78,7 @@ export const auths: AuthRequest[] = [
   {
     authType: AuthType.EVM_ACCOUNT,
     isAnon: false,
-    userId: "0",
+    userId: "0x1878EA9134D500A3cEF3E89589ECA3656EECf48f",
     isOptional: false,
     isSelectableByUser: true,
     extraData: "",
@@ -84,7 +86,7 @@ export const auths: AuthRequest[] = [
   {
     authType: AuthType.TWITTER,
     isAnon: false,
-    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+    userId: "971701818",
     isOptional: false,
     isSelectableByUser: false,
     extraData: "",
@@ -92,7 +94,7 @@ export const auths: AuthRequest[] = [
   {
     authType: AuthType.GITHUB,
     isAnon: false,
-    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+    userId: "124567",
     isOptional: false,
     isSelectableByUser: false,
     extraData: "",

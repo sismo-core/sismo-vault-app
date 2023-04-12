@@ -15,6 +15,7 @@ const Container = styled.div`
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  flex-shrink: 0;
 `;
 
 const ValueComparator = styled.div`
@@ -24,6 +25,7 @@ const ValueComparator = styled.div`
   border-radius: 20px;
   font-size: 12px;
   line-height: 18px;
+  flex-shrink: 0;
 `;
 
 type Props = {

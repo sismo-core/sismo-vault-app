@@ -290,6 +290,7 @@ export default function Connect(): JSX.Element {
 
   useEffect(() => {
     if (!sismoConnectRequest) return;
+    if (!vault.importedAccounts) return;
     if (sismoConnectRequest?.claims?.length && !requestGroupsMetadata) return;
 
     const getEligibilities = async () => {

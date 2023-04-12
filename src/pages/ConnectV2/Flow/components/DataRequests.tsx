@@ -96,19 +96,23 @@ export default function DataRequests({
   const requiredClaims = [];
   const optionalClaims = [];
 
-  for (const authRequestEligibility of authRequestEligibilities) {
-    if (authRequestEligibility?.auth?.isOptional) {
-      optionalAuths.push(authRequestEligibility);
-    } else {
-      requiredAuths.push(authRequestEligibility);
+  if (authRequestEligibilities) {
+    for (const authRequestEligibility of authRequestEligibilities) {
+      if (authRequestEligibility?.auth?.isOptional) {
+        optionalAuths.push(authRequestEligibility);
+      } else {
+        requiredAuths.push(authRequestEligibility);
+      }
     }
   }
 
-  for (const groupMetadataClaimRequestEligibility of groupMetadataClaimRequestEligibilities) {
-    if (groupMetadataClaimRequestEligibility?.claim?.isOptional) {
-      optionalClaims.push(groupMetadataClaimRequestEligibility);
-    } else {
-      requiredClaims.push(groupMetadataClaimRequestEligibility);
+  if (groupMetadataClaimRequestEligibilities) {
+    for (const groupMetadataClaimRequestEligibility of groupMetadataClaimRequestEligibilities) {
+      if (groupMetadataClaimRequestEligibility?.claim?.isOptional) {
+        optionalClaims.push(groupMetadataClaimRequestEligibility);
+      } else {
+        requiredClaims.push(groupMetadataClaimRequestEligibility);
+      }
     }
   }
 
@@ -117,82 +121,96 @@ export default function DataRequests({
       <Title>{appName} wants you to:</Title>
       <ListWrapper>
         <RequiredWrapper>
-          {requiredAuths?.map((authRequestEligibility, index) => (
-            <Fragment key={authRequestEligibility.auth.uuid}>
-              {index !== 0 && <ItemSeparator />}
-              <DataRequest
-                authRequestEligibility={authRequestEligibility}
-                selectedSismoConnectRequest={selectedSismoConnectRequest}
-                onUserInput={onUserInput}
-              />
-            </Fragment>
-          ))}
-          {requiredClaims?.map(
-            (groupMetadataClaimRequestEligibility, index) => (
-              <Fragment key={groupMetadataClaimRequestEligibility.claim.uuid}>
-                {(index !== 0 || requiredAuths?.length) && <ItemSeparator />}
+          {requiredAuths?.length > 0 &&
+            requiredAuths?.map((authRequestEligibility, index) => (
+              <Fragment key={authRequestEligibility.auth.uuid}>
+                {index !== 0 && <ItemSeparator />}
                 <DataRequest
-                  groupMetadataClaimRequestEligibility={
-                    groupMetadataClaimRequestEligibility
-                  }
+                  authRequestEligibility={authRequestEligibility}
                   selectedSismoConnectRequest={selectedSismoConnectRequest}
                   onUserInput={onUserInput}
                 />
               </Fragment>
-            )
-          )}
-        </RequiredWrapper>
-
-        <OptionalSeparator />
-
-        <OptionalWrapper>
-          <OptionalTitle folded={optionalFolded}>
-            <div
-              style={{ cursor: "pointer" }}
-              onClick={() => setOptionalFolded(!optionalFolded)}
-            >
-              Optional
-            </div>
-            <CaretWrapper
-              folded={optionalFolded}
-              onClick={() => setOptionalFolded(!optionalFolded)}
-            >
-              <CaretUp size={16} color={colors.blue3} />
-            </CaretWrapper>
-          </OptionalTitle>
-          {optionalFolded && (
-            <>
-              {optionalAuths?.map((authRequestEligibility, index) => (
-                <Fragment key={authRequestEligibility.auth.uuid}>
-                  {index !== 0 && <ItemSeparator />}
+            ))}
+          {requiredClaims?.length > 0 &&
+            requiredClaims?.map(
+              (groupMetadataClaimRequestEligibility, index) => (
+                <Fragment key={groupMetadataClaimRequestEligibility.claim.uuid}>
+                  {(index !== 0 || requiredAuths?.length > 0) && (
+                    <ItemSeparator />
+                  )}
                   <DataRequest
-                    authRequestEligibility={authRequestEligibility}
+                    groupMetadataClaimRequestEligibility={
+                      groupMetadataClaimRequestEligibility
+                    }
                     selectedSismoConnectRequest={selectedSismoConnectRequest}
                     onUserInput={onUserInput}
                   />
                 </Fragment>
-              ))}
-              {optionalClaims?.map(
-                (groupMetadataClaimRequestEligibility, index) => (
-                  <Fragment
-                    key={groupMetadataClaimRequestEligibility.claim.uuid}
-                  >
-                    {(index !== 0 || optionalAuths?.length) && (
-                      <ItemSeparator />
+              )
+            )}
+        </RequiredWrapper>
+
+        {(optionalAuths?.length > 0 || optionalClaims?.length > 0) && (
+          <>
+            {" "}
+            <OptionalSeparator />
+            <OptionalWrapper>
+              <OptionalTitle folded={optionalFolded}>
+                <div
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setOptionalFolded(!optionalFolded)}
+                >
+                  Optional
+                </div>
+                <CaretWrapper
+                  folded={optionalFolded}
+                  onClick={() => setOptionalFolded(!optionalFolded)}
+                >
+                  <CaretUp size={16} color={colors.blue3} />
+                </CaretWrapper>
+              </OptionalTitle>
+              {optionalFolded && (
+                <>
+                  {optionalAuths?.length > 0 &&
+                    optionalAuths?.map((authRequestEligibility, index) => (
+                      <Fragment key={authRequestEligibility.auth.uuid}>
+                        {index !== 0 && <ItemSeparator />}
+                        <DataRequest
+                          authRequestEligibility={authRequestEligibility}
+                          selectedSismoConnectRequest={
+                            selectedSismoConnectRequest
+                          }
+                          onUserInput={onUserInput}
+                        />
+                      </Fragment>
+                    ))}
+                  {optionalClaims?.length > 0 &&
+                    optionalClaims?.map(
+                      (groupMetadataClaimRequestEligibility, index) => (
+                        <Fragment
+                          key={groupMetadataClaimRequestEligibility.claim.uuid}
+                        >
+                          {(index !== 0 || optionalAuths?.length > 0) && (
+                            <ItemSeparator />
+                          )}
+                          <DataRequest
+                            groupMetadataClaimRequestEligibility={
+                              groupMetadataClaimRequestEligibility
+                            }
+                            selectedSismoConnectRequest={
+                              selectedSismoConnectRequest
+                            }
+                            onUserInput={onUserInput}
+                          />
+                        </Fragment>
+                      )
                     )}
-                    <DataRequest
-                      groupMetadataClaimRequestEligibility={
-                        groupMetadataClaimRequestEligibility
-                      }
-                      selectedSismoConnectRequest={selectedSismoConnectRequest}
-                      onUserInput={onUserInput}
-                    />
-                  </Fragment>
-                )
+                </>
               )}
-            </>
-          )}
-        </OptionalWrapper>
+            </OptionalWrapper>{" "}
+          </>
+        )}
       </ListWrapper>
     </Container>
   );

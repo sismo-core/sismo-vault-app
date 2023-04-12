@@ -21,6 +21,7 @@ import {
   Twitter,
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
+import UserTag from "./UserTag";
 
 type Props = {
   authRequestEligibility?: AuthRequestEligibility;
@@ -51,6 +52,7 @@ const Left = styled.div`
 const TextWrapper = styled.div<{ isOptIn: boolean }>`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
   color: ${(props) =>
     props.isOptIn ? props.theme.colors.blue0 : props.theme.colors.blue3};
@@ -89,6 +91,8 @@ export function DataRequest({
   const isClaim = !!groupMetadataClaimRequestEligibility;
   const isAuth = !!authRequestEligibility;
 
+  const isInitiallyLoaded = isClaim || isAuth;
+
   const isOptional =
     authRequestEligibility?.auth?.isOptional ||
     groupMetadataClaimRequestEligibility?.claim?.isOptional;
@@ -97,6 +101,12 @@ export function DataRequest({
     authRequestEligibility?.isEligible ||
     groupMetadataClaimRequestEligibility?.isEligible;
 
+  console.log(
+    "groupMetadataClaimRequestEligibility",
+    groupMetadataClaimRequestEligibility
+  );
+  console.log("isEligible", isEligible);
+
   const isSelectableByUser =
     authRequestEligibility?.auth?.isSelectableByUser ||
     groupMetadataClaimRequestEligibility?.claim?.isSelectableByUser;
@@ -104,6 +114,11 @@ export function DataRequest({
   const humanReadableAuthType = getHumanReadableAuthType(
     authRequestEligibility?.auth?.authType
   );
+
+  const isAuthRequiredNotSelectable =
+    !authRequestEligibility?.auth?.isSelectableByUser &&
+    authRequestEligibility?.auth?.userId !== "0" &&
+    authRequestEligibility?.auth?.authType !== AuthType.VAULT;
 
   function onOptInChange(isOptIn: boolean) {
     if (isClaim) {
@@ -157,6 +172,10 @@ export function DataRequest({
     onUserInput(newSelectedSismoConnectRequest);
   }
 
+  if (!isInitiallyLoaded) {
+    return null;
+  }
+
   return (
     <Container>
       <Left>
@@ -187,11 +206,20 @@ export function DataRequest({
         <TextWrapper isOptIn={isOptional && isEligible ? isOptIn : true}>
           Share
           {isAuth && (
-            <span>
-              <Bold>{humanReadableAuthType} </Bold>
-              {authRequestEligibility?.auth?.authType !== AuthType.VAULT &&
-                "account"}
-            </span>
+            <>
+              {isAuthRequiredNotSelectable && (
+                <UserTag
+                  optIn={isOptional && isEligible ? isOptIn : true}
+                  userId={authRequestEligibility?.auth?.userId}
+                  authType={authRequestEligibility?.auth?.authType}
+                />
+              )}
+              <span>
+                <Bold>{humanReadableAuthType} </Bold>
+                {authRequestEligibility?.auth?.authType !== AuthType.VAULT &&
+                  "account"}
+              </span>
+            </>
           )}
           {isClaim && (
             <ShardTag
@@ -208,7 +236,7 @@ export function DataRequest({
         </TextWrapper>
       </Left>
       <Right>
-        {true && (
+        {!isEligible && (
           <StyledButton primary verySmall isMedium loading={false}>
             {true && (
               <InnerButton>
