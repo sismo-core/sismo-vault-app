@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
@@ -31,6 +31,8 @@ import { useImportAccount } from "../../Modals/ImportAccount/provider";
 import DataRequests from "./components/DataRequests";
 import ConnectVaultModal from "../../Modals/ConnectVaultModal";
 import ProofModal from "./components/ProofModal";
+import { SignatureRequest } from "./components/SignatureRequest";
+import { ImportedAccount } from "../../../libs/vault-client";
 
 const Container = styled.div`
   position: relative;
@@ -209,19 +211,113 @@ export default function ConnectFlow({
   const { getRegistryTreeRoot, generateResponse } = useSismo();
   const vault = useVault();
 
-  const goBack = () => {
-    if (window.opener) {
-      window.opener.postMessage(null, callbackUrl);
-      window.close();
-    } else {
-      window.location.href = callbackUrl;
-    }
-  };
+  /* ************************************************************* */
+  /* ********************* SET DEFAULT VALUE ********************* */
+  /* ************************************************************* */
 
-  let isSismoConnectRequestEligible: boolean = getIsEligible(
+  const isDefaultSet = useRef(false);
+  useEffect(() => {
+    if (!selectedSismoConnectRequest) return;
+    if (!authRequestEligibilities && !groupMetadataClaimRequestEligibilities)
+      return;
+    if (isDefaultSet.current) return;
+
+    console.log("SET DEFAULT VALUE");
+
+    let newSelectedSismoConnectRequest: SelectedSismoConnectRequest = {
+      ...selectedSismoConnectRequest,
+    };
+
+    if (selectedSismoConnectRequest?.signature?.message) {
+      newSelectedSismoConnectRequest = {
+        ...newSelectedSismoConnectRequest,
+        selectedSignature: {
+          ...newSelectedSismoConnectRequest?.signature,
+          selectedMessage: selectedSismoConnectRequest?.signature?.message,
+        },
+      };
+    }
+
+    if (authRequestEligibilities?.length > 0) {
+      for (const authRequestEligibility of authRequestEligibilities) {
+        if (!authRequestEligibility?.accounts?.length) continue;
+
+        let userAccount: ImportedAccount;
+
+        if (authRequestEligibility?.auth?.userId === "0") {
+          userAccount = authRequestEligibility?.accounts[0];
+        }
+
+        if (authRequestEligibility?.auth?.userId !== "0") {
+          const defaultAccount = authRequestEligibility?.accounts.find(
+            (account) =>
+              account.identifier?.toLowerCase() ===
+              authRequestEligibility?.auth?.userId?.toLowerCase()
+          );
+
+          if (defaultAccount) {
+            userAccount = defaultAccount;
+          } else {
+            userAccount = authRequestEligibility?.accounts[0];
+          }
+        }
+        newSelectedSismoConnectRequest = {
+          ...newSelectedSismoConnectRequest,
+          selectedAuths: newSelectedSismoConnectRequest?.selectedAuths?.map(
+            (auth) => {
+              if (auth?.uuid === authRequestEligibility?.auth?.uuid) {
+                return {
+                  ...auth,
+                  selectedUserId: userAccount?.identifier,
+                };
+              } else {
+                return auth;
+              }
+            }
+          ),
+        };
+      }
+    }
+
+    if (groupMetadataClaimRequestEligibilities?.length > 0) {
+      for (const groupMetadataClaimRequestEligibility of groupMetadataClaimRequestEligibilities) {
+        if (!groupMetadataClaimRequestEligibility?.accountData) continue;
+
+        const initialClaimValue =
+          groupMetadataClaimRequestEligibility?.claim?.value;
+
+        newSelectedSismoConnectRequest = {
+          ...newSelectedSismoConnectRequest,
+          selectedClaims: newSelectedSismoConnectRequest.selectedClaims.map(
+            (claim) => {
+              if (
+                claim.uuid === groupMetadataClaimRequestEligibility?.claim?.uuid
+              ) {
+                return {
+                  ...claim,
+                  selectedValue: initialClaimValue,
+                };
+              } else {
+                return claim;
+              }
+            }
+          ),
+        };
+      }
+    }
+
+    isDefaultSet.current = true;
+    onUserInput(newSelectedSismoConnectRequest);
+  }, [
+    selectedSismoConnectRequest,
+    authRequestEligibilities,
     groupMetadataClaimRequestEligibilities,
-    authRequestEligibilities
-  );
+    onUserInput,
+  ]);
+
+  /* ***************************************************** */
+  /* ************* GENERATE RESPONSE ********************* */
+  /* ***************************************************** */
 
   const generate = async () => {
     setLoadingProof(true);
@@ -258,6 +354,24 @@ export default function ConnectFlow({
     setLoadingProof(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   };
+
+  /* ***************************************************** */
+  /* *********************** UTILS *********************** */
+  /* ***************************************************** */
+
+  const goBack = () => {
+    if (window.opener) {
+      window.opener.postMessage(null, callbackUrl);
+      window.close();
+    } else {
+      window.location.href = callbackUrl;
+    }
+  };
+
+  let isSismoConnectRequestEligible: boolean = getIsEligible(
+    groupMetadataClaimRequestEligibilities,
+    authRequestEligibilities
+  );
 
   return (
     <>
@@ -302,6 +416,14 @@ export default function ConnectFlow({
           loadingEligible={loadingEligible}
           proofLoading={loadingProof}
         />
+
+        {selectedSismoConnectRequest?.signature?.message?.length > 0 && (
+          <SignatureRequest
+            selectedSismoConnectRequest={selectedSismoConnectRequest}
+            onUserInput={onUserInput}
+            proofLoading={loadingProof}
+          />
+        )}
 
         <CallToAction>
           <LinkWrapper
