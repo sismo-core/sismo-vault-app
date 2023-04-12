@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
-//import ConnectFlow from "./ConnectFlow";
 import * as Sentry from "@sentry/react";
 import { FactoryApp } from "../../libs/sismo-client";
 import { useSismo } from "../../libs/sismo";
@@ -25,6 +24,7 @@ import Skeleton from "./components/Skeleton";
 import Flow from "./Flow";
 import VaultSlider from "./components/VaultSlider";
 import Logo from "./components/Logo";
+import Redirection from "./components/Redirection";
 
 const Container = styled.div`
   position: relative;
@@ -114,6 +114,7 @@ export default function Connect(): JSX.Element {
   const [hostName, setHostname] = useState<string>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
   const [callbackUrl, setCallbackUrl] = useState(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const [isWrongUrl, setIsWrongUrl] = useState({
     status: null,
@@ -385,13 +386,17 @@ export default function Connect(): JSX.Element {
 
   const onResponse = (response: SismoConnectResponse) => {
     //  localStorage.removeItem("prove_referrer");
+    setIsRedirecting(true);
     let url = callbackUrl;
     if (response) {
       url += `?sismoConnectResponse=${JSON.stringify(
         response
       )}&sismoConnectResponseBytes=${getSismoConnectResponseBytes(response)}`;
     }
-    window.location.href = url; //If it's not a popup return the proof in params or url
+    setTimeout(() => {
+      window.location.href = url;
+      //If it's not a popup return the proof in params or url
+    }, 2000);
   };
 
   /* *********************************************************** */
@@ -419,7 +424,7 @@ export default function Connect(): JSX.Element {
         </ContentContainer>
       )}
       {/* <div>Wrong Request</div> */}
-      {!loading && (
+      {!loading && !isRedirecting && (
         <ContentContainer>
           <VaultSlider
             vaultSliderOpen={vaultSliderOpen}
@@ -441,21 +446,12 @@ export default function Connect(): JSX.Element {
           />
         </ContentContainer>
       )}
+      {!loading && isRedirecting && (
+        <ContentContainer>
+          <Redirection />
+        </ContentContainer>
+      )}
 
-      {/* <ContentContainer>
-        {isWrongUrl?.status ? (
-          <WrongUrlScreen callbackUrl={callbackUrl} isWrongUrl={isWrongUrl} />
-        ) : (
-          <ConnectFlow
-            factoryApp={factoryApp}
-            sismoConnectRequest={sismoConnectRequest}
-            requestGroupsMetadata={requestGroupsMetadata}
-            callbackUrl={callbackUrl}
-            referrerUrl={referrerUrl}
-            hostName={hostName}
-          />
-        )}
-      </ContentContainer> */}
       <Logo />
     </Container>
   );

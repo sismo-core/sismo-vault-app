@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { SelectedSismoConnectRequest } from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 import { PencilSimple } from "phosphor-react";
 import colors from "../../../../theme/colors";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "./ImportButton";
 import { useVault } from "../../../../libs/vault";
 
@@ -75,7 +75,8 @@ export function SignatureRequest({
 }: Props): JSX.Element {
   const vault = useVault();
 
-  const [rows, setRows] = useState(1);
+  const [rows, setRows] = useState(3);
+
   const [isEditing, setIsEditing] = useState(false);
   const [liveValue, setLiveValue] = useState(
     selectedSismoConnectRequest?.selectedSignature?.selectedMessage
@@ -88,27 +89,6 @@ export function SignatureRequest({
     selectedSismoConnectRequest?.selectedSignature?.isSelectableByUser &&
     vault?.isConnected &&
     !proofLoading;
-
-  useEffect(() => {
-    if (isEditing) {
-      const _rows = liveValue?.split("\n")?.length;
-      if (_rows < 7) {
-        setRows(_rows);
-      } else {
-        setRows(7);
-      }
-    }
-
-    if (!isEditing && savedValue) {
-      const _rows = savedValue?.split("\n")?.length;
-      console.log(_rows);
-      if (_rows < 7) {
-        setRows(_rows);
-      } else {
-        setRows(7);
-      }
-    }
-  }, [liveValue, savedValue, isEditing]);
 
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setLiveValue(e.target.value);

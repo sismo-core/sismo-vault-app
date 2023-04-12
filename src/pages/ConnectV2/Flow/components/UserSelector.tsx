@@ -83,7 +83,7 @@ const SelectorContainer = styled.div`
   z-index: 1;
   padding: 4px 2px;
 
-  width: 245px;
+  width: 240px;
 
   box-sizing: border-box;
 `;
@@ -111,6 +111,12 @@ const ItemContainer = styled.div<{ isSelected?: boolean; order: number }>`
   }
 
   transition: background 0.15s ease-in-out;
+`;
+
+const LogoUserTag = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const SelectorIcon = styled.div<{ isSelected: boolean }>`
@@ -255,16 +261,18 @@ export default function UserSelector({
                 }}
               >
                 <SelectorIcon isSelected={isSelected} />
-                <Logo>
-                  {authType === AuthType.TWITTER ? (
-                    <TwitterRounded size={14} color={color} />
-                  ) : authType === AuthType.GITHUB ? (
-                    <GithubRounded size={14} color={color} />
-                  ) : (
-                    <EthRounded size={14} color={color} />
-                  )}
-                </Logo>
-                <UserId>{getReadableName(account)}</UserId>
+                <LogoUserTag>
+                  <Logo>
+                    {authType === AuthType.TWITTER ? (
+                      <TwitterRounded size={14} color={color} />
+                    ) : authType === AuthType.GITHUB ? (
+                      <GithubRounded size={14} color={color} />
+                    ) : (
+                      <EthRounded size={14} color={color} />
+                    )}
+                  </Logo>
+                  <UserId>{getReadableName(account)}</UserId>
+                </LogoUserTag>
                 {isDefault && <DefaultTag>Default</DefaultTag>}
               </ItemContainer>
             );

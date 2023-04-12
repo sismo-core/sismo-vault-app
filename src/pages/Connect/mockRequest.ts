@@ -9,7 +9,7 @@ import {
 
 export const devConfig = {
   enabled: true,
-  displayRawResponse: true,
+  displayRawResponse: false,
   devGroups: [
     {
       groupId: "0xd138c33e8a6a450336a6c5dda990cf95",

@@ -198,7 +198,7 @@ export default function ConnectFlow({
   referrerUrl,
   callbackUrl,
   hostName,
-
+  onResponse,
   onUserInput,
 }: Props): JSX.Element {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
@@ -330,19 +330,20 @@ export default function ConnectFlow({
 
       setRegistryTreeRoot(registryTreeRoot);
 
-      const sismoConnectResponse = await generateResponse(
+      const _sismoConnectResponse = await generateResponse(
         selectedSismoConnectRequest,
         vault.importedAccounts,
         vaultSecret
       );
       setErrorProof(false);
       setLoadingProof(false);
-      setResponse(sismoConnectResponse);
+      setResponse(_sismoConnectResponse);
 
       if (selectedSismoConnectRequest?.devConfig?.displayRawResponse) {
         setProofModalOpen(true);
         return;
       }
+      onResponse(_sismoConnectResponse);
     } catch (e) {
       Sentry.withScope(function (scope) {
         scope.setLevel("fatal");
