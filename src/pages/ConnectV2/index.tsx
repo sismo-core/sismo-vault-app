@@ -401,6 +401,7 @@ export default function Connect(): JSX.Element {
   const onUserInput = (
     selectedSismoConnectRequest: SelectedSismoConnectRequest
   ) => {
+    console.log("onUserInput", selectedSismoConnectRequest);
     setSelectedSismoConnectRequest(selectedSismoConnectRequest);
   };
 
@@ -431,10 +432,12 @@ export default function Connect(): JSX.Element {
             groupMetadataClaimRequestEligibilities={
               groupMetadataClaimRequestEligibilities
             }
+            loadingEligible={loadingEligible}
             callbackUrl={callbackUrl}
             referrerUrl={referrerUrl}
             hostName={hostName}
             onUserInput={onUserInput}
+            onResponse={onResponse}
           />
         </ContentContainer>
       )}

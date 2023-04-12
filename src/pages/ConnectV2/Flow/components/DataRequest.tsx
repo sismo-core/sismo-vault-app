@@ -11,7 +11,7 @@ import colors from "../../../../theme/colors";
 import { getHumanReadableAuthType } from "../../utils/getHumanReadableAuthType";
 import ShardTag from "./ShardTag";
 import EligibilityModal from "./EligibilityModal";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import Toggle from "./Toggle";
 import Button from "../../../../components/Button";
 import ImportButton from "./ImportButton";
@@ -25,15 +25,8 @@ import UserTag from "./UserTag";
 import UserSelector from "./UserSelector";
 import { ImportedAccount } from "../../../../libs/vault-client";
 import { useVault } from "../../../../libs/vault";
-
-type Props = {
-  authRequestEligibility?: AuthRequestEligibility;
-  groupMetadataClaimRequestEligibility?: GroupMetadataClaimRequestEligibility;
-  selectedSismoConnectRequest: SelectedSismoConnectRequest;
-  onUserInput: (
-    selectedSismoConnectRequest: SelectedSismoConnectRequest
-  ) => void;
-};
+import { useImportAccount } from "../../../Modals/ImportAccount/provider";
+import { AccountType } from "../../../../libs/sismo-client";
 
 const Container = styled.div`
   display: flex;
@@ -86,16 +79,33 @@ const CheckCircleIcon = styled(CheckCircle)`
   flex-shrink: 0;
 `;
 
+type Props = {
+  authRequestEligibility?: AuthRequestEligibility;
+  groupMetadataClaimRequestEligibility?: GroupMetadataClaimRequestEligibility;
+  selectedSismoConnectRequest: SelectedSismoConnectRequest;
+  loadingEligible: boolean;
+  proofLoading: boolean;
+  onUserInput: (
+    selectedSismoConnectRequest: SelectedSismoConnectRequest
+  ) => void;
+};
+
 export function DataRequest({
   authRequestEligibility,
   groupMetadataClaimRequestEligibility,
   selectedSismoConnectRequest,
+  loadingEligible,
+  proofLoading,
   onUserInput,
 }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOptIn, setIsOptIn] = useState(false);
   const [initialAccount, setInitialAccount] = useState<ImportedAccount>(null);
   const [initialValue, setInitialValue] = useState<number>(null);
+  const importAccount = useImportAccount();
+  // const [buttonNullifier, setButtonNullifier] = useState(null);
+
+  // const [importTentative, setImportTentative] = useState(false);
 
   const vault = useVault();
 
@@ -113,8 +123,9 @@ export function DataRequest({
     groupMetadataClaimRequestEligibility?.isEligible;
 
   const isSelectableByUser =
-    authRequestEligibility?.auth?.isSelectableByUser ||
-    groupMetadataClaimRequestEligibility?.claim?.isSelectableByUser;
+    !proofLoading &&
+    (authRequestEligibility?.auth?.isSelectableByUser ||
+      groupMetadataClaimRequestEligibility?.claim?.isSelectableByUser);
 
   const humanReadableAuthType = getHumanReadableAuthType(
     authRequestEligibility?.auth?.authType
@@ -124,6 +135,8 @@ export function DataRequest({
     !authRequestEligibility?.auth?.isSelectableByUser &&
     authRequestEligibility?.auth?.userId !== "0" &&
     authRequestEligibility?.auth?.authType !== AuthType.VAULT;
+
+  const isLoading = importAccount?.importing ? true : false || loadingEligible;
 
   function onOptInChange(isOptIn: boolean) {
     if (isClaim) {
@@ -155,32 +168,6 @@ export function DataRequest({
     onUserInput(newSelectedSismoConnectRequest);
   }
 
-  const onAuthChange = useCallback(
-    (
-      authRequestEligibility: AuthRequestEligibility,
-      accountIdentifier: string
-    ) => {
-      const newSelectedSismoConnectRequest = {
-        ...selectedSismoConnectRequest,
-        selectedAuths: selectedSismoConnectRequest?.selectedAuths?.map(
-          (auth) => {
-            if (auth.uuid === authRequestEligibility?.auth?.uuid) {
-              return {
-                ...auth,
-                selectedUserId: accountIdentifier,
-              };
-            } else {
-              return auth;
-            }
-          }
-        ),
-      };
-      onUserInput(newSelectedSismoConnectRequest);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
   function onClaimOptInChange(
     groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
     isOptIn: boolean
@@ -203,32 +190,56 @@ export function DataRequest({
     onUserInput(newSelectedSismoConnectRequest);
   }
 
-  const onClaimChange = useCallback(
+  const onValueChange = useCallback(
     (
-      groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
-      selectedValue: number
+      request: GroupMetadataClaimRequestEligibility | AuthRequestEligibility,
+      selectedValue: number | string
     ) => {
-      const newSelectedSismoConnectRequest = {
-        ...selectedSismoConnectRequest,
-        selectedClaims: selectedSismoConnectRequest.selectedClaims.map(
-          (claim) => {
-            if (
-              claim.uuid === groupMetadataClaimRequestEligibility.claim.uuid
-            ) {
-              return {
-                ...claim,
-                selectedValue,
-              };
-            } else {
-              return claim;
+      let newSelectedSismoConnectRequest;
+
+      if (isAuth) {
+        newSelectedSismoConnectRequest = {
+          ...selectedSismoConnectRequest,
+          selectedAuths: selectedSismoConnectRequest?.selectedAuths?.map(
+            (auth) => {
+              if (
+                auth?.uuid === (request as AuthRequestEligibility)?.auth?.uuid
+              ) {
+                return {
+                  ...auth,
+                  selectedUserId: selectedValue,
+                };
+              } else {
+                return auth;
+              }
             }
-          }
-        ),
-      };
+          ),
+        };
+      }
+
+      if (isClaim) {
+        newSelectedSismoConnectRequest = {
+          ...selectedSismoConnectRequest,
+          selectedClaims: selectedSismoConnectRequest.selectedClaims.map(
+            (claim) => {
+              if (
+                claim.uuid ===
+                (request as GroupMetadataClaimRequestEligibility)?.claim?.uuid
+              ) {
+                return {
+                  ...claim,
+                  selectedValue,
+                };
+              } else {
+                return claim;
+              }
+            }
+          ),
+        };
+      }
       onUserInput(newSelectedSismoConnectRequest);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [isAuth, isClaim, onUserInput, selectedSismoConnectRequest]
   );
 
   /* ************************************************* */
@@ -238,63 +249,49 @@ export function DataRequest({
   useEffect(() => {
     if (!isAuth) return;
     if (!isEligible) return;
-    if (!vault.isConnected) return;
+    if (!vault.importedAccounts) return;
     if (initialAccount) return;
 
-    if (authRequestEligibility?.auth?.userId === "0") {
-      let userId;
-      setInitialAccount(authRequestEligibility?.accounts[0]);
-      onAuthChange(authRequestEligibility, userId);
-    }
-
-    if (authRequestEligibility?.auth?.userId !== "0") {
-      const defaultAccount = authRequestEligibility?.accounts.find(
-        (account) =>
-          account.identifier?.toLowerCase() ===
-          authRequestEligibility?.auth?.userId?.toLowerCase()
-      );
-
-      if (defaultAccount) {
-        setInitialAccount(defaultAccount);
-        onAuthChange(authRequestEligibility, defaultAccount.identifier);
-      } else {
-        setInitialAccount(authRequestEligibility?.accounts[0]);
-        onAuthChange(
-          authRequestEligibility,
-          authRequestEligibility?.accounts[0]?.identifier
-        );
-      }
-    }
+    const _initialAccount = vault.importedAccounts.find(
+      (account) =>
+        account.identifier?.toLowerCase() ===
+        selectedSismoConnectRequest?.selectedAuths
+          ?.find((auth) => auth.uuid === authRequestEligibility?.auth?.uuid)
+          ?.selectedUserId?.toLowerCase()
+    );
+    setInitialAccount(_initialAccount);
   }, [
-    authRequestEligibility,
+    authRequestEligibility?.auth?.uuid,
     initialAccount,
     isAuth,
     isEligible,
-    onAuthChange,
-    vault.isConnected,
+    selectedSismoConnectRequest?.selectedAuths,
+    vault.importedAccounts,
   ]);
 
-  /* ************************************************* */
-  /* ********* SET INITIAL SELECTED VALUE ************ */
-  /* ************************************************* */
+  // /* ************************************************* */
+  // /* ********* SET INITIAL SELECTED VALUE ************ */
+  // /* ************************************************* */
 
   useEffect(() => {
     if (!isClaim) return;
     if (!isEligible) return;
-    if (!vault.isConnected) return;
+    if (!vault.importedAccounts) return;
     if (initialValue) return;
 
-    const initialClaimValue =
-      groupMetadataClaimRequestEligibility?.claim?.value;
+    const initialClaimValue = selectedSismoConnectRequest?.selectedClaims?.find(
+      (claim) =>
+        claim?.uuid === groupMetadataClaimRequestEligibility?.claim?.uuid
+    )?.selectedValue;
+
     setInitialValue(initialClaimValue);
-    onClaimChange(groupMetadataClaimRequestEligibility, initialClaimValue);
   }, [
-    groupMetadataClaimRequestEligibility,
+    groupMetadataClaimRequestEligibility?.claim?.uuid,
     initialValue,
     isClaim,
     isEligible,
-    onClaimChange,
-    vault.isConnected,
+    selectedSismoConnectRequest?.selectedClaims,
+    vault.importedAccounts,
   ]);
 
   if (!isInitiallyLoaded) {
@@ -321,7 +318,7 @@ export function DataRequest({
         {isOptional && (
           <Toggle
             value={isOptIn}
-            isDisabled={!isEligible}
+            isDisabled={!isEligible || proofLoading}
             onChange={() => {
               onOptInChange(!isOptIn);
               setIsOptIn(!isOptIn);
@@ -353,7 +350,7 @@ export function DataRequest({
               }
               isSelectableByUser={isSelectableByUser}
               optIn={isOptional && isEligible ? isOptIn : true}
-              onClaimChange={onClaimChange}
+              onClaimChange={onValueChange}
               initialValue={initialValue}
               onModal={() => setIsModalOpen(true)}
             />
@@ -363,27 +360,69 @@ export function DataRequest({
       {vault?.importedAccounts && (
         <Right>
           {!isEligible && (
-            <StyledButton primary verySmall isMedium loading={false}>
+            <StyledButton
+              primary
+              verySmall
+              isMedium
+              loading={isLoading}
+              onClick={() => {
+                const accountTypes: AccountType[] =
+                  authRequestEligibility?.auth?.authType === AuthType.TWITTER
+                    ? ["twitter"]
+                    : authRequestEligibility?.auth?.authType === AuthType.GITHUB
+                    ? ["github"]
+                    : authRequestEligibility?.auth?.authType ===
+                      AuthType.EVM_ACCOUNT
+                    ? ["ethereum"]
+                    : ["twitter", "github", "ethereum"];
+                importAccount.open({
+                  importType: "account",
+                  accountTypes,
+                });
+              }}
+            >
               <InnerButton>
-                {authRequestEligibility?.auth?.authType === AuthType.TWITTER ? (
-                  <TwitterRounded size={14} color={colors.blue11} />
-                ) : authRequestEligibility?.auth?.authType ===
-                  AuthType.GITHUB ? (
-                  <GithubRounded size={14} color={colors.blue11} />
-                ) : (
-                  <EthRounded size={14} color={colors.blue11} />
+                {!isLoading && (
+                  <>
+                    {authRequestEligibility?.auth?.authType ===
+                    AuthType.TWITTER ? (
+                      <TwitterRounded size={14} color={colors.blue11} />
+                    ) : authRequestEligibility?.auth?.authType ===
+                      AuthType.GITHUB ? (
+                      <GithubRounded size={14} color={colors.blue11} />
+                    ) : authRequestEligibility?.auth?.authType ===
+                      AuthType.EVM_ACCOUNT ? (
+                      <EthRounded size={14} color={colors.blue11} />
+                    ) : (
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle
+                          cx="7"
+                          cy="7"
+                          r="5.5"
+                          stroke="#13203D"
+                          strokeWidth="3"
+                        />
+                      </svg>
+                    )}
+                    <span>Connect</span>
+                  </>
                 )}
-                <span>Connect</span>
               </InnerButton>
             </StyledButton>
           )}
           {isEligible &&
-            isAuth &&
+            !isAuthRequiredNotSelectable &&
             authRequestEligibility?.auth?.authType !== AuthType.VAULT && (
               <UserSelector
                 authRequestEligibility={authRequestEligibility}
                 isSelectableByUser={isSelectableByUser}
-                onAuthChange={onAuthChange}
+                onAuthChange={onValueChange}
                 optIn={true}
                 initialAccount={initialAccount}
               />

@@ -40,7 +40,7 @@ export default function UserTag({ authType, userId, optIn = false }: Props) {
   const { mainMinified } = useMainMinified(userId);
 
   if (authType === AuthType.EVM_ACCOUNT) {
-    humanReadableUser = mainMinified;
+    humanReadableUser = mainMinified?.toLowerCase();
   } else {
     humanReadableUser = resolveSismoIdentifier(userId, authType);
   }

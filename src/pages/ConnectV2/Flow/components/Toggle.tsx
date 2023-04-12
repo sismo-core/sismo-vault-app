@@ -18,17 +18,14 @@ const ToggleContainer = styled.div<{ value: boolean; isDisabled: boolean }>`
   position: relative;
   transition: background-color 150ms ease;
   ${(props) =>
-    props.value && !props.isDisabled
+    props.value
       ? `
         background-color: ${props.theme.colors.green1};
   `
+      : !props.value && props.isDisabled
+      ? ` background-color: ${props.theme.colors.blue7};`
       : `
         background-color: ${props.theme.colors.blue3};
-  `}
-  ${(props) =>
-    props.isDisabled &&
-    ` 
-        background-color: ${props.theme.colors.blue7};
   `}
 `;
 

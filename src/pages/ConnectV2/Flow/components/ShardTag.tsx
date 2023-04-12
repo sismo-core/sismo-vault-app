@@ -81,6 +81,7 @@ const SelectorContainer = styled.div`
 const SelectorItem = styled.div<{ isSelected: boolean }>`
   display: flex;
   align-items: center;
+  justify-content: center;
   font-size: 14px;
   line-height: 20px;
   color: ${(props) =>
@@ -90,7 +91,7 @@ const SelectorItem = styled.div<{ isSelected: boolean }>`
   background: transparent;
 
   padding: 8px 6px;
-  text-align: center;
+
   cursor: pointer;
 
   &:hover {
@@ -135,7 +136,7 @@ export default function ShardTag({
 
   const minValue = groupMetadataClaimRequestEligibility?.claim?.value;
   const maxValue = BigNumber.from(
-    groupMetadataClaimRequestEligibility?.accountData?.value
+    groupMetadataClaimRequestEligibility?.accountData?.value || 0
   ).toNumber();
 
   const selectableValues =

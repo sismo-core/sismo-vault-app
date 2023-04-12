@@ -30,6 +30,7 @@ import Button from "../../../components/Button";
 import { useImportAccount } from "../../Modals/ImportAccount/provider";
 import DataRequests from "./components/DataRequests";
 import ConnectVaultModal from "../../Modals/ConnectVaultModal";
+import ProofModal from "./components/ProofModal";
 
 const Container = styled.div`
   position: relative;
@@ -179,9 +180,11 @@ type Props = {
   referrerUrl?: string;
   callbackUrl: string;
   hostName: string;
+  loadingEligible: boolean;
   onUserInput: (
     selectedSismoConnectRequest: SelectedSismoConnectRequest
   ) => void;
+  onResponse: (response: SismoConnectResponse) => void;
 };
 
 export default function ConnectFlow({
@@ -189,12 +192,21 @@ export default function ConnectFlow({
   selectedSismoConnectRequest,
   authRequestEligibilities,
   groupMetadataClaimRequestEligibilities,
+  loadingEligible,
   referrerUrl,
   callbackUrl,
   hostName,
+
   onUserInput,
 }: Props): JSX.Element {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
+  const [loadingProof, setLoadingProof] = useState(false);
+  const [errorProof, setErrorProof] = useState(false);
+  const [response, setResponse] = useState<SismoConnectResponse>();
+  const [registryTreeRoot, setRegistryTreeRoot] = useState<string>();
+  const [proofModalOpen, setProofModalOpen] = useState(false);
+
+  const { getRegistryTreeRoot, generateResponse } = useSismo();
   const vault = useVault();
 
   const goBack = () => {
@@ -211,8 +223,50 @@ export default function ConnectFlow({
     authRequestEligibilities
   );
 
+  const generate = async () => {
+    setLoadingProof(true);
+    setErrorProof(false);
+    try {
+      const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
+      const registryTreeRoot = await getRegistryTreeRoot(
+        selectedSismoConnectRequest
+      );
+
+      setRegistryTreeRoot(registryTreeRoot);
+
+      const sismoConnectResponse = await generateResponse(
+        selectedSismoConnectRequest,
+        vault.importedAccounts,
+        vaultSecret
+      );
+      setErrorProof(false);
+      setLoadingProof(false);
+      setResponse(sismoConnectResponse);
+
+      if (selectedSismoConnectRequest?.devConfig?.displayRawResponse) {
+        setProofModalOpen(true);
+        return;
+      }
+    } catch (e) {
+      Sentry.withScope(function (scope) {
+        scope.setLevel("fatal");
+        Sentry.captureException(e);
+      });
+      console.error(e);
+      setErrorProof(true);
+    }
+    setLoadingProof(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  };
+
   return (
     <>
+      <ProofModal
+        response={response}
+        registryTreeRoot={registryTreeRoot}
+        isOpen={proofModalOpen}
+        onClose={() => setProofModalOpen(false)}
+      />
       <ConnectVaultModal
         isOpen={connectIsOpen}
         onClose={() => setConnectIsOpen(false)}
@@ -245,6 +299,8 @@ export default function ConnectFlow({
           selectedSismoConnectRequest={selectedSismoConnectRequest}
           appName={factoryApp?.name}
           onUserInput={onUserInput}
+          loadingEligible={loadingEligible}
+          proofLoading={loadingProof}
         />
 
         <CallToAction>
@@ -260,8 +316,8 @@ export default function ConnectFlow({
             <Button
               success
               style={{ width: 252 }}
-              // onClick={() => onNext()}
-              loading={false}
+              onClick={() => generate()}
+              loading={loadingProof}
               disabled={!isSismoConnectRequestEligible}
             >
               Generate ZK proof
