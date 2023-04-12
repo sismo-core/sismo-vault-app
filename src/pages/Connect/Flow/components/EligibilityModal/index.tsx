@@ -1,13 +1,10 @@
 import styled from "styled-components";
-import { useEffect, useState } from "react";
 import Modal from "../../../../../components/Modal";
 import colors from "../../../../../theme/colors";
 import EligibleLink from "./components/EligibleLink";
 import Generation from "./components/Generation";
 import Icon from "../../../../../components/Icon";
 import { ArrowSquareOut } from "phosphor-react";
-import { getHumanReadableGroupName } from "../../../utils/getHumanReadableGroupName";
-import { RequestGroupMetadata } from "../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 import { GroupMetadata } from "../../../../../libs/sismo-client";
 
 const Container = styled.div`
@@ -167,42 +164,6 @@ const IconGithubContainer = styled.div`
     width: 14px;
     height: 14px;
   }
-`;
-
-const GroupsSelector = styled.div`
-  align-self: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: -40px;
-  flex-wrap: wrap;
-`;
-
-const GroupItem = styled.div<{ isSelected: boolean }>`
-  display: flex;
-  align-items: center;
-  padding: 1px 10px 1px 6px;
-  gap: 6px;
-  font-size: 16px;
-  line-height: 24px;
-  font-family: ${(props) => props.theme.fonts.medium};
-  cursor: pointer;
-  border-radius: 10px;
-  box-sizing: border-box;
-
-  ${(props) =>
-    !props.isSelected
-      ? `
-    background-color: ${props.theme.colors.blue10};
-    color: ${props.theme.colors.blue1};
-    border: 1px solid ${props.theme.colors.blue10};
-  `
-      : `
-    background-color: ${props.theme.colors.blue9};
-    color: ${props.theme.colors.green1};
-    border: 1px solid ${props.theme.colors.green1};
-  `}
 `;
 
 const IconContainer = styled.div`

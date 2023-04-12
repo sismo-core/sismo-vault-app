@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
-import { GroupMetadata } from "../../../../libs/sismo-client";
 import {
   ClaimType,
   GroupMetadataClaimRequestEligibility,

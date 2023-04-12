@@ -1,12 +1,11 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import Modal from "../../../../../../components/Modal";
-import { getSismoConnectResponseBytes } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
-import { SismoConnectResponse } from "../../../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
-import colors from "../../../../../../theme/colors";
-import fonts from "../../../../../../theme/fonts";
-import Button from "../../../../../../components/Button";
-import { CheckCircle, Columns, Copy } from "phosphor-react";
+import Modal from "../../../../components/Modal";
+import { getSismoConnectResponseBytes } from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
+import { SismoConnectResponse } from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+import colors from "../../../../theme/colors";
+import Button from "../../../../components/Button";
+import { CheckCircle, Copy } from "phosphor-react";
 
 const Container = styled.div`
   display: flex;

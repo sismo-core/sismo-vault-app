@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useState } from "react";
 import {
   AuthRequestEligibility,
   GroupMetadataClaimRequestEligibility,
@@ -8,7 +8,6 @@ import {
 import { CaretUp } from "phosphor-react";
 import colors from "../../../../theme/colors";
 import { DataRequest } from "./DataRequest";
-import { ImportedAccount } from "../../../../libs/vault-client";
 
 const Container = styled.div`
   display: flex;

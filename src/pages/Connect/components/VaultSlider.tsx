@@ -1,25 +1,24 @@
 import styled from "styled-components";
 import { CaretLeft, Gear, Copy } from "phosphor-react";
 import { useRef } from "react";
-import useOnClickOutside from "../../../../utils/useClickOutside";
-import { useVault } from "../../../../libs/vault";
-import Avatar from "../../../../components/Avatar";
-import { getMainMinified } from "../../../../utils/getMain";
-import Loader from "../../../../components/Loader";
-import { useImportAccount } from "../../../Modals/ImportAccount/provider";
-import colors from "../../../../theme/colors";
-import { useMyVault } from "../../../Modals/MyVault/Provider";
-import { useNotifications } from "../../../../components/Notifications/provider";
-import { getMinimalIdentifier } from "../../../../utils/getMinimalIdentifier";
-import ThreeDotsLoader from "../../../../components/ThreeDotsLoader";
+import { useVault } from "../../../libs/vault";
+import Avatar from "../../../components/Avatar";
+import { getMainMinified } from "../../../utils/getMain";
+import Loader from "../../../components/Loader";
+import { useImportAccount } from "../../Modals/ImportAccount/provider";
+import colors from "../../../theme/colors";
+import { useMyVault } from "../../Modals/MyVault/Provider";
+import { useNotifications } from "../../../components/Notifications/provider";
+import { getMinimalIdentifier } from "../../../utils/getMinimalIdentifier";
+import ThreeDotsLoader from "../../../components/ThreeDotsLoader";
 
 const Container = styled.div<{ vaultSliderOpen: boolean }>`
   position: absolute;
-  top: 30px;
-  left: 530px;
+  top: 50px;
+  left: 592px;
   display: flex;
 
-  z-index: 3;
+  z-index: 1;
   box-sizing: border-box;
 
   @media (max-width: 1180px) {
@@ -130,7 +129,7 @@ const VaultContent = styled.div<{
   box-sizing: border-box;
 
   transition: transform 0.1s ease-in-out;
-  z-index: -1;
+  /* z-index: -1; */
 
   @media (max-width: 1180px) {
     width: 188px;
@@ -316,9 +315,9 @@ export default function VaultSlider({
   const importAccount = useImportAccount();
   const myVault = useMyVault();
 
-  useOnClickOutside(ref, () => {
-    setVaultSliderOpen(false);
-  });
+  // useOnClickOutside(ref, () => {
+  //   setVaultSliderOpen(false);
+  // });
 
   const { notificationAdded } = useNotifications();
 
@@ -419,7 +418,7 @@ export default function VaultSlider({
         </VaultIconWrapper>
 
         <CaretWrapper vaultSliderOpen={vaultSliderOpen}>
-          <CaretLeft size={10.58} weight="bold" />
+          <CaretLeft size={10.58} weight="bold" color={colors?.blue0} />
         </CaretWrapper>
       </VaultButton>
     </Container>

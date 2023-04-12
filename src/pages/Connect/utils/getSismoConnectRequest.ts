@@ -106,7 +106,6 @@ export const getSismoConnectRequest = (
         typeof auth.extraData === "undefined" ? "" : auth.extraData;
     }
   }
-
   /* ****************************************** */
   /* ****** SET DEFAULT FOR CLAIM ************* */
   /* ****************************************** */

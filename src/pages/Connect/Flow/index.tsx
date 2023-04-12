@@ -4,30 +4,20 @@ import { useState, useEffect, useRef } from "react";
 import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-import {
-  ArrowLeft,
-  ArrowSquareOut,
-  ArrowsOutSimple,
-  Info,
-} from "phosphor-react";
-import env from "../../../environment";
+import { ArrowLeft, ArrowSquareOut, Info } from "phosphor-react";
 import { FactoryApp } from "../../../libs/sismo-client";
 
 import {
   AuthRequestEligibility,
   GroupMetadataClaimRequestEligibility,
-  RequestGroupMetadata,
-  SismoConnectRequest,
   SismoConnectResponse,
   SelectedSismoConnectRequest,
-  SelectedAuthRequest,
 } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 import HoverTooltip from "../../../components/HoverTooltip";
 import colors from "../../../theme/colors";
 import { capitalizeFirstLetter } from "../../../utils/capitalizeFirstLetter";
 import { getIsEligible } from "../utils/getIsEligible";
 import Button from "../../../components/Button";
-import { useImportAccount } from "../../Modals/ImportAccount/provider";
 import DataRequests from "./components/DataRequests";
 import ConnectVaultModal from "../../Modals/ConnectVaultModal";
 import ProofModal from "./components/ProofModal";
@@ -60,12 +50,6 @@ const GoBack = styled.div`
   white-space: nowrap;
 `;
 
-const TopContent = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-`;
-
 const ContentTitle = styled.div`
   display: flex;
   flex-direction: column;
@@ -89,34 +73,6 @@ const SecondLine = styled.div`
   color: ${(props) => props.theme.colors.blue0};
   font-size: 20px;
   line-height: 24px;
-`;
-
-const Bold = styled.span`
-  font-family: ${(props) => props.theme.fonts.bold};
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  margin: 0 auto;
-  width: 252px;
-`;
-
-const Link = styled.a`
-  align-self: flex-end;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  font-family: ${(props) => props.theme.fonts.medium};
-  color: ${(props) => props.theme.colors.blue4};
-  font-size: 12px;
-  line-height: 18px;
-  text-decoration: none;
-  cursor: pointer;
 `;
 
 const CallToAction = styled.div`
@@ -143,35 +99,6 @@ const LinkWrapper = styled.a`
   color: ${(props) => props.theme.colors.blue4};
   font-family: ${(props) => props.theme.fonts.medium};
   text-decoration: none;
-`;
-
-const EligibilityLink = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 20px;
-  font-family: ${(props) => props.theme.fonts.medium};
-  color: ${(props) => props.theme.colors.blue2};
-  gap: 5px;
-  margin-top: 20px;
-  margin-bottom: 12px;
-`;
-
-const ArrowWrapper = styled(ArrowsOutSimple)`
-  align-self: flex-start;
-`;
-
-const TooltipContent = styled.div`
-  font-size: 14px;
-  line-height: 20px;
-  color: ${(props) => props.theme.colors.blue0};
-  font-family: ${(props) => props.theme.fonts.medium};
-
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
 `;
 
 type Props = {
@@ -203,7 +130,7 @@ export default function ConnectFlow({
 }: Props): JSX.Element {
   const [connectIsOpen, setConnectIsOpen] = useState(false);
   const [loadingProof, setLoadingProof] = useState(false);
-  const [errorProof, setErrorProof] = useState(false);
+  const [, setErrorProof] = useState(false);
   const [response, setResponse] = useState<SismoConnectResponse>();
   const [registryTreeRoot, setRegistryTreeRoot] = useState<string>();
   const [proofModalOpen, setProofModalOpen] = useState(false);
@@ -221,8 +148,6 @@ export default function ConnectFlow({
     if (!authRequestEligibilities && !groupMetadataClaimRequestEligibilities)
       return;
     if (isDefaultSet.current) return;
-
-    console.log("SET DEFAULT VALUE");
 
     let newSelectedSismoConnectRequest: SelectedSismoConnectRequest = {
       ...selectedSismoConnectRequest,

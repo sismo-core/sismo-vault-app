@@ -1,10 +1,6 @@
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
-import { GroupMetadata } from "../../../../libs/sismo-client";
-import {
-  AuthType,
-  ClaimType,
-} from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+import { AuthType } from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 import {
   EthRounded,
   GithubRounded,

@@ -1,4 +1,4 @@
-import { hexDataSlice, keccak256 } from "ethers/lib/utils";
+import { keccak256 } from "ethers/lib/utils";
 import { ImportedAccount } from "../../vault-client";
 import {
   EddsaPublicKey,

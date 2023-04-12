@@ -11,14 +11,12 @@ import colors from "../../../../theme/colors";
 import { getHumanReadableAuthType } from "../../utils/getHumanReadableAuthType";
 import ShardTag from "./ShardTag";
 import EligibilityModal from "./EligibilityModal";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Toggle from "./Toggle";
-import Button from "../../../../components/Button";
 import ImportButton from "./ImportButton";
 import {
   EthRounded,
   GithubRounded,
-  Twitter,
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
 import UserTag from "./UserTag";

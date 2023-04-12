@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { SelectedSismoConnectRequest } from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 import { PencilSimple } from "phosphor-react";
 import colors from "../../../../theme/colors";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./ImportButton";
 import { useVault } from "../../../../libs/vault";
 
@@ -75,7 +75,7 @@ export function SignatureRequest({
 }: Props): JSX.Element {
   const vault = useVault();
 
-  const [rows, setRows] = useState(3);
+  const [rows] = useState(3);
 
   const [isEditing, setIsEditing] = useState(false);
   const [liveValue, setLiveValue] = useState(
