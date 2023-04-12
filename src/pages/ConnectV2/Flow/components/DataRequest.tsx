@@ -11,7 +11,7 @@ import colors from "../../../../theme/colors";
 import { getHumanReadableAuthType } from "../../utils/getHumanReadableAuthType";
 import ShardTag from "./ShardTag";
 import EligibilityModal from "./EligibilityModal";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Toggle from "./Toggle";
 import Button from "../../../../components/Button";
 import ImportButton from "./ImportButton";
@@ -22,6 +22,9 @@ import {
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
 import UserTag from "./UserTag";
+import UserSelector from "./UserSelector";
+import { ImportedAccount } from "../../../../libs/vault-client";
+import { useVault } from "../../../../libs/vault";
 
 type Props = {
   authRequestEligibility?: AuthRequestEligibility;
@@ -79,6 +82,10 @@ const InnerButton = styled.div`
   gap: 6px;
 `;
 
+const CheckCircleIcon = styled(CheckCircle)`
+  flex-shrink: 0;
+`;
+
 export function DataRequest({
   authRequestEligibility,
   groupMetadataClaimRequestEligibility,
@@ -87,6 +94,8 @@ export function DataRequest({
 }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOptIn, setIsOptIn] = useState(false);
+  const [initialAccount, setInitialAccount] = useState<ImportedAccount>(null);
+  const vault = useVault();
 
   const isClaim = !!groupMetadataClaimRequestEligibility;
   const isAuth = !!authRequestEligibility;
@@ -100,12 +109,6 @@ export function DataRequest({
   const isEligible =
     authRequestEligibility?.isEligible ||
     groupMetadataClaimRequestEligibility?.isEligible;
-
-  console.log(
-    "groupMetadataClaimRequestEligibility",
-    groupMetadataClaimRequestEligibility
-  );
-  console.log("isEligible", isEligible);
 
   const isSelectableByUser =
     authRequestEligibility?.auth?.isSelectableByUser ||
@@ -172,6 +175,71 @@ export function DataRequest({
     onUserInput(newSelectedSismoConnectRequest);
   }
 
+  const onAuthChange = useCallback(
+    (
+      authRequestEligibility: AuthRequestEligibility,
+      accountIdentifier: string
+    ) => {
+      const newSelectedSismoConnectRequest = {
+        ...selectedSismoConnectRequest,
+        selectedAuths: selectedSismoConnectRequest.selectedAuths.map((auth) => {
+          if (auth.uuid === authRequestEligibility.auth.uuid) {
+            return {
+              ...auth,
+              selectedUserId: accountIdentifier,
+            };
+          } else {
+            return auth;
+          }
+        }),
+      };
+      onUserInput(newSelectedSismoConnectRequest);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  /* ************************************************* */
+  /* ********* SET INITIAL SELECTED USER ID ********** */
+  /* ************************************************* */
+
+  useEffect(() => {
+    if (!isAuth) return;
+    if (!isEligible) return;
+    if (!vault.isConnected) return;
+
+    if (authRequestEligibility?.auth?.userId === "0") {
+      let userId;
+      setInitialAccount(authRequestEligibility?.accounts[0]);
+      onAuthChange(authRequestEligibility, userId);
+    }
+
+    if (authRequestEligibility?.auth?.userId !== "0") {
+      const defaultAccount = authRequestEligibility?.accounts.find(
+        (account) =>
+          account.identifier?.toLowerCase() ===
+          authRequestEligibility?.auth?.userId?.toLowerCase()
+      );
+
+      if (defaultAccount) {
+        setInitialAccount(defaultAccount);
+        onAuthChange(authRequestEligibility, defaultAccount.identifier);
+      } else {
+        setInitialAccount(authRequestEligibility?.accounts[0]);
+        onAuthChange(
+          authRequestEligibility,
+          authRequestEligibility?.accounts[0]?.identifier
+        );
+      }
+    }
+  }, [
+    authRequestEligibility,
+    isAuth,
+    isEligible,
+    onAuthChange,
+    vault?.isConnected,
+  ]);
+
   if (!isInitiallyLoaded) {
     return null;
   }
@@ -188,7 +256,7 @@ export function DataRequest({
         )}
 
         {!isOptional && (
-          <CheckCircle
+          <CheckCircleIcon
             size={24}
             color={isEligible ? colors.green1 : colors.blue6}
           />
@@ -230,15 +298,16 @@ export function DataRequest({
               requestedValue={
                 groupMetadataClaimRequestEligibility?.claim?.value
               }
+              optIn={isOptional && isEligible ? isOptIn : true}
               onModal={() => setIsModalOpen(true)}
             />
           )}
         </TextWrapper>
       </Left>
-      <Right>
-        {!isEligible && (
-          <StyledButton primary verySmall isMedium loading={false}>
-            {true && (
+      {vault?.importedAccounts && (
+        <Right>
+          {!isEligible && (
+            <StyledButton primary verySmall isMedium loading={false}>
               <InnerButton>
                 {authRequestEligibility?.auth?.authType === AuthType.TWITTER ? (
                   <TwitterRounded size={14} color={colors.blue11} />
@@ -250,10 +319,21 @@ export function DataRequest({
                 )}
                 <span>Connect</span>
               </InnerButton>
+            </StyledButton>
+          )}
+          {isEligible &&
+            isAuth &&
+            authRequestEligibility?.auth?.authType !== AuthType.VAULT && (
+              <UserSelector
+                authRequestEligibility={authRequestEligibility}
+                isSelectableByUser={isSelectableByUser}
+                onAuthChange={onAuthChange}
+                optIn={true}
+                initialAccount={initialAccount}
+              />
             )}
-          </StyledButton>
-        )}
-      </Right>
+        </Right>
+      )}
     </Container>
   );
 }

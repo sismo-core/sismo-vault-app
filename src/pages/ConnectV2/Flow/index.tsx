@@ -29,6 +29,7 @@ import { getIsEligible } from "../utils/getIsEligible";
 import Button from "../../../components/Button";
 import { useImportAccount } from "../../Modals/ImportAccount/provider";
 import DataRequests from "./components/DataRequests";
+import ConnectVaultModal from "../../Modals/ConnectVaultModal";
 
 const Container = styled.div`
   position: relative;
@@ -36,6 +37,11 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
+  padding: 40px 24px;
+  background: ${(props) => props.theme.colors.blue11};
+  border-radius: 10px;
+  z-index: 2;
+  box-sizing: border-box;
 `;
 
 const GoBack = styled.div`
@@ -188,6 +194,9 @@ export default function ConnectFlow({
   hostName,
   onUserInput,
 }: Props): JSX.Element {
+  const [connectIsOpen, setConnectIsOpen] = useState(false);
+  const vault = useVault();
+
   const goBack = () => {
     if (window.opener) {
       window.opener.postMessage(null, callbackUrl);
@@ -203,55 +212,71 @@ export default function ConnectFlow({
   );
 
   return (
-    <Container>
-      {hostName && (
-        <GoBack onClick={() => goBack()}>
-          <ArrowLeft style={{ marginRight: 15 }} />
-          Go back to {hostName}
-        </GoBack>
-      )}
-      <ContentTitle>
-        <AppLogo src={factoryApp?.logoUrl} alt={factoryApp?.name} />
-        <SecondLine>
-          Connect to {capitalizeFirstLetter(factoryApp?.name)}
-          <HoverTooltip
-            width={300}
-            text="Connecting with your Vault does not reveal the accounts inside. You only reveal your Vault ID—an anonymous app-specific identifier that authenticates ownership of a Data Vault. "
-          >
-            <Info size={14} color={colors.blue0} />
-          </HoverTooltip>
-        </SecondLine>
-      </ContentTitle>
-
-      <DataRequests
-        authRequestEligibilities={authRequestEligibilities}
-        groupMetadataClaimRequestEligibilities={
-          groupMetadataClaimRequestEligibilities
-        }
-        selectedSismoConnectRequest={selectedSismoConnectRequest}
-        appName={factoryApp?.name}
-        onUserInput={onUserInput}
+    <>
+      <ConnectVaultModal
+        isOpen={connectIsOpen}
+        onClose={() => setConnectIsOpen(false)}
       />
+      <Container>
+        {hostName && (
+          <GoBack onClick={() => goBack()}>
+            <ArrowLeft style={{ marginRight: 15 }} />
+            Go back to {hostName}
+          </GoBack>
+        )}
+        <ContentTitle>
+          <AppLogo src={factoryApp?.logoUrl} alt={factoryApp?.name} />
+          <SecondLine>
+            Connect to {capitalizeFirstLetter(factoryApp?.name)}
+            <HoverTooltip
+              width={300}
+              text="Connecting with your Vault does not reveal the accounts inside. You only reveal your Vault ID—an anonymous app-specific identifier that authenticates ownership of a Data Vault. "
+            >
+              <Info size={14} color={colors.blue0} />
+            </HoverTooltip>
+          </SecondLine>
+        </ContentTitle>
 
-      <CallToAction>
-        <LinkWrapper
-          href="https://docs.sismo.io/sismo-docs/readme/zkconnect"
-          target="_blank"
-        >
-          What is sismoConnect
-          <ArrowSquareOut size={12} color={colors.blue4} weight="bold" />
-        </LinkWrapper>
+        <DataRequests
+          authRequestEligibilities={authRequestEligibilities}
+          groupMetadataClaimRequestEligibilities={
+            groupMetadataClaimRequestEligibilities
+          }
+          selectedSismoConnectRequest={selectedSismoConnectRequest}
+          appName={factoryApp?.name}
+          onUserInput={onUserInput}
+        />
 
-        <Button
-          success
-          style={{ width: 252 }}
-          // onClick={() => onNext()}
-          loading={false}
-          disabled={!isSismoConnectRequestEligible}
-        >
-          Generate ZK proof
-        </Button>
-      </CallToAction>
-    </Container>
+        <CallToAction>
+          <LinkWrapper
+            href="https://docs.sismo.io/sismo-docs/readme/zkconnect"
+            target="_blank"
+          >
+            What is sismoConnect
+            <ArrowSquareOut size={12} color={colors.blue4} weight="bold" />
+          </LinkWrapper>
+
+          {vault.isConnected ? (
+            <Button
+              success
+              style={{ width: 252 }}
+              // onClick={() => onNext()}
+              loading={false}
+              disabled={!isSismoConnectRequestEligible}
+            >
+              Generate ZK proof
+            </Button>
+          ) : (
+            <Button
+              primary
+              style={{ width: 252 }}
+              onClick={() => setConnectIsOpen(true)}
+            >
+              Sign-in to Sismo
+            </Button>
+          )}
+        </CallToAction>
+      </Container>
+    </>
   );
 }

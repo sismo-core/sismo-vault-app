@@ -5,7 +5,8 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   height: 366px;
-  box-sizing: border-box;
+  //box-sizing: border-box;
+  padding: 40px 24px;
 `;
 
 export const SkeletonLoading = keyframes`

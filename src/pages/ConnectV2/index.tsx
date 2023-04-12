@@ -23,6 +23,7 @@ import { useVault } from "../../libs/vault";
 import { getSismoConnectResponseBytes } from "../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
 import Skeleton from "./components/Skeleton";
 import Flow from "./Flow";
+import VaultSlider from "./components/VaultSlider";
 
 const Container = styled.div`
   position: relative;
@@ -59,7 +60,6 @@ const ContentContainer = styled.div`
   position: relative;
   background: ${(props) => props.theme.colors.blue11};
   border-radius: 10px;
-  padding: 40px 24px;
   margin-bottom: 40px;
 
   @media (max-width: 900px) {
@@ -85,7 +85,9 @@ const ContentContainer = styled.div`
 export default function Connect(): JSX.Element {
   const [searchParams] = useSearchParams();
   const vault = useVault();
+  const [vaultSliderOpen, setVaultSliderOpen] = useState(false);
 
+  const [imgLoaded, setImgLoaded] = useState(false);
   const [factoryApp, setFactoryApp] = useState<FactoryApp>(null);
 
   const [sismoConnectRequest, setSismoConnectRequest] =
@@ -105,7 +107,7 @@ export default function Connect(): JSX.Element {
   const [selectedSismoConnectRequest, setSelectedSismoConnectRequest] =
     useState<SelectedSismoConnectRequest | null>(null);
 
-  const [loading, setLoading] = useState(true);
+  const [loadingEligible, setLoadingEligible] = useState(true);
 
   const [hostName, setHostname] = useState<string>(null);
   const [referrerUrl, setReferrerUrl] = useState(null);
@@ -115,6 +117,27 @@ export default function Connect(): JSX.Element {
     status: null,
     message: null,
   });
+
+  /* ********************************************************** */
+  /* ************************ LOAD IMAGE ********************** */
+  /* ********************************************************** */
+
+  useEffect(() => {
+    const loadImage = (url) => {
+      return new Promise((resolve, reject) => {
+        const loadImg = new Image(72, 72);
+        loadImg.src = url;
+        loadImg.onload = () => resolve(url);
+        loadImg.onerror = (err) => reject(err);
+      });
+    };
+
+    if (factoryApp) {
+      loadImage(factoryApp.logoUrl).then(() => {
+        setImgLoaded(true);
+      });
+    }
+  }, [factoryApp]);
 
   const {
     getGroupMetadata,
@@ -290,7 +313,7 @@ export default function Connect(): JSX.Element {
 
   useEffect(() => {
     if (!sismoConnectRequest) return;
-    if (!vault.importedAccounts) return;
+    //if (!vault.importedAccounts) return;
     if (sismoConnectRequest?.claims?.length && !requestGroupsMetadata) return;
 
     const getEligibilities = async () => {
@@ -301,7 +324,7 @@ export default function Connect(): JSX.Element {
         return;
       }
       try {
-        setLoading(true);
+        setLoadingEligible(true);
 
         if (sismoConnectRequest?.auths?.length) {
           const authRequestEligibilities = await getAuthRequestEligibilities(
@@ -335,10 +358,10 @@ export default function Connect(): JSX.Element {
             groupMetadataClaimRequestEligibilities
           );
         }
-        setLoading(false);
+        setLoadingEligible(false);
       } catch (e) {
         Sentry.captureException(e);
-        setLoading(false);
+        setLoadingEligible(false);
       }
     };
     getEligibilities();
@@ -375,6 +398,12 @@ export default function Connect(): JSX.Element {
     setSelectedSismoConnectRequest(selectedSismoConnectRequest);
   };
 
+  const loading =
+    vault?.loadingActiveSession ||
+    (vault?.isConnected
+      ? loadingEligible || !imgLoaded || !vault?.importedAccounts
+      : loadingEligible || !imgLoaded);
+
   return (
     <Container>
       {loading && (
@@ -385,6 +414,10 @@ export default function Connect(): JSX.Element {
       {/* <div>Wrong Request</div> */}
       {!loading && (
         <ContentContainer>
+          <VaultSlider
+            vaultSliderOpen={vaultSliderOpen}
+            setVaultSliderOpen={setVaultSliderOpen}
+          />
           <Flow
             factoryApp={factoryApp}
             selectedSismoConnectRequest={selectedSismoConnectRequest}
