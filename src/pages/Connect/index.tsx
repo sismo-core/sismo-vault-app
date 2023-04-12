@@ -198,9 +198,7 @@ export default function Connect(): JSX.Element {
 
   useEffect(() => {
     if (!sismoConnectRequest) return;
-    if (!referrer) return;
     if (isWrongUrl?.status) return;
-    if (!factoryApp) return;
 
     if (
       !sismoConnectRequest.version ||
@@ -274,6 +272,13 @@ export default function Connect(): JSX.Element {
         return;
       }
     }
+  }, [sismoConnectRequest, isWrongUrl?.status]);
+
+  useEffect(() => {
+    if (!sismoConnectRequest) return;
+    if (!referrer) return;
+    if (!factoryApp) return;
+    if (isWrongUrl?.status) return;
 
     let _TLD =
       referrer.split(".")?.length > 1
