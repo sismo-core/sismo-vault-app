@@ -316,9 +316,9 @@ export default function VaultSlider({
   const importAccount = useImportAccount();
   const myVault = useMyVault();
 
-  useOnClickOutside(ref, () => {
-    setVaultSliderOpen(false);
-  });
+  // useOnClickOutside(ref, () => {
+  //   setVaultSliderOpen(false);
+  // });
 
   const { notificationAdded } = useNotifications();
 

@@ -95,6 +95,8 @@ export function DataRequest({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOptIn, setIsOptIn] = useState(false);
   const [initialAccount, setInitialAccount] = useState<ImportedAccount>(null);
+  const [initialValue, setInitialValue] = useState<number>(null);
+
   const vault = useVault();
 
   const isClaim = !!groupMetadataClaimRequestEligibility;
@@ -133,28 +135,6 @@ export function DataRequest({
     }
   }
 
-  function onClaimOptInChange(
-    groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
-    isOptIn: boolean
-  ) {
-    const newSelectedSismoConnectRequest = {
-      ...selectedSismoConnectRequest,
-      selectedClaims: selectedSismoConnectRequest.selectedClaims.map(
-        (claim) => {
-          if (claim.uuid === groupMetadataClaimRequestEligibility.claim.uuid) {
-            return {
-              ...claim,
-              isOptIn,
-            };
-          } else {
-            return claim;
-          }
-        }
-      ),
-    };
-    onUserInput(newSelectedSismoConnectRequest);
-  }
-
   function onAuthOptInChange(
     authRequestEligibility: AuthRequestEligibility,
     isOptIn: boolean
@@ -182,16 +162,68 @@ export function DataRequest({
     ) => {
       const newSelectedSismoConnectRequest = {
         ...selectedSismoConnectRequest,
-        selectedAuths: selectedSismoConnectRequest.selectedAuths.map((auth) => {
-          if (auth.uuid === authRequestEligibility.auth.uuid) {
+        selectedAuths: selectedSismoConnectRequest?.selectedAuths?.map(
+          (auth) => {
+            if (auth.uuid === authRequestEligibility?.auth?.uuid) {
+              return {
+                ...auth,
+                selectedUserId: accountIdentifier,
+              };
+            } else {
+              return auth;
+            }
+          }
+        ),
+      };
+      onUserInput(newSelectedSismoConnectRequest);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  function onClaimOptInChange(
+    groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
+    isOptIn: boolean
+  ) {
+    const newSelectedSismoConnectRequest = {
+      ...selectedSismoConnectRequest,
+      selectedClaims: selectedSismoConnectRequest.selectedClaims.map(
+        (claim) => {
+          if (claim.uuid === groupMetadataClaimRequestEligibility.claim.uuid) {
             return {
-              ...auth,
-              selectedUserId: accountIdentifier,
+              ...claim,
+              isOptIn,
             };
           } else {
-            return auth;
+            return claim;
           }
-        }),
+        }
+      ),
+    };
+    onUserInput(newSelectedSismoConnectRequest);
+  }
+
+  const onClaimChange = useCallback(
+    (
+      groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
+      selectedValue: number
+    ) => {
+      const newSelectedSismoConnectRequest = {
+        ...selectedSismoConnectRequest,
+        selectedClaims: selectedSismoConnectRequest.selectedClaims.map(
+          (claim) => {
+            if (
+              claim.uuid === groupMetadataClaimRequestEligibility.claim.uuid
+            ) {
+              return {
+                ...claim,
+                selectedValue,
+              };
+            } else {
+              return claim;
+            }
+          }
+        ),
       };
       onUserInput(newSelectedSismoConnectRequest);
     },
@@ -207,6 +239,7 @@ export function DataRequest({
     if (!isAuth) return;
     if (!isEligible) return;
     if (!vault.isConnected) return;
+    if (initialAccount) return;
 
     if (authRequestEligibility?.auth?.userId === "0") {
       let userId;
@@ -234,10 +267,34 @@ export function DataRequest({
     }
   }, [
     authRequestEligibility,
+    initialAccount,
     isAuth,
     isEligible,
     onAuthChange,
-    vault?.isConnected,
+    vault.isConnected,
+  ]);
+
+  /* ************************************************* */
+  /* ********* SET INITIAL SELECTED VALUE ************ */
+  /* ************************************************* */
+
+  useEffect(() => {
+    if (!isClaim) return;
+    if (!isEligible) return;
+    if (!vault.isConnected) return;
+    if (initialValue) return;
+
+    const initialClaimValue =
+      groupMetadataClaimRequestEligibility?.claim?.value;
+    setInitialValue(initialClaimValue);
+    onClaimChange(groupMetadataClaimRequestEligibility, initialClaimValue);
+  }, [
+    groupMetadataClaimRequestEligibility,
+    initialValue,
+    isClaim,
+    isEligible,
+    onClaimChange,
+    vault.isConnected,
   ]);
 
   if (!isInitiallyLoaded) {
@@ -291,14 +348,13 @@ export function DataRequest({
           )}
           {isClaim && (
             <ShardTag
-              groupMetadata={
-                groupMetadataClaimRequestEligibility?.groupMetadata
+              groupMetadataClaimRequestEligibility={
+                groupMetadataClaimRequestEligibility
               }
-              claimType={groupMetadataClaimRequestEligibility?.claim?.claimType}
-              requestedValue={
-                groupMetadataClaimRequestEligibility?.claim?.value
-              }
+              isSelectableByUser={isSelectableByUser}
               optIn={isOptional && isEligible ? isOptIn : true}
+              onClaimChange={onClaimChange}
+              initialValue={initialValue}
               onModal={() => setIsModalOpen(true)}
             />
           )}

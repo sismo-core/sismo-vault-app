@@ -59,11 +59,16 @@ const UserId = styled.div`
   text-overflow: ellipsis;
 `;
 
-const ChevronWrapper = styled.div`
+const ChevronWrapper = styled.div<{ isSelectorOpen: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+
+  transform: ${(props) =>
+    !props.isSelectorOpen ? "rotateX(0deg)" : "rotateX(180deg)"};
+
+  /* transition: transform 0.15s ease-in-out; */
 `;
 
 const SelectorContainer = styled.div`
@@ -98,9 +103,14 @@ const ItemContainer = styled.div<{ isSelected?: boolean; order: number }>`
 
   border-radius: 2px;
   cursor: pointer;
+
+  background: transparent;
+
   &:hover {
     background-color: ${(props) => props.theme.colors.blue7};
   }
+
+  transition: background 0.15s ease-in-out;
 `;
 
 const SelectorIcon = styled.div<{ isSelected: boolean }>`
@@ -215,7 +225,7 @@ export default function UserSelector({
           <UserId>{getReadableName(valueSelected)}</UserId>
         </UserTag>
         {isSelectorOpenable && (
-          <ChevronWrapper>
+          <ChevronWrapper isSelectorOpen={isSelectorOpen}>
             <CaretDown size={16} color={color} />
           </ChevronWrapper>
         )}
@@ -255,7 +265,7 @@ export default function UserSelector({
                   )}
                 </Logo>
                 <UserId>{getReadableName(account)}</UserId>
-                {!isDefault && <DefaultTag>Default</DefaultTag>}
+                {isDefault && <DefaultTag>Default</DefaultTag>}
               </ItemContainer>
             );
           })}

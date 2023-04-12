@@ -88,7 +88,7 @@ export default function DataRequests({
   appName,
   onUserInput,
 }: Props) {
-  const [optionalFolded, setOptionalFolded] = useState<boolean>(true);
+  const [optionalFolded, setOptionalFolded] = useState<boolean>(false);
 
   const requiredAuths = [];
   const optionalAuths = [];

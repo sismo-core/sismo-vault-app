@@ -24,6 +24,7 @@ import { getSismoConnectResponseBytes } from "../../libs/sismo-client/sismo-conn
 import Skeleton from "./components/Skeleton";
 import Flow from "./Flow";
 import VaultSlider from "./components/VaultSlider";
+import Logo from "./components/Logo";
 
 const Container = styled.div`
   position: relative;
@@ -31,9 +32,10 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 100px);
+  min-height: calc(100vh - 200px);
   width: 100vw;
   padding: 0px 60px;
+  margin: 50px 0px;
 
   @media (max-width: 1140px) {
     min-height: calc(100vh - 90px);
@@ -60,7 +62,7 @@ const ContentContainer = styled.div`
   position: relative;
   background: ${(props) => props.theme.colors.blue11};
   border-radius: 10px;
-  margin-bottom: 40px;
+  margin-bottom: 15px;
 
   @media (max-width: 900px) {
     width: 100%;
@@ -117,6 +119,10 @@ export default function Connect(): JSX.Element {
     status: null,
     message: null,
   });
+
+  useEffect(() => {
+    console.log("selectedSismoConnectRequest", selectedSismoConnectRequest);
+  }, [selectedSismoConnectRequest]);
 
   /* ********************************************************** */
   /* ************************ LOAD IMAGE ********************** */
@@ -447,6 +453,7 @@ export default function Connect(): JSX.Element {
           />
         )}
       </ContentContainer> */}
+      <Logo />
     </Container>
   );
 }
