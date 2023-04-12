@@ -167,5 +167,5 @@ searchParams.set("devConfig", JSON.stringify(devConfig));
 export const sismoConnectRequestMockUrl = url.toString();
 
 export function getMockUrl() {
-  console.log(sismoConnectRequestMockUrl);
+  // console.log(sismoConnectRequestMockUrl);
 }
