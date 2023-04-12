@@ -3,7 +3,7 @@ import {
   AuthRequestEligibility,
   AuthType,
 } from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import colors from "../../../../theme/colors";
 import {
   EthRounded,
@@ -12,6 +12,12 @@ import {
 } from "../../../../components/SismoReactIcon";
 import { ImportedAccount } from "../../../../libs/vault-client";
 import { CaretDown } from "phosphor-react";
+import useOnClickOutside from "../../../../utils/useClickOutside";
+import { getMinimalIdentifier } from "../../../../utils/getMinimalIdentifier";
+
+const OuterContainer = styled.div`
+  position: relative;
+`;
 
 const Container = styled.div<{ color: string; isSelectableByUser: boolean }>`
   display: flex;
@@ -60,6 +66,69 @@ const ChevronWrapper = styled.div`
   flex-shrink: 0;
 `;
 
+const SelectorContainer = styled.div`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 28px;
+  right: 0;
+  background-color: ${(props) => props.theme.colors.blue9};
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  z-index: 1;
+  padding: 4px 2px;
+
+  width: 245px;
+
+  box-sizing: border-box;
+`;
+
+const ItemContainer = styled.div<{ isSelected?: boolean; order: number }>`
+  display: flex;
+  align-items: center;
+  padding: 0px 12px;
+  gap: 8px;
+  height: 38px;
+  order: ${(props) => props.order};
+
+  font-size: 14px;
+  line-height: 20px;
+  font-family: ${(props) => props.theme.fonts.medium};
+  color: ${(props) => props.theme.colors.blue0};
+
+  border-radius: 2px;
+  cursor: pointer;
+  &:hover {
+    background-color: ${(props) => props.theme.colors.blue7};
+  }
+`;
+
+const SelectorIcon = styled.div<{ isSelected: boolean }>`
+  border-radius: 50%;
+  width: 18px !important;
+  height: 18px !important;
+  border: ${(props) => (props.isSelected ? "5px" : "3px")} solid
+    ${(props) =>
+      props.isSelected ? props.theme.colors.blue3 : props.theme.colors.blue6};
+  box-sizing: border-box;
+  flex-shrink: 0;
+`;
+
+const DefaultTag = styled.div`
+  padding: 2px 8px;
+  gap: 10px;
+
+  width: 57px;
+  height: 22px;
+  font-size: 12px;
+  line-height: 18px;
+
+  background: ${(props) => props.theme.colors.blue6};
+  color: ${(props) => props.theme.colors.blue0};
+  border-radius: 20px;
+  box-sizing: border-box;
+`;
+
 type Props = {
   optIn?: boolean;
   isSelectableByUser?: boolean;
@@ -81,8 +150,12 @@ export default function UserSelector({
 }: Props) {
   const color = !optIn ? colors.blue3 : colors.blue0;
   const authType = authRequestEligibility?.auth?.authType;
+  const ref = useRef(null);
+
+  useOnClickOutside(ref, () => setIsSelectorOpen(false));
 
   const [valueSelected, setValueSelected] = useState(initialAccount || null);
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 
   function onValueChange(
     authRequestEligibility: AuthRequestEligibility,
@@ -98,40 +171,96 @@ export default function UserSelector({
     setValueSelected(initialAccount);
   }, [initialAccount]);
 
-  let humanReadableUserId = "";
+  function getReadableName(importedAccount: ImportedAccount) {
+    let humanReadableUserId = "";
+    if (
+      authRequestEligibility?.auth?.authType !== AuthType.VAULT &&
+      authRequestEligibility?.auth?.authType !== AuthType.EVM_ACCOUNT
+    ) {
+      humanReadableUserId = importedAccount?.profile?.login;
+    } else {
+      humanReadableUserId = importedAccount?.ens
+        ? importedAccount?.ens?.name
+        : getMinimalIdentifier(importedAccount?.identifier);
+    }
 
-  if (
-    authRequestEligibility?.auth?.authType !== AuthType.VAULT &&
-    authRequestEligibility?.auth?.authType !== AuthType.EVM_ACCOUNT
-  ) {
-    humanReadableUserId = valueSelected?.profile?.login;
-  } else {
-    humanReadableUserId = valueSelected?.ens
-      ? valueSelected?.ens?.name
-      : valueSelected?.identifier;
+    // if (humanReadableUserId?.length > 15) {
+    //   humanReadableUserId = `${humanReadableUserId.slice(0, 10)}...`;
+    // }
+    return humanReadableUserId;
   }
 
-  console.log("humanReadableUserId", valueSelected);
+  const isSelectorOpenable =
+    isSelectableByUser && authRequestEligibility?.accounts?.length > 1;
 
   return (
-    <Container color={color} isSelectableByUser={isSelectableByUser}>
-      <UserTag isSelectableByUser={isSelectableByUser}>
-        <Logo>
-          {authType === AuthType.TWITTER ? (
-            <TwitterRounded size={14} color={color} />
-          ) : authType === AuthType.GITHUB ? (
-            <GithubRounded size={14} color={color} />
-          ) : (
-            <EthRounded size={14} color={color} />
-          )}
-        </Logo>
-        <UserId>{humanReadableUserId}</UserId>
-      </UserTag>
-      {isSelectableByUser && (
-        <ChevronWrapper>
-          <CaretDown size={16} color={color} />
-        </ChevronWrapper>
+    <OuterContainer ref={ref}>
+      <Container
+        color={color}
+        isSelectableByUser={isSelectableByUser}
+        onClick={() => {
+          isSelectorOpenable && setIsSelectorOpen(!isSelectorOpen);
+        }}
+      >
+        <UserTag isSelectableByUser={isSelectableByUser}>
+          <Logo>
+            {authType === AuthType.TWITTER ? (
+              <TwitterRounded size={14} color={color} />
+            ) : authType === AuthType.GITHUB ? (
+              <GithubRounded size={14} color={color} />
+            ) : (
+              <EthRounded size={14} color={color} />
+            )}
+          </Logo>
+          <UserId>{getReadableName(valueSelected)}</UserId>
+        </UserTag>
+        {isSelectorOpenable && (
+          <ChevronWrapper>
+            <CaretDown size={16} color={color} />
+          </ChevronWrapper>
+        )}
+      </Container>
+
+      {isSelectorOpen && (
+        <SelectorContainer>
+          {authRequestEligibility?.accounts?.map((account, index) => {
+            const isSelected =
+              valueSelected?.identifier?.toLowerCase() ===
+              account?.identifier?.toLowerCase();
+            const isDefault =
+              account?.identifier?.toLowerCase() ===
+              authRequestEligibility?.auth?.userId.toLowerCase();
+
+            return (
+              <ItemContainer
+                key={
+                  authRequestEligibility?.auth?.uuid +
+                  account?.identifier +
+                  "/selectorUserId"
+                }
+                order={isDefault ? 1 : 2}
+                onClick={() => {
+                  onValueChange(authRequestEligibility, account);
+                  setIsSelectorOpen(false);
+                }}
+              >
+                <SelectorIcon isSelected={isSelected} />
+                <Logo>
+                  {authType === AuthType.TWITTER ? (
+                    <TwitterRounded size={14} color={color} />
+                  ) : authType === AuthType.GITHUB ? (
+                    <GithubRounded size={14} color={color} />
+                  ) : (
+                    <EthRounded size={14} color={color} />
+                  )}
+                </Logo>
+                <UserId>{getReadableName(account)}</UserId>
+                {!isDefault && <DefaultTag>Default</DefaultTag>}
+              </ItemContainer>
+            );
+          })}
+        </SelectorContainer>
       )}
-    </Container>
+    </OuterContainer>
   );
 }
