@@ -539,9 +539,13 @@ export default function Connect(): JSX.Element {
     setIsRedirecting(true);
     let url = callbackUrl;
     if (response) {
-      url += `?sismoConnectResponse=${JSON.stringify(
-        response
-      )}&sismoConnectResponseBytes=${getSismoConnectResponseBytes(response)}`;
+      url += `?sismoConnectResponse=${JSON.stringify(response)}`;
+
+      if (env.name !== "DEMO") {
+        url += `&sismoConnectResponseBytes=${getSismoConnectResponseBytes(
+          response
+        )}`;
+      }
     }
     setTimeout(() => {
       window.location.href = url;
