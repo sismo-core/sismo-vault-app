@@ -565,7 +565,7 @@ export default function Connect(): JSX.Element {
       {isWrongUrl?.status && (
         <WrongUrlScreen callbackUrl={callbackUrl} isWrongUrl={isWrongUrl} />
       )}
-      {!loading && !isRedirecting && (
+      {!loading && !isRedirecting && !isWrongUrl?.status && (
         <ContentContainer>
           <VaultSlider
             vaultSliderOpen={vaultSliderOpen}
@@ -587,7 +587,7 @@ export default function Connect(): JSX.Element {
           />
         </ContentContainer>
       )}
-      {!loading && isRedirecting && (
+      {!loading && isRedirecting && !isWrongUrl?.status && (
         <ContentContainer>
           <Redirection />
         </ContentContainer>
