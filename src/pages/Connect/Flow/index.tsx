@@ -39,7 +39,7 @@ const Container = styled.div`
 
 const GoBack = styled.div`
   position: absolute;
-  top: -71px;
+  top: -25px;
   right: 592px;
   cursor: pointer;
   font-size: 14px;
@@ -324,7 +324,7 @@ export default function ConnectFlow({
             Connect to {capitalizeFirstLetter(factoryApp?.name)}
             <HoverTooltip
               width={300}
-              text="Connecting with your Vault does not reveal the accounts inside. You only reveal your Vault ID—an anonymous app-specific identifier that authenticates ownership of a Data Vault. "
+              text="Your Data Vault is safe! Connecting to this app will not grant access to the data inside. Only the specified data will be shared."
             >
               <Info size={14} color={colors.blue0} />
             </HoverTooltip>

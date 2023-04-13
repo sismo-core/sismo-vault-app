@@ -9,7 +9,7 @@ import {
 
 export const devConfig = {
   enabled: true,
-  displayRawResponse: false,
+  displayRawResponse: true,
   devGroups: [
     {
       groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
@@ -65,15 +65,15 @@ export const claims: ClaimRequest[] = [
     value: 10,
     extraData: "",
   } as ClaimRequest,
-  {
-    claimType: ClaimType.EQ,
-    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-    groupTimestamp: "latest",
-    isOptional: true,
-    isSelectableByUser: true,
-    value: 3,
-    extraData: "",
-  } as ClaimRequest,
+  // {
+  //   claimType: ClaimType.EQ,
+  //   groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
+  //   groupTimestamp: "latest",
+  //   isOptional: true,
+  //   isSelectableByUser: true,
+  //   value: 3,
+  //   extraData: "",
+  // } as ClaimRequest,
 ];
 
 //0x1878EA9134D500A3cEF3E89589ECA3656EECf48f
@@ -95,38 +95,38 @@ export const auths: AuthRequest[] = [
     isSelectableByUser: true,
     extraData: "",
   },
-  // {
-  //   authType: AuthType.TWITTER,
-  //   isAnon: false,
-  //   userId: "971701818",
-  //   isOptional: false,
-  //   isSelectableByUser: false,
-  //   extraData: "",
-  // },
-  // {
-  //   authType: AuthType.GITHUB,
-  //   isAnon: false,
-  //   userId: "124567",
-  //   isOptional: false,
-  //   isSelectableByUser: false,
-  //   extraData: "",
-  // },
   {
-    authType: AuthType.EVM_ACCOUNT,
+    authType: AuthType.TWITTER,
     isAnon: false,
-    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-    isOptional: true,
+    userId: "971701818",
+    isOptional: false,
     isSelectableByUser: false,
     extraData: "",
   },
   {
-    authType: AuthType.EVM_ACCOUNT,
+    authType: AuthType.GITHUB,
     isAnon: false,
-    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-    isOptional: true,
+    userId: "124567",
+    isOptional: false,
     isSelectableByUser: true,
     extraData: "",
   },
+  // {
+  //   authType: AuthType.EVM_ACCOUNT,
+  //   isAnon: false,
+  //   userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+  //   isOptional: true,
+  //   isSelectableByUser: false,
+  //   extraData: "",
+  // },
+  // {
+  //   authType: AuthType.EVM_ACCOUNT,
+  //   isAnon: false,
+  //   userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+  //   isOptional: true,
+  //   isSelectableByUser: true,
+  //   extraData: "",
+  // },
   // {
   //   authType: AuthType.TWITTER,
   //   isAnon: false,
@@ -139,7 +139,7 @@ export const auths: AuthRequest[] = [
 
 export const signature: SignatureRequest = {
   message:
-    "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
+    "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of usin",
   isSelectableByUser: true,
   extraData: "",
 };
@@ -167,5 +167,5 @@ searchParams.set("devConfig", JSON.stringify(devConfig));
 export const sismoConnectRequestMockUrl = url.toString();
 
 export function getMockUrl() {
-  // console.log(sismoConnectRequestMockUrl);
+  //console.log(sismoConnectRequestMockUrl);
 }

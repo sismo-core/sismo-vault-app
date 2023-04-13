@@ -324,7 +324,9 @@ export function DataRequest({
           />
         )}
         <TextWrapper isOptIn={isOptional && isEligible ? isOptIn : true}>
-          Share
+          {isAuth && authRequestEligibility?.auth?.authType !== AuthType.VAULT
+            ? "Prove ownership of"
+            : "Share"}
           {isAuth && (
             <>
               {isAuthRequiredNotSelectable && (

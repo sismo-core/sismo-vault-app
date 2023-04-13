@@ -14,7 +14,7 @@ import ThreeDotsLoader from "../../../components/ThreeDotsLoader";
 
 const Container = styled.div<{ vaultSliderOpen: boolean }>`
   position: absolute;
-  top: 50px;
+  top: 120px;
   left: 592px;
   display: flex;
 
@@ -168,7 +168,7 @@ const VaultList = styled.div<{ vaultSliderOpen: boolean }>`
   margin: 0px 10px 10px 10px;
   overflow-x: hidden;
 
-  max-height: 210px;
+  max-height: 180px;
   overflow-y: scroll;
 
   /* width */

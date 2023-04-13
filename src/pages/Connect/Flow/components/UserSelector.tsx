@@ -213,12 +213,12 @@ export default function UserSelector({
     <OuterContainer ref={ref}>
       <Container
         color={color}
-        isSelectableByUser={isSelectableByUser}
+        isSelectableByUser={isSelectorOpenable}
         onClick={() => {
           isSelectorOpenable && setIsSelectorOpen(!isSelectorOpen);
         }}
       >
-        <UserTag isSelectableByUser={isSelectableByUser}>
+        <UserTag isSelectableByUser={isSelectorOpenable}>
           <Logo>
             {authType === AuthType.TWITTER ? (
               <TwitterRounded size={14} color={color} />
