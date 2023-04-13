@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { CaretLeft, Gear, Copy } from "phosphor-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useVault } from "../../../libs/vault";
 import Avatar from "../../../components/Avatar";
 import { getMainMinified } from "../../../utils/getMain";
@@ -11,6 +11,7 @@ import { useMyVault } from "../../Modals/MyVault/Provider";
 import { useNotifications } from "../../../components/Notifications/provider";
 import { getMinimalIdentifier } from "../../../utils/getMinimalIdentifier";
 import ThreeDotsLoader from "../../../components/ThreeDotsLoader";
+import env from "../../../environment";
 
 const Container = styled.div<{ vaultSliderOpen: boolean }>`
   position: absolute;
@@ -328,6 +329,15 @@ export default function VaultSlider({
       type: "success",
     });
   };
+
+  useEffect(() => {
+    if (!vault.isConnected) return;
+    if (env.name === "DEMO") {
+      setTimeout(() => {
+        setVaultSliderOpen(true);
+      }, 300);
+    }
+  }, [setVaultSliderOpen, vault.isConnected]);
 
   return (
     <Container ref={ref} vaultSliderOpen={vaultSliderOpen}>
