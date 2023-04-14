@@ -339,6 +339,14 @@ export default function VaultSlider({
     }
   }, [setVaultSliderOpen, vault.isConnected]);
 
+  useEffect(() => {
+    if (!vault.isConnected) return;
+    const isVaultImporting = importAccount?.importing ? true : false;
+    if (isVaultImporting) {
+      setVaultSliderOpen(true);
+    }
+  }, [setVaultSliderOpen, vault?.isConnected, importAccount?.importing]);
+
   return (
     <Container ref={ref} vaultSliderOpen={vaultSliderOpen}>
       <VaultContent
