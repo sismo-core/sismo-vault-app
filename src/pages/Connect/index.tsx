@@ -227,6 +227,18 @@ export default function Connect(): JSX.Element {
     //   return;
     // }
 
+    if (
+      !sismoConnectRequest?.claims?.length &&
+      !sismoConnectRequest?.auths?.length
+    ) {
+      setIsWrongUrl({
+        status: true,
+        message:
+          "Invalid request: you must specify at least one claim or one auth",
+      });
+      return;
+    }
+
     if (sismoConnectRequest?.claims) {
       for (const claim of sismoConnectRequest?.claims) {
         if (
