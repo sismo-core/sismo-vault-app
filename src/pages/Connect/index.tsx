@@ -335,7 +335,6 @@ export default function Connect(): JSX.Element {
   /* ***************** GET THE FACTORY APP ********************* */
   /* *********************************************************** */
 
-  // TODO: CHECK AUTHORIZED DOMAINS
   useEffect(() => {
     if (!sismoConnectRequest) return;
     async function getFactoryAppData() {
@@ -469,8 +468,6 @@ export default function Connect(): JSX.Element {
   /* *********************************************************** */
   /* ***************** GET ELIGIBILITIES *********************** */
   /* *********************************************************** */
-
-  //TODO : WRONG URL SCREEN ON ELIGIBILITIES ERROR
 
   useEffect(() => {
     if (!sismoConnectRequest) return;

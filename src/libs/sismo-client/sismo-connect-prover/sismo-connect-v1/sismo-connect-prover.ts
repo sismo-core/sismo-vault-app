@@ -106,7 +106,7 @@ export class SismoConnectProver {
     if (auth?.authType === AuthType.GITHUB && !auth?.isSelectableByUser) {
       accounts = importedAccounts?.filter(
         (importedAccount) =>
-          importedAccount?.type === "twitter" &&
+          importedAccount?.type === "github" &&
           importedAccount?.identifier?.toLowerCase() ===
             auth?.userId?.toLowerCase()
       );
