@@ -26,6 +26,8 @@ import VaultSlider from "./components/VaultSlider";
 import Logo from "./components/Logo";
 import Redirection from "./components/Redirection";
 import { ethers } from "ethers";
+import { gzip } from "pako";
+import { fromUint8Array } from "js-base64";
 
 const Container = styled.div`
   position: relative;
@@ -550,23 +552,30 @@ export default function Connect(): JSX.Element {
   /* *********************************************************** */
   /* ***************** ON RESPONSE ***************************** */
   /* *********************************************************** */
+  const zipurl = (data) => fromUint8Array(gzip(data), true);
 
   const onResponse = (response: SismoConnectResponse) => {
-    //  localStorage.removeItem("prove_referrer");
+    if (!response) return;
+
     setIsRedirecting(true);
     let url = callbackUrl;
-    if (response) {
-      url += `?sismoConnectResponse=${JSON.stringify(response)}`;
+    if (sismoConnectRequest?.compressed) {
+      url += `?sismoConnectResponseCompressed=${zipurl(
+        JSON.stringify(response)
+      )}`;
+    }
 
+    if (!sismoConnectRequest?.compressed) {
+      url += `?sismoConnectResponse=${JSON.stringify(response)}`;
       if (env.name !== "DEMO") {
         url += `&sismoConnectResponseBytes=${getSismoConnectResponseBytes(
           response
         )}`;
       }
     }
+
     setTimeout(() => {
       window.location.href = url;
-      //If it's not a popup return the proof in params or url
     }, 2000);
   };
 

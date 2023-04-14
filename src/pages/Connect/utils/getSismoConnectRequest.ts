@@ -39,6 +39,7 @@ export const getSismoConnectRequest = (
   let _devConfig = searchParams.get("devConfig");
   let _callbackPath = searchParams.get("callbackPath");
   let _version = searchParams.get("version");
+  let _compressed = searchParams.get("compressed");
 
   const request: SismoConnectRequest = {
     appId: _appId,
@@ -49,6 +50,7 @@ export const getSismoConnectRequest = (
     callbackPath: _callbackPath,
     devConfig: JSON.parse(_devConfig),
     version: _version,
+    compressed: _compressed === "true",
   };
 
   /* ****************************************** */
@@ -66,6 +68,7 @@ export const getSismoConnectRequest = (
       "devConfig",
       "callbackPath",
       "version",
+      "compressed",
     ];
     deleteParams.forEach((param) => {
       url.searchParams.delete(param);

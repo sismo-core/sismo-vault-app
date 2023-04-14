@@ -85,6 +85,7 @@ export type SismoConnectRequest = {
   devConfig?: DevConfig;
   callbackPath?: string;
   version: string;
+  compressed?: boolean;
 };
 
 export type AuthRequest = {
