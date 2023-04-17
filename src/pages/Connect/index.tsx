@@ -404,7 +404,7 @@ export default function Connect(): JSX.Element {
         if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
-          message: "Invalid referrer: " + document.referrer,
+          message: "Invalid referrer: " + e,
         });
         console.log(e);
         Sentry.captureException(e);
