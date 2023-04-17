@@ -42,12 +42,22 @@ export type ReferrerApp = {
 //   };
 // };
 
-export const getReferrer = (requestHash: string): string => {
-  const referrer = localStorage.getItem(`sc_referrer-${requestHash}`);
-  if (referrer) {
-    return referrer;
-  } else {
-    localStorage.setItem(`sc_referrer-${requestHash}`, document?.referrer);
+export const getReferrer = (): string => {
+  const isReferrerSameAsLocation = window?.location?.href?.includes(
+    document?.referrer
+  );
+
+  if (document?.referrer && !isReferrerSameAsLocation) {
+    localStorage.setItem(`sc_referrer`, document?.referrer);
     return document?.referrer;
+  }
+
+  if ((document?.referrer && isReferrerSameAsLocation) || !document?.referrer) {
+    const referrer = localStorage.getItem(`sc_referrer`);
+
+    if (referrer) {
+      return referrer;
+    }
+    throw new Error("No referrer found");
   }
 };

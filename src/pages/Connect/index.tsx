@@ -25,7 +25,6 @@ import Flow from "./Flow";
 import VaultSlider from "./components/VaultSlider";
 import Logo from "./components/Logo";
 import Redirection from "./components/Redirection";
-import { ethers } from "ethers";
 import { gzip } from "pako";
 import { fromUint8Array } from "js-base64";
 
@@ -369,14 +368,7 @@ export default function Connect(): JSX.Element {
 
     function setReferrerInfo() {
       try {
-        const requestHash = ethers.utils.id(
-          sismoConnectRequest?.appId +
-            " " +
-            sismoConnectRequest?.namespace +
-            sismoConnectRequest?.version +
-            sismoConnectRequest?.callbackPath || ""
-        );
-        const referrer = getReferrer(requestHash);
+        const referrer = getReferrer();
         if (referrer) {
           const referrerUrl = new URL(referrer);
           _referrerHostname =
