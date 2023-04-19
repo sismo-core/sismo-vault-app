@@ -101,8 +101,6 @@ export class RegistryTreeReader extends RegistryTreeReaderBase {
       timestamp,
     });
 
-    console.log("account", account);
-
     //Filter the chunk with the identifier
     const accountsTreesChunk = groupAccountsTrees.filter((accountTree) => {
       if (accountTree.chunk.max && accountTree.chunk.min) {
@@ -113,7 +111,6 @@ export class RegistryTreeReader extends RegistryTreeReaderBase {
         return true;
       }
     });
-    console.log("accountsTreesChunk", accountsTreesChunk);
 
     if (accountsTreesChunk?.length > 1) {
       throw new Error("Registry tree reader error");

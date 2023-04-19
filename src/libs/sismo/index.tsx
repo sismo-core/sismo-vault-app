@@ -3,38 +3,37 @@ import { SismoClient } from "../sismo-client";
 import {
   AuthRequestEligibility,
   ClaimRequestEligibility,
-  DataRequestEligibility,
   RequestGroupMetadata,
-  ZkConnectRequest,
-  ZkConnectResponse,
-} from "../sismo-client/zk-connect-prover/zk-connect-v2";
+  SelectedSismoConnectRequest,
+  SismoConnectRequest,
+  SismoConnectResponse,
+} from "../sismo-client/sismo-connect-prover/sismo-connect-v1";
 import { FactoryApp } from "../sismo-client";
 import { GroupMetadata } from "../sismo-client/providers/group-provider";
 import { ImportedAccount } from "../vault-client";
 
 export type Sismo = {
-  initDevConfig: (zkConnectRequest: ZkConnectRequest) => void;
+  initDevConfig: (sismoConnectRequest: SismoConnectRequest) => void;
+  getRegistryTreeRoot: (
+    sismoConnectRequest: SismoConnectRequest
+  ) => Promise<string>;
   generateResponse: (
-    zkConnectRequest: ZkConnectRequest,
+    sismoConnectRequest: SelectedSismoConnectRequest,
     importedAccounts: ImportedAccount[],
     vaultSecret: string
-  ) => Promise<ZkConnectResponse>;
+  ) => Promise<SismoConnectResponse>;
   getRequestGroupMetadata: (
-    zkConnectRequest: ZkConnectRequest
+    sismoConnectRequest: SismoConnectRequest
   ) => Promise<RequestGroupMetadata[]>;
-  getDataRequestEligibilities: (
-    zkConnectRequest: ZkConnectRequest,
-    importedAccounts: ImportedAccount[]
-  ) => Promise<DataRequestEligibility[]>;
   getClaimRequestEligibilities: (
-    zkConnectRequest: ZkConnectRequest,
+    sismoConnectRequest: SismoConnectRequest,
     importedAccounts: ImportedAccount[]
   ) => Promise<ClaimRequestEligibility[]>;
   getAuthRequestEligibilities: (
-    zkConnectRequest: ZkConnectRequest,
+    sismoConnectRequest: SismoConnectRequest,
     importedAccounts: ImportedAccount[]
   ) => Promise<AuthRequestEligibility[]>;
-  // verifyZkConnectRequest: (request: ZkConnectRequest) => Promise<any>;
+  // verifySismoConnectRequest: (request: SismoConnectRequest) => Promise<any>;
   getFactoryApp: (appId: string) => Promise<FactoryApp>;
   getGroupMetadata: (
     groupId: string,
@@ -56,20 +55,27 @@ export default function SismoProvider({
   client: SismoClient;
 }): JSX.Element {
   const initDevConfig = useCallback(
-    (zkConnectRequest: ZkConnectRequest) => {
-      return client.initDevConfig(zkConnectRequest);
+    (sismoConnectRequest: SismoConnectRequest) => {
+      return client.initDevConfig(sismoConnectRequest);
+    },
+    [client]
+  );
+
+  const getRegistryTreeRoot = useCallback(
+    (sismoConnectRequest: SismoConnectRequest) => {
+      return client.getRegistryTreeRoot(sismoConnectRequest);
     },
     [client]
   );
 
   const generateResponse = useCallback(
     (
-      zkConnectRequest: ZkConnectRequest,
+      sismoConnectRequest: SismoConnectRequest,
       importedAccounts: ImportedAccount[],
       vaultSecret: string
     ) => {
       return client.generateResponse(
-        zkConnectRequest,
+        sismoConnectRequest,
         importedAccounts,
         vaultSecret
       );
@@ -78,32 +84,19 @@ export default function SismoProvider({
   );
 
   const getRequestGroupMetadata = useCallback(
-    (zkConnectRequest: ZkConnectRequest) => {
-      return client.getRequestGroupsMetadata(zkConnectRequest);
-    },
-    [client]
-  );
-
-  const getDataRequestEligibilities = useCallback(
-    (
-      zkConnectRequest: ZkConnectRequest,
-      importedAccounts: ImportedAccount[]
-    ) => {
-      return client.getDataRequestEligibilities(
-        zkConnectRequest,
-        importedAccounts
-      );
+    (sismoConnectRequest: SismoConnectRequest) => {
+      return client.getRequestGroupsMetadata(sismoConnectRequest);
     },
     [client]
   );
 
   const getClaimRequestEligibilities = useCallback(
     (
-      zkConnectRequest: ZkConnectRequest,
+      sismoConnectRequest: SismoConnectRequest,
       importedAccounts: ImportedAccount[]
     ) => {
       return client.getClaimRequestEligibilities(
-        zkConnectRequest,
+        sismoConnectRequest,
         importedAccounts
       );
     },
@@ -111,11 +104,11 @@ export default function SismoProvider({
   );
   const getAuthRequestEligibilities = useCallback(
     (
-      zkConnectRequest: ZkConnectRequest,
+      sismoConnectRequest: SismoConnectRequest,
       importedAccounts: ImportedAccount[]
     ) => {
       return client.getAuthRequestEligibilities(
-        zkConnectRequest,
+        sismoConnectRequest,
         importedAccounts
       );
     },
@@ -136,25 +129,17 @@ export default function SismoProvider({
     [client]
   );
 
-  // const verifyZkConnectRequest = useCallback(
-  //   (request: ZkConnectRequest) => {
-  //     return client.verifyZkConnectRequest(request);
-  //   },
-  //   [client]
-  // );
-
   return (
     <SismoClientContext.Provider
       value={{
-        // verifyZkConnectRequest,
         initDevConfig,
+        getRegistryTreeRoot,
         getGroupMetadata,
         getFactoryApp,
         getRequestGroupMetadata,
         getClaimRequestEligibilities,
         generateResponse,
         getAuthRequestEligibilities,
-        getDataRequestEligibilities,
       }}
     >
       {children}

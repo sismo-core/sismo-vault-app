@@ -1,19 +1,25 @@
 import {
-  ZkConnectRequest,
-  ZkConnectRequestContent,
-  DataRequest,
+  AuthRequest,
   AuthType,
-} from "./localTypes";
+  ClaimRequest,
+  ClaimType,
+  SignatureRequest,
+  SismoConnectRequest,
+} from "../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
 
 export const devConfig = {
   enabled: true,
   displayRawResponse: true,
   devGroups: [
     {
-      groupId: "0x1fc668d70de74cf8c130af52182113f4",
+      groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
       groupTimestamp: "latest",
       data: {
-        "0x0E75b92ED9f77aC17A6e7fE6B171A3a66C6b638B": 4,
+        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 4,
+        "0x35Af38bAC1793642D2fd3d71807aA54A56ed8183": 3,
+        "0xEeE99560F6ccfa8e12994872725a10f80E8a4FFa": 3,
+        "0x25fcc2A4B8e5387649ba3B6DeDDcAC343D8E11B6": 11,
+        "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045": 2,
       },
     },
     // {
@@ -41,102 +47,126 @@ export const devConfig = {
   ],
 };
 
-export const dataRequestMockError: DataRequest = {
-  claimRequest: {
+export const claims: ClaimRequest[] = [
+  {
+    claimType: ClaimType.GTE,
     groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-  } as any,
-  authRequest: {
-    authType: AuthType.ANON,
-  } as any,
-};
-export const dataRequestMock1: DataRequest = {
-  claimRequest: {
-    groupId: "0xe9ed316946d3d98dfcd829a53ec9822e",
     groupTimestamp: "latest",
+    isOptional: false,
+    isSelectableByUser: true,
     value: 1,
-    claimType: 1,
     extraData: "",
-  },
-  authRequest: {
-    authType: 4,
-    anonMode: false,
-    userId: "0",
-    extraData: "",
-  },
-  messageSignatureRequest: "my custom message",
-};
-export const dataRequestMock2: DataRequest = {
-  claimRequest: {
-    groupId: "0x8d5e3ee2049c1c7d363ea88b2b424877",
+  } as ClaimRequest,
+  {
+    claimType: ClaimType.GTE,
+    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
     groupTimestamp: "latest",
+    isOptional: false,
+    isSelectableByUser: true,
     value: 1,
-    claimType: 1,
     extraData: "",
-  },
-  messageSignatureRequest: "my custom message",
-};
-export const dataRequestMock3: DataRequest = {
-  claimRequest: {
-    groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
+  } as ClaimRequest,
+  {
+    claimType: ClaimType.EQ,
+    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
     groupTimestamp: "latest",
-    value: 5,
-    claimType: 3,
+    isOptional: true,
+    isSelectableByUser: true,
+    value: 3,
+    extraData: "",
+  } as ClaimRequest,
+];
+
+//0x1878EA9134D500A3cEF3E89589ECA3656EECf48f
+
+export const auths: AuthRequest[] = [
+  {
+    authType: AuthType.VAULT,
+    isAnon: false,
+    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+    isOptional: false,
+    isSelectableByUser: true,
     extraData: "",
   },
-  messageSignatureRequest: "my custom message",
-};
-export const dataRequestMock4: DataRequest = {
-  claimRequest: {
-    groupId: "0x682544d549b8a461d7fe3e589846bb7b",
-    groupTimestamp: "latest",
-    value: 2,
-    claimType: 1,
+  {
+    authType: AuthType.EVM_ACCOUNT,
+    isAnon: false,
+    userId: "0x25fcc2A4B8e5387649ba3B6DeDDcAC343D8E11B6",
+    isOptional: false,
+    isSelectableByUser: true,
     extraData: "",
   },
-  messageSignatureRequest: "my custom message",
-};
-
-export const dataRequestMock5: DataRequest = {
-  authRequest: {
-    authType: 4,
-    anonMode: false,
-    userId: "0",
+  // {
+  //   authType: AuthType.TWITTER,
+  //   isAnon: false,
+  //   userId: "971701818",
+  //   isOptional: false,
+  //   isSelectableByUser: true,
+  //   extraData: "",
+  // },
+  {
+    authType: AuthType.GITHUB,
+    isAnon: false,
+    userId: "124567",
+    isOptional: false,
+    isSelectableByUser: true,
     extraData: "",
   },
-  messageSignatureRequest: "my custom message",
+  {
+    authType: AuthType.EVM_ACCOUNT,
+    isAnon: false,
+    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+    isOptional: true,
+    isSelectableByUser: false,
+    extraData: "",
+  },
+  {
+    authType: AuthType.EVM_ACCOUNT,
+    isAnon: false,
+    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+    isOptional: true,
+    isSelectableByUser: true,
+    extraData: "",
+  },
+  // {
+  //   authType: AuthType.TWITTER,
+  //   isAnon: false,
+  //   userId: "971701818",
+  //   isOptional: true,
+  //   isSelectableByUser: false,
+  //   extraData: "",
+  // },
+];
+
+export const signature: SignatureRequest = {
+  message:
+    "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of usin",
+  isSelectableByUser: true,
+  extraData: "",
 };
 
-export const zkConnectRequestContentMock: ZkConnectRequestContent = {
-  dataRequests: [
-    dataRequestMockError,
-    //dataRequestMock1,
-    //dataRequestMock2,
-    // dataRequestMock3,
-    // dataRequestMock4,
-    //  dataRequestMock5,
-  ],
-  operators: ["AND"],
-};
-
-export const zkConnectRequestMock: ZkConnectRequest = {
+export const sismoConnectRequestMock: SismoConnectRequest = {
   appId: "0x97f25a024703a13d6cf18b84639e4c02",
   namespace: "main",
   callbackPath: null,
-  version: "zk-connect-v2",
+  version: "sismo-connect-v1",
 };
 
 //const url = new URL("http://dev.vault-beta.sismo.io/connect");
 const url = new URL("http://localhost:3000/connect");
 const searchParams = url.searchParams;
-searchParams.set("version", zkConnectRequestMock.version);
-searchParams.set("appId", zkConnectRequestMock.appId);
-searchParams.set("namespace", zkConnectRequestMock.namespace);
-searchParams.set("callbackPath", zkConnectRequestMock.callbackPath);
-searchParams.set("requestContent", JSON.stringify(zkConnectRequestContentMock));
-//searchParams.set("devConfig", JSON.stringify(devConfig));
 
-export const zkConnectRequestMockUrl = url.toString();
+searchParams.set("version", sismoConnectRequestMock.version);
+searchParams.set("appId", sismoConnectRequestMock.appId);
+searchParams.set("namespace", sismoConnectRequestMock.namespace);
+searchParams.set("callbackPath", sismoConnectRequestMock.callbackPath);
+searchParams.set("auths", JSON.stringify(auths));
+searchParams.set("claims", JSON.stringify(claims));
+searchParams.set("signature", JSON.stringify(signature));
+searchParams.set("devConfig", JSON.stringify(devConfig));
+
+export const sismoConnectRequestMockUrl = url.toString();
 
 export function getMockUrl() {
-  console.log(zkConnectRequestMockUrl);
+  // console.log(sismoConnectRequestMockUrl);
 }

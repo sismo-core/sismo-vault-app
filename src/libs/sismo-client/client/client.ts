@@ -1,12 +1,12 @@
 import {
   ClaimRequestEligibility,
   AuthRequestEligibility,
-  DataRequestEligibility,
   RequestGroupMetadata,
-  ZkConnectProver as ZkConnectProverV2,
-  ZkConnectRequest,
-  ZkConnectResponse,
-} from "../zk-connect-prover/zk-connect-v2";
+  SismoConnectProver as SismoConnectProverV1,
+  SismoConnectRequest,
+  SismoConnectResponse,
+  SelectedSismoConnectRequest,
+} from "../sismo-connect-prover/sismo-connect-v1";
 import { Cache } from "../caches";
 import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
 import env from "../../../environment";
@@ -16,8 +16,8 @@ import { ImportedAccount } from "../../vault-client";
 export class SismoClient {
   private factoryProvider: FactoryProvider;
   private groupProvider: GroupProvider;
-  private zkConnectProvers: {
-    "zk-connect-v2": ZkConnectProverV2;
+  private sismoConnectProvers: {
+    "sismo-connect-v1": SismoConnectProverV1;
   };
 
   constructor({ cache }: { cache: Cache }) {
@@ -25,25 +25,39 @@ export class SismoClient {
       factoryApiUrl: env.factoryApiUrl,
     });
     this.groupProvider = new GroupProvider({ hubApiUrl: env.hubApiUrl });
-    this.zkConnectProvers = {
-      "zk-connect-v2": new ZkConnectProverV2({
+    this.sismoConnectProvers = {
+      "sismo-connect-v1": new SismoConnectProverV1({
         factoryProvider: this.factoryProvider,
         cache: cache,
       }),
     };
   }
 
-  public async initDevConfig(zkConnectRequest: ZkConnectRequest) {
-    if (!this.zkConnectProvers[zkConnectRequest.version])
+  public async initDevConfig(sismoConnectRequest: SismoConnectRequest) {
+    if (!this.sismoConnectProvers[sismoConnectRequest.version])
       throw new Error(
-        `Version of the request not supported ${zkConnectRequest.version}`
+        `Version of the request not supported ${sismoConnectRequest.version}`
       );
-    const zkConnectProver = this.zkConnectProvers[
-      zkConnectRequest.version
-    ] as ZkConnectProverV2;
+    const sismoConnectProver = this.sismoConnectProvers[
+      sismoConnectRequest.version
+    ] as SismoConnectProverV1;
 
-    if (zkConnectRequest?.devConfig?.enabled !== false)
-      await zkConnectProver.initDevConfig(zkConnectRequest?.devConfig);
+    if (sismoConnectRequest?.devConfig?.enabled !== false)
+      await sismoConnectProver.initDevConfig(sismoConnectRequest?.devConfig);
+  }
+
+  public async getRegistryTreeRoot(
+    sismoConnectRequest: SismoConnectRequest
+  ): Promise<string> {
+    if (!this.sismoConnectProvers[sismoConnectRequest.version])
+      throw new Error(
+        `Version of the request not supported ${sismoConnectRequest.version}`
+      );
+    const sismoConnectProver = this.sismoConnectProvers[
+      sismoConnectRequest.version
+    ] as SismoConnectProverV1;
+
+    return await sismoConnectProver.getRegistryTreeRoot();
   }
 
   public async getGroupMetadata(groupId: string, timestamp: "latest" | number) {
@@ -55,18 +69,14 @@ export class SismoClient {
   }
 
   public async getRequestGroupsMetadata(
-    zkConnectRequest: ZkConnectRequest
+    sismoConnectRequest: SismoConnectRequest
   ): Promise<RequestGroupMetadata[]> {
-    const hasClaimRequest =
-      zkConnectRequest?.requestContent?.dataRequests?.some(
-        (dataRequest) => dataRequest?.claimRequest?.groupId
-      );
+    const hasClaimRequest = sismoConnectRequest?.claims?.length > 0;
 
     if (!hasClaimRequest) return null;
     const requestGroupsMetadata: RequestGroupMetadata[] = [];
 
-    for (const dataRequest of zkConnectRequest.requestContent.dataRequests) {
-      const claimRequest = dataRequest?.claimRequest;
+    for (const claimRequest of sismoConnectRequest.claims) {
       if (!claimRequest) continue;
       const groupMetadata = await this.getGroupMetadata(
         claimRequest.groupId,
@@ -79,72 +89,55 @@ export class SismoClient {
     }
   }
 
-  public async getDataRequestEligibilities(
-    zkConnectRequest: ZkConnectRequest,
-    importedAccounts: ImportedAccount[]
-  ): Promise<DataRequestEligibility[]> {
-    if (!this.zkConnectProvers[zkConnectRequest.version])
-      throw new Error(
-        `Version of the request not supported ${zkConnectRequest.version}`
-      );
-    const zkConnectProver = this.zkConnectProvers[
-      zkConnectRequest.version
-    ] as ZkConnectProverV2;
-
-    return await zkConnectProver.getDataRequestEligibilities(
-      zkConnectRequest,
-      importedAccounts
-    );
-  }
-
   public async getClaimRequestEligibilities(
-    zkConnectRequest: ZkConnectRequest,
+    sismoConnectRequest: SismoConnectRequest,
     importedAccounts: ImportedAccount[]
   ): Promise<ClaimRequestEligibility[]> {
-    if (!this.zkConnectProvers[zkConnectRequest.version])
+    if (!this.sismoConnectProvers[sismoConnectRequest.version])
       throw new Error(
-        `Version of the request not supported ${zkConnectRequest.version}`
+        `Version of the request not supported ${sismoConnectRequest.version}`
       );
-    const zkConnectProver = this.zkConnectProvers[
-      zkConnectRequest.version
-    ] as ZkConnectProverV2;
+    const sismoConnectProver = this.sismoConnectProvers[
+      sismoConnectRequest.version
+    ] as SismoConnectProverV1;
 
-    return await zkConnectProver.getClaimRequestEligibilities(
-      zkConnectRequest,
+    return await sismoConnectProver.getClaimRequestEligibilities(
+      sismoConnectRequest,
       importedAccounts
     );
   }
 
   public async getAuthRequestEligibilities(
-    zkConnectRequest: ZkConnectRequest,
+    sismoConnectRequest: SismoConnectRequest,
     importedAccounts: ImportedAccount[]
   ): Promise<AuthRequestEligibility[]> {
-    if (!this.zkConnectProvers[zkConnectRequest.version])
+    if (!this.sismoConnectProvers[sismoConnectRequest.version])
       throw new Error(
-        `Version of the request not supported ${zkConnectRequest.version}`
+        `Version of the request not supported ${sismoConnectRequest.version}`
       );
-    const zkConnectProver = this.zkConnectProvers[
-      zkConnectRequest.version
-    ] as ZkConnectProverV2;
+    const sismoConnectProver = this.sismoConnectProvers[
+      sismoConnectRequest.version
+    ] as SismoConnectProverV1;
 
-    return await zkConnectProver.getAuthRequestEligibilities(
-      zkConnectRequest,
+    return await sismoConnectProver.getAuthRequestEligibilities(
+      sismoConnectRequest,
       importedAccounts
     );
   }
 
   public async generateResponse(
-    zkConnectRequest: ZkConnectRequest,
+    sismoConnectRequest: SelectedSismoConnectRequest,
     importedAccounts: ImportedAccount[],
     vaultSecret: string
-  ): Promise<ZkConnectResponse> {
-    if (!this.zkConnectProvers[zkConnectRequest.version])
+  ): Promise<SismoConnectResponse> {
+    if (!this.sismoConnectProvers[sismoConnectRequest.version])
       throw new Error(
-        `Version of the request not supported ${zkConnectRequest.version}`
+        `Version of the request not supported ${sismoConnectRequest.version}`
       );
-    const zkConnectProver = this.zkConnectProvers[zkConnectRequest.version];
-    return zkConnectProver.generateResponse(
-      zkConnectRequest,
+    const sismoConnectProver =
+      this.sismoConnectProvers[sismoConnectRequest.version];
+    return sismoConnectProver.generateResponse(
+      sismoConnectRequest,
       importedAccounts,
       vaultSecret
     );

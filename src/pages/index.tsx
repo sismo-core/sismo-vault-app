@@ -13,7 +13,6 @@ import AlphaNotification from "../components/ZikiNotification";
 import Connect from "./Connect";
 import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
-
 import { getMockUrl } from "./Connect/mockRequest";
 
 export default function Pages(): JSX.Element {

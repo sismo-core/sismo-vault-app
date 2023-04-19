@@ -6,7 +6,7 @@ import {
 
 import { buildPoseidon } from "@sismo-core/hydra-s2";
 import { ethers, BigNumber } from "ethers";
-import { DevGroup } from "../zk-connect-prover/zk-connect-v2";
+import { DevGroup } from "../sismo-connect-prover/sismo-connect-v1";
 import {
   OffchainGetAccountsTreeInputs,
   OffchainGetAccountsTreeEligibilityInputs,
@@ -114,7 +114,8 @@ export class DevRegistryTreeReader extends RegistryTreeReaderBase {
     let groupData: MerkleTreeData = {};
 
     const devAddresses = devGroup?.data;
-    if (devAddresses?.length > 0) {
+
+    if (devAddresses?.length) {
       for (const key of devAddresses as string[]) {
         groupData[key.toLowerCase()] = 1;
       }
