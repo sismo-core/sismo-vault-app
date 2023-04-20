@@ -128,6 +128,13 @@ export class DevRegistryTreeReader extends RegistryTreeReaderBase {
       }, {} as { [accountIdentifier: string]: number });
     }
 
+    // allow to make sure that each AccountsTree is unique
+    const accountsTreeValue = this.encodeAccountsTreeValue(
+      devGroup.groupId,
+      devGroup.groupTimestamp
+    );
+    groupData[accountsTreeValue] = 0;
+
     return groupData;
   }
 }
