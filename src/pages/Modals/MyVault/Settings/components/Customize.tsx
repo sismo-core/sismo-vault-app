@@ -55,7 +55,7 @@ export default function Customize() {
   const saveNewName = async () => {
     setLoading(true);
     try {
-      await vault.updateName(vault.connectedOwner, editNameValue);
+      await vault.updateName(editNameValue);
       notificationAdded({
         text: "New name has been encrypted in your Sismo vault.",
         type: "success",

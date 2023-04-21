@@ -1,12 +1,11 @@
 import { EddsaPublicKey, EddsaSignature } from "@sismo-core/hydra-s2";
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber } from "ethers";
 import { RecoveryKey, ImportedAccount, Owner, VaultClient } from ".";
 import { LocalStore } from "../stores/local-store";
 
 describe("Vault client V1", () => {
   let vaultClient: VaultClient;
   let mnemonic1: string;
-  let mnemonic2: string;
   let owner1: Owner;
   let owner2: Owner;
   let owner3: Owner;
@@ -14,7 +13,6 @@ describe("Vault client V1", () => {
   let github1: ImportedAccount;
   let account1: ImportedAccount;
   let account2: ImportedAccount;
-  let account5: ImportedAccount;
   let recoveryKey1: RecoveryKey;
   let recoveryKey2: RecoveryKey;
 
@@ -66,14 +64,6 @@ describe("Vault client V1", () => {
       type: "ethereum",
       timestamp: 1666532889777,
     };
-    account5 = {
-      identifier: "0x151",
-      seed: "0x1501",
-      type: "ethereum",
-      commitmentReceipt: commitmentReceipt,
-      commitmentMapperPubKey: commitmentMapperPubKey,
-      timestamp: 1666532889777,
-    };
     github1 = {
       identifier: "0x142",
       seed: "0x140",
@@ -84,35 +74,20 @@ describe("Vault client V1", () => {
     };
   });
 
-  it("Should create a new vault from owner", async () => {
-    await vaultClient.createFromOwner(owner1, "My vault");
-    const vault = await vaultClient.load(owner1.seed);
+  /*****************************************************************/
+  /****************************** CREATE ***************************/
+  /*****************************************************************/
+
+  it("Should create a new vault", async () => {
+    const vault = await vaultClient.create();
+    mnemonic1 = vault.mnemonics[0];
     expect(vault).toEqual({
-      mnemonics: [],
+      mnemonics: [mnemonic1],
       importedAccounts: [],
       recoveryKeys: [],
-      owners: [owner1],
-      settings: {
-        name: "My vault",
-        autoImportOwners: true,
-        keepConnected: true,
-      },
-      timestamp: vault.timestamp,
-      version: 4,
-    });
-  });
-
-  it("Should create a new vault from recovery", async () => {
-    const recoveryKey = await vaultClient.getRecoveryKey();
-    await vaultClient.createFromRecoveryKey(recoveryKey, "My vault");
-    const vault = await vaultClient.load(recoveryKey.key);
-    expect(vault).toEqual({
-      mnemonics: [recoveryKey.mnemonic],
-      importedAccounts: [],
-      recoveryKeys: [recoveryKey],
       owners: [],
       settings: {
-        name: "My vault",
+        name: "My Sismo Vault",
         autoImportOwners: true,
         keepConnected: true,
       },
@@ -121,28 +96,15 @@ describe("Vault client V1", () => {
     });
   });
 
-  /*****************************************************************/
-  /**************************** MNEMONIC ***************************/
-  /*****************************************************************/
-
-  it("Should throw when create recoveryKey without mnemonic", async () => {
-    await expect(async () => {
-      await vaultClient.generateRecoveryKey(owner1, "RecoveryKey1");
-    }).rejects.toThrow();
-  });
-
-  it("Should add new mnemonic in the vault", async () => {
-    await vaultClient.generateMnemonic(owner1);
-    const vault = await vaultClient.load(owner1.seed);
-    mnemonic1 = vault.mnemonics[0];
-    Wallet.fromMnemonic(mnemonic1);
+  it("Should add a owner in the vault to save it", async () => {
+    const vault = await vaultClient.addOwner(owner1);
     expect(vault).toEqual({
       mnemonics: [mnemonic1],
       importedAccounts: [],
       recoveryKeys: [],
       owners: [owner1],
       settings: {
-        name: "My vault",
+        name: "My Sismo Vault",
         autoImportOwners: true,
         keepConnected: true,
       },
@@ -151,48 +113,105 @@ describe("Vault client V1", () => {
     });
   });
 
-  it("Should throw when mnemonic already generated", async () => {
-    await expect(async () => {
-      await vaultClient.generateMnemonic(owner1);
-    }).rejects.toThrow();
+  it("Should lock and retrieve the vault thanks to the owner", async () => {
+    vaultClient.lock();
+    const vault = await vaultClient.unlock(owner1.seed);
+    expect(vault).toEqual({
+      mnemonics: [mnemonic1],
+      importedAccounts: [],
+      recoveryKeys: [],
+      owners: [owner1],
+      settings: {
+        name: "My Sismo Vault",
+        autoImportOwners: true,
+        keepConnected: true,
+      },
+      timestamp: vault.timestamp,
+      version: 4,
+    });
   });
 
   /*****************************************************************/
-  /************************** recoveryKeys ***************************/
+  /************************ RECOVERY KEYS **************************/
   /*****************************************************************/
 
-  it("Should generate backup key", async () => {
-    await vaultClient.generateRecoveryKey(owner1, "RecoveryKey1");
-    const vault = await vaultClient.load(owner1.seed);
+  it("Should generate recovery key", async () => {
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.generateRecoveryKey("RecoveryKey1");
     recoveryKey1 = vault.recoveryKeys[0];
-    const vaultBacked = await vaultClient.load(recoveryKey1.key);
+    vaultClient.lock();
+    const vaultBacked = await vaultClient.unlock(recoveryKey1.key);
     expect(vaultBacked).toEqual(vault);
   });
 
-  it("Should generate a recovery key", async () => {
-    const recovery = await vaultClient.getRecoveryKey(mnemonic1, 0);
-    expect(typeof recovery.name).toBe("string");
-    expect(typeof recovery.key).toBe("string");
-    expect(recovery.mnemonic.split(" ").length).toEqual(12);
-    expect(recovery.accountNumber).toEqual(0);
-    expect(recovery.valid).toEqual(true);
-    expect(typeof recovery.timestamp).toBe("number");
+  it("Should generate a second recovery key", async () => {
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.generateRecoveryKey("RecoveryKey2");
+    recoveryKey2 = vault.recoveryKeys[1];
+    vaultClient.lock();
+    const vaultBacked = await vaultClient.unlock(recoveryKey2.key);
+    expect(vaultBacked).toEqual(vault);
+  });
+
+  it("Should disable the first recovery key", async () => {
+    await vaultClient.unlock(owner1.seed);
+    await vaultClient.disableRecoveryKey(recoveryKey1.key);
+    recoveryKey1.valid = false;
+    vaultClient.lock();
+    const vault = await vaultClient.unlock(recoveryKey1.key);
+    expect(vault).toEqual(null);
   });
 
   /*****************************************************************/
-  /**************************** OPTIONS ****************************/
+  /*************************** SETTINGS ****************************/
   /*****************************************************************/
 
-  it("Should update autoImportOwners to false", async () => {
-    await vaultClient.updateAutoImportOwners(owner1, false);
-    const vault = await vaultClient.load(owner1.seed);
+  it("Should update keepConnected to false", async () => {
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.setKeepConnected(false);
     expect(vault).toEqual({
       mnemonics: [mnemonic1],
       importedAccounts: [],
-      recoveryKeys: [recoveryKey1],
+      recoveryKeys: [recoveryKey1, recoveryKey2],
       owners: [owner1],
       settings: {
-        name: "My vault",
+        name: "My Sismo Vault",
+        autoImportOwners: true,
+        keepConnected: false,
+      },
+      timestamp: vault.timestamp,
+      version: 4,
+    });
+  });
+
+  it("Should update keepConnected to true", async () => {
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.setKeepConnected(true);
+    expect(vault).toEqual({
+      mnemonics: [mnemonic1],
+      importedAccounts: [],
+      recoveryKeys: [recoveryKey1, recoveryKey2],
+      owners: [owner1],
+      settings: {
+        name: "My Sismo Vault",
+        autoImportOwners: true,
+        keepConnected: true,
+      },
+      timestamp: vault.timestamp,
+      version: 4,
+    });
+  });
+
+  it("Should update autoImportOwners to false", async () => {
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.setAutoImportOwners(false);
+    expect(vault).toEqual({
+      mnemonics: [mnemonic1],
+      importedAccounts: [],
+      recoveryKeys: [recoveryKey1, recoveryKey2],
+      owners: [owner1],
+      settings: {
+        name: "My Sismo Vault",
         autoImportOwners: false,
         keepConnected: true,
       },
@@ -202,12 +221,12 @@ describe("Vault client V1", () => {
   });
 
   it("Should update name of the vault", async () => {
-    await vaultClient.updateName(owner1, "My vault name 2");
-    const vault = await vaultClient.load(owner1.seed);
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.updateName("My vault name 2");
     expect(vault).toEqual({
       mnemonics: [mnemonic1],
       importedAccounts: [],
-      recoveryKeys: [recoveryKey1],
+      recoveryKeys: [recoveryKey1, recoveryKey2],
       owners: [owner1],
       settings: {
         name: "My vault name 2",
@@ -220,15 +239,15 @@ describe("Vault client V1", () => {
   });
 
   it("Should put back the old name of the vault", async () => {
-    await vaultClient.updateName(owner1, "My vault");
-    const vault = await vaultClient.load(owner1.seed);
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.updateName("My Sismo Vault");
     expect(vault).toEqual({
       mnemonics: [mnemonic1],
       importedAccounts: [],
-      recoveryKeys: [recoveryKey1],
+      recoveryKeys: [recoveryKey1, recoveryKey2],
       owners: [owner1],
       settings: {
-        name: "My vault",
+        name: "My Sismo Vault",
         autoImportOwners: false,
         keepConnected: true,
       },
@@ -238,21 +257,21 @@ describe("Vault client V1", () => {
   });
 
   /*****************************************************************/
-  /************************** importedAccounts *********************/
+  /************************* IMPORTED ACCOUNTS *********************/
   /*****************************************************************/
 
   it("Should import an account", async () => {
-    await vaultClient.importAccount(owner1, account1);
-    const vault = await vaultClient.load(owner1.seed);
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.importAccount(account1);
     expect(JSON.stringify(vault)).toEqual(
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account1],
-        recoveryKeys: [recoveryKey1],
+        recoveryKeys: [recoveryKey1, recoveryKey2],
         owners: [owner1],
         settings: {
           autoImportOwners: false,
-          name: "My vault",
+          name: "My Sismo Vault",
           keepConnected: true,
         },
         timestamp: vault.timestamp,
@@ -262,17 +281,17 @@ describe("Vault client V1", () => {
   });
 
   it("Should import second account", async () => {
-    await vaultClient.importAccount(owner1, account2);
-    const vault = await vaultClient.load(owner1.seed);
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.importAccount(account2);
     expect(JSON.stringify(vault)).toEqual(
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account1, account2],
-        recoveryKeys: [recoveryKey1],
+        recoveryKeys: [recoveryKey1, recoveryKey2],
         owners: [owner1],
         settings: {
           autoImportOwners: false,
-          name: "My vault",
+          name: "My Sismo Vault",
           keepConnected: true,
         },
         timestamp: vault.timestamp,
@@ -283,22 +302,23 @@ describe("Vault client V1", () => {
 
   it("Should throw when adding a account already imported", async () => {
     await expect(async () => {
-      await vaultClient.importAccount(owner1, account2);
+      await vaultClient.unlock(owner1.seed);
+      await vaultClient.importAccount(account2);
     }).rejects.toThrow();
   });
 
   it("Should remove the first account", async () => {
-    await vaultClient.deleteImportedAccount(owner1, account1);
-    const vault = await vaultClient.load(owner1.seed);
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.deleteImportedAccount(account1);
     expect(JSON.stringify(vault)).toEqual(
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2],
-        recoveryKeys: [recoveryKey1],
+        recoveryKeys: [recoveryKey1, recoveryKey2],
         owners: [owner1],
         settings: {
           autoImportOwners: false,
-          name: "My vault",
+          name: "My Sismo Vault",
           keepConnected: true,
         },
         timestamp: vault.timestamp,
@@ -309,13 +329,15 @@ describe("Vault client V1", () => {
 
   it("Should throw when removing an account which is not in the vault", async () => {
     await expect(async () => {
-      await vaultClient.deleteImportedAccount(owner1, account1);
+      await vaultClient.unlock(owner1.seed);
+      await vaultClient.deleteImportedAccount(account1);
     }).rejects.toThrow();
   });
 
   it("Should throw when adding github account without a wallet", async () => {
     await expect(async () => {
-      await vaultClient.importAccount(owner1, {
+      await vaultClient.unlock(owner1.seed);
+      await vaultClient.importAccount({
         ...github1,
         profile: {
           login: "login",
@@ -329,7 +351,8 @@ describe("Vault client V1", () => {
 
   it("Should throw when adding github account without a profile", async () => {
     await expect(async () => {
-      await vaultClient.importAccount(owner1, {
+      await vaultClient.unlock(owner1.seed);
+      await vaultClient.importAccount({
         ...github1,
         wallet: {
           mnemonic: "mnemonic",
@@ -341,7 +364,8 @@ describe("Vault client V1", () => {
 
   it("Should throw with incorrect mnemonic", async () => {
     await expect(async () => {
-      await vaultClient.importAccount(owner1, {
+      await vaultClient.unlock(owner1.seed);
+      await vaultClient.importAccount({
         ...github1,
         profile: {
           login: "login",
@@ -358,9 +382,9 @@ describe("Vault client V1", () => {
   });
 
   it("Should throw with incorrect accountNumber", async () => {
-    const vault = await vaultClient.load(owner1.seed);
+    const vault = await vaultClient.unlock(owner1.seed);
     await expect(async () => {
-      await vaultClient.importAccount(owner1, {
+      await vaultClient.importAccount({
         ...github1,
         profile: {
           login: "login",
@@ -377,7 +401,7 @@ describe("Vault client V1", () => {
   });
 
   it("Should import github account", async () => {
-    const vault = await vaultClient.load(owner1.seed);
+    const vault = await vaultClient.unlock(owner1.seed);
     github1 = {
       ...github1,
       profile: {
@@ -391,16 +415,16 @@ describe("Vault client V1", () => {
         accountNumber: 0,
       },
     };
-    const vaultRes = await vaultClient.importAccount(owner1, github1);
+    const vaultRes = await vaultClient.importAccount(github1);
     expect(JSON.stringify(vaultRes)).toEqual(
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2, github1],
-        recoveryKeys: [recoveryKey1],
+        recoveryKeys: [recoveryKey1, recoveryKey2],
         owners: [owner1],
         settings: {
           autoImportOwners: false,
-          name: "My vault",
+          name: "My Sismo Vault",
           keepConnected: true,
         },
         timestamp: vault.timestamp,
@@ -413,20 +437,18 @@ describe("Vault client V1", () => {
   /****************************** OWNERS ***************************/
   /*****************************************************************/
 
-  /**************************** ADD **************************/
-
   it("Should import a owner", async () => {
-    await vaultClient.addOwner(owner1, owner2);
-    const vault = await vaultClient.load(owner1.seed);
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.addOwner(owner2);
     expect(JSON.stringify(vault)).toEqual(
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2, github1],
-        recoveryKeys: [recoveryKey1],
+        recoveryKeys: [recoveryKey1, recoveryKey2],
         owners: [owner1, owner2],
         settings: {
           autoImportOwners: false,
-          name: "My vault",
+          name: "My Sismo Vault",
           keepConnected: true,
         },
         timestamp: vault.timestamp,
@@ -436,17 +458,17 @@ describe("Vault client V1", () => {
   });
 
   it("Should import second owner", async () => {
-    await vaultClient.addOwner(owner1, owner3);
-    const vault = await vaultClient.load(owner1.seed);
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.addOwner(owner3);
     expect(JSON.stringify(vault)).toEqual(
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2, github1],
-        recoveryKeys: [recoveryKey1],
+        recoveryKeys: [recoveryKey1, recoveryKey2],
         owners: [owner1, owner2, owner3],
         settings: {
           autoImportOwners: false,
-          name: "My vault",
+          name: "My Sismo Vault",
           keepConnected: true,
         },
         timestamp: vault.timestamp,
@@ -457,30 +479,29 @@ describe("Vault client V1", () => {
 
   it("Should throw when adding an owner already imported", async () => {
     await expect(async () => {
-      await vaultClient.addOwner(owner1, owner3);
+      await vaultClient.unlock(owner1.seed);
+      await vaultClient.addOwner(owner3);
     }).rejects.toThrow();
   });
 
   it("Should throw when adding an owner with a vault", async () => {
     await expect(async () => {
-      await vaultClient.addOwner(owner1, owner3);
+      await vaultClient.addOwner(owner3);
     }).rejects.toThrow();
   });
 
-  /**************************** DELETE **************************/
-
   it("Should remove the third owner", async () => {
-    await vaultClient.deleteOwners(owner1, [owner3]);
-    const vault = await vaultClient.load(owner1.seed);
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.deleteOwners([owner3]);
     expect(JSON.stringify(vault)).toEqual(
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2, github1],
-        recoveryKeys: [recoveryKey1],
+        recoveryKeys: [recoveryKey1, recoveryKey2],
         owners: [owner1, owner2],
         settings: {
           autoImportOwners: false,
-          name: "My vault",
+          name: "My Sismo Vault",
           keepConnected: true,
         },
         timestamp: vault.timestamp,
@@ -491,76 +512,8 @@ describe("Vault client V1", () => {
 
   it("Should throw when removing an owner which is not in the vault", async () => {
     await expect(async () => {
-      await vaultClient.deleteOwners(owner1, [owner4]);
+      await vaultClient.unlock(owner1.seed);
+      await vaultClient.deleteOwners([owner4]);
     }).rejects.toThrow();
-  });
-
-  /**************************** MERGE **************************/
-
-  it("Should merge 2 vaults with mnemonic", async () => {
-    const vault1Before = await vaultClient.load(owner1.seed);
-    expect(JSON.stringify(vault1Before.importedAccounts)).toEqual(
-      JSON.stringify([account2, github1])
-    );
-    await vaultClient.createFromOwner(owner3, "My Vault 3");
-    await vaultClient.importAccount(owner3, account5);
-    await vaultClient.generateMnemonic(owner3);
-    const vaultOwner3 = await vaultClient.generateRecoveryKey(
-      owner3,
-      "recoveryKey2"
-    );
-    recoveryKey2 = vaultOwner3.recoveryKeys[0];
-    await vaultClient.addOwner(owner1, owner3);
-    const vault1 = await vaultClient.load(owner1.seed);
-    const vault2 = await vaultClient.load(owner2.seed);
-    const vault3 = await vaultClient.load(owner3.seed);
-    const vaultBackup1 = await vaultClient.load(recoveryKey1.key);
-    const vaultBackup2 = await vaultClient.load(recoveryKey2.key);
-
-    expect(JSON.stringify(vault1)).toEqual(JSON.stringify(vault2));
-    expect(JSON.stringify(vault1)).toEqual(JSON.stringify(vault3));
-    expect(JSON.stringify(vault1)).toEqual(JSON.stringify(vaultBackup1));
-    expect(JSON.stringify(vault1)).toEqual(JSON.stringify(vaultBackup2));
-
-    expect(JSON.stringify(vault1.recoveryKeys)).toEqual(
-      JSON.stringify([recoveryKey1, recoveryKey2])
-    );
-
-    expect(JSON.stringify(vault1.owners)).toEqual(
-      JSON.stringify([owner1, owner2, owner3])
-    );
-    expect(JSON.stringify(vault1.importedAccounts)).toEqual(
-      JSON.stringify([account2, github1, account5])
-    );
-    expect(vault1.mnemonics[0]).toEqual(mnemonic1);
-  });
-
-  it("Should merge 2 vaults without mnemonic", async () => {
-    await vaultClient.createFromOwner(owner4, "My Vault 4");
-    const vaultWithMnemonic = await vaultClient.generateMnemonic(owner4);
-    mnemonic2 = vaultWithMnemonic.mnemonics[0];
-    Wallet.fromMnemonic(mnemonic2);
-    await vaultClient.addOwner(owner4, owner2);
-    const vault1 = await vaultClient.load(owner1.seed);
-    const vault2 = await vaultClient.load(owner2.seed);
-    const vault3 = await vaultClient.load(owner3.seed);
-    const vault4 = await vaultClient.load(owner4.seed);
-    const vaultBackup1 = await vaultClient.load(recoveryKey1.key);
-    const vaultBackup2 = await vaultClient.load(recoveryKey2.key);
-
-    expect(JSON.stringify(vault1)).toEqual(JSON.stringify(vault2));
-    expect(JSON.stringify(vault1)).toEqual(JSON.stringify(vault3));
-    expect(JSON.stringify(vault1)).toEqual(JSON.stringify(vault4));
-    expect(JSON.stringify(vault1)).toEqual(JSON.stringify(vaultBackup1));
-    expect(JSON.stringify(vault1)).toEqual(JSON.stringify(vaultBackup2));
-
-    expect(JSON.stringify(vault1.owners)).toEqual(
-      JSON.stringify([owner4, owner1, owner2, owner3])
-    );
-    expect(JSON.stringify(vault1.importedAccounts)).toEqual(
-      JSON.stringify([account2, github1, account5])
-    );
-    expect(vault1.mnemonics[0]).toEqual(mnemonic2);
-    expect(vault1.mnemonics[1]).toEqual(mnemonic1);
   });
 });

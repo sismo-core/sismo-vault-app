@@ -11,13 +11,11 @@ import {
   createActiveSession,
   deleteActiveSession,
 } from "./utils/createActiveSession";
-import { Seed } from "../sismo-client";
 import {
   CommitmentMapper,
   ImportedAccount,
   Owner,
   RecoveryKey,
-  SismoWallet,
   Vault,
   VaultClient,
   WalletPurpose,
@@ -43,40 +41,24 @@ type ReactVault = {
   deletable: boolean;
   recoveryKeys: RecoveryKey[];
   commitmentMapper: CommitmentMapper;
-  getVaultSecret: (owner: Owner) => Promise<string>;
+  getVaultSecret: () => Promise<string>;
   disconnect: () => void;
   connect: (owner: Owner) => Promise<boolean>;
   isVaultExist: (owner: Owner) => Promise<boolean>;
-  getRecoveryKey: (
-    mnemonic?: string,
-    accountNumber?: number
-  ) => Promise<RecoveryKey>;
   getNextSeed: (
-    owner: Owner,
     purpose: WalletPurpose
   ) => Promise<{ seed: string; mnemonic: string; accountNumber: number }>;
-  generateRecoveryKey: (owner: Owner, name: string) => Promise<string>;
-  deleteRecoveryKey: (owner: Owner, name: string) => Promise<string>;
-  createFromOwner: (owner: Owner, name: string) => Promise<void>;
-  createFromRecoveryKey: (
-    recoveryKey: RecoveryKey,
-    name: string
-  ) => Promise<void>;
-  importAccount: (owner: Owner, account: ImportedAccount) => Promise<void>;
-  deleteImportedAccount: (
-    owner: Owner,
-    account: ImportedAccount
-  ) => Promise<void>;
-  merge: (ownerMain: Owner, ownerMerged: Owner) => Promise<void>;
-  addOwner: (owner: Owner, ownerAdded: Owner) => Promise<Vault>;
-  deleteOwners: (owner: Owner, ownersDeleted: Owner[]) => Promise<void>;
-  updateAutoImportOwners: (
-    owner: Owner,
-    autoImportOwners: boolean
-  ) => Promise<void>;
-  updateName: (owner: Owner, name: string) => Promise<void>;
-  deleteVault: (owner: Owner) => Promise<void>;
-  updateKeepConnected: (owner: Owner, keepConnected: boolean) => Promise<void>;
+  generateRecoveryKey: (name?: string) => Promise<string>;
+  disableRecoveryKey: (key: string) => Promise<string>;
+  create: () => Promise<Vault>;
+  importAccount: (account: ImportedAccount) => Promise<void>;
+  deleteImportedAccount: (account: ImportedAccount) => Promise<void>;
+  addOwner: (ownerAdded: Owner) => Promise<Vault>;
+  deleteOwners: (ownersDeleted: Owner[]) => Promise<void>;
+  setAutoImportOwners: (autoImportOwners: boolean) => Promise<void>;
+  updateName: (name: string) => Promise<void>;
+  deleteVault: () => Promise<void>;
+  setKeepConnected: (owner: Owner, keepConnected: boolean) => Promise<void>;
 };
 
 export const useVault = (): ReactVault => {
@@ -107,18 +89,25 @@ export default function SismoVaultProvider({
   const vaultState = useVaultState();
 
   const connect = useCallback(async (owner: Owner): Promise<boolean> => {
-    const vault = await vaultClient.load(owner.seed);
+    const vault = await vaultClient.unlock(owner.seed);
     if (!vault) return false;
     await Promise.all([
       vaultState.updateConnectedOwner(owner),
       vaultState.updateVaultState(vault),
     ]);
     if (vault.settings.keepConnected) {
+      console.log("create active session");
       createActiveSession(owner, 24 * 30 * 24);
     }
     return true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const disconnect = (): void => {
+    vaultState.reset();
+    vaultClient.lock();
+    deleteActiveSession();
+  };
 
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
   useEffect(() => {
@@ -141,87 +130,29 @@ export default function SismoVaultProvider({
   }, []);
 
   const isVaultExist = async (owner: Owner): Promise<boolean> => {
-    const vault = await vaultClient.load(owner.seed);
+    const vault = await vaultClient.unlock(owner.seed);
     if (!vault) return false;
     return true;
   };
 
-  const disconnect = (): void => {
-    vaultState.reset();
-    deleteActiveSession();
+  const create = async (): Promise<Vault> => {
+    return await vaultClient.create();
   };
 
-  const createFromOwner = async (
-    owner: Owner,
-    name: string
-  ): Promise<boolean> => {
-    const vault = await vaultClient.createFromOwner(owner, name);
-    if (!vault) return false;
-    return true;
+  const getVaultSecret = async (): Promise<string> => {
+    return await vaultClient.getVaultSecret();
   };
 
-  const createFromRecoveryKey = async (
-    recoveryKey: RecoveryKey,
-    name: string
-  ): Promise<boolean> => {
-    const vault = await vaultClient.createFromRecoveryKey(recoveryKey, name);
-    if (!vault) return false;
-    return true;
-  };
-
-  const getRecoveryKey = async (
-    mnemonic?: string,
-    accountNumber?: number
-  ): Promise<RecoveryKey> => {
-    return await vaultClient.getRecoveryKey(mnemonic, accountNumber);
-  };
-
-  const getVaultSecret = async (owner: Owner): Promise<string> => {
-    return await vaultClient.getVaultSecret(owner);
-  };
-
-  const getMnemonic = async (owner: Owner) => {
-    const vault = await vaultClient.load(owner.seed);
-    let mnemonic;
-    if (vault.mnemonics.length === 0) {
-      const vault = await vaultClient.generateMnemonic(owner);
-      await vaultState.updateVaultState(vault);
-      mnemonic = vault.mnemonics[0];
-    } else {
-      mnemonic = vault.mnemonics[0];
-    }
-    return mnemonic;
-  };
-
-  //TODO Put this logic in the vault-client
   const getNextSeed = async (
-    owner: Owner,
     purpose: WalletPurpose
   ): Promise<{ seed: string; mnemonic: string; accountNumber: number }> => {
-    let mnemonic = await getMnemonic(owner);
-    if (purpose === WalletPurpose.IMPORTED_ACCOUNT) {
-      const accountNumber = vaultState.importedAccounts.filter(
-        (account) => account.wallet && account.wallet.mnemonic === mnemonic
-      ).length;
-      const wallet = new SismoWallet(mnemonic);
-      const account = wallet.getAccount(purpose, accountNumber);
-      const message = Seed.getSeedMsg(account);
-      const signature = await wallet.sign(purpose, accountNumber, message);
-      return {
-        seed: Seed.generateSeed(signature),
-        accountNumber: accountNumber,
-        mnemonic: mnemonic,
-      };
-    }
+    return await vaultClient.getNextSeed(purpose);
   };
 
-  const generateRecoveryKey = async (
-    owner: Owner,
-    name: string
-  ): Promise<string> => {
-    let mnemonic = await getMnemonic(owner);
-    const vault = await vaultClient.generateRecoveryKey(owner, name);
+  const generateRecoveryKey = async (name: string): Promise<string> => {
+    const vault = await vaultClient.generateRecoveryKey(name);
     await vaultState.updateVaultState(vault);
+    const mnemonic = vault.mnemonics[0];
     const accountNumber =
       vault.recoveryKeys.filter((key) => key.mnemonic === mnemonic).length - 1;
     const recoveryKeyGenerated = vault.recoveryKeys.find(
@@ -229,27 +160,22 @@ export default function SismoVaultProvider({
         recoveryKey.mnemonic === mnemonic &&
         recoveryKey.accountNumber === accountNumber
     );
+
     return recoveryKeyGenerated.key;
   };
 
-  const deleteRecoveryKey = async (
-    owner: Owner,
-    key: string
-  ): Promise<void> => {
-    const vault = await vaultClient.deleteRecoveryKey(owner, key);
+  const disableRecoveryKey = async (key: string): Promise<void> => {
+    const vault = await vaultClient.disableRecoveryKey(key);
     await vaultState.updateVaultState(vault);
   };
 
-  const importAccount = async (
-    owner: Owner,
-    account: ImportedAccount
-  ): Promise<void> => {
-    const vault = await vaultClient.importAccount(owner, account);
+  const importAccount = async (account: ImportedAccount): Promise<void> => {
+    const vault = await vaultClient.importAccount(account);
     if (account.type === "ethereum" && vaultState.autoImportOwners) {
       if (
         !vault.owners.find((owner) => owner.identifier === account.identifier)
       ) {
-        await addOwner(owner, account);
+        await addOwner(account);
         return;
       }
     }
@@ -260,44 +186,32 @@ export default function SismoVaultProvider({
     owner: Owner,
     account: ImportedAccount
   ): Promise<void> => {
-    const vault = await vaultClient.deleteImportedAccount(owner, account);
+    const vault = await vaultClient.deleteImportedAccount(account);
     await vaultState.updateVaultState(vault);
   };
 
-  const merge = async (ownerMain: Owner, ownerMerged: Owner): Promise<void> => {
-    const vault = await vaultClient.merge(ownerMain, ownerMerged);
+  const addOwner = async (ownerAdded: Owner): Promise<void> => {
+    const vault = await vaultClient.addOwner(ownerAdded);
     await vaultState.updateVaultState(vault);
   };
 
-  const addOwner = async (owner: Owner, ownerAdded: Owner): Promise<void> => {
-    const vault = await vaultClient.addOwner(owner, ownerAdded);
+  const deleteOwners = async (ownersDeleted: Owner[]): Promise<void> => {
+    const vault = await vaultClient.deleteOwners(ownersDeleted);
     await vaultState.updateVaultState(vault);
   };
 
-  const deleteOwners = async (
-    owner: Owner,
-    ownersDeleted: Owner[]
-  ): Promise<void> => {
-    const vault = await vaultClient.deleteOwners(owner, ownersDeleted);
-    await vaultState.updateVaultState(vault);
-  };
-
-  const updateAutoImportOwners = async (
-    owner: Owner,
+  const setAutoImportOwners = async (
     autoImportOwners: boolean
   ): Promise<void> => {
-    const vault = await vaultClient.updateAutoImportOwners(
-      owner,
-      autoImportOwners
-    );
+    const vault = await vaultClient.setAutoImportOwners(autoImportOwners);
     await vaultState.updateVaultState(vault);
   };
 
-  const updateKeepConnected = async (
+  const setKeepConnected = async (
     owner: Owner,
     keepConnected: boolean
   ): Promise<void> => {
-    const vault = await vaultClient.updateKeepConnected(owner, keepConnected);
+    const vault = await vaultClient.setKeepConnected(keepConnected);
     if (!keepConnected) {
       deleteActiveSession();
     } else {
@@ -306,13 +220,13 @@ export default function SismoVaultProvider({
     await vaultState.updateVaultState(vault);
   };
 
-  const updateName = async (owner: Owner, name: string): Promise<void> => {
-    const vault = await vaultClient.updateName(owner, name);
+  const updateName = async (name: string): Promise<void> => {
+    const vault = await vaultClient.updateName(name);
     await vaultState.updateVaultState(vault);
   };
 
-  const deleteVault = async (owner: Owner): Promise<void> => {
-    await vaultClient.delete(owner);
+  const deleteVault = async (): Promise<void> => {
+    await vaultClient.delete();
     await vaultState.reset();
   };
 
@@ -350,24 +264,21 @@ export default function SismoVaultProvider({
         deletable: vaultState.deletable,
         recoveryKeys: vaultState.recoveryKeys,
         getVaultSecret,
-        getRecoveryKey,
-        deleteRecoveryKey,
+        disableRecoveryKey,
         generateRecoveryKey,
         disconnect,
-        createFromOwner,
-        createFromRecoveryKey,
+        create,
         getNextSeed,
         connect,
         isVaultExist,
         importAccount,
         deleteImportedAccount,
-        merge,
         addOwner,
         deleteOwners,
-        updateAutoImportOwners,
+        setAutoImportOwners,
         updateName,
         deleteVault,
-        updateKeepConnected,
+        setKeepConnected,
       }}
     >
       {children}

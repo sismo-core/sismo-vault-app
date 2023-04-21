@@ -55,7 +55,7 @@ export default function RecoveryKeyLine({ recoveryKey }: Props) {
   const vault = useVault();
 
   const deleteKey = async () => {
-    await vault.deleteRecoveryKey(vault.connectedOwner, recoveryKey.key);
+    await vault.disableRecoveryKey(recoveryKey.key);
   };
 
   return (
@@ -79,14 +79,16 @@ export default function RecoveryKeyLine({ recoveryKey }: Props) {
           {recoveryKey.name}
         </Name>
         <Actions>
-          <Action
-            onClick={(e) => {
-              setConfirmDeleteOpen(true);
-              e.stopPropagation();
-            }}
-          >
-            <Icon name="delete-outline-white" style={{ width: 16 }} />
-          </Action>
+          {vault.connectedOwner.seed !== recoveryKey.key && (
+            <Action
+              onClick={(e) => {
+                setConfirmDeleteOpen(true);
+                e.stopPropagation();
+              }}
+            >
+              <Icon name="delete-outline-white" style={{ width: 16 }} />
+            </Action>
+          )}
         </Actions>
       </Container>
     </>

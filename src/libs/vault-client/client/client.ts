@@ -11,64 +11,63 @@ import { BigNumber } from "ethers";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 
 export class VaultClient {
-  private provider: VaultProvider;
+  private _provider: VaultProvider;
+  private _seed: string;
+  private _unSavedVault: Vault;
 
   constructor(store: BaseStore) {
-    this.provider = new VaultProvider({ store });
+    this._provider = new VaultProvider({ store });
   }
+
   /*****************************************************************/
   /***************************** CREATE ****************************/
   /*****************************************************************/
 
-  public async createFromOwner(owner: Owner, name: string): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (currentVault) throw new Error("Vault already exist");
+  public create(): Vault {
+    if (this._seed)
+      throw new Error(
+        "Unlocked vault, please lock it before creating a new vault"
+      );
     const mnemonic = SismoWallet.generateMnemonic();
     const createdVault: Vault = {
       mnemonics: [mnemonic],
       importedAccounts: [],
       recoveryKeys: [],
-      owners: [owner],
-      settings: {
-        autoImportOwners: true,
-        name: name,
-        keepConnected: true,
-      },
-      timestamp: Date.now(),
-      version: 4,
-    };
-    await this.post(createdVault, JSON.stringify(createdVault));
-    return createdVault;
-  }
-
-  public async createFromRecoveryKey(
-    recoveryKey: RecoveryKey,
-    name: string
-  ): Promise<Vault> {
-    const createdVault: Vault = {
-      mnemonics: [recoveryKey.mnemonic],
-      importedAccounts: [],
-      recoveryKeys: [recoveryKey],
       owners: [],
       settings: {
         autoImportOwners: true,
-        name: name,
+        name: "My Sismo Vault",
         keepConnected: true,
       },
       timestamp: Date.now(),
       version: 4,
     };
-    await this.post(createdVault, JSON.stringify(createdVault));
+    this._unSavedVault = createdVault;
     return createdVault;
+  }
+
+  /*****************************************************************/
+  /************************* LOCK & UNLOCK  ************************/
+  /*****************************************************************/
+
+  public async unlock(seed: string): Promise<Vault> {
+    const vault = await this._get(seed);
+    if (!vault) return null;
+    this._seed = seed;
+    return vault;
+  }
+
+  public lock(): void {
+    this._unSavedVault = null;
+    this._seed = null;
   }
 
   /*****************************************************************/
   /************************* VAULT SECRET & IDENTIFIER  ************/
   /*****************************************************************/
 
-  public async getVaultSecret(owner: Owner): Promise<string> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+  public async getVaultSecret(): Promise<string> {
+    const currentVault = await this._getCurrentVault();
     const mnemonic = currentVault.mnemonics[0];
     const hash = new SHA3(256);
     const vaultSecret = BigNumber.from(
@@ -83,14 +82,43 @@ export class VaultClient {
   /************************* RECOVERY KEYS ****************************/
   /*****************************************************************/
 
-  public async getRecoveryKey(
-    mnemonic?: string,
-    accountNumber?: number
+  public async generateRecoveryKey(name: string): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
+
+    if (!currentVault.mnemonics || currentVault.mnemonics.length === 0) {
+      throw new Error("No phrase generated");
+    }
+
+    let accountNumber = 0;
+    if (currentVault.recoveryKeys) {
+      const recoveryKeys = currentVault.recoveryKeys.filter(
+        (backup) => backup.mnemonic === currentVault.mnemonics[0]
+      );
+      accountNumber = recoveryKeys.length;
+    }
+
+    const recoveryKey = await this._buildRecoveryKey(
+      currentVault.mnemonics[0],
+      accountNumber,
+      name
+    );
+
+    const updatedVault: Vault = {
+      ...currentVault,
+      recoveryKeys: [...currentVault.recoveryKeys, recoveryKey],
+    };
+
+    await this._post(updatedVault);
+    return updatedVault;
+  }
+
+  private async _buildRecoveryKey(
+    mnemonic: string,
+    accountNumber: number,
+    name?: string
   ): Promise<RecoveryKey> {
-    mnemonic = mnemonic ? mnemonic : SismoWallet.generateMnemonic();
-    accountNumber = accountNumber ? accountNumber : 0;
     const num = Math.floor(Math.random() * 1000000000);
-    const _name = `RecoveryKey #${num}`;
+    const _name = name ?? `RecoveryKey #${num}`;
     const sismoWallet = new SismoWallet(mnemonic);
     const message = Seed.getSeedMsg(
       sismoWallet.getAccount(WalletPurpose.RECOVERY_KEY, accountNumber)
@@ -112,39 +140,8 @@ export class VaultClient {
     return recoveryKey;
   }
 
-  public async generateRecoveryKey(owner: Owner, name: string): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
-
-    if (!currentVault.mnemonics || currentVault.mnemonics.length === 0) {
-      throw new Error("No phrase generated");
-    }
-
-    let accountNumber = 0;
-    if (currentVault.recoveryKeys) {
-      const recoveryKeys = currentVault.recoveryKeys.filter(
-        (backup) => backup.mnemonic === currentVault.mnemonics[0]
-      );
-      accountNumber = recoveryKeys.length;
-    }
-
-    const recoveryKey = await this.getRecoveryKey(
-      currentVault.mnemonics[0],
-      accountNumber
-    );
-
-    const updatedVault: Vault = {
-      ...currentVault,
-      recoveryKeys: [...currentVault.recoveryKeys, recoveryKey],
-    };
-
-    await this.post(updatedVault, JSON.stringify(updatedVault));
-    return updatedVault;
-  }
-
-  public async deleteRecoveryKey(owner: Owner, key: string): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+  public async disableRecoveryKey(key: string): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
 
     const recoveryKeys = [...currentVault.recoveryKeys];
 
@@ -152,7 +149,7 @@ export class VaultClient {
 
     if (index === -1) throw new Error("Key not found in the recovery keys");
 
-    this.provider.post(key, "deleted", currentVault.version);
+    this._provider.post(key, "deleted", currentVault.version);
 
     recoveryKeys[index].valid = false;
 
@@ -161,55 +158,45 @@ export class VaultClient {
       recoveryKeys: recoveryKeys,
     };
 
-    await this.post(updatedVault, JSON.stringify(updatedVault));
+    await this._post(updatedVault);
     return updatedVault;
   }
 
   /*****************************************************************/
-  /*************************** MNEMONIC ****************************/
+  /************************* GET NEXT SEED *************************/
   /*****************************************************************/
 
-  public async generateMnemonic(owner: Owner): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+  // This function allow to get the next seed for a defined purpose
+  // This is used for web2 account that need a secret before calling
+  // the commitment mapper
 
-    if (currentVault.mnemonics && currentVault.mnemonics.length > 0) {
-      throw new Error("Phrase already generated");
+  public async getNextSeed(
+    purpose: WalletPurpose
+  ): Promise<{ seed: string; mnemonic: string; accountNumber: number }> {
+    const currentVault = await this._getCurrentVault();
+    let mnemonic = currentVault.mnemonics[0];
+    if (purpose === WalletPurpose.IMPORTED_ACCOUNT) {
+      const accountNumber = currentVault.importedAccounts.filter(
+        (account) => account.wallet && account.wallet.mnemonic === mnemonic
+      ).length;
+      const wallet = new SismoWallet(mnemonic);
+      const account = wallet.getAccount(purpose, accountNumber);
+      const message = Seed.getSeedMsg(account);
+      const signature = await wallet.sign(purpose, accountNumber, message);
+      return {
+        seed: Seed.generateSeed(signature),
+        accountNumber: accountNumber,
+        mnemonic: mnemonic,
+      };
     }
-
-    const mnemonic = SismoWallet.generateMnemonic();
-
-    const updatedVault: Vault = {
-      ...currentVault,
-      mnemonics: [mnemonic],
-    };
-
-    await this.post(updatedVault, JSON.stringify(updatedVault));
-    return updatedVault;
   }
 
   /*****************************************************************/
-  /****************************** READ *****************************/
+  /*********************** IMPORT ACCOUNT **************************/
   /*****************************************************************/
 
-  public async load(seed: string): Promise<Vault> {
-    const vault = await this.get(seed);
-    if (!vault) return null;
-    return vault;
-  }
-
-  /*****************************************************************/
-  /***************************** UPDATE ****************************/
-  /*****************************************************************/
-
-  /************************* IMPORT ACCOUNT **********************/
-
-  public async importAccount(
-    owner: Owner,
-    account: ImportedAccount
-  ): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+  public async importAccount(account: ImportedAccount): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
 
     if (account.type !== "ethereum") {
       if (!account.wallet)
@@ -240,16 +227,14 @@ export class VaultClient {
       importedAccounts: [...currentVault.importedAccounts, account],
     };
 
-    await this.post(updatedVault, JSON.stringify(updatedVault));
+    await this._post(updatedVault);
     return updatedVault;
   }
 
   public async deleteImportedAccount(
-    owner: Owner,
     accountDeleted: ImportedAccount
   ): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+    const currentVault = await this._getCurrentVault();
 
     const accounts = currentVault.importedAccounts.filter((account) => {
       return accountDeleted.identifier !== account.identifier;
@@ -264,59 +249,16 @@ export class VaultClient {
       importedAccounts: accounts,
     };
 
-    await this.post(updatedVault, JSON.stringify(updatedVault));
+    await this._post(updatedVault);
     return updatedVault;
   }
 
-  /************************* OWNERS **********************/
+  /*****************************************************************/
+  /****************************** OWNER ****************************/
+  /*****************************************************************/
 
-  public async merge(ownerMain: Owner, ownerMerged: Owner): Promise<Vault> {
-    const vault1 = await this.get(ownerMain.seed);
-    if (!vault1) throw new Error("No vault found on first owner");
-    const vault2 = await this.get(ownerMerged.seed);
-    if (!vault2) throw new Error("No vault found on second owner");
-
-    const owners: Owner[] = [...vault1.owners];
-    for (let owner of vault2.owners) {
-      if (!owners.find((el) => el.identifier === owner.identifier)) {
-        owners.push(owner);
-      }
-    }
-
-    const importedAccounts: ImportedAccount[] = [...vault1.importedAccounts];
-    for (let account of vault2.importedAccounts) {
-      if (
-        !importedAccounts.find((el) => el.identifier === account.identifier)
-      ) {
-        importedAccounts.push(account);
-      }
-    }
-
-    const mnemonics: string[] = [...vault1.mnemonics, ...vault2.mnemonics];
-
-    const recoveryKeys = [...vault1.recoveryKeys, ...vault2.recoveryKeys];
-
-    const updatedVault: Vault = {
-      mnemonics: mnemonics,
-      owners: owners,
-      recoveryKeys: recoveryKeys,
-      importedAccounts: importedAccounts,
-      settings: {
-        name: vault1.settings.name,
-        autoImportOwners: vault1.settings.autoImportOwners,
-        keepConnected: vault1.settings.keepConnected,
-      },
-      timestamp: vault1.timestamp,
-      version: 4,
-    };
-
-    await this.post(updatedVault, JSON.stringify(updatedVault));
-    return updatedVault;
-  }
-
-  public async addOwner(owner: Owner, ownerAdded: Owner): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+  public async addOwner(ownerAdded: Owner): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
 
     if (
       currentVault.owners.find(
@@ -326,25 +268,16 @@ export class VaultClient {
       throw new Error("Owner already imported");
     }
 
-    const addedOwnerVault = await this.get(ownerAdded.seed);
-    if (addedOwnerVault) {
-      return await this.merge(owner, ownerAdded);
-    }
-
     const updatedVault = {
       ...currentVault,
       owners: [...currentVault.owners, ownerAdded],
     };
-    await this.post(updatedVault, JSON.stringify(updatedVault));
+    await this._post(updatedVault);
     return updatedVault;
   }
 
-  public async deleteOwners(
-    owner: Owner,
-    ownersDeleted: Owner[]
-  ): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+  public async deleteOwners(ownersDeleted: Owner[]): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
 
     const owners = currentVault.owners.filter((owner) => {
       return !ownersDeleted.find(
@@ -362,7 +295,7 @@ export class VaultClient {
 
     await Promise.all(
       ownersDeleted.map((ownerDeleted) =>
-        this.provider.post(ownerDeleted.seed, "deleted", currentVault.version)
+        this._provider.post(ownerDeleted.seed, "deleted", currentVault.version)
       )
     );
 
@@ -370,16 +303,16 @@ export class VaultClient {
       ...currentVault,
       owners: owners,
     };
-    await this.post(updatedVault, JSON.stringify(updatedVault));
+    await this._post(updatedVault);
     return updatedVault;
   }
 
-  public async updateAutoImportOwners(
-    owner: Owner,
-    autoImportOwners: boolean
-  ): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+  /*****************************************************************/
+  /*************************** SETTINGS ****************************/
+  /*****************************************************************/
+
+  public async setAutoImportOwners(autoImportOwners: boolean): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
     const updatedVault = {
       ...currentVault,
       settings: {
@@ -387,16 +320,12 @@ export class VaultClient {
         autoImportOwners: autoImportOwners,
       },
     };
-    await this.post(updatedVault, JSON.stringify(updatedVault));
+    await this._post(updatedVault);
     return updatedVault;
   }
 
-  public async updateKeepConnected(
-    owner: Owner,
-    keepConnected: boolean
-  ): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+  public async setKeepConnected(keepConnected: boolean): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
     const updatedVault = {
       ...currentVault,
       settings: {
@@ -404,14 +333,12 @@ export class VaultClient {
         keepConnected: keepConnected,
       },
     };
-    await this.post(updatedVault, JSON.stringify(updatedVault));
+    await this._post(updatedVault);
     return updatedVault;
   }
-  /************************* CUSTOMIZATION **********************/
 
-  public async updateName(owner: Owner, name: string): Promise<Vault> {
-    const currentVault = await this.get(owner.seed);
-    if (!currentVault) throw new Error("No vault found on this owner");
+  public async updateName(name: string): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
 
     const updatedVault = {
       ...currentVault,
@@ -421,7 +348,7 @@ export class VaultClient {
       },
     };
 
-    await this.post(updatedVault, JSON.stringify(updatedVault));
+    await this._post(updatedVault);
     return updatedVault;
   }
 
@@ -429,33 +356,58 @@ export class VaultClient {
   /***************************** DELETE ****************************/
   /*****************************************************************/
 
-  public async delete(owner: Owner): Promise<void> {
-    const currentVault = await this.get(owner.seed);
+  public async delete(): Promise<void> {
+    const currentVault = await this._getCurrentVault();
     if (currentVault.mnemonics && currentVault.mnemonics.length > 0) {
       throw new Error("Can't delete this vault");
     }
-    await this.post(currentVault, "deleted");
+    await this._post(currentVault, "deleted");
   }
 
   /*****************************************************************/
   /***************************** UTILS *****************************/
   /*****************************************************************/
 
-  //Post to all owners
-  private async post(vault: Vault, text: string): Promise<void> {
+  private async _getCurrentVault(): Promise<Vault> {
+    if (this._unSavedVault) return this._unSavedVault;
+    if (!this._seed) throw new Error("No vault unlocked");
+    const currentVault = await this._get(this._seed);
+    if (!currentVault) {
+      this._seed = null;
+      throw new Error("No vault available on the unlocked seed");
+    }
+    return currentVault;
+  }
+
+  private async _post(vault: Vault, forceText?: string): Promise<void> {
+    if (vault.owners.length === 0 && vault.recoveryKeys.length === 0) {
+      this._unSavedVault = vault;
+      return;
+    }
+    // forceText allow to save a text instead of the vault
+    // used to delete the vault by replacing the vault by "deleted"
+    const text = forceText ?? JSON.stringify(vault);
+
     await Promise.all([
       ...vault.owners.map((owner) =>
-        this.provider.post(owner.seed, text, vault.version)
+        this._provider.post(owner.seed, text, vault.version)
       ),
       ...vault.recoveryKeys
         .filter((backup) => backup.valid)
-        .map((backup) => this.provider.post(backup.key, text, vault.version)),
+        .map((backup) => this._provider.post(backup.key, text, vault.version)),
     ]);
+
+    if (this._unSavedVault) {
+      if (vault.owners.length > 0) this._seed = vault.owners[0].seed;
+      if (vault.recoveryKeys.length > 0) this._seed = vault.recoveryKeys[0].key;
+      this._unSavedVault = null;
+    }
   }
 
-  //Get vault with right version
-  private async get(seed: string): Promise<Vault> {
-    const vaultString = await this.provider.get(seed);
+  private async _get(seed: string): Promise<Vault> {
+    if (seed === null) return this._unSavedVault;
+
+    const vaultString = await this._provider.get(seed);
     if (vaultString === "deleted") return null;
     let vault = JSON.parse(vaultString);
     return migration(vault);

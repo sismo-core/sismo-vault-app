@@ -16,7 +16,9 @@ type Environment = {
   };
 };
 
-(window as any).env.sentryReleaseName = process.env.REACT_APP_GIT_HASH;
+if ((window as any).env) {
+  (window as any).env.sentryReleaseName = process.env.REACT_APP_GIT_HASH;
+}
 let env = (window as any).env as Environment;
 
 export default env;

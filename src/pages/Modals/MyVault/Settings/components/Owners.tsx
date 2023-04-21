@@ -104,10 +104,7 @@ export default function Owners() {
   const importAccount = useImportAccount();
 
   const autoImportOwner = async () => {
-    await vault.updateAutoImportOwners(
-      vault.connectedOwner,
-      !vault.autoImportOwners
-    );
+    await vault.setAutoImportOwners(!vault.autoImportOwners);
   };
 
   return (
