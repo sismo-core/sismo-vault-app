@@ -2,6 +2,7 @@
 window.env = {
   name: "STAGING_BETA",
   disabledSentry: false,
+  mintingAppUrl: "https://staging.sismo.io/",
   vaultURL: "https://vault-beta-api.sismo.io",
   hubApiUrl: "https://hub.staging.zikies.io",
   factoryApiUrl: "https://factory-api.staging.zikies.io",

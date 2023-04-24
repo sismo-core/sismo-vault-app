@@ -2,6 +2,7 @@
 window.env = {
   name: "DEMO",
   disabledSentry: false,
+  mintingAppUrl: null,
   vaultURL: "https://vault-beta-api.sismo.io",
   hubApiUrl: "https://hub.sismo.io",
   factoryApiUrl: "https://factory-api.sismo.io",
