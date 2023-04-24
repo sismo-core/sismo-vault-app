@@ -74,7 +74,7 @@ export default function AccountLine({
 
   const deleteAccount = async () => {
     try {
-      await vault.deleteImportedAccount(vault.connectedOwner, account);
+      await vault.deleteImportedAccount(account);
     } catch (e) {
       Sentry.captureException(e);
     }

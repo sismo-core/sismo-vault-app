@@ -41,10 +41,7 @@ export default function Security() {
 
   const keepConnected = async () => {
     try {
-      await vault.updateKeepConnected(
-        vault.connectedOwner,
-        !vault.keepConnected
-      );
+      await vault.setKeepConnected(vault.connectedOwner, !vault.keepConnected);
     } catch (e) {
       Sentry.captureException(e);
       notificationAdded({

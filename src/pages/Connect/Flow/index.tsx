@@ -248,7 +248,7 @@ export default function ConnectFlow({
     setLoadingProof(true);
     setErrorProof(false);
     try {
-      const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
+      const vaultSecret = await vault.getVaultSecret();
       const registryTreeRoot = await getRegistryTreeRoot(
         selectedSismoConnectRequest
       );

@@ -144,11 +144,13 @@ export default function CreateVaultStep({
       timestamp: Date.now(),
     };
 
-    await vault.createFromOwner(owner, "My Sismo vault");
+    await vault.create();
+    await vault.addOwner(owner);
+
     const commitmentMapperSecret =
       CommitmentMapper.generateCommitmentMapperSecret(seed);
 
-    const vaultSecret = await vault.getVaultSecret(owner);
+    const vaultSecret = await vault.getVaultSecret();
 
     const { commitmentReceipt, commitmentMapperPubKey } =
       await vault.commitmentMapper.getEthereumCommitmentReceipt(
@@ -158,7 +160,7 @@ export default function CreateVaultStep({
         vaultSecret
       );
 
-    await vault.importAccount(owner, {
+    await vault.importAccount({
       identifier,
       seed,
       commitmentReceipt,
@@ -166,6 +168,7 @@ export default function CreateVaultStep({
       type: "ethereum",
       timestamp: Date.now(),
     });
+
     await vault.connect(owner);
   };
 

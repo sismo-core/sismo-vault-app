@@ -3,11 +3,11 @@ window.env = {
   name: "DEV_BETA",
   disabledSentry: false,
   vaultURL: "https://dev.vault-beta-api.sismo.io",
-  hubApiUrl: "https://hub.sismo.io",
+  hubApiUrl: "https://hub.testnets.sismo.io",
   factoryApiUrl: "https://factory-api.sismo.io",
   commitmentMapperUrl: "https://btwu3bqo4a.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "d3f98ef4b1abaa0354b0",
-  chainName: "gnosis",
+  chainName: "goerli",
   sismoDestination: {
     address: "0x0000000000000000000000000000000000515110",
     sec: 515110,

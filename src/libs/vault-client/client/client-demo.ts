@@ -1,29 +1,13 @@
 import { VaultClient } from "./client";
-import { ImportedAccount, Owner, RecoveryKey, Vault } from "./client.types";
+import { ImportedAccount, Owner, Vault } from "./client.types";
 import { demoVault } from "./client-demo.mock";
 import {
   commitmentMapperPubKeyDemo,
   commitmentReceiptDemo,
 } from "../commitment-mapper/commitment-mapper.mock";
 
-const demoRecoveryKey: RecoveryKey = {
-  key: "demo",
-  mnemonic: "demo",
-  accountNumber: 0,
-  valid: true,
-  name: "demo",
-  timestamp: 0,
-};
-
 export class VaultClientDemo extends VaultClient {
-  public async createFromOwner(owner: Owner, name: string): Promise<Vault> {
-    return demoVault;
-  }
-
-  public async createFromRecoveryKey(
-    recoveryKey: RecoveryKey,
-    name: string
-  ): Promise<Vault> {
+  public create(): Vault {
     return demoVault;
   }
 
@@ -31,7 +15,7 @@ export class VaultClientDemo extends VaultClient {
   /************************* VAULT SECRET & IDENTIFIER  ************/
   /*****************************************************************/
 
-  public async getVaultSecret(owner: Owner): Promise<string> {
+  public async getVaultSecret(): Promise<string> {
     return "0x000";
   }
 
@@ -39,22 +23,11 @@ export class VaultClientDemo extends VaultClient {
   /************************* RECOVERY KEYS ****************************/
   /*****************************************************************/
 
-  public async getRecoveryKey(
-    mnemonic?: string,
-    accountNumber?: number
-  ): Promise<RecoveryKey> {
-    return demoRecoveryKey;
-  }
-
-  public async generateRecoveryKey(owner: Owner, name: string): Promise<Vault> {
+  public async generateRecoveryKey(name: string): Promise<Vault> {
     return demoVault;
   }
 
-  public async deleteRecoveryKey(owner: Owner, key: string): Promise<Vault> {
-    return demoVault;
-  }
-
-  public async generateMnemonic(owner: Owner): Promise<Vault> {
+  public async disableRecoveryKey(key: string): Promise<Vault> {
     return demoVault;
   }
 
@@ -62,15 +35,11 @@ export class VaultClientDemo extends VaultClient {
     return demoVault;
   }
 
-  public async importAccount(
-    owner: Owner,
-    account: ImportedAccount
-  ): Promise<Vault> {
+  public async importAccount(account: ImportedAccount): Promise<Vault> {
     return demoVault;
   }
 
   public async deleteImportedAccount(
-    owner: Owner,
     accountDeleted: ImportedAccount
   ): Promise<Vault> {
     return demoVault;
@@ -78,11 +47,7 @@ export class VaultClientDemo extends VaultClient {
 
   /************************* OWNERS **********************/
 
-  public async merge(ownerMain: Owner, ownerMerged: Owner): Promise<Vault> {
-    return demoVault;
-  }
-
-  public async addOwner(owner: Owner, ownerAdded: Owner): Promise<Vault> {
+  public async addOwner(ownerAdded: Owner): Promise<Vault> {
     demoVault.owners.push(ownerAdded);
 
     const _importedAccount: ImportedAccount = {
@@ -99,31 +64,24 @@ export class VaultClientDemo extends VaultClient {
     return demoVault;
   }
 
-  public async deleteOwners(
-    owner: Owner,
-    ownersDeleted: Owner[]
-  ): Promise<Vault> {
+  public async deleteOwners(ownersDeleted: Owner[]): Promise<Vault> {
     return demoVault;
   }
 
-  public async updateAutoImportOwners(
-    owner: Owner,
-    autoImportOwners: boolean
-  ): Promise<Vault> {
+  public async setAutoImportOwners(autoImportOwners: boolean): Promise<Vault> {
+    demoVault.settings.autoImportOwners = autoImportOwners;
     return demoVault;
   }
 
-  public async updateKeepConnected(
-    owner: Owner,
-    keepConnected: boolean
-  ): Promise<Vault> {
+  public async setKeepConnected(keepConnected: boolean): Promise<Vault> {
+    demoVault.settings.keepConnected = keepConnected;
     return demoVault;
   }
 
-  public async updateName(owner: Owner, name: string): Promise<Vault> {
+  public async updateName(name: string): Promise<Vault> {
     demoVault.settings.name = name;
     return demoVault;
   }
 
-  public async delete(owner: Owner): Promise<void> {}
+  public async delete(): Promise<void> {}
 }

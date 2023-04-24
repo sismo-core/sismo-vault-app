@@ -71,7 +71,7 @@ export default function OwnerLine({ owner }: Props) {
   const vault = useVault();
 
   const deleteAccount = async () => {
-    await vault.deleteOwners(vault.connectedOwner, [owner]);
+    await vault.deleteOwners([owner]);
   };
 
   return (

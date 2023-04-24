@@ -77,7 +77,6 @@ export default function GenerateRecoveryKeyModal(): JSX.Element {
   const [key, setKey] = useState(null);
   const [name, setName] = useState(null);
   const [loading, setLoading] = useState(null);
-  const [recoveryKey, setRecoveryKey] = useState(null);
   const vault = useVault();
   const { notificationAdded } = useNotifications();
 
@@ -95,16 +94,8 @@ export default function GenerateRecoveryKeyModal(): JSX.Element {
     try {
       let _name = null;
       let _key = null;
-      if (vault.isConnected) {
-        const num = Math.floor(Math.random() * 1000000000);
-        _name = `RecoveryKey #${num}`;
-        _key = await vault.generateRecoveryKey(vault.connectedOwner, _name);
-      } else {
-        const recoveryKey = await vault.getRecoveryKey();
-        await vault.createFromRecoveryKey(recoveryKey, "My Sismo vault");
-        setRecoveryKey(recoveryKey);
-        _key = recoveryKey.key;
-      }
+      if (!vault.isConnected) await vault.create();
+      _key = await vault.generateRecoveryKey();
       setKey(_key);
       setName(_name);
     } catch (e) {
@@ -123,11 +114,11 @@ export default function GenerateRecoveryKeyModal(): JSX.Element {
   };
 
   const close = () => {
-    if (recoveryKey) {
+    if (!vault.isConnected && key) {
       vault.connect({
         identifier: null,
-        seed: recoveryKey.key,
-        timestamp: recoveryKey.timestamp,
+        seed: key,
+        timestamp: null,
       });
     }
     generateRecoveryKey.close();

@@ -54,7 +54,7 @@ export default function More() {
   const deleteMyVault = async () => {
     setLoading(true);
     try {
-      await vault.deleteVault(vault.connectedOwner);
+      await vault.deleteVault();
       vault.disconnect();
       myVault.close();
     } catch (e) {

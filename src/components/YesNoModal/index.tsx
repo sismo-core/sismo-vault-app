@@ -44,7 +44,13 @@ export default function YesNoModal({
 }: ConnectVaultModalProps): JSX.Element {
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} animated outsideClosable>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        animated
+        outsideClosable
+        zIndex={10000}
+      >
         <Content>
           <Text style={{ marginBottom: 20 }}>{text}</Text>
           <Inline>

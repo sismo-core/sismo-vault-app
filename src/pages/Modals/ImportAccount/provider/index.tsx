@@ -121,7 +121,7 @@ export default function ImportAccountModalProvider({
         triggerError("Already imported as Owner");
         return;
       }
-      await vault.addOwner(vault.connectedOwner, {
+      await vault.addOwner({
         identifier: identifier,
         seed: seed,
         timestamp: Date.now(),
@@ -136,7 +136,7 @@ export default function ImportAccountModalProvider({
         try {
           const commitmentMapperSecret =
             CommitmentMapper.generateCommitmentMapperSecret(seed);
-          const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
+          const vaultSecret = await vault.getVaultSecret();
 
           const {
             commitmentReceipt: _commitmentReceipt,
@@ -170,7 +170,7 @@ export default function ImportAccountModalProvider({
           triggerError("Already imported");
           return;
         }
-        await vault.importAccount(vault.connectedOwner, {
+        await vault.importAccount({
           identifier,
           seed,
           commitmentReceipt,
@@ -196,13 +196,12 @@ export default function ImportAccountModalProvider({
     setLastImportedAccount(null);
 
     let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
-      vault.connectedOwner,
       WalletPurpose.IMPORTED_ACCOUNT
     );
     try {
       const commitmentMapperSecret =
         CommitmentMapper.generateCommitmentMapperSecret(seed);
-      const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
+      const vaultSecret = await vault.getVaultSecret();
 
       const { commitmentReceipt, commitmentMapperPubKey, account } =
         await vault.commitmentMapper.getGithubCommitmentReceipt(
@@ -211,7 +210,7 @@ export default function ImportAccountModalProvider({
           vaultSecret
         );
 
-      await vault.importAccount(vault.connectedOwner, {
+      await vault.importAccount({
         identifier: account.identifier,
         seed,
         commitmentReceipt,
@@ -260,13 +259,12 @@ export default function ImportAccountModalProvider({
     setImporting("account");
     setLastImportedAccount(null);
     let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
-      vault.connectedOwner,
       WalletPurpose.IMPORTED_ACCOUNT
     );
     try {
       const commitmentMapperSecret =
         CommitmentMapper.generateCommitmentMapperSecret(seed);
-      const vaultSecret = await vault.getVaultSecret(vault.connectedOwner);
+      const vaultSecret = await vault.getVaultSecret();
 
       const { commitmentReceipt, commitmentMapperPubKey, account } =
         await vault.commitmentMapper.getTwitterCommitmentReceipt(
@@ -276,7 +274,7 @@ export default function ImportAccountModalProvider({
           vaultSecret
         );
 
-      await vault.importAccount(vault.connectedOwner, {
+      await vault.importAccount({
         identifier: account.identifier,
         seed,
         commitmentReceipt,
