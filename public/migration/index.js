@@ -4,6 +4,7 @@ function getQueryParam(param) {
 }
 
 function redirectToMigration() {
+    localStorage.setItem('migration_originalUrlParams', window.location.search);
     window.location.href = `${window.env.mintingAppUrl}/migration`;
 }
 
@@ -11,6 +12,16 @@ function removeQueryParameters(paramsToRemove) {
     const url = new URL(window.location.href);
     paramsToRemove.forEach(param => url.searchParams.delete(param));
     window.history.replaceState({}, '', url);
+}
+
+function restoreOriginalUrlParams() {
+    const originalUrlParams = localStorage.getItem('migration_originalUrlParams');
+    if (originalUrlParams) {
+        const url = new URL(window.location.href);
+        url.search = originalUrlParams;
+        window.history.replaceState({}, '', url);
+        localStorage.removeItem('migration_originalUrlParams');
+    }
 }
 
 function checkAndProcessParamsKey() {
@@ -21,6 +32,7 @@ function checkAndProcessParamsKey() {
         localStorage.setItem('minting_app_ct', as_sismo_ct);
         localStorage.setItem('minting_app_ek', as_sismo_ek);
         removeQueryParameters(['as_sismo_ct', 'as_sismo_ek']);
+        restoreOriginalUrlParams();
     } else if (!localStorage.getItem('minting_app_ct')) {
         redirectToMigration();
     }
