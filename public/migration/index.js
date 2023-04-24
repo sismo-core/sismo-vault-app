@@ -5,7 +5,7 @@ function getQueryParam(param) {
 
 function redirectToMigration() {
     localStorage.setItem('migration_originalUrlParams', window.location.search);
-    window.location.href = `${window.env.mintingAppUrl}/migration`;
+    window.location.href = `${window.env.mintingAppUrl}/migration.html`;
 }
 
 function removeQueryParameters(paramsToRemove) {

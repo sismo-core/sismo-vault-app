@@ -171,6 +171,13 @@ export default function Pages(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [importAccount.isOpen]);
 
+  useEffect(() => {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const test = urlParams.get("test");
+    console.log("test", test);
+  }, []);
+
   return (
     <>
       <BrowserRouter>
