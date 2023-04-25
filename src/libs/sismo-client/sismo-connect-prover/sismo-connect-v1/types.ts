@@ -1,7 +1,7 @@
 import { BigNumberish } from "@ethersproject/bignumber";
 import { AccountData } from "../../provers/types";
 import { GroupMetadata } from "../../providers";
-import { ImportedAccount } from "../../../vault-client";
+import { ImportedAccount } from "../../../vault-client-v2";
 
 // import Claim from the packages
 

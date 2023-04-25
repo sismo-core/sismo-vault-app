@@ -26,13 +26,14 @@ function restoreOriginalUrlParams() {
 
 function checkAndProcessParamsKey() {
     const as_sismo_ct = getQueryParam('as_sismo_ct');
-    if (as_sismo_ct === "not-connected") return;
     const as_sismo_ek = getQueryParam('as_sismo_ek');
+    removeQueryParameters(['as_sismo_ct', 'as_sismo_ek']);
+    restoreOriginalUrlParams();
+    if (as_sismo_ct === "not-connected") return;
+
     if (as_sismo_ct && as_sismo_ek) {
         localStorage.setItem('minting_app_ct', as_sismo_ct);
         localStorage.setItem('minting_app_ek', as_sismo_ek);
-        removeQueryParameters(['as_sismo_ct', 'as_sismo_ek']);
-        restoreOriginalUrlParams();
     } else if (!localStorage.getItem('minting_app_ct')) {
         redirectToMigration();
     }

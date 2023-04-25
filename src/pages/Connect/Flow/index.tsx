@@ -22,7 +22,7 @@ import DataRequests from "./components/DataRequests";
 import ConnectVaultModal from "../../Modals/ConnectVaultModal";
 import ProofModal from "./components/ProofModal";
 import { SignatureRequest } from "./components/SignatureRequest";
-import { ImportedAccount } from "../../../libs/vault-client";
+import { ImportedAccount } from "../../../libs/vault-client-v2";
 
 const Container = styled.div`
   position: relative;

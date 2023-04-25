@@ -4,7 +4,7 @@ import {
   AccountType,
   ImportedAccount,
   WalletPurpose,
-} from "../../../../libs/vault-client";
+} from "../../../../libs/vault-client-v2";
 import { useVault } from "../../../../libs/vault";
 import * as Sentry from "@sentry/react";
 import { useNotifications } from "../../../../components/Notifications/provider";

@@ -8,7 +8,7 @@ import { useNotifications } from "../../../../../components/Notifications/provid
 import { getMinimalIdentifier } from "../../../../../utils/getMinimalIdentifier";
 import { useVault } from "../../../../../libs/vault";
 import Avatar from "../../../../../components/Avatar";
-import { ImportedAccount } from "../../../../../libs/vault-client";
+import { ImportedAccount } from "../../../../../libs/vault-client-v2";
 import * as Sentry from "@sentry/react";
 
 const Container = styled.div<{ selected: boolean }>`

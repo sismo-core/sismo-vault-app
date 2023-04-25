@@ -112,7 +112,10 @@ function App() {
   return (
     <MainScrollManagerProvider>
       <WalletProvider>
-        <SismoVaultProvider vaultUrl={env.vaultURL}>
+        <SismoVaultProvider
+          vaultV2Url={env.vaultV2URL}
+          vaultV1Url={env.vaultV1URL}
+        >
           <NotificationsProvider>
             <SismoProvider client={sismoClient}>
               <GenerateRecoveryKeyModalProvider>

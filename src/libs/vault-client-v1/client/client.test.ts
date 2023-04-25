@@ -15,6 +15,7 @@ describe("Vault client V1", () => {
   let account2: ImportedAccount;
   let recoveryKey1: RecoveryKey;
   let recoveryKey2: RecoveryKey;
+  let recoveryKeyAdded: RecoveryKey;
 
   beforeAll(() => {
     const localStore = new LocalStore();
@@ -144,10 +145,27 @@ describe("Vault client V1", () => {
     expect(vaultBacked).toEqual(vault);
   });
 
+  it("Should add a predefined recovery key", async () => {
+    await vaultClient.unlock(owner1.seed);
+    recoveryKeyAdded = {
+      key: "0x1",
+      mnemonic: "mnemonic recovery key",
+      accountNumber: 0,
+      valid: true,
+      name: "Recovery key added",
+      timestamp: 0,
+    };
+    const vault = await vaultClient.addRecoveryKey(recoveryKeyAdded);
+    vaultClient.lock();
+    const vaultBacked = await vaultClient.unlock(recoveryKeyAdded.key);
+    vaultClient.lock();
+    expect(vaultBacked).toEqual(vault);
+  });
+
   it("Should generate a second recovery key", async () => {
     await vaultClient.unlock(owner1.seed);
     const vault = await vaultClient.generateRecoveryKey("RecoveryKey2");
-    recoveryKey2 = vault.recoveryKeys[1];
+    recoveryKey2 = vault.recoveryKeys[2];
     vaultClient.lock();
     const vaultBacked = await vaultClient.unlock(recoveryKey2.key);
     expect(vaultBacked).toEqual(vault);
@@ -172,7 +190,7 @@ describe("Vault client V1", () => {
     expect(vault).toEqual({
       mnemonics: [mnemonic1],
       importedAccounts: [],
-      recoveryKeys: [recoveryKey1, recoveryKey2],
+      recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
       owners: [owner1],
       settings: {
         name: "My Sismo Vault",
@@ -190,7 +208,7 @@ describe("Vault client V1", () => {
     expect(vault).toEqual({
       mnemonics: [mnemonic1],
       importedAccounts: [],
-      recoveryKeys: [recoveryKey1, recoveryKey2],
+      recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
       owners: [owner1],
       settings: {
         name: "My Sismo Vault",
@@ -208,7 +226,7 @@ describe("Vault client V1", () => {
     expect(vault).toEqual({
       mnemonics: [mnemonic1],
       importedAccounts: [],
-      recoveryKeys: [recoveryKey1, recoveryKey2],
+      recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
       owners: [owner1],
       settings: {
         name: "My Sismo Vault",
@@ -226,7 +244,7 @@ describe("Vault client V1", () => {
     expect(vault).toEqual({
       mnemonics: [mnemonic1],
       importedAccounts: [],
-      recoveryKeys: [recoveryKey1, recoveryKey2],
+      recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
       owners: [owner1],
       settings: {
         name: "My vault name 2",
@@ -244,7 +262,7 @@ describe("Vault client V1", () => {
     expect(vault).toEqual({
       mnemonics: [mnemonic1],
       importedAccounts: [],
-      recoveryKeys: [recoveryKey1, recoveryKey2],
+      recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
       owners: [owner1],
       settings: {
         name: "My Sismo Vault",
@@ -267,7 +285,7 @@ describe("Vault client V1", () => {
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account1],
-        recoveryKeys: [recoveryKey1, recoveryKey2],
+        recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
         owners: [owner1],
         settings: {
           autoImportOwners: false,
@@ -287,7 +305,7 @@ describe("Vault client V1", () => {
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account1, account2],
-        recoveryKeys: [recoveryKey1, recoveryKey2],
+        recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
         owners: [owner1],
         settings: {
           autoImportOwners: false,
@@ -314,7 +332,7 @@ describe("Vault client V1", () => {
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2],
-        recoveryKeys: [recoveryKey1, recoveryKey2],
+        recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
         owners: [owner1],
         settings: {
           autoImportOwners: false,
@@ -420,7 +438,7 @@ describe("Vault client V1", () => {
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2, github1],
-        recoveryKeys: [recoveryKey1, recoveryKey2],
+        recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
         owners: [owner1],
         settings: {
           autoImportOwners: false,
@@ -444,7 +462,7 @@ describe("Vault client V1", () => {
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2, github1],
-        recoveryKeys: [recoveryKey1, recoveryKey2],
+        recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
         owners: [owner1, owner2],
         settings: {
           autoImportOwners: false,
@@ -464,7 +482,7 @@ describe("Vault client V1", () => {
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2, github1],
-        recoveryKeys: [recoveryKey1, recoveryKey2],
+        recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
         owners: [owner1, owner2, owner3],
         settings: {
           autoImportOwners: false,
@@ -497,7 +515,7 @@ describe("Vault client V1", () => {
       JSON.stringify({
         mnemonics: [mnemonic1],
         importedAccounts: [account2, github1],
-        recoveryKeys: [recoveryKey1, recoveryKey2],
+        recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
         owners: [owner1, owner2],
         settings: {
           autoImportOwners: false,

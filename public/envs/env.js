@@ -2,8 +2,9 @@
 window.env = {
   name: "DEV_BETA",
   disabledSentry: false,
-  mintingAppUrl: "http://localhost:3001",
-  vaultURL: "https://dev.vault-beta-api.sismo.io",
+  mintingAppUrl: "http://127.0.0.1:3001",
+  vaultV2URL: "https://dev.vault-beta-api.sismo.io",
+  vaultV1URL: "https://vault-api.zikies.io",
   hubApiUrl: "https://hub.testnets.sismo.io",
   factoryApiUrl: "https://factory-api.sismo.io",
   commitmentMapperUrl: "https://btwu3bqo4a.execute-api.eu-west-1.amazonaws.com",

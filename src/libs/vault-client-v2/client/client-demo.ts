@@ -4,7 +4,7 @@ import { demoVault } from "./client-demo.mock";
 import {
   commitmentMapperPubKeyDemo,
   commitmentReceiptDemo,
-} from "../commitment-mapper/commitment-mapper.mock";
+} from "../../commitment-mapper/commitment-mapper.mock";
 
 export class VaultClientDemo extends VaultClient {
   public create(): Vault {
@@ -31,7 +31,7 @@ export class VaultClientDemo extends VaultClient {
     return demoVault;
   }
 
-  public async load(seed: string): Promise<Vault> {
+  public async load(): Promise<Vault> {
     return demoVault;
   }
 

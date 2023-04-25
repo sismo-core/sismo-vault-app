@@ -57,9 +57,17 @@ export class VaultClient {
     return vault;
   }
 
+  public isUnlocked(): boolean {
+    return Boolean(this._seed) || Boolean(this._unSavedVault);
+  }
+
   public lock(): void {
     this._unSavedVault = null;
     this._seed = null;
+  }
+
+  public async load(): Promise<Vault> {
+    return await this._getCurrentVault();
   }
 
   /*****************************************************************/
@@ -79,7 +87,7 @@ export class VaultClient {
   }
 
   /*****************************************************************/
-  /************************* RECOVERY KEYS ****************************/
+  /************************ RECOVERY KEYS **************************/
   /*****************************************************************/
 
   public async generateRecoveryKey(name: string): Promise<Vault> {
@@ -138,6 +146,30 @@ export class VaultClient {
       timestamp: Date.now(),
     };
     return recoveryKey;
+  }
+
+  public async addRecoveryKey(recoveryKeyAdded: RecoveryKey): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
+
+    if (
+      currentVault.recoveryKeys.find(
+        (recoveryKey) => recoveryKey.key === recoveryKeyAdded.key
+      )
+    ) {
+      throw new Error("RecoveryKey already imported");
+    }
+
+    const addedRecoveryKeyVault = await this._get(recoveryKeyAdded.key);
+    if (addedRecoveryKeyVault) {
+      throw new Error("RecoveryKey already used in another Vault");
+    }
+
+    const updatedVault = {
+      ...currentVault,
+      recoveryKeys: [...currentVault.recoveryKeys, recoveryKeyAdded],
+    };
+    await this._post(updatedVault);
+    return updatedVault;
   }
 
   public async disableRecoveryKey(key: string): Promise<Vault> {
@@ -266,6 +298,11 @@ export class VaultClient {
       )
     ) {
       throw new Error("Owner already imported");
+    }
+
+    const addedOwnerVault = await this._get(ownerAdded.seed);
+    if (addedOwnerVault) {
+      throw new Error("Already owner of another Vault");
     }
 
     const updatedVault = {

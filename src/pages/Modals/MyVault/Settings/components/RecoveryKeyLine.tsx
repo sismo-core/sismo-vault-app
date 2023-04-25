@@ -4,7 +4,7 @@ import colors from "../../../../../theme/colors";
 import YesNoModal from "../../../../../components/YesNoModal";
 import Icon from "../../../../../components/Icon";
 import { useVault } from "../../../../../libs/vault";
-import { RecoveryKey } from "../../../../../libs/vault-client";
+import { RecoveryKey } from "../../../../../libs/vault-client-v2";
 
 const Container = styled.div`
   font-weight: 500;

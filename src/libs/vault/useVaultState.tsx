@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ImportedAccount, Owner, RecoveryKey, Vault } from "../vault-client";
+import { ImportedAccount, Owner, RecoveryKey, Vault } from "../vault-client-v2";
 import { useWallet } from "../wallet";
 
 export type VaultState = {
