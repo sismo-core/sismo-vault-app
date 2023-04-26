@@ -1,44 +1,144 @@
-import { buildPoseidon, EddsaSignature } from "@sismo-core/crypto";
+import {
+  buildPoseidon,
+  EddsaPublicKey,
+  EddsaSignature,
+} from "@sismo-core/crypto";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
-import axios from "axios";
 import { BigNumber } from "ethers";
 import SHA3 from "sha3";
-import {
-  CommitmentMapperPubKey,
-  CommitmentReceipt,
-} from "../sismo-client/contracts/commons";
 
-export type CommitmentMapperEthereumReturn = {
-  commitmentMapperPubKey: CommitmentMapperPubKey;
-  commitmentReceipt: CommitmentReceipt;
+export type CommitmentReceiptResult = {
+  commitmentMapperPubKey: EddsaPublicKey;
+  commitmentReceipt: EddsaSignature;
 };
-export type CommitmentMapperGithubReturn = {
-  commitmentMapperPubKey: CommitmentMapperPubKey;
-  commitmentReceipt: CommitmentReceipt;
+
+export type CommitmentReceiptGithubResult = {
   account: {
-    login: string;
     profileId: number;
+    login: string;
     name: string;
     avatarUrl: string;
     identifier: string;
   };
-};
+} & CommitmentReceiptResult;
 
-export type CommitmentMapperTwitterReturn = {
-  commitmentMapperPubKey: CommitmentMapperPubKey;
-  commitmentReceipt: CommitmentReceipt;
+export type CommitmentReceiptTwitterResult = {
   account: {
     userId: number;
     username: string;
     identifier: string;
   };
-};
+} & CommitmentReceiptResult;
 
-export class CommitmentMapper {
-  private url: string;
+export abstract class CommitmentMapper {
+  protected abstract _migrateEddsa({
+    receipt,
+    identifier,
+    oldCommitment,
+    newCommitment,
+  }: {
+    receipt: EddsaSignature;
+    identifier: string;
+    oldCommitment: string;
+    newCommitment: string;
+  }): Promise<CommitmentReceiptResult>;
+  protected abstract _commitEthereumEddsa({
+    ethAddress,
+    ethSignature,
+    commitment,
+  }: {
+    ethAddress: string;
+    ethSignature: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptResult>;
+  protected abstract _commitGithubEddsa({
+    githubCode,
+    commitment,
+  }: {
+    githubCode: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptGithubResult>;
+  protected abstract _commitTwitterEddsa({
+    twitterOauthToken,
+    twitterOauthVerifier,
+    commitment,
+  }: {
+    twitterOauthToken: string;
+    twitterOauthVerifier: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTwitterResult>;
 
-  constructor({ url }: { url?: string }) {
-    if (url) this.url = url;
+  public async migrateEddsa({
+    receipt,
+    identifier,
+    vaultSecret,
+    oldAccountSecret,
+    newAccountSecret,
+  }: {
+    receipt: EddsaSignature;
+    identifier: string;
+    vaultSecret: string;
+    oldAccountSecret: string;
+    newAccountSecret: string;
+  }): Promise<CommitmentReceiptResult> {
+    const poseidon = await buildPoseidon();
+
+    const oldCommitment = poseidon([oldAccountSecret]).toHexString();
+    const newCommitment = poseidon([
+      vaultSecret,
+      newAccountSecret,
+    ]).toHexString();
+
+    return await this._migrateEddsa({
+      receipt,
+      identifier,
+      oldCommitment,
+      newCommitment,
+    });
+  }
+
+  public async getEthereumCommitmentReceipt(
+    ethAddress: string,
+    ethSignature: string,
+    accountSecret: string,
+    vaultSecret: string
+  ): Promise<CommitmentReceiptResult> {
+    const poseidon = await buildPoseidon();
+
+    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
+
+    return await this._commitEthereumEddsa({
+      ethAddress,
+      ethSignature,
+      commitment,
+    });
+  }
+
+  public async getGithubCommitmentReceipt(
+    githubCode: string,
+    accountSecret: string,
+    vaultSecret: string
+  ): Promise<CommitmentReceiptGithubResult> {
+    const poseidon = await buildPoseidon();
+    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
+
+    return await this._commitGithubEddsa({ githubCode, commitment });
+  }
+
+  public async getTwitterCommitmentReceipt(
+    twitterOauthToken: string,
+    twitterOauthVerifier: string,
+    accountSecret: string,
+    vaultSecret: string
+  ): Promise<CommitmentReceiptTwitterResult> {
+    const poseidon = await buildPoseidon();
+    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
+
+    return await this._commitTwitterEddsa({
+      twitterOauthToken,
+      twitterOauthVerifier,
+      commitment,
+    });
   }
 
   static generateCommitmentMapperSecret = (seed: string) => {
@@ -52,134 +152,5 @@ export class CommitmentMapper {
 
   public getOwnershipMsg(identifier: string) {
     return `Sign this message to generate an offchain commitment.\nIt is used to perform necessary cryptographic computations when generating Sismo Attestations.\n\nWallet address:\n${identifier.toLowerCase()}\n\nIMPORTANT: Only sign this message if you are on Sismo application.\n`;
-  }
-
-  public async migrateEddsa({
-    receipt,
-    identifier,
-    vaultSecret,
-    accountSecret,
-  }: {
-    receipt: EddsaSignature;
-    identifier: string;
-    vaultSecret: string;
-    accountSecret: string;
-  }): Promise<CommitmentMapperEthereumReturn> {
-    const poseidon = await buildPoseidon();
-
-    const oldCommitment = poseidon([accountSecret]).toHexString();
-    const newCommitment = poseidon([vaultSecret, accountSecret]).toHexString();
-
-    const { data } = await axios.post(`${this.url}/migrate-eddsa`, {
-      receipt,
-      identifier,
-      oldCommitment,
-      newCommitment,
-    });
-    return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
-      commitmentReceipt: [
-        data.commitmentReceipt[0],
-        data.commitmentReceipt[1],
-        data.commitmentReceipt[2],
-      ],
-    };
-  }
-
-  public async getEthereumCommitmentReceipt(
-    ethAddress: string,
-    ethSignature: string,
-    accountSecret: string,
-    vaultSecret: string
-  ): Promise<CommitmentMapperEthereumReturn> {
-    const poseidon = await buildPoseidon();
-
-    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
-
-    const { data } = await axios.post(`${this.url}/commit-ethereum-eddsa`, {
-      ethAddress,
-      ethSignature,
-      commitment,
-    });
-    return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
-      commitmentReceipt: [
-        data.commitmentReceipt[0],
-        data.commitmentReceipt[1],
-        data.commitmentReceipt[2],
-      ],
-    };
-  }
-
-  public async getGithubCommitmentReceipt(
-    githubCode: string,
-    accountSecret: string,
-    vaultSecret: string
-  ): Promise<CommitmentMapperGithubReturn> {
-    const poseidon = await buildPoseidon();
-    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
-
-    const { data } = await axios.post(`${this.url}/commit-github-eddsa`, {
-      githubCode,
-      commitment,
-    });
-
-    return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
-      commitmentReceipt: [
-        data.commitmentReceipt[0],
-        data.commitmentReceipt[1],
-        data.commitmentReceipt[2],
-      ],
-      account: {
-        profileId: data.account.profileId,
-        login: data.account.login,
-        name: data.account.name,
-        avatarUrl: data.account.avatarUrl,
-        identifier: data.account.identifier,
-      },
-    };
-  }
-
-  public async getTwitterCommitmentReceipt(
-    twitterOauthToken: string,
-    twitterOauthVerifier: string,
-    accountSecret: string,
-    vaultSecret: string
-  ): Promise<CommitmentMapperTwitterReturn> {
-    const poseidon = await buildPoseidon();
-    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
-
-    const { data } = await axios.post(`${this.url}/commit-twitter-eddsa`, {
-      oauthToken: twitterOauthToken,
-      oauthVerifier: twitterOauthVerifier,
-      commitment,
-    });
-
-    return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
-      commitmentReceipt: [
-        data.commitmentReceipt[0],
-        data.commitmentReceipt[1],
-        data.commitmentReceipt[2],
-      ],
-      account: {
-        userId: parseInt(data.account.userId),
-        username: data.account.username,
-        identifier: data.account.identifier,
-      },
-    };
   }
 }

@@ -70,6 +70,11 @@ export class VaultClient {
     return await this._getCurrentVault();
   }
 
+  public async isVault(seed: string): Promise<Vault> {
+    if (!seed) return null;
+    return await this._get(seed);
+  }
+
   /*****************************************************************/
   /************************* VAULT SECRET & IDENTIFIER  ************/
   /*****************************************************************/

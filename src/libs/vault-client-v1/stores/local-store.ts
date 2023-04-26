@@ -23,4 +23,8 @@ export class LocalStore extends BaseStore {
     const id = hash.update(token).digest("hex");
     this.mapper.set(id, cipherText);
   }
+
+  public reset() {
+    this.mapper = new Map();
+  }
 }

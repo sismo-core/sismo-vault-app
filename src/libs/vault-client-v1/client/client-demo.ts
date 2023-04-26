@@ -4,7 +4,7 @@ import { demoVault } from "./client-demo.mock";
 import {
   commitmentMapperPubKeyDemo,
   commitmentReceiptDemo,
-} from "../commitment-mapper/commitment-mapper.mock";
+} from "../../commitment-mapper/mocks";
 
 export class VaultClientDemo extends VaultClient {
   public create(): Vault {
