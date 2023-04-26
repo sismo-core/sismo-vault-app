@@ -133,8 +133,9 @@ export function DataRequest({
     groupMetadataClaimRequestEligibility?.claim?.isOptional;
 
   const isEligible =
-    authRequestEligibility?.isEligible ||
-    groupMetadataClaimRequestEligibility?.isEligible;
+    (authRequestEligibility?.isEligible ||
+      groupMetadataClaimRequestEligibility?.isEligible) &&
+    vault?.isConnected;
 
   const isSelectableByUser =
     !proofLoading &&

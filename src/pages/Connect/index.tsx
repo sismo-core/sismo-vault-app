@@ -402,10 +402,10 @@ export default function Connect(): JSX.Element {
         );
       } catch (e) {
         if (isWrongUrl?.status) return;
-        setIsWrongUrl({
-          status: true,
-          message: "Invalid referrer: " + e,
-        });
+        // setIsWrongUrl({
+        //   status: true,
+        //   message: "Invalid referrer: " + e,
+        // });
         console.log(e);
         Sentry.captureException(e);
       }
