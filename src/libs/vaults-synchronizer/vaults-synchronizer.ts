@@ -57,8 +57,8 @@ export class VaultsSynchronizer {
     ]);
 
     // Tested by case 1, 2
-    // This work well when the user have only one VaultV2
-    // But not when the user have multiple vaultV2
+    // This work well when the user has only one VaultV2
+    // But not when the user has multiple vaultV2
     if (vaultV1 && !vaultV2) {
       // 1. We unlock or create a VaultV2
       // If a VaultV2 exist using a seed of VaultV1
@@ -104,7 +104,7 @@ export class VaultsSynchronizer {
     }
 
     // Tested by case 5, 6
-    // This work well when the user have only one VaultV2
+    // This work well when the user has only one VaultV2
     // But not when the user have multiple vaultV2
     if (vaultV1 && vaultV2) {
       vaultV1 = await this._importV2toV1(vaultV2, vaultV1);
