@@ -283,8 +283,6 @@ export class VaultsSynchronizer {
       account.seed
     );
 
-    console.log("migrateEddsa");
-
     const { commitmentReceipt, commitmentMapperPubKey } =
       await this._commitmentMapperV1.migrateEddsa({
         receipt: account.commitmentReceipt,
@@ -293,9 +291,6 @@ export class VaultsSynchronizer {
         oldAccountSecret,
         newAccountSecret,
       });
-
-    console.log("commitmentReceipt", commitmentReceipt);
-    console.log("commitmentMapperPubKey", commitmentMapperPubKey);
 
     const importedAccount: ImportedAccount = {
       ...account,

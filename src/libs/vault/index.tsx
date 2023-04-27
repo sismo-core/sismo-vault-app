@@ -118,8 +118,14 @@ export default function SismoVaultProvider({
         .sync(ownerConnectedV1, ownerConnectedV2)
         .then(async (res) => {
           // Update the vault UI
-          const vault = await vaultClientV2.unlock(res.owner.seed);
-          vaultState.updateVaultState(vault);
+          if (res) {
+            const vault = await vaultClientV2.unlock(res.owner.seed);
+            if (vault && !Boolean(vaultState.connectedOwner)) {
+              connect(res.owner);
+            } else {
+              vaultState.updateVaultState(vault);
+            }
+          }
         });
       if (owner) connect(owner);
 
@@ -144,6 +150,18 @@ export default function SismoVaultProvider({
     return true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const syncVaults = () => {
+    vaultSynchronizer
+      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
+      .then(async (res) => {
+        // Update the vault UI
+        if (res) {
+          const vault = await vaultClientV2.unlock(res.owner.seed);
+          vaultState.updateVaultState(vault);
+        }
+      });
+  };
 
   const disconnect = (): void => {
     vaultState.reset();
@@ -173,14 +191,8 @@ export default function SismoVaultProvider({
 
   const generateRecoveryKey = async (name: string): Promise<string> => {
     const vault = await vaultClientV2.generateRecoveryKey(name);
+    syncVaults();
     await vaultState.updateVaultState(vault);
-    vaultSynchronizer
-      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
-      .then(async (res) => {
-        // Update the vault UI
-        const vault = await vaultClientV2.unlock(res.owner.seed);
-        vaultState.updateVaultState(vault);
-      });
     const mnemonic = vault.mnemonics[0];
     const accountNumber =
       vault.recoveryKeys.filter((key) => key.mnemonic === mnemonic).length - 1;
@@ -195,13 +207,7 @@ export default function SismoVaultProvider({
 
   const disableRecoveryKey = async (key: string): Promise<void> => {
     const vault = await vaultClientV2.disableRecoveryKey(key);
-    vaultSynchronizer
-      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
-      .then(async (res) => {
-        // Update the vault UI
-        const vault = await vaultClientV2.unlock(res.owner.seed);
-        vaultState.updateVaultState(vault);
-      });
+    syncVaults();
     await vaultState.updateVaultState(vault);
   };
 
@@ -215,13 +221,7 @@ export default function SismoVaultProvider({
         return;
       }
     }
-    vaultSynchronizer
-      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
-      .then(async (res) => {
-        // Update the vault UI
-        const vault = await vaultClientV2.unlock(res.owner.seed);
-        vaultState.updateVaultState(vault);
-      });
+    syncVaults();
     await vaultState.updateVaultState(vault);
   };
 
@@ -235,14 +235,8 @@ export default function SismoVaultProvider({
 
   const addOwner = async (ownerAdded: Owner): Promise<void> => {
     const vault = await vaultClientV2.addOwner(ownerAdded);
+    syncVaults();
     await vaultState.updateVaultState(vault);
-    vaultSynchronizer
-      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
-      .then(async (res) => {
-        // Update the vault UI
-        const vault = await vaultClientV2.unlock(res.owner.seed);
-        vaultState.updateVaultState(vault);
-      });
   };
 
   const deleteOwners = async (ownersDeleted: Owner[]): Promise<void> => {

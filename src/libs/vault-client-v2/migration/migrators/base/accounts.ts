@@ -1,18 +1,15 @@
-import { EddsaPublicKey, EddsaSignature } from "@sismo-core/hydra-s2";
-import { BigNumber } from "ethers";
-
 type EthAccount = {
   identifier: string;
   seed: string;
-  commitmentReceipt: EddsaSignature;
-  commitmentMapperPubKey: EddsaPublicKey;
+  commitmentReceipt: [string, string, string];
+  commitmentMapperPubKey: [string, string];
 };
 
 type Web2Account = {
   identifier: string;
   seed: string;
-  commitmentReceipt: EddsaSignature;
-  commitmentMapperPubKey: EddsaPublicKey;
+  commitmentReceipt: [string, string, string];
+  commitmentMapperPubKey: [string, string];
   wallet: {
     mnemonic: string;
     accountNumber: number;
@@ -22,57 +19,29 @@ type Web2Account = {
 export const ethAccount1: EthAccount = {
   identifier: "0x1",
   seed: "0xseed1",
-  commitmentReceipt: [
-    BigNumber.from(1),
-    BigNumber.from(2),
-    BigNumber.from(3),
-  ] as EddsaSignature,
-  commitmentMapperPubKey: [
-    BigNumber.from(4),
-    BigNumber.from(3),
-  ] as EddsaPublicKey,
+  commitmentReceipt: ["0x1", "0x2", "0x3"] as [string, string, string],
+  commitmentMapperPubKey: ["0x4", "0x3"] as [string, string],
 };
 
 export const ethAccount2: EthAccount = {
   identifier: "0x2",
   seed: "0xseed2",
-  commitmentReceipt: [
-    BigNumber.from(5),
-    BigNumber.from(6),
-    BigNumber.from(7),
-  ] as EddsaSignature,
-  commitmentMapperPubKey: [
-    BigNumber.from(8),
-    BigNumber.from(9),
-  ] as EddsaPublicKey,
+  commitmentReceipt: ["0x5", "0x6", "0x7"] as [string, string, string],
+  commitmentMapperPubKey: ["0x8", "0x9"] as [string, string],
 };
 
 export const ethAccount3: EthAccount = {
   identifier: "0x3",
   seed: "0xseed3",
-  commitmentReceipt: [
-    BigNumber.from(10),
-    BigNumber.from(11),
-    BigNumber.from(12),
-  ] as EddsaSignature,
-  commitmentMapperPubKey: [
-    BigNumber.from(13),
-    BigNumber.from(14),
-  ] as EddsaPublicKey,
+  commitmentReceipt: ["0x10", "0x11", "0x12"] as [string, string, string],
+  commitmentMapperPubKey: ["0x13", "0x14"] as [string, string],
 };
 
 export const githubAccount1: Web2Account = {
   identifier: "0xgithub1",
   seed: "0xgithubSeed1",
-  commitmentReceipt: [
-    BigNumber.from(10),
-    BigNumber.from(11),
-    BigNumber.from(12),
-  ] as EddsaSignature,
-  commitmentMapperPubKey: [
-    BigNumber.from(13),
-    BigNumber.from(14),
-  ] as EddsaPublicKey,
+  commitmentReceipt: ["0x10", "0x11", "0x12"] as [string, string, string],
+  commitmentMapperPubKey: ["0x13", "0x14"] as [string, string],
   wallet: {
     mnemonic: "github mnemonic number 1",
     accountNumber: 1,
@@ -82,15 +51,8 @@ export const githubAccount1: Web2Account = {
 export const tweeterAccount1: Web2Account = {
   identifier: "0xtwitter1",
   seed: "0xtwitterSeed1",
-  commitmentReceipt: [
-    BigNumber.from(10),
-    BigNumber.from(11),
-    BigNumber.from(12),
-  ] as EddsaSignature,
-  commitmentMapperPubKey: [
-    BigNumber.from(13),
-    BigNumber.from(14),
-  ] as EddsaPublicKey,
+  commitmentReceipt: ["0x10", "0x11", "0x12"] as [string, string, string],
+  commitmentMapperPubKey: ["0x13", "0x14"] as [string, string],
   wallet: {
     mnemonic: "tweeter mnemonic number 1",
     accountNumber: 1,

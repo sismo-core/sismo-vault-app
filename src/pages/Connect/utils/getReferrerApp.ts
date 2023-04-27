@@ -70,7 +70,6 @@ export const getReferrer = (): string => {
     const referrer = localStorage.getItem(`sc_referrer`);
 
     if (referrer) {
-      console.log("2. referrer", referrer);
       return referrer;
     }
     throw new Error("No referrer found");

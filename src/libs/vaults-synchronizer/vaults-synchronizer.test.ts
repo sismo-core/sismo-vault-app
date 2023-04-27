@@ -124,8 +124,8 @@ describe("Vaults Synchronizer", () => {
 
   describe("case 0", () => {
     it("Should return null providing no connected owners", async () => {
-      const { owner } = await vaultSynchronizer.sync(null, null);
-      expect(owner).toEqual(null);
+      const res = await vaultSynchronizer.sync(null, null);
+      expect(res).toEqual(null);
     });
   });
 

@@ -1,12 +1,10 @@
-import { BigNumber } from "ethers";
-
 export type VaultV0 = {
   name: string;
   importedAccounts: {
     address: string;
     seed: string;
-    commitmentReceipt: [BigNumber, BigNumber, BigNumber];
-    commitmentMapperPubKey: [BigNumber, BigNumber];
+    commitmentReceipt: [string, string, string];
+    commitmentMapperPubKey: [string, string];
     isOwner?: boolean;
     isAdmin?: boolean;
   }[];

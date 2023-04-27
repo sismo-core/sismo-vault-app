@@ -1,15 +1,11 @@
-import {
-  buildPoseidon,
-  EddsaPublicKey,
-  EddsaSignature,
-} from "@sismo-core/crypto";
+import { buildPoseidon } from "@sismo-core/crypto";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { BigNumber } from "ethers";
 import SHA3 from "sha3";
 
 export type CommitmentReceiptResult = {
-  commitmentMapperPubKey: EddsaPublicKey;
-  commitmentReceipt: EddsaSignature;
+  commitmentMapperPubKey: [string, string];
+  commitmentReceipt: [string, string, string];
 };
 
 export type CommitmentReceiptGithubResult = {
@@ -37,7 +33,7 @@ export abstract class CommitmentMapper {
     oldCommitment,
     newCommitment,
   }: {
-    receipt: EddsaSignature;
+    receipt: [string, string, string];
     identifier: string;
     oldCommitment: string;
     newCommitment: string;
@@ -75,7 +71,7 @@ export abstract class CommitmentMapper {
     oldAccountSecret,
     newAccountSecret,
   }: {
-    receipt: EddsaSignature;
+    receipt: [string, string, string];
     identifier: string;
     vaultSecret: string;
     oldAccountSecret: string;

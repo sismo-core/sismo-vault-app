@@ -1,5 +1,3 @@
-import { BigNumber } from "ethers";
-
 export type VaultV2 = {
   mnemonics: string[];
   owners: {
@@ -9,8 +7,8 @@ export type VaultV2 = {
   sources: {
     identifier: string;
     seed: string;
-    commitmentReceipt: [BigNumber, BigNumber, BigNumber];
-    commitmentMapperPubKey: [BigNumber, BigNumber];
+    commitmentReceipt: [string, string, string];
+    commitmentMapperPubKey: [string, string];
     type: "ethereum" | "github";
     wallet?: {
       mnemonic: string;
@@ -26,8 +24,8 @@ export type VaultV2 = {
   destinations: {
     identifier: string;
     seed: string;
-    commitmentReceipt: [BigNumber, BigNumber, BigNumber];
-    commitmentMapperPubKey: [BigNumber, BigNumber];
+    commitmentReceipt: [string, string, string];
+    commitmentMapperPubKey: [string, string];
   }[];
   settings: {
     name: string;

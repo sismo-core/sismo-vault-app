@@ -1,6 +1,4 @@
-import { EddsaSignature } from "@sismo-core/crypto";
 import axios from "axios";
-import { BigNumber } from "ethers";
 import {
   CommitmentMapper,
   CommitmentReceiptGithubResult,
@@ -33,13 +31,13 @@ export class CommitmentMapperAWS extends CommitmentMapper {
 
     return {
       commitmentMapperPubKey: [
-        BigNumber.from(data.commitmentMapperPubKey[0]),
-        BigNumber.from(data.commitmentMapperPubKey[1]),
+        data.commitmentMapperPubKey[0],
+        data.commitmentMapperPubKey[1],
       ],
       commitmentReceipt: [
-        BigNumber.from(data.commitmentReceipt[0]),
-        BigNumber.from(data.commitmentReceipt[1]),
-        BigNumber.from(data.commitmentReceipt[2]),
+        data.commitmentReceipt[0],
+        data.commitmentReceipt[1],
+        data.commitmentReceipt[2],
       ],
     };
   }
@@ -58,13 +56,13 @@ export class CommitmentMapperAWS extends CommitmentMapper {
 
     return {
       commitmentMapperPubKey: [
-        BigNumber.from(data.commitmentMapperPubKey[0]),
-        BigNumber.from(data.commitmentMapperPubKey[1]),
+        data.commitmentMapperPubKey[0],
+        data.commitmentMapperPubKey[1],
       ],
       commitmentReceipt: [
-        BigNumber.from(data.commitmentReceipt[0]),
-        BigNumber.from(data.commitmentReceipt[1]),
-        BigNumber.from(data.commitmentReceipt[2]),
+        data.commitmentReceipt[0],
+        data.commitmentReceipt[1],
+        data.commitmentReceipt[2],
       ],
       account: {
         profileId: data.account.profileId,
@@ -93,13 +91,13 @@ export class CommitmentMapperAWS extends CommitmentMapper {
 
     return {
       commitmentMapperPubKey: [
-        BigNumber.from(data.commitmentMapperPubKey[0]),
-        BigNumber.from(data.commitmentMapperPubKey[1]),
+        data.commitmentMapperPubKey[0],
+        data.commitmentMapperPubKey[1],
       ],
       commitmentReceipt: [
-        BigNumber.from(data.commitmentReceipt[0]),
-        BigNumber.from(data.commitmentReceipt[1]),
-        BigNumber.from(data.commitmentReceipt[2]),
+        data.commitmentReceipt[0],
+        data.commitmentReceipt[1],
+        data.commitmentReceipt[2],
       ],
       account: {
         userId: parseInt(data.account.userId),
@@ -115,7 +113,7 @@ export class CommitmentMapperAWS extends CommitmentMapper {
     oldCommitment,
     newCommitment,
   }: {
-    receipt: EddsaSignature;
+    receipt: [string, string, string];
     identifier: string;
     oldCommitment: string;
     newCommitment: string;

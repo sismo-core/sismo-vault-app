@@ -1,11 +1,10 @@
-import { BigNumber } from "ethers";
 import { Ens } from "../../../../sismo-client";
 
 export type ImportedAccount = {
   address: string;
   seed: string;
-  commitmentReceipt: [BigNumber, BigNumber, BigNumber];
-  commitmentMapperPubKey: [BigNumber, BigNumber];
+  commitmentReceipt: [string, string, string];
+  commitmentMapperPubKey: [string, string];
   isSource: boolean;
   isDestination: boolean;
   ens?: Ens;

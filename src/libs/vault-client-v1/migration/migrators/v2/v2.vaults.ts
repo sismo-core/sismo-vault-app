@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { VaultV2 } from ".";
 import { ethAccount1, ethAccount2, ethAccount3 } from "../base/accounts";
 
@@ -10,8 +9,8 @@ type Owner = {
 type ImportedAccount = {
   identifier: string;
   seed: string;
-  commitmentReceipt: [BigNumber, BigNumber, BigNumber];
-  commitmentMapperPubKey: [BigNumber, BigNumber];
+  commitmentReceipt: [string, string, string];
+  commitmentMapperPubKey: [string, string];
 };
 
 const owner1: Owner = {

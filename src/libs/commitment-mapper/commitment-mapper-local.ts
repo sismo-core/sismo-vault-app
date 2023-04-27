@@ -1,4 +1,3 @@
-import { EddsaSignature } from "@sismo-core/crypto";
 import {
   CommitmentMapper,
   CommitmentReceiptGithubResult,
@@ -68,7 +67,7 @@ export class CommitmentMapperLocal extends CommitmentMapper {
     oldCommitment,
     newCommitment,
   }: {
-    receipt: EddsaSignature;
+    receipt: [string, string, string];
     identifier: string;
     oldCommitment: string;
     newCommitment: string;
