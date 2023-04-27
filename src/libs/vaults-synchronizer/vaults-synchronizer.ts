@@ -195,8 +195,8 @@ export class VaultsSynchronizer {
       account.seed
     );
 
-    const oldCommitmentSecret = [newAccountSecret];
-    const newCommitmentSecret = [vaultSecret, oldAccountSecret];
+    const oldCommitmentSecret = [oldAccountSecret];
+    const newCommitmentSecret = [vaultSecret, newAccountSecret];
 
     const { commitmentReceipt, commitmentMapperPubKey } =
       await this._commitmentMapperV2.migrateEddsa({
