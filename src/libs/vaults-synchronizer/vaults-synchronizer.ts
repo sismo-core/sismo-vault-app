@@ -111,7 +111,7 @@ export class VaultsSynchronizer {
 
     // Tested by case 5, 6
     // This work well when the user has only one VaultV2
-    // But not when the user have multiple vaultV2
+    // But not when the user has multiple vaultV2
     if (vaultV1 && vaultV2) {
       vaultV1 = await this._importV2toV1(vaultV2, vaultV1);
       vaultV2 = await this._importV1toV2(vaultV1, vaultV2);
@@ -195,13 +195,16 @@ export class VaultsSynchronizer {
       account.seed
     );
 
+    const oldCommitmentSecret = [newAccountSecret];
+    const newCommitmentSecret = [vaultSecret, oldAccountSecret];
+
     const { commitmentReceipt, commitmentMapperPubKey } =
       await this._commitmentMapperV2.migrateEddsa({
         receipt: account.commitmentReceipt,
         identifier: account.identifier,
         vaultSecret,
-        oldAccountSecret,
-        newAccountSecret,
+        oldCommitmentSecret,
+        newCommitmentSecret,
       });
 
     const importedAccount: ImportedAccount = {
@@ -283,13 +286,16 @@ export class VaultsSynchronizer {
       account.seed
     );
 
+    const oldCommitmentSecret = [vaultSecret, oldAccountSecret];
+    const newCommitmentSecret = [newAccountSecret];
+
     const { commitmentReceipt, commitmentMapperPubKey } =
       await this._commitmentMapperV1.migrateEddsa({
         receipt: account.commitmentReceipt,
         identifier: account.identifier,
         vaultSecret,
-        oldAccountSecret,
-        newAccountSecret,
+        oldCommitmentSecret,
+        newCommitmentSecret,
       });
 
     const importedAccount: ImportedAccount = {

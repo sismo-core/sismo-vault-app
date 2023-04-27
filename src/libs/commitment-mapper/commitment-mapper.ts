@@ -68,22 +68,21 @@ export abstract class CommitmentMapper {
     receipt,
     identifier,
     vaultSecret,
-    oldAccountSecret,
-    newAccountSecret,
+    oldCommitmentSecret,
+    newCommitmentSecret,
   }: {
     receipt: [string, string, string];
     identifier: string;
     vaultSecret: string;
-    oldAccountSecret: string;
-    newAccountSecret: string;
+    oldCommitmentSecret: any;
+    newCommitmentSecret: any;
   }): Promise<CommitmentReceiptResult> {
     const poseidon = await buildPoseidon();
 
-    const oldCommitment = poseidon([oldAccountSecret]).toHexString();
-    const newCommitment = poseidon([
-      vaultSecret,
-      newAccountSecret,
-    ]).toHexString();
+    //[oldAccountSecret]
+    //[vaultSecret, newAccountSecret]
+    const oldCommitment = poseidon(oldCommitmentSecret).toHexString();
+    const newCommitment = poseidon(newCommitmentSecret).toHexString();
 
     return await this._migrateEddsa({
       receipt,
