@@ -1,5 +1,3 @@
-import { EddsaPublicKey, EddsaSignature } from "@sismo-core/hydra-s2";
-import { BigNumber } from "ethers";
 import { RecoveryKey, ImportedAccount, Owner, VaultClient } from ".";
 import { LocalStore } from "../stores/local-store";
 
@@ -20,15 +18,8 @@ describe("Vault client V1", () => {
   beforeAll(() => {
     const localStore = new LocalStore();
     vaultClient = new VaultClient(localStore);
-    const commitmentReceipt: EddsaSignature = [
-      BigNumber.from(1),
-      BigNumber.from(2),
-      BigNumber.from(3),
-    ];
-    const commitmentMapperPubKey: EddsaPublicKey = [
-      BigNumber.from(1),
-      BigNumber.from(2),
-    ];
+    const commitmentReceipt: [string, string, string] = ["0x1", "0x2", "0x3"];
+    const commitmentMapperPubKey: [string, string] = ["0x1", "0x2"];
     owner1 = {
       identifier: "0x1",
       seed: "0x10",
