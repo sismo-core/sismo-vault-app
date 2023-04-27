@@ -98,10 +98,10 @@ export default function SismoVaultProvider({
 
   const vaultSynchronizer = new VaultsSynchronizer({
     commitmentMapperV1: new CommitmentMapperAWS({
-      url: env.commitmentMapperUrl,
+      url: env.commitmentMapperUrlV1,
     }),
     commitmentMapperV2: new CommitmentMapperAWS({
-      url: env.commitmentMapperUrl,
+      url: env.commitmentMapperUrlV2,
     }),
     vaultClientV2,
     vaultClientV1,
@@ -112,11 +112,15 @@ export default function SismoVaultProvider({
       const ownerConnectedV1 = getVaultV1ConnectedOwner();
       const ownerConnectedV2 = getVaultV2ConnectedOwner();
 
+      const owner = ownerConnectedV2 ?? ownerConnectedV1;
       // Synch vaults V1 and V2 on the same owner
-      const owner = await vaultSynchronizer.sync(
-        ownerConnectedV1,
-        ownerConnectedV2
-      );
+      vaultSynchronizer
+        .sync(ownerConnectedV1, ownerConnectedV2)
+        .then(async (res) => {
+          // Update the vault UI
+          const vault = await vaultClientV2.unlock(res.owner.seed);
+          vaultState.updateVaultState(vault);
+        });
       if (owner) connect(owner);
 
       setTimeout(() => {
@@ -170,6 +174,13 @@ export default function SismoVaultProvider({
   const generateRecoveryKey = async (name: string): Promise<string> => {
     const vault = await vaultClientV2.generateRecoveryKey(name);
     await vaultState.updateVaultState(vault);
+    vaultSynchronizer
+      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
+      .then(async (res) => {
+        // Update the vault UI
+        const vault = await vaultClientV2.unlock(res.owner.seed);
+        vaultState.updateVaultState(vault);
+      });
     const mnemonic = vault.mnemonics[0];
     const accountNumber =
       vault.recoveryKeys.filter((key) => key.mnemonic === mnemonic).length - 1;
@@ -184,6 +195,13 @@ export default function SismoVaultProvider({
 
   const disableRecoveryKey = async (key: string): Promise<void> => {
     const vault = await vaultClientV2.disableRecoveryKey(key);
+    vaultSynchronizer
+      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
+      .then(async (res) => {
+        // Update the vault UI
+        const vault = await vaultClientV2.unlock(res.owner.seed);
+        vaultState.updateVaultState(vault);
+      });
     await vaultState.updateVaultState(vault);
   };
 
@@ -197,6 +215,13 @@ export default function SismoVaultProvider({
         return;
       }
     }
+    vaultSynchronizer
+      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
+      .then(async (res) => {
+        // Update the vault UI
+        const vault = await vaultClientV2.unlock(res.owner.seed);
+        vaultState.updateVaultState(vault);
+      });
     await vaultState.updateVaultState(vault);
   };
 
@@ -211,6 +236,13 @@ export default function SismoVaultProvider({
   const addOwner = async (ownerAdded: Owner): Promise<void> => {
     const vault = await vaultClientV2.addOwner(ownerAdded);
     await vaultState.updateVaultState(vault);
+    vaultSynchronizer
+      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
+      .then(async (res) => {
+        // Update the vault UI
+        const vault = await vaultClientV2.unlock(res.owner.seed);
+        vaultState.updateVaultState(vault);
+      });
   };
 
   const deleteOwners = async (ownersDeleted: Owner[]): Promise<void> => {
@@ -257,7 +289,7 @@ export default function SismoVaultProvider({
 
   const commitmentMapper = useMemo(() => {
     if (env.name === "DEMO") return new CommitmentMapperDemo();
-    return new CommitmentMapperAWS({ url: env.commitmentMapperUrl });
+    return new CommitmentMapperAWS({ url: env.commitmentMapperUrlV2 });
   }, []);
 
   return (

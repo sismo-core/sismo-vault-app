@@ -5,7 +5,11 @@ function getQueryParam(param) {
 
 function redirectToMigration() {
     localStorage.setItem('migration_originalUrlParams', window.location.search);
-    window.location.href = `${window.env.mintingAppUrl}/migration.html`;
+    let mintingAppMigrationUrl = `${window.env.mintingAppUrl}/migration.html`;
+    const url = new URL(window.location.href)
+    localStorage.setItem(`sc_referrer`, document?.referrer);
+    if (url.pathname) mintingAppMigrationUrl += `?callbackPath=${url.pathname}`;
+    window.location.href = mintingAppMigrationUrl;
 }
 
 function removeQueryParameters(paramsToRemove) {
@@ -25,6 +29,8 @@ function restoreOriginalUrlParams() {
 }
 
 function checkAndProcessParamsKey() {
+    const noMigration = getQueryParam("no-migration");
+    if(noMigration) return;
     const as_sismo_ct = getQueryParam('as_sismo_ct');
     const as_sismo_ek = getQueryParam('as_sismo_ek');
     removeQueryParameters(['as_sismo_ct', 'as_sismo_ek']);

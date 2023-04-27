@@ -18,7 +18,7 @@ export default function EnvsMonitoring({
   useEffect(() => {
     const logEnvironment = async () => {
       const { data: dataMapper } = await axios.get(
-        `${env.commitmentMapperUrl}/sismo-address-commitment`
+        `${env.commitmentMapperUrlV2}/sismo-address-commitment`
       );
 
       setCommitmentMapperPubKey(dataMapper.commitmentMapperPubKey);

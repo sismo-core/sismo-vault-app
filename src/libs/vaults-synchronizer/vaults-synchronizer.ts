@@ -43,7 +43,7 @@ export class VaultsSynchronizer {
   public async sync(
     connectedOwnerV1: Owner,
     connectedOwnerV2: Owner
-  ): Promise<Owner> {
+  ): Promise<{ owner: Owner; vault: Vault }> {
     if (!connectedOwnerV1 && !connectedOwnerV2) return null;
 
     this._vaultClientV2.lock();
@@ -77,10 +77,13 @@ export class VaultsSynchronizer {
       // 2. We import the VaultV1 in the unlocked VaultV2 and VaultV2 in VaultV1
       vaultV1 = await this._importV2toV1(vaultV2, vaultV1);
       // Import V1 to V2 in second to import all merged vaults in VaultV2
-      await this._importV1toV2(vaultV1, vaultV2);
+      vaultV2 = await this._importV1toV2(vaultV1, vaultV2);
 
       // 3. The connected VaultV2 is identical to VaultV1, we use the connectedOwner of the vaultV1 to keep the connection
-      return connectedOwnerV1;
+      return {
+        owner: connectedOwnerV1,
+        vault: vaultV2,
+      };
     }
 
     // Tested by case 3, 4
@@ -98,9 +101,12 @@ export class VaultsSynchronizer {
 
       // 2. We import the VaultV1 in the unlocked VaultV2 and VaultV2 in VaultV1
       vaultV1 = await this._importV2toV1(vaultV2, vaultV1);
-      await this._importV1toV2(vaultV1, vaultV2);
+      vaultV2 = await this._importV1toV2(vaultV1, vaultV2);
 
-      return connectedOwnerV2;
+      return {
+        owner: connectedOwnerV2,
+        vault: vaultV2,
+      };
     }
 
     // Tested by case 5, 6
@@ -108,17 +114,25 @@ export class VaultsSynchronizer {
     // But not when the user have multiple vaultV2
     if (vaultV1 && vaultV2) {
       vaultV1 = await this._importV2toV1(vaultV2, vaultV1);
-      await this._importV1toV2(vaultV1, vaultV2);
+      vaultV2 = await this._importV1toV2(vaultV1, vaultV2);
 
-      return connectedOwnerV2;
+      return {
+        owner: connectedOwnerV2,
+        vault: vaultV2,
+      };
     }
   }
+
+  /*****************************************************************/
+  /*************************** V1 to V2 ****************************/
+  /*****************************************************************/
 
   private _importV1toV2 = async (
     vaultV1: Vault,
     vaultV2: Vault
   ): Promise<Vault> => {
     let vaultSecret = null;
+
     for (let account of vaultV1.importedAccounts) {
       if (isAccountInVault(account.identifier, vaultV2)) continue;
 
@@ -127,42 +141,7 @@ export class VaultsSynchronizer {
         if (!vaultSecret)
           vaultSecret = await this._vaultClientV2.getVaultSecret();
 
-        const oldAccountSecret =
-          CommitmentMapper.generateCommitmentMapperSecret(account.seed);
-
-        let newAccountSecret;
-        if (account.type !== "ethereum") {
-          // If it's a web2 account we update the seed with the mnemonic of the VaultV1
-          const { seed, accountNumber, mnemonic } =
-            await this._vaultClientV2.getNextSeed(
-              WalletPurpose.IMPORTED_ACCOUNT
-            );
-          account.wallet = {
-            mnemonic: mnemonic,
-            accountNumber: accountNumber,
-          };
-          account.seed = seed;
-        }
-        newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
-          account.seed
-        );
-
-        const { commitmentReceipt, commitmentMapperPubKey } =
-          await this._commitmentMapperV2.migrateEddsa({
-            receipt: account.commitmentReceipt,
-            identifier: account.identifier,
-            vaultSecret,
-            oldAccountSecret,
-            newAccountSecret,
-          });
-
-        const importedAccount: ImportedAccount = {
-          ...account,
-          commitmentReceipt,
-          commitmentMapperPubKey,
-        };
-
-        vaultV2 = await this._vaultClientV2.importAccount(importedAccount);
+        vaultV2 = await this._migrateAccountS1toS2(account, vaultSecret);
       } catch (e) {
         console.log(e);
       }
@@ -193,6 +172,51 @@ export class VaultsSynchronizer {
     return vaultV2;
   };
 
+  private _migrateAccountS1toS2 = async (
+    account: ImportedAccount,
+    vaultSecret: string
+  ) => {
+    const oldAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
+      account.seed
+    );
+
+    let newAccountSecret;
+    if (account.type !== "ethereum") {
+      // If it's a web2 account we update the seed with the mnemonic of the VaultV1
+      const { seed, accountNumber, mnemonic } =
+        await this._vaultClientV2.getNextSeed(WalletPurpose.IMPORTED_ACCOUNT);
+      account.wallet = {
+        mnemonic: mnemonic,
+        accountNumber: accountNumber,
+      };
+      account.seed = seed;
+    }
+    newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
+      account.seed
+    );
+
+    const { commitmentReceipt, commitmentMapperPubKey } =
+      await this._commitmentMapperV2.migrateEddsa({
+        receipt: account.commitmentReceipt,
+        identifier: account.identifier,
+        vaultSecret,
+        oldAccountSecret,
+        newAccountSecret,
+      });
+
+    const importedAccount: ImportedAccount = {
+      ...account,
+      commitmentReceipt,
+      commitmentMapperPubKey,
+    };
+
+    return await this._vaultClientV2.importAccount(importedAccount);
+  };
+
+  /*****************************************************************/
+  /*************************** V2 to V1 ****************************/
+  /*****************************************************************/
+
   private _importV2toV1 = async (
     vaultV2: Vault,
     vaultV1: Vault
@@ -205,42 +229,7 @@ export class VaultsSynchronizer {
         if (!vaultSecret)
           vaultSecret = await this._vaultClientV2.getVaultSecret();
 
-        const oldAccountSecret =
-          CommitmentMapper.generateCommitmentMapperSecret(account.seed);
-
-        let newAccountSecret;
-        if (account.type !== "ethereum") {
-          // If it's a web2 account we update the seed with the mnemonic of the VaultV2
-          const { seed, accountNumber, mnemonic } =
-            await this._vaultClientV1.getNextSeed(
-              WalletPurpose.IMPORTED_ACCOUNT
-            );
-          account.wallet = {
-            mnemonic: mnemonic,
-            accountNumber: accountNumber,
-          };
-          account.seed = seed;
-        }
-        newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
-          account.seed
-        );
-
-        const { commitmentReceipt, commitmentMapperPubKey } =
-          await this._commitmentMapperV1.migrateEddsa({
-            receipt: account.commitmentReceipt,
-            identifier: account.identifier,
-            vaultSecret,
-            oldAccountSecret,
-            newAccountSecret,
-          });
-
-        const importedAccount: ImportedAccount = {
-          ...account,
-          commitmentReceipt,
-          commitmentMapperPubKey,
-        };
-
-        vaultV1 = await this._vaultClientV1.importAccount(importedAccount);
+        vaultV1 = await this._migrateAccountS2toS1(account, vaultSecret);
       } catch (e) {
         console.log(e);
       }
@@ -269,5 +258,51 @@ export class VaultsSynchronizer {
     }
 
     return vaultV1;
+  };
+
+  private _migrateAccountS2toS1 = async (
+    account: ImportedAccount,
+    vaultSecret: string
+  ) => {
+    const oldAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
+      account.seed
+    );
+
+    let newAccountSecret;
+    if (account.type !== "ethereum") {
+      // If it's a web2 account we update the seed with the mnemonic of the VaultV2
+      const { seed, accountNumber, mnemonic } =
+        await this._vaultClientV1.getNextSeed(WalletPurpose.IMPORTED_ACCOUNT);
+      account.wallet = {
+        mnemonic: mnemonic,
+        accountNumber: accountNumber,
+      };
+      account.seed = seed;
+    }
+    newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
+      account.seed
+    );
+
+    console.log("migrateEddsa");
+
+    const { commitmentReceipt, commitmentMapperPubKey } =
+      await this._commitmentMapperV1.migrateEddsa({
+        receipt: account.commitmentReceipt,
+        identifier: account.identifier,
+        vaultSecret,
+        oldAccountSecret,
+        newAccountSecret,
+      });
+
+    console.log("commitmentReceipt", commitmentReceipt);
+    console.log("commitmentMapperPubKey", commitmentMapperPubKey);
+
+    const importedAccount: ImportedAccount = {
+      ...account,
+      commitmentReceipt,
+      commitmentMapperPubKey,
+    };
+
+    return await this._vaultClientV1.importAccount(importedAccount);
   };
 }

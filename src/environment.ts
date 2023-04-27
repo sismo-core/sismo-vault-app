@@ -6,7 +6,9 @@ type Environment = {
   vaultV1URL: string;
   factoryApiUrl: string;
   hubApiUrl: string;
-  commitmentMapperUrl?: string;
+  mintingAppUrl: string;
+  commitmentMapperUrlV1?: string;
+  commitmentMapperUrlV2?: string;
   githubOauthClientId?: string;
   chainName?: string;
   sismoDestination: {

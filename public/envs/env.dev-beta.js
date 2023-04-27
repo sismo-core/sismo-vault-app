@@ -7,7 +7,8 @@ window.env = {
   vaultV1URL: "https://vault-api.sismo.io",
   hubApiUrl: "https://hub.testnets.sismo.io",
   factoryApiUrl: "https://factory-api.sismo.io",
-  commitmentMapperUrl: "https://btwu3bqo4a.execute-api.eu-west-1.amazonaws.com",
+  commitmentMapperUrlV2: "https://btwu3bqo4a.execute-api.eu-west-1.amazonaws.com",
+  commitmentMapperUrlV1: "https://x5y521b36b.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "d3f98ef4b1abaa0354b0",
   chainName: "goerli",
   sismoDestination: {

@@ -124,7 +124,7 @@ describe("Vaults Synchronizer", () => {
 
   describe("case 0", () => {
     it("Should return null providing no connected owners", async () => {
-      const owner = await vaultSynchronizer.sync(null, null);
+      const { owner } = await vaultSynchronizer.sync(null, null);
       expect(owner).toEqual(null);
     });
   });
@@ -162,7 +162,7 @@ describe("Vaults Synchronizer", () => {
     });
 
     it("Should create a new VaultV2 and import the VaultV1 in it", async () => {
-      const owner = await vaultSynchronizer.sync(owner1, null);
+      const { owner } = await vaultSynchronizer.sync(owner1, null);
 
       vaultClientV1.lock();
       vaultClientV2.lock();
@@ -229,7 +229,7 @@ describe("Vaults Synchronizer", () => {
     });
 
     it("Should connect the VaultV2 and import VaultV1 in it", async () => {
-      const owner = await vaultSynchronizer.sync(owner1, null);
+      const { owner } = await vaultSynchronizer.sync(owner1, null);
 
       vaultClientV1.lock();
       vaultClientV2.lock();
@@ -287,7 +287,7 @@ describe("Vaults Synchronizer", () => {
     });
 
     it("Should create a new VaultV1 and import the VaultV2 in it", async () => {
-      const owner = await vaultSynchronizer.sync(null, owner1);
+      const { owner } = await vaultSynchronizer.sync(null, owner1);
 
       vaultClientV1.lock();
       vaultClientV2.lock();
@@ -356,7 +356,7 @@ describe("Vaults Synchronizer", () => {
     });
 
     it("Should connect to VaultV2 and import VaultV1", async () => {
-      const owner = await vaultSynchronizer.sync(null, owner1);
+      const { owner } = await vaultSynchronizer.sync(null, owner1);
 
       vaultClientV1.lock();
       vaultClientV2.lock();
@@ -421,7 +421,7 @@ describe("Vaults Synchronizer", () => {
     });
 
     it("Should import VaultV1 in VaultV2 and VaultV2 in VaultV1 using same connected owner", async () => {
-      const owner = await vaultSynchronizer.sync(owner1, owner1);
+      const { owner } = await vaultSynchronizer.sync(owner1, owner1);
 
       vaultClientV1.lock();
       vaultClientV2.lock();
@@ -499,7 +499,7 @@ describe("Vaults Synchronizer", () => {
     });
 
     it("Should merge VaultV1 A and B and import VaultV1 in VaultV2 / VaultV2 in VaultV1", async () => {
-      const owner = await vaultSynchronizer.sync(owner1, owner2);
+      const { owner } = await vaultSynchronizer.sync(owner1, owner2);
 
       vaultClientV1.lock();
       vaultClientV2.lock();

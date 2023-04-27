@@ -7,7 +7,8 @@ window.env = {
   vaultV1URL: "https://vault-api.zikies.io",
   hubApiUrl: "https://hub.staging.zikies.io",
   factoryApiUrl: "https://factory-api.staging.zikies.io",
-  commitmentMapperUrl: "https://x93oogcd5e.execute-api.eu-west-1.amazonaws.com",
+  commitmentMapperUrlV2: "https://x93oogcd5e.execute-api.eu-west-1.amazonaws.com",
+  commitmentMapperUrlV1: "https://sibgc1bwn8.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "ed165a166320d0676ccb",
   chainName: "goerli",
   sismoDestination: {

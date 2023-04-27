@@ -56,7 +56,7 @@ export default function ConnectTwitter(): JSX.Element {
       </Text>
       <TwitterButton
         onClick={() =>
-          (window.location.href = `${env.commitmentMapperUrl}/request-twitter-token?oauth_callback=${window.location.origin}/redirect`)
+          (window.location.href = `${env.commitmentMapperUrlV2}/request-twitter-token?oauth_callback=${window.location.origin}/redirect`)
         }
       >
         <Icon name="logoTwitter-fill-white" style={{ marginRight: 10 }} />

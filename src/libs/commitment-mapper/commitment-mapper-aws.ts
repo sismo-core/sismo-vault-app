@@ -121,7 +121,7 @@ export class CommitmentMapperAWS extends CommitmentMapper {
     newCommitment: string;
   }): Promise<CommitmentReceiptResult> {
     const { data } = await axios.post(`${this._url}/migrate-eddsa`, {
-      receipt,
+      commitmentReceipt: receipt,
       identifier,
       oldCommitment,
       newCommitment,
