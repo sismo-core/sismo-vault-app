@@ -19,7 +19,6 @@ import {
   GithubRounded,
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
-import UserTag from "./UserTag";
 import UserSelector from "./UserSelector";
 import { ImportedAccount } from "../../../../libs/vault-client";
 import { useVault } from "../../../../libs/vault";
@@ -31,13 +30,22 @@ const Container = styled.div`
   align-items: center;
   justify-content: space-between;
   min-height: 56px;
+  gap: 38px;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 0;
+    justify-content: flex-end;
+  }
 `;
 
 const Left = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-
+  flex-grow: 1;
+  width: 402.2px;
   font-size: 14px;
   line-height: 20px;
   font-family: ${(props) => props.theme.fonts.regular};
@@ -46,10 +54,16 @@ const Left = styled.div`
 const TextWrapper = styled.div<{ isOptIn: boolean }>`
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+
+  white-space: nowrap;
+  flex-grow: 1;
   gap: 4px;
   color: ${(props) =>
     props.isOptIn ? props.theme.colors.blue0 : props.theme.colors.blue3};
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
 `;
 
 const Bold = styled.span`
@@ -59,6 +73,8 @@ const Bold = styled.span`
 const Right = styled.div`
   display: flex;
   align-items: center;
+  width: 96px;
+  flex-shrink: 0;
 `;
 
 const StyledButton = styled(ImportButton)`
@@ -117,8 +133,9 @@ export function DataRequest({
     groupMetadataClaimRequestEligibility?.claim?.isOptional;
 
   const isEligible =
-    authRequestEligibility?.isEligible ||
-    groupMetadataClaimRequestEligibility?.isEligible;
+    (authRequestEligibility?.isEligible ||
+      groupMetadataClaimRequestEligibility?.isEligible) &&
+    vault?.isConnected;
 
   const isSelectableByUser =
     !proofLoading &&
@@ -128,11 +145,6 @@ export function DataRequest({
   const humanReadableAuthType = getHumanReadableAuthType(
     authRequestEligibility?.auth?.authType
   );
-
-  const isAuthRequiredNotSelectable =
-    !authRequestEligibility?.auth?.isSelectableByUser &&
-    authRequestEligibility?.auth?.userId !== "0" &&
-    authRequestEligibility?.auth?.authType !== AuthType.VAULT;
 
   const isLoading = importAccount?.importing ? true : false || loadingEligible;
 
@@ -325,22 +337,31 @@ export function DataRequest({
         )}
         <TextWrapper isOptIn={isOptional && isEligible ? isOptIn : true}>
           {isAuth && authRequestEligibility?.auth?.authType !== AuthType.VAULT
-            ? "Prove ownership of"
+            ? isEligible
+              ? "Prove ownership"
+              : "Prove ownership of"
             : "Share"}
           {isAuth && (
             <>
-              {isAuthRequiredNotSelectable && (
-                <UserTag
-                  optIn={isOptional && isEligible ? isOptIn : true}
-                  userId={authRequestEligibility?.auth?.userId}
-                  authType={authRequestEligibility?.auth?.authType}
-                />
+              {isEligible &&
+                authRequestEligibility?.auth?.authType !== AuthType.VAULT && (
+                  <UserSelector
+                    authRequestEligibility={authRequestEligibility}
+                    isSelectableByUser={isSelectableByUser}
+                    onAuthChange={onValueChange}
+                    optIn={true}
+                    initialAccount={initialAccount}
+                  />
+                )}
+
+              {(!isEligible ||
+                authRequestEligibility?.auth?.authType === AuthType.VAULT) && (
+                <span>
+                  <Bold>{humanReadableAuthType} </Bold>
+                  {authRequestEligibility?.auth?.authType !== AuthType.VAULT &&
+                    "account"}
+                </span>
               )}
-              <span>
-                <Bold>{humanReadableAuthType} </Bold>
-                {authRequestEligibility?.auth?.authType !== AuthType.VAULT &&
-                  "account"}
-              </span>
             </>
           )}
           {isClaim && (
@@ -353,82 +374,75 @@ export function DataRequest({
               onClaimChange={onValueChange}
               initialValue={initialValue}
               onModal={() => setIsModalOpen(true)}
+              isOptional={isOptional}
             />
           )}
         </TextWrapper>
       </Left>
-      {vault?.importedAccounts && (
-        <Right>
-          {!isEligible && (
-            <StyledButton
-              primary
-              verySmall
-              isMedium
-              loading={isLoading}
-              onClick={() => {
-                const accountTypes: AccountType[] =
-                  authRequestEligibility?.auth?.authType === AuthType.TWITTER
-                    ? ["twitter"]
-                    : authRequestEligibility?.auth?.authType === AuthType.GITHUB
-                    ? ["github"]
-                    : authRequestEligibility?.auth?.authType ===
-                      AuthType.EVM_ACCOUNT
-                    ? ["ethereum"]
-                    : ["twitter", "github", "ethereum"];
-                importAccount.open({
-                  importType: "account",
-                  accountTypes,
-                });
-              }}
-            >
-              <InnerButton>
-                {!isLoading && (
-                  <>
-                    {authRequestEligibility?.auth?.authType ===
-                    AuthType.TWITTER ? (
-                      <TwitterRounded size={14} color={colors.blue11} />
-                    ) : authRequestEligibility?.auth?.authType ===
-                      AuthType.GITHUB ? (
-                      <GithubRounded size={14} color={colors.blue11} />
-                    ) : authRequestEligibility?.auth?.authType ===
-                      AuthType.EVM_ACCOUNT ? (
-                      <EthRounded size={14} color={colors.blue11} />
-                    ) : (
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 14 14"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <circle
-                          cx="7"
-                          cy="7"
-                          r="5.5"
-                          stroke="#13203D"
-                          strokeWidth="3"
-                        />
-                      </svg>
-                    )}
-                    <span>Connect</span>
-                  </>
-                )}
-              </InnerButton>
-            </StyledButton>
-          )}
-          {isEligible &&
-            !isAuthRequiredNotSelectable &&
-            authRequestEligibility?.auth?.authType !== AuthType.VAULT && (
-              <UserSelector
-                authRequestEligibility={authRequestEligibility}
-                isSelectableByUser={isSelectableByUser}
-                onAuthChange={onValueChange}
-                optIn={true}
-                initialAccount={initialAccount}
-              />
+      <Right>
+        {vault?.importedAccounts && (
+          <>
+            {!isEligible && (
+              <StyledButton
+                primary
+                verySmall
+                isMedium
+                loading={isLoading}
+                onClick={() => {
+                  const accountTypes: AccountType[] =
+                    authRequestEligibility?.auth?.authType === AuthType.TWITTER
+                      ? ["twitter"]
+                      : authRequestEligibility?.auth?.authType ===
+                        AuthType.GITHUB
+                      ? ["github"]
+                      : authRequestEligibility?.auth?.authType ===
+                        AuthType.EVM_ACCOUNT
+                      ? ["ethereum"]
+                      : ["twitter", "github", "ethereum"];
+                  importAccount.open({
+                    importType: "account",
+                    accountTypes,
+                  });
+                }}
+              >
+                <InnerButton>
+                  {!isLoading && (
+                    <>
+                      {authRequestEligibility?.auth?.authType ===
+                      AuthType.TWITTER ? (
+                        <TwitterRounded size={14} color={colors.blue11} />
+                      ) : authRequestEligibility?.auth?.authType ===
+                        AuthType.GITHUB ? (
+                        <GithubRounded size={14} color={colors.blue11} />
+                      ) : authRequestEligibility?.auth?.authType ===
+                        AuthType.EVM_ACCOUNT ? (
+                        <EthRounded size={14} color={colors.blue11} />
+                      ) : (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 14 14"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle
+                            cx="7"
+                            cy="7"
+                            r="5.5"
+                            stroke="#13203D"
+                            strokeWidth="3"
+                          />
+                        </svg>
+                      )}
+                      <span>Connect</span>
+                    </>
+                  )}
+                </InnerButton>
+              </StyledButton>
             )}
-        </Right>
-      )}
+          </>
+        )}
+      </Right>
     </Container>
   );
 }

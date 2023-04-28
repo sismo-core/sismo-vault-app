@@ -13,7 +13,8 @@ const OuterContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  flex-wrap: wrap;
+  flex-grow: 1;
+  margin-left: 4px;
 `;
 
 const Container = styled.div<{ color: string; isSelectorOpenable: boolean }>`
@@ -27,9 +28,28 @@ const Container = styled.div<{ color: string; isSelectorOpenable: boolean }>`
   border-radius: 4px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 4px;
   flex-shrink: 0;
+  flex-grow: 1;
   cursor: ${(props) => (props.isSelectorOpenable ? "pointer" : "default")};
+`;
+
+const Left = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const GroupName = styled.div<{ isOptional: boolean }>`
+  max-width: ${(props) => (props.isOptional ? "155px" : "170px")};
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 768px) {
+    max-width: 100px;
+  }
 `;
 
 const ValueComparator = styled.div`
@@ -105,6 +125,7 @@ type Props = {
   isSelectableByUser: boolean;
   initialValue: number;
   optIn?: boolean;
+  isOptional: boolean;
 
   onClaimChange: (
     groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
@@ -118,6 +139,7 @@ export default function ShardTag({
   isSelectableByUser,
   initialValue,
   optIn = true,
+  isOptional,
   onClaimChange,
   onModal,
 }: Props) {
@@ -171,41 +193,45 @@ export default function ShardTag({
         ref={ref}
         onClick={() => isSelectorOpenable && setIsSelectorOpen(!isSelectorOpen)}
       >
-        <svg
-          width="14"
-          height="15"
-          viewBox="0 0 14 15"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M7.00083 0.594749L13.334 5.53932L7.00083 13.2671L0.666871 5.53933L7.00083 0.594749Z"
-            fill="#C08AFF"
-            stroke="#C08AFF"
-            strokeWidth="0.937557"
-          />
-        </svg>
+        <Left>
+          <svg
+            width="14"
+            height="15"
+            viewBox="0 0 14 15"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7.00083 0.594749L13.334 5.53932L7.00083 13.2671L0.666871 5.53933L7.00083 0.594749Z"
+              fill="#C08AFF"
+              stroke="#C08AFF"
+              strokeWidth="0.937557"
+            />
+          </svg>
+          <GroupName isOptional={isOptional}>
+            {humanReadableGroupName}
+          </GroupName>
 
-        {humanReadableGroupName}
-        {claimType === ClaimType.GTE && requestedValue > 1 ? (
-          <ValueComparator>
-            {">="} {requestedValue}
-          </ValueComparator>
-        ) : claimType === ClaimType.GT ? (
-          <ValueComparator>
-            {">"} {requestedValue}
-          </ValueComparator>
-        ) : claimType === ClaimType.EQ ? (
-          <ValueComparator>{requestedValue}</ValueComparator>
-        ) : claimType === ClaimType.LT ? (
-          <ValueComparator>
-            {"<"} {requestedValue}
-          </ValueComparator>
-        ) : claimType === ClaimType.LTE ? (
-          <ValueComparator>
-            {"<="} {requestedValue}
-          </ValueComparator>
-        ) : null}
+          {claimType === ClaimType.GTE ? (
+            <ValueComparator>
+              {">="} {requestedValue}
+            </ValueComparator>
+          ) : claimType === ClaimType.GT ? (
+            <ValueComparator>
+              {">"} {requestedValue}
+            </ValueComparator>
+          ) : claimType === ClaimType.EQ ? (
+            <ValueComparator>{requestedValue}</ValueComparator>
+          ) : claimType === ClaimType.LT ? (
+            <ValueComparator>
+              {"<"} {requestedValue}
+            </ValueComparator>
+          ) : claimType === ClaimType.LTE ? (
+            <ValueComparator>
+              {"<="} {requestedValue}
+            </ValueComparator>
+          ) : null}
+        </Left>
         {isSelectorOpenable && (
           <ChevronWrapper isSelectorOpen={isSelectorOpen}>
             <CaretDown size={16} color={color} />
@@ -232,7 +258,7 @@ export default function ShardTag({
         )}
       </Container>
       <InfoWrapper onClick={() => onModal(groupMetadata.id)}>
-        <Info size={16} color={color} />
+        <Info size={18} color={color} />
       </InfoWrapper>
     </OuterContainer>
   );

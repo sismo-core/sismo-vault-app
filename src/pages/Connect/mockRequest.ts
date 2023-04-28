@@ -15,10 +15,6 @@ export const devConfig = {
       groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
       groupTimestamp: "latest",
       data: {
-        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 4,
-        "0x35Af38bAC1793642D2fd3d71807aA54A56ed8183": 3,
-        "0xEeE99560F6ccfa8e12994872725a10f80E8a4FFa": 3,
-        "0x25fcc2A4B8e5387649ba3B6DeDDcAC343D8E11B6": 11,
         "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045": 2,
       },
     },
@@ -54,7 +50,7 @@ export const claims: ClaimRequest[] = [
     groupTimestamp: "latest",
     isOptional: false,
     isSelectableByUser: true,
-    value: 1,
+    value: 2,
     extraData: "",
   } as ClaimRequest,
   {
@@ -63,16 +59,16 @@ export const claims: ClaimRequest[] = [
     groupTimestamp: "latest",
     isOptional: false,
     isSelectableByUser: true,
-    value: 1,
+    value: 2,
     extraData: "",
   } as ClaimRequest,
   {
-    claimType: ClaimType.EQ,
+    claimType: ClaimType.GTE,
     groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
     groupTimestamp: "latest",
     isOptional: true,
     isSelectableByUser: true,
-    value: 3,
+    value: 2,
     extraData: "",
   } as ClaimRequest,
 ];
@@ -168,5 +164,5 @@ searchParams.set("devConfig", JSON.stringify(devConfig));
 export const sismoConnectRequestMockUrl = url.toString();
 
 export function getMockUrl() {
-  // console.log(sismoConnectRequestMockUrl);
+  //  console.log(sismoConnectRequestMockUrl);
 }
