@@ -406,7 +406,7 @@ export default function VaultSlider({
               {importAccount.importing === "account" && (
                 <AccountLineImporting>
                   <LoaderWrapper vaultSliderOpen={vaultSliderOpen}>
-                    <Loader size={16} />
+                    <Loader size={16} color={colors.white} />
                   </LoaderWrapper>
                   <AccountImporting>ImportingAccount...</AccountImporting>
                 </AccountLineImporting>
