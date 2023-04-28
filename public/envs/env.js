@@ -2,7 +2,7 @@
 window.env = {
   name: "DEV_BETA",
   disabledSentry: false,
-  mintingAppUrl: "https://testnets.zikies.io",
+  mintingAppUrl: "http://127.0.0.1:3001",
   vaultV2URL: "https://vault-beta-api.zikies.io",
   vaultV1URL: "https://vault-api.zikies.io",
   hubApiUrl: "https://hub.staging.zikies.io",

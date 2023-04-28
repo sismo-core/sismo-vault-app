@@ -138,13 +138,21 @@ export default function SismoVaultProvider({
   }, []);
 
   const connect = useCallback(async (owner: Owner): Promise<boolean> => {
-    const vault = await vaultClientV2.unlock(owner.seed);
-    if (!vault) return false;
+    let vaultV2 = await vaultClientV2.unlock(owner.seed);
+    if (!vaultV2) {
+      const vaultV1 = await vaultClientV1.unlock(owner.seed);
+      if (vaultV1) {
+        const { vault } = await vaultSynchronizer.sync(owner, null);
+        vaultV2 = vault;
+      } else {
+        return false;
+      }
+    }
     await Promise.all([
       vaultState.updateConnectedOwner(owner),
-      vaultState.updateVaultState(vault),
+      vaultState.updateVaultState(vaultV2),
     ]);
-    if (vault.settings.keepConnected) {
+    if (vaultV2.settings.keepConnected) {
       createActiveSession(owner, 24 * 30 * 24);
     }
     return true;
