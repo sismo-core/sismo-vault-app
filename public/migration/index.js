@@ -5,10 +5,10 @@ function getQueryParam(param) {
 
 function redirectToMigration() {
     localStorage.setItem('migration_originalUrlParams', window.location.search);
-    let mintingAppMigrationUrl = `${window.env.mintingAppUrl}/migration.html`;
+    let mintingAppMigrationUrl = `${window.env.mintingAppUrl}/migration.html?no-migration=true`;
     const url = new URL(window.location.href)
     localStorage.setItem(`sc_referrer`, document?.referrer);
-    if (url.pathname) mintingAppMigrationUrl += `?callbackPath=${url.pathname}`;
+    if (url.pathname) mintingAppMigrationUrl += `&callbackPath=${url.pathname}`;
     window.location.href = mintingAppMigrationUrl;
 }
 
