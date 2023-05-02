@@ -42,19 +42,29 @@ export class VaultsSynchronizer {
    */
   public async sync(
     connectedOwnerV1: Owner,
-    connectedOwnerV2: Owner
+    connectedOwnerV2: Owner,
+    vaultV1Override?: Vault,
+    vaultV2Override?: Vault
   ): Promise<{ owner: Owner; vault: Vault }> {
     if (!connectedOwnerV1 && !connectedOwnerV2) return null;
 
     this._vaultClientV2.lock();
     this._vaultClientV1.lock();
 
-    let [vaultV1, vaultV2] = await Promise.all([
-      connectedOwnerV1 &&
-        (await this._vaultClientV1.unlock(connectedOwnerV1.seed)),
-      connectedOwnerV2 &&
-        (await this._vaultClientV2.unlock(connectedOwnerV2.seed)),
-    ]);
+    let vaultV1;
+    let vaultV2;
+
+    if (vaultV1Override || vaultV2Override) {
+      vaultV1 = vaultV1Override;
+      vaultV2 = vaultV2Override;
+    } else {
+      [vaultV1, vaultV2] = await Promise.all([
+        connectedOwnerV1 &&
+          (await this._vaultClientV1.unlock(connectedOwnerV1.seed)),
+        connectedOwnerV2 &&
+          (await this._vaultClientV2.unlock(connectedOwnerV2.seed)),
+      ]);
+    }
 
     // Tested by case 1, 2
     // This work well when the user has only one VaultV2

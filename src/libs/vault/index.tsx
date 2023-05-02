@@ -84,7 +84,7 @@ export default function SismoVaultProvider({
 }: Props): JSX.Element {
   const vaultState = useVaultState();
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
-  const [synchronizing, setSynchronizing] = useState(true);
+  const [synchronizing, setSynchronizing] = useState(false);
 
   const vaultClientV2 = useMemo(() => {
     if (!vaultV2Url) return;
@@ -114,28 +114,31 @@ export default function SismoVaultProvider({
       const ownerConnectedV1 = getVaultV1ConnectedOwner();
       const ownerConnectedV2 = getVaultV2ConnectedOwner();
 
-      setSynchronizing(true);
+      // Add a loading state which trigger only the first time when the user don't have a VaultV2
+      const [vaultV1, vaultV2] = await Promise.all([
+        ownerConnectedV1 && (await vaultClientV1.unlock(ownerConnectedV1.seed)),
+        ownerConnectedV2 && (await vaultClientV2.unlock(ownerConnectedV2.seed)),
+      ]);
+      if (vaultV1 && !vaultV2) {
+        setSynchronizing(true);
+      }
+
       const res = await vaultSynchronizer.sync(
         ownerConnectedV1,
-        ownerConnectedV2
+        ownerConnectedV2,
+        vaultV1,
+        vaultV2
       );
-      if (res) {
-        const vault = await vaultClientV2.unlock(res.owner.seed);
-        if (vault && !Boolean(vaultState.connectedOwner)) {
-          await Promise.all([
-            vaultState.updateConnectedOwner(res.owner),
-            vaultState.updateVaultState(vault),
-          ]);
-          if (vault.settings.keepConnected) {
-            createActiveSession(res.owner, 24 * 30 * 24);
-          }
+      if (res && res.vault && !Boolean(vaultState.connectedOwner)) {
+        await Promise.all([
+          vaultState.updateConnectedOwner(res.owner),
+          vaultState.updateVaultState(res.vault),
+        ]);
+        if (res.vault.settings.keepConnected) {
+          createActiveSession(res.owner, 24 * 30 * 24);
         }
       }
-      setSynchronizing(false);
-
-      setTimeout(() => {
-        setLoadingActiveSession(false);
-      }, 100);
+      setLoadingActiveSession(false);
     };
     loadActiveSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps

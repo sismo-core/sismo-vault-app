@@ -18,11 +18,13 @@ export default function SignInButton(): JSX.Element {
       />
       <Button
         primary
-        loading={vault.synchronizing}
+        loading={vault.loadingActiveSession}
         style={{ width: 252 }}
         onClick={() => setConnectIsOpen(true)}
       >
-        {vault.synchronizing ? "Sign-in to Sismo..." : "Sign-in to Sismo"}
+        {vault.loadingActiveSession
+          ? "Sign-in to Sismo..."
+          : "Sign-in to Sismo"}
       </Button>
     </Container>
   );
