@@ -72,6 +72,7 @@ export class VaultsSynchronizer {
       } else {
         // Tested by case 1
         vaultV2 = this._vaultClientV2.create();
+        await this._vaultClientV2.addOwner(connectedOwnerV1);
       }
 
       // 2. We import the VaultV1 in the unlocked VaultV2 and VaultV2 in VaultV1
@@ -97,6 +98,7 @@ export class VaultsSynchronizer {
       } else {
         // Tested case 3
         vaultV1 = this._vaultClientV1.create();
+        await this._vaultClientV1.addOwner(connectedOwnerV2);
       }
 
       // 2. We import the VaultV1 in the unlocked VaultV2 and VaultV2 in VaultV1
@@ -121,6 +123,8 @@ export class VaultsSynchronizer {
         vault: vaultV2,
       };
     }
+
+    return null;
   }
 
   /*****************************************************************/
@@ -132,24 +136,6 @@ export class VaultsSynchronizer {
     vaultV2: Vault
   ): Promise<Vault> => {
     let vaultSecret = null;
-
-    for (let account of vaultV1.importedAccounts) {
-      if (isAccountInVault(account.identifier, vaultV2)) continue;
-
-      try {
-        // Throw an error if the account is already imported in another VaultV2
-        if (!vaultSecret)
-          vaultSecret = await this._vaultClientV2.getVaultSecret();
-
-        vaultV2 = await this._migrateAccountS1toS2(
-          this._vaultClientV2,
-          account,
-          vaultSecret
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    }
 
     for (let owner of vaultV1.owners) {
       if (isOwnerInVault(owner.identifier, vaultV2)) continue;
@@ -173,6 +159,24 @@ export class VaultsSynchronizer {
       }
     }
 
+    for (let account of vaultV1.importedAccounts) {
+      if (isAccountInVault(account.identifier, vaultV2)) continue;
+
+      try {
+        // Throw an error if the account is already imported in another VaultV2
+        if (!vaultSecret)
+          vaultSecret = await this._vaultClientV2.getVaultSecret();
+
+        vaultV2 = await this._migrateAccountS1toS2(
+          this._vaultClientV2,
+          account,
+          vaultSecret
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
     return vaultV2;
   };
 
@@ -185,7 +189,6 @@ export class VaultsSynchronizer {
       account.seed
     );
 
-    let newAccountSecret;
     if (account.type !== "ethereum") {
       // If it's a web2 account we update the seed with the mnemonic of the VaultV1
       const { seed, accountNumber, mnemonic } = await vaultClientV2.getNextSeed(
@@ -197,7 +200,8 @@ export class VaultsSynchronizer {
       };
       account.seed = seed;
     }
-    newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
+
+    const newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
       account.seed
     );
 
@@ -230,22 +234,6 @@ export class VaultsSynchronizer {
     vaultV1: Vault
   ): Promise<Vault> => {
     let vaultSecret = null;
-    for (let account of vaultV2.importedAccounts) {
-      if (isAccountInVault(account.identifier, vaultV1)) continue;
-
-      try {
-        if (!vaultSecret)
-          vaultSecret = await this._vaultClientV2.getVaultSecret();
-
-        vaultV1 = await this._migrateAccountS2toS1(
-          this._vaultClientV1,
-          account,
-          vaultSecret
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    }
 
     for (let owner of vaultV2.owners) {
       if (isOwnerInVault(owner.identifier, vaultV1)) continue;
@@ -269,6 +257,23 @@ export class VaultsSynchronizer {
       }
     }
 
+    for (let account of vaultV2.importedAccounts) {
+      if (isAccountInVault(account.identifier, vaultV1)) continue;
+
+      try {
+        if (!vaultSecret)
+          vaultSecret = await this._vaultClientV2.getVaultSecret();
+
+        vaultV1 = await this._migrateAccountS2toS1(
+          this._vaultClientV1,
+          account,
+          vaultSecret
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
     return vaultV1;
   };
 
@@ -281,7 +286,6 @@ export class VaultsSynchronizer {
       account.seed
     );
 
-    let newAccountSecret;
     if (account.type !== "ethereum") {
       // If it's a web2 account we update the seed with the mnemonic of the VaultV2
       const { seed, accountNumber, mnemonic } = await vaultClientV1.getNextSeed(
@@ -293,7 +297,7 @@ export class VaultsSynchronizer {
       };
       account.seed = seed;
     }
-    newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
+    const newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
       account.seed
     );
 

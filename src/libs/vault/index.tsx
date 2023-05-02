@@ -44,6 +44,7 @@ type ReactVault = {
   deletable: boolean;
   recoveryKeys: RecoveryKey[];
   commitmentMapper: CommitmentMapper;
+  synchronizing: boolean;
   getVaultSecret: () => Promise<string>;
   disconnect: () => void;
   connect: (owner: Owner) => Promise<boolean>;
@@ -83,6 +84,7 @@ export default function SismoVaultProvider({
 }: Props): JSX.Element {
   const vaultState = useVaultState();
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
+  const [synchronizing, setSynchronizing] = useState(true);
 
   const vaultClientV2 = useMemo(() => {
     if (!vaultV2Url) return;
@@ -112,22 +114,24 @@ export default function SismoVaultProvider({
       const ownerConnectedV1 = getVaultV1ConnectedOwner();
       const ownerConnectedV2 = getVaultV2ConnectedOwner();
 
-      const owner = ownerConnectedV2 ?? ownerConnectedV1;
-      // Synch vaults V1 and V2 on the same owner
-      vaultSynchronizer
-        .sync(ownerConnectedV1, ownerConnectedV2)
-        .then(async (res) => {
-          // Update the vault UI
-          if (res) {
-            const vault = await vaultClientV2.unlock(res.owner.seed);
-            if (vault && !Boolean(vaultState.connectedOwner)) {
-              connect(res.owner);
-            } else {
-              vaultState.updateVaultState(vault);
-            }
+      setSynchronizing(true);
+      const res = await vaultSynchronizer.sync(
+        ownerConnectedV1,
+        ownerConnectedV2
+      );
+      if (res) {
+        const vault = await vaultClientV2.unlock(res.owner.seed);
+        if (vault && !Boolean(vaultState.connectedOwner)) {
+          await Promise.all([
+            vaultState.updateConnectedOwner(res.owner),
+            vaultState.updateVaultState(vault),
+          ]);
+          if (vault.settings.keepConnected) {
+            createActiveSession(res.owner, 24 * 30 * 24);
           }
-        });
-      if (owner) connect(owner);
+        }
+      }
+      setSynchronizing(false);
 
       setTimeout(() => {
         setLoadingActiveSession(false);
@@ -308,6 +312,7 @@ export default function SismoVaultProvider({
         isConnected: Boolean(vaultState.connectedOwner),
         deletable: vaultState.deletable,
         recoveryKeys: vaultState.recoveryKeys,
+        synchronizing,
         getVaultSecret,
         disableRecoveryKey,
         generateRecoveryKey,

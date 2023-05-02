@@ -502,7 +502,7 @@ describe("Vaults Synchronizer", () => {
       expect(isVaultsSync(vaultV1, vaultV2)).toEqual(true);
       expect(vaultV1).toEqual({
         mnemonics: vaultV1.mnemonics,
-        importedAccounts: [account1, account2, github1, account3, account4],
+        importedAccounts: [account1, account2, github1, account4, account3],
         recoveryKeys: [recoveryKey1, recoveryKey2, recoveryKey3],
         owners: [owner1, owner2, owner3],
         settings: {

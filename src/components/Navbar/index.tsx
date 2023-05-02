@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import ConnectVaultModal from "../../pages/Modals/ConnectVaultModal";
 import VaultMenu from "./components/VaultMenu";
 import { useVault } from "../../libs/vault";
-import Button from "../Button";
 import env from "../../environment";
 import LinksMenu from "./components/LinksMenu";
+import SignInButton from "../SignInButton";
 
 const MobileNav = styled.div`
   display: none;
@@ -141,7 +140,6 @@ const Inline = styled.div`
 `;
 
 export default function Navbar(): JSX.Element {
-  const [connectIsOpen, setConnectIsOpen] = useState(false);
   const vault = useVault();
   const navigate = useNavigate();
   let location = useLocation();
@@ -183,10 +181,6 @@ export default function Navbar(): JSX.Element {
 
   return (
     <>
-      <ConnectVaultModal
-        isOpen={connectIsOpen}
-        onClose={() => setConnectIsOpen(false)}
-      />
       <MobileNav>
         <Logo style={{ marginRight: 30 }}>
           <img
@@ -237,17 +231,7 @@ export default function Navbar(): JSX.Element {
 
           <Section right isHidden={isTopRightSectionHidden}>
             <LinksMenu />
-            {vault.isConnected ? (
-              <VaultMenu />
-            ) : (
-              <Button
-                primary
-                style={{ width: 252 }}
-                onClick={() => setConnectIsOpen(true)}
-              >
-                Sign-in to Sismo
-              </Button>
-            )}
+            {vault.isConnected ? <VaultMenu /> : <SignInButton />}
           </Section>
         </Content>
       </Container>
