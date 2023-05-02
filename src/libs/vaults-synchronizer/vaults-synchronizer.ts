@@ -137,6 +137,24 @@ export class VaultsSynchronizer {
   ): Promise<Vault> => {
     let vaultSecret = null;
 
+    for (let account of vaultV1.importedAccounts) {
+      if (isAccountInVault(account.identifier, vaultV2)) continue;
+
+      try {
+        // Throw an error if the account is already imported in another VaultV2
+        if (!vaultSecret)
+          vaultSecret = await this._vaultClientV2.getVaultSecret();
+
+        vaultV2 = await this._migrateAccountS1toS2(
+          this._vaultClientV2,
+          account,
+          vaultSecret
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
     for (let owner of vaultV1.owners) {
       if (isOwnerInVault(owner.identifier, vaultV2)) continue;
 
@@ -154,24 +172,6 @@ export class VaultsSynchronizer {
       try {
         // Throw an error if the recoveryKey is already imported in another VaultV2
         vaultV2 = await this._vaultClientV2.addRecoveryKey(recoveryKey);
-      } catch (e) {
-        console.log(e);
-      }
-    }
-
-    for (let account of vaultV1.importedAccounts) {
-      if (isAccountInVault(account.identifier, vaultV2)) continue;
-
-      try {
-        // Throw an error if the account is already imported in another VaultV2
-        if (!vaultSecret)
-          vaultSecret = await this._vaultClientV2.getVaultSecret();
-
-        vaultV2 = await this._migrateAccountS1toS2(
-          this._vaultClientV2,
-          account,
-          vaultSecret
-        );
       } catch (e) {
         console.log(e);
       }
@@ -235,6 +235,23 @@ export class VaultsSynchronizer {
   ): Promise<Vault> => {
     let vaultSecret = null;
 
+    for (let account of vaultV2.importedAccounts) {
+      if (isAccountInVault(account.identifier, vaultV1)) continue;
+
+      try {
+        if (!vaultSecret)
+          vaultSecret = await this._vaultClientV2.getVaultSecret();
+
+        vaultV1 = await this._migrateAccountS2toS1(
+          this._vaultClientV1,
+          account,
+          vaultSecret
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
     for (let owner of vaultV2.owners) {
       if (isOwnerInVault(owner.identifier, vaultV1)) continue;
 
@@ -252,23 +269,6 @@ export class VaultsSynchronizer {
       try {
         // Throw an error if the recoveryKey is already imported in another VaultV2
         vaultV1 = await this._vaultClientV1.addRecoveryKey(recoveryKey);
-      } catch (e) {
-        console.log(e);
-      }
-    }
-
-    for (let account of vaultV2.importedAccounts) {
-      if (isAccountInVault(account.identifier, vaultV1)) continue;
-
-      try {
-        if (!vaultSecret)
-          vaultSecret = await this._vaultClientV2.getVaultSecret();
-
-        vaultV1 = await this._migrateAccountS2toS1(
-          this._vaultClientV1,
-          account,
-          vaultSecret
-        );
       } catch (e) {
         console.log(e);
       }
