@@ -141,7 +141,11 @@ export class VaultsSynchronizer {
         if (!vaultSecret)
           vaultSecret = await this._vaultClientV2.getVaultSecret();
 
-        vaultV2 = await this._migrateAccountS1toS2(account, vaultSecret);
+        vaultV2 = await this._migrateAccountS1toS2(
+          this._vaultClientV2,
+          account,
+          vaultSecret
+        );
       } catch (e) {
         console.log(e);
       }
@@ -172,7 +176,8 @@ export class VaultsSynchronizer {
     return vaultV2;
   };
 
-  private _migrateAccountS1toS2 = async (
+  protected _migrateAccountS1toS2 = async (
+    vaultClientV2: VaultClientV2,
     account: ImportedAccount,
     vaultSecret: string
   ) => {
@@ -183,8 +188,9 @@ export class VaultsSynchronizer {
     let newAccountSecret;
     if (account.type !== "ethereum") {
       // If it's a web2 account we update the seed with the mnemonic of the VaultV1
-      const { seed, accountNumber, mnemonic } =
-        await this._vaultClientV2.getNextSeed(WalletPurpose.IMPORTED_ACCOUNT);
+      const { seed, accountNumber, mnemonic } = await vaultClientV2.getNextSeed(
+        WalletPurpose.IMPORTED_ACCOUNT
+      );
       account.wallet = {
         mnemonic: mnemonic,
         accountNumber: accountNumber,
@@ -202,7 +208,6 @@ export class VaultsSynchronizer {
       await this._commitmentMapperV2.migrateEddsa({
         receipt: account.commitmentReceipt,
         identifier: account.identifier,
-        vaultSecret,
         oldCommitmentSecret,
         newCommitmentSecret,
       });
@@ -213,7 +218,7 @@ export class VaultsSynchronizer {
       commitmentMapperPubKey,
     };
 
-    return await this._vaultClientV2.importAccount(importedAccount);
+    return await vaultClientV2.importAccount(importedAccount);
   };
 
   /*****************************************************************/
@@ -232,7 +237,11 @@ export class VaultsSynchronizer {
         if (!vaultSecret)
           vaultSecret = await this._vaultClientV2.getVaultSecret();
 
-        vaultV1 = await this._migrateAccountS2toS1(account, vaultSecret);
+        vaultV1 = await this._migrateAccountS2toS1(
+          this._vaultClientV1,
+          account,
+          vaultSecret
+        );
       } catch (e) {
         console.log(e);
       }
@@ -263,7 +272,8 @@ export class VaultsSynchronizer {
     return vaultV1;
   };
 
-  private _migrateAccountS2toS1 = async (
+  protected _migrateAccountS2toS1 = async (
+    vaultClientV1: VaultClientV1,
     account: ImportedAccount,
     vaultSecret: string
   ) => {
@@ -274,8 +284,9 @@ export class VaultsSynchronizer {
     let newAccountSecret;
     if (account.type !== "ethereum") {
       // If it's a web2 account we update the seed with the mnemonic of the VaultV2
-      const { seed, accountNumber, mnemonic } =
-        await this._vaultClientV1.getNextSeed(WalletPurpose.IMPORTED_ACCOUNT);
+      const { seed, accountNumber, mnemonic } = await vaultClientV1.getNextSeed(
+        WalletPurpose.IMPORTED_ACCOUNT
+      );
       account.wallet = {
         mnemonic: mnemonic,
         accountNumber: accountNumber,
@@ -293,7 +304,6 @@ export class VaultsSynchronizer {
       await this._commitmentMapperV1.migrateEddsa({
         receipt: account.commitmentReceipt,
         identifier: account.identifier,
-        vaultSecret,
         oldCommitmentSecret,
         newCommitmentSecret,
       });
@@ -304,6 +314,6 @@ export class VaultsSynchronizer {
       commitmentMapperPubKey,
     };
 
-    return await this._vaultClientV1.importAccount(importedAccount);
+    return await vaultClientV1.importAccount(importedAccount);
   };
 }

@@ -1,17 +1,17 @@
-import { CommitmentMapperLocal } from "../commitment-mapper";
+import { CommitmentMapperLocal } from "../../commitment-mapper";
 import {
   ImportedAccount,
   Owner,
   RecoveryKey,
   Vault,
   VaultClient as VaultClientV1,
-} from "../vault-client-v1";
-import { LocalStore } from "../vault-client-v1/stores/local-store";
-import { VaultClient as VaultClientV2 } from "../vault-client-v2";
-import { isAccountInVault } from "./utils/isAccountInVault";
-import { isOwnerInVault } from "./utils/isOwnerInVault";
-import { isRecoveryKeyInVault } from "./utils/isRecoveryKeyInVault";
-import { VaultsSynchronizer } from "./vaults-synchronizer";
+} from "../../vault-client-v1";
+import { LocalStore } from "../../vault-client-v1/stores/local-store";
+import { VaultClient as VaultClientV2 } from "../../vault-client-v2";
+import { isAccountInVault } from "../utils/isAccountInVault";
+import { isOwnerInVault } from "../utils/isOwnerInVault";
+import { isRecoveryKeyInVault } from "../utils/isRecoveryKeyInVault";
+import { VaultsSynchronizer } from "../vaults-synchronizer";
 
 describe("Vaults Synchronizer", () => {
   let storeV1: LocalStore;
@@ -31,7 +31,7 @@ describe("Vaults Synchronizer", () => {
   let recoveryKey3: RecoveryKey;
   let vaultSynchronizer: VaultsSynchronizer;
 
-  beforeAll(() => {
+  const init = () => {
     storeV1 = new LocalStore();
     vaultClientV1 = new VaultClientV1(storeV1);
 
@@ -44,13 +44,6 @@ describe("Vaults Synchronizer", () => {
       vaultClientV2,
       vaultClientV1,
     });
-  });
-
-  const reset = () => {
-    vaultClientV2.lock();
-    vaultClientV1.lock();
-    storeV1.reset();
-    storeV2.reset();
     owner1 = {
       identifier: "0x0111",
       seed: "0x01111",
@@ -123,6 +116,9 @@ describe("Vaults Synchronizer", () => {
   /*****************************************************************/
 
   describe("case 0", () => {
+    beforeAll(() => {
+      init();
+    });
     it("Should return null providing no connected owners", async () => {
       const res = await vaultSynchronizer.sync(null, null);
       expect(res).toEqual(null);
@@ -144,10 +140,9 @@ describe("Vaults Synchronizer", () => {
 
   describe("case 1", () => {
     beforeAll(async () => {
-      reset();
+      init();
 
       // Setup VaultV1
-      vaultClientV1.lock();
       let vault = await vaultClientV1.create();
       await vaultClientV1.addOwner(owner1);
       await vaultClientV1.importAccount(account1);
@@ -166,6 +161,7 @@ describe("Vaults Synchronizer", () => {
 
       vaultClientV1.lock();
       vaultClientV2.lock();
+
       const vaultV1 = await vaultClientV1.unlock(owner.seed);
       const vaultV2 = await vaultClientV2.unlock(owner.seed);
 
@@ -204,10 +200,9 @@ describe("Vaults Synchronizer", () => {
 
   describe("case 2", () => {
     beforeAll(async () => {
-      reset();
+      init();
 
       // Setup VaultV1
-      vaultClientV1.lock();
       let vault = await vaultClientV1.create();
       await vaultClientV1.addOwner(owner1);
       await vaultClientV1.importAccount(account1);
@@ -216,7 +211,6 @@ describe("Vaults Synchronizer", () => {
       await vaultClientV1.importAccount(github1);
 
       // Setup VaultV2
-      vaultClientV2.lock();
       await vaultClientV2.create();
       await vaultClientV2.addOwner(owner1);
       await vaultClientV2.importAccount(account2);
@@ -233,6 +227,7 @@ describe("Vaults Synchronizer", () => {
 
       vaultClientV1.lock();
       vaultClientV2.lock();
+
       const vaultV1 = await vaultClientV1.unlock(owner.seed);
       const vaultV2 = await vaultClientV2.unlock(owner.seed);
 
@@ -271,10 +266,9 @@ describe("Vaults Synchronizer", () => {
 
   describe("case 3", () => {
     beforeAll(async () => {
-      reset();
+      init();
 
       // Setup VaultV2
-      vaultClientV2.lock();
       let vault = await vaultClientV2.create();
       await vaultClientV2.addOwner(owner1);
       await vaultClientV2.importAccount(account1);
@@ -291,6 +285,7 @@ describe("Vaults Synchronizer", () => {
 
       vaultClientV1.lock();
       vaultClientV2.lock();
+
       const vaultV1 = await vaultClientV1.unlock(owner.seed);
       const vaultV2 = await vaultClientV2.unlock(owner.seed);
 
@@ -329,10 +324,9 @@ describe("Vaults Synchronizer", () => {
 
   describe("case 4", () => {
     beforeAll(async () => {
-      reset();
+      init();
 
       // Setup VaultV1
-      vaultClientV1.lock();
       await vaultClientV1.create();
       await vaultClientV1.addOwner(owner1);
       await vaultClientV1.importAccount(account2);
@@ -341,7 +335,6 @@ describe("Vaults Synchronizer", () => {
       recoveryKey1 = vault.recoveryKeys[0];
 
       // Setup VaultV2
-      vaultClientV2.lock();
       vault = await vaultClientV2.create();
       await vaultClientV2.addOwner(owner1);
       await vaultClientV2.importAccount(account1);
@@ -398,17 +391,15 @@ describe("Vaults Synchronizer", () => {
 
   describe("case 5", () => {
     beforeAll(async () => {
-      reset();
+      init();
 
       // Setup VaultV1
-      vaultClientV1.lock();
       await vaultClientV1.create();
       await vaultClientV1.addOwner(owner1);
       await vaultClientV1.importAccount(account2);
       await vaultClientV1.importAccount(account3);
 
       // Setup VaultV2
-      vaultClientV2.lock();
       let vault = await vaultClientV2.create();
       await vaultClientV2.addOwner(owner1);
       await vaultClientV2.importAccount(account1);
@@ -463,10 +454,9 @@ describe("Vaults Synchronizer", () => {
 
   describe("case 6", () => {
     beforeAll(async () => {
-      reset();
+      init();
 
       // Setup VaultV1 A
-      vaultClientV1.lock();
       let vault = await vaultClientV1.create();
       await vaultClientV1.addOwner(owner1);
       await vaultClientV1.importAccount(account1);
@@ -475,9 +465,9 @@ describe("Vaults Synchronizer", () => {
       await vaultClientV1.importAccount(github1);
       vault = await vaultClientV1.generateRecoveryKey("Recovery 1");
       recoveryKey1 = vault.recoveryKeys[0];
+      vaultClientV1.lock();
 
       // Setup VaultV1 B
-      vaultClientV1.lock();
       await vaultClientV1.create();
       await vaultClientV1.addOwner(owner3);
       await vaultClientV1.importAccount(account4);
@@ -485,7 +475,6 @@ describe("Vaults Synchronizer", () => {
       recoveryKey2 = vault.recoveryKeys[0];
 
       // Setup VaultV2
-      vaultClientV2.lock();
       await vaultClientV2.create();
       await vaultClientV2.addOwner(owner2);
       await vaultClientV2.addOwner(owner3);
@@ -503,6 +492,7 @@ describe("Vaults Synchronizer", () => {
 
       vaultClientV1.lock();
       vaultClientV2.lock();
+
       const vaultV1 = await vaultClientV1.unlock(owner.seed);
       const vaultV2 = await vaultClientV2.unlock(owner.seed);
 

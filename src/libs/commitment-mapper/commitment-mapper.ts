@@ -67,13 +67,11 @@ export abstract class CommitmentMapper {
   public async migrateEddsa({
     receipt,
     identifier,
-    vaultSecret,
     oldCommitmentSecret,
     newCommitmentSecret,
   }: {
     receipt: [string, string, string];
     identifier: string;
-    vaultSecret: string;
     oldCommitmentSecret: any;
     newCommitmentSecret: any;
   }): Promise<CommitmentReceiptResult> {
