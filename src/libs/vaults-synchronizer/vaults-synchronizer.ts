@@ -10,7 +10,6 @@ import { VaultClient as VaultClientV2 } from "../vault-client-v2";
 import { getExistingVaultSeed } from "./utils/getVaultSeed";
 import { isAccountInVault } from "./utils/isAccountInVault";
 import { isOwnerInVault } from "./utils/isOwnerInVault";
-import { isRecoveryKeyInVault } from "./utils/isRecoveryKeyInVault";
 
 type VaultsSynchronizerParams = {
   commitmentMapperV2: CommitmentMapper;
@@ -167,7 +166,15 @@ export class VaultsSynchronizer {
     }
 
     for (let recoveryKey of vaultV1.recoveryKeys) {
-      if (isRecoveryKeyInVault(recoveryKey.key, vaultV2)) continue;
+      const recoveryKeyV2 = vaultV2.recoveryKeys.find(
+        (_recoveryKey) => _recoveryKey.key === recoveryKey.key
+      );
+      if (recoveryKeyV2) {
+        if (recoveryKey.valid === false && recoveryKeyV2.valid !== false) {
+          await this._vaultClientV2.disableRecoveryKey(recoveryKey.key);
+        }
+        continue;
+      }
 
       try {
         // Throw an error if the recoveryKey is already imported in another VaultV2
@@ -264,7 +271,15 @@ export class VaultsSynchronizer {
     }
 
     for (let recoveryKey of vaultV2.recoveryKeys) {
-      if (isRecoveryKeyInVault(recoveryKey.key, vaultV1)) continue;
+      const recoveryKeyV1 = vaultV1.recoveryKeys.find(
+        (_recoveryKey) => _recoveryKey.key === recoveryKey.key
+      );
+      if (recoveryKeyV1) {
+        if (recoveryKey.valid === false && recoveryKeyV1.valid !== false) {
+          await this._vaultClientV1.disableRecoveryKey(recoveryKey.key);
+        }
+        continue;
+      }
 
       try {
         // Throw an error if the recoveryKey is already imported in another VaultV2
