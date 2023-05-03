@@ -504,7 +504,7 @@ describe("Vaults Synchronizer", () => {
         mnemonics: vaultV1.mnemonics,
         importedAccounts: [account1, account2, github1, account3, account4],
         recoveryKeys: [recoveryKey1, recoveryKey2, recoveryKey3],
-        owners: [owner1, owner2, owner3],
+        owners: [owner1, owner3, owner2],
         settings: {
           name: "My Sismo Vault",
           autoImportOwners: true,

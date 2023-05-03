@@ -8,6 +8,8 @@ describe("Vault client V1", () => {
   let owner2: Owner;
   let owner3: Owner;
   let owner4: Owner;
+  let owner5: Owner;
+  let owner6: Owner;
   let github1: ImportedAccount;
   let account1: ImportedAccount;
   let account2: ImportedAccount;
@@ -38,6 +40,16 @@ describe("Vault client V1", () => {
     owner4 = {
       identifier: "0x4",
       seed: "0x40",
+      timestamp: 1666532889777,
+    };
+    owner5 = {
+      identifier: "0x5",
+      seed: "0x50",
+      timestamp: 1666532889777,
+    };
+    owner6 = {
+      identifier: "0x6",
+      seed: "0x60",
       timestamp: 1666532889777,
     };
     account1 = {
@@ -524,5 +536,25 @@ describe("Vault client V1", () => {
       await vaultClient.unlock(owner1.seed);
       await vaultClient.deleteOwners([owner4]);
     }).rejects.toThrow();
+  });
+
+  it("Should import owners", async () => {
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.addOwners([owner3, owner4, owner5, owner6]);
+    expect(JSON.stringify(vault)).toEqual(
+      JSON.stringify({
+        mnemonics: [mnemonic1],
+        importedAccounts: [account2, github1],
+        recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
+        owners: [owner1, owner2, owner3, owner4, owner5, owner6],
+        settings: {
+          autoImportOwners: false,
+          name: "My Sismo Vault",
+          keepConnected: true,
+        },
+        timestamp: vault.timestamp,
+        version: 4,
+      })
+    );
   });
 });

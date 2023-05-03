@@ -318,6 +318,35 @@ export class VaultClient {
     return updatedVault;
   }
 
+  public async addOwners(owners: Owner[]): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
+
+    const ownersAdded = [];
+
+    for (let owner of owners) {
+      if (
+        !currentVault.owners.find(
+          (_owner) => _owner.identifier === owner.identifier
+        )
+      ) {
+        const addedOwnerVault = await this._get(owner.seed);
+        if (addedOwnerVault) {
+          await this.merge(owner);
+          return this.addOwners(owners);
+        }
+        ownersAdded.push(owner);
+      }
+    }
+
+    const updatedVault = {
+      ...currentVault,
+      owners: [...currentVault.owners, ...ownersAdded],
+    };
+
+    await this._post(updatedVault);
+    return updatedVault;
+  }
+
   public async deleteOwners(ownersDeleted: Owner[]): Promise<Vault> {
     const currentVault = await this._getCurrentVault();
 

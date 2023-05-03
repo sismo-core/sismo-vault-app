@@ -165,15 +165,15 @@ export class VaultsSynchronizer {
       }
     }
 
+    const ownersToAdd = [];
     for (let owner of vaultV1.owners) {
       if (isOwnerInVault(owner.identifier, vaultV2)) continue;
-
-      try {
-        // Throw an error if the owner is already imported in another VaultV2
-        vaultV2 = await this._vaultClientV2.addOwner(owner);
-      } catch (e) {
-        console.log(e);
-      }
+      ownersToAdd.push(owner);
+    }
+    try {
+      await this._vaultClientV2.addOwners(ownersToAdd);
+    } catch (e) {
+      console.log(e);
     }
 
     for (let recoveryKey of vaultV1.recoveryKeys) {
@@ -262,15 +262,15 @@ export class VaultsSynchronizer {
       }
     }
 
+    const ownersToAdd = [];
     for (let owner of vaultV2.owners) {
       if (isOwnerInVault(owner.identifier, vaultV1)) continue;
-
-      try {
-        // Throw an error if the owner is already imported in another VaultV2
-        vaultV1 = await this._vaultClientV1.addOwner(owner);
-      } catch (e) {
-        console.log(e);
-      }
+      ownersToAdd.push(owner);
+    }
+    try {
+      await this._vaultClientV1.addOwners(ownersToAdd);
+    } catch (e) {
+      console.log(e);
     }
 
     for (let recoveryKey of vaultV2.recoveryKeys) {
