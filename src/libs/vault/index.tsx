@@ -248,6 +248,7 @@ export default function SismoVaultProvider({
 
   const deleteOwners = async (ownersDeleted: Owner[]): Promise<void> => {
     const vault = await vaultClientV2.deleteOwners(ownersDeleted);
+    await vaultClientV1.deleteOwners(ownersDeleted);
     await vaultState.updateVaultState(vault);
   };
 
@@ -273,6 +274,7 @@ export default function SismoVaultProvider({
 
   const updateName = async (name: string): Promise<void> => {
     const vault = await vaultClientV2.updateName(name);
+    await vaultClientV1.unlock(vaultState.connectedOwner.seed);
     await vaultState.updateVaultState(vault);
   };
 

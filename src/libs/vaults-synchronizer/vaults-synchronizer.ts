@@ -114,7 +114,6 @@ export class VaultsSynchronizer {
     // This work well when the user has only one VaultV2
     // But not when the user has multiple vaultV2
     if (vaultV1 && vaultV2) {
-      console.log("ok 0");
       vaultV1 = await this._importV2toV1(vaultV2, vaultV1);
       vaultV2 = await this._importV1toV2(vaultV1, vaultV2);
 
@@ -264,7 +263,6 @@ export class VaultsSynchronizer {
     const ownersToAdd = [];
     for (let owner of vaultV2.owners) {
       if (isOwnerInVault(owner.identifier, vaultV1)) continue;
-      console.log("not ok 0");
       ownersToAdd.push(owner);
     }
     try {
