@@ -119,15 +119,14 @@ export default function SismoVaultProvider({
         ownerConnectedV1 && (await vaultClientV1.unlock(ownerConnectedV1.seed)),
         ownerConnectedV2 && (await vaultClientV2.unlock(ownerConnectedV2.seed)),
       ]);
+
       if (vaultV1 && !vaultV2) {
         setSynchronizing(true);
       }
 
       const res = await vaultSynchronizer.sync(
         ownerConnectedV1,
-        ownerConnectedV2,
-        vaultV1,
-        vaultV2
+        ownerConnectedV2
       );
       if (res && res.vault && !Boolean(vaultState.connectedOwner)) {
         await Promise.all([
