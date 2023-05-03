@@ -115,15 +115,7 @@ export default function SismoVaultProvider({
       const ownerConnectedV2 = getVaultV2ConnectedOwner();
 
       // Add a loading state which trigger only the first time when the user don't have a VaultV2
-      const [vaultV1, vaultV2] = await Promise.all([
-        ownerConnectedV1 && (await vaultClientV1.unlock(ownerConnectedV1.seed)),
-        ownerConnectedV2 && (await vaultClientV2.unlock(ownerConnectedV2.seed)),
-      ]);
-
-      if (vaultV1 && !vaultV2) {
-        setSynchronizing(true);
-      }
-
+      setSynchronizing(true);
       const res = await vaultSynchronizer.sync(
         ownerConnectedV1,
         ownerConnectedV2
@@ -138,6 +130,7 @@ export default function SismoVaultProvider({
         }
       }
       setLoadingActiveSession(false);
+      setSynchronizing(false);
     };
     loadActiveSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
