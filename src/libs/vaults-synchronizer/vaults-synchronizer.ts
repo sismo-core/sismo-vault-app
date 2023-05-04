@@ -71,7 +71,16 @@ export class VaultsSynchronizer {
       } else {
         // Tested by case 1
         vaultV2 = this._vaultClientV2.create();
-        await this._vaultClientV2.addOwner(connectedOwnerV1);
+        if (connectedOwnerV1.identifier) {
+          await this._vaultClientV2.addOwner(connectedOwnerV1);
+        } else {
+          const recoveryKey = vaultV1.recoveryKeys.find(
+            (recoveryKey) => recoveryKey.key === connectedOwnerV1.seed
+          );
+          if (recoveryKey) {
+            await this._vaultClientV2.addRecoveryKey(recoveryKey);
+          }
+        }
       }
 
       // 2. We import the VaultV1 in the unlocked VaultV2 and VaultV2 in VaultV1
@@ -97,7 +106,16 @@ export class VaultsSynchronizer {
       } else {
         // Tested case 3
         vaultV1 = this._vaultClientV1.create();
-        await this._vaultClientV1.addOwner(connectedOwnerV2);
+        if (connectedOwnerV2.identifier) {
+          await this._vaultClientV1.addOwner(connectedOwnerV2);
+        } else {
+          const recoveryKey = vaultV2.recoveryKeys.find(
+            (recoveryKey) => recoveryKey.key === connectedOwnerV2.seed
+          );
+          if (recoveryKey) {
+            await this._vaultClientV1.addRecoveryKey(recoveryKey);
+          }
+        }
       }
 
       // 2. We import the VaultV1 in the unlocked VaultV2 and VaultV2 in VaultV1
