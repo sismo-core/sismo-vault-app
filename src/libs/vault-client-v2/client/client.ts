@@ -24,10 +24,7 @@ export class VaultClient {
   /*****************************************************************/
 
   public create(): Vault {
-    if (this._seed)
-      throw new Error(
-        "Unlocked vault, please lock it before creating a new vault"
-      );
+    if (this._seed) this.lock();
     const mnemonic = SismoWallet.generateMnemonic();
     const createdVault: Vault = {
       mnemonics: [mnemonic],

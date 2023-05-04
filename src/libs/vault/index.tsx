@@ -138,8 +138,8 @@ export default function SismoVaultProvider({
 
   const connect = useCallback(async (owner: Owner): Promise<boolean> => {
     let vaultV2 = await vaultClientV2.unlock(owner.seed);
+    let vaultV1 = await vaultClientV1.unlock(owner.seed);
     if (!vaultV2) {
-      const vaultV1 = await vaultClientV1.unlock(owner.seed);
       if (vaultV1) {
         const { vault } = await vaultSynchronizer.sync(owner, null);
         vaultV2 = vault;
@@ -153,6 +153,9 @@ export default function SismoVaultProvider({
     ]);
     if (vaultV2.settings.keepConnected) {
       createActiveSession(owner, 24 * 30 * 24);
+    }
+    if (vaultV2 && !vaultV1) {
+      await vaultSynchronizer.sync(null, owner);
     }
     return true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
