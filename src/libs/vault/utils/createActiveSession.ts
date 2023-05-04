@@ -19,8 +19,8 @@ export const createActiveSession = (owner: Owner, expireHours: number) => {
     JSON.stringify(owner),
     dataKeyEncryption
   ).toString();
-  setCookie("as_sismo_ek", dataKeyEncryption, expireHours);
-  localStorage.setItem("as_sismo_ct", ciphertext);
+  setCookie("as_sismo_ek_v1", dataKeyEncryption, expireHours);
+  localStorage.setItem("as_sismo_ct_v1", ciphertext);
 };
 
 export const deleteActiveSession = () => {

@@ -2,10 +2,13 @@ import { deleteCookie, getCookie } from "./cookies";
 import CryptoJS from "crypto-js";
 
 export const getVaultV2ConnectedOwner = () => {
+  // Clean old version of as
+  window.localStorage.removeItem("as_sismo_ct");
+  deleteCookie("as_sismo_ek");
   try {
-    const cipherText = window.localStorage.getItem("as_sismo_ct");
+    const cipherText = window.localStorage.getItem("as_sismo_ct_v1");
     if (!cipherText) return null;
-    const encryptionKey = getCookie("as_sismo_ek");
+    const encryptionKey = getCookie("as_sismo_ek_v1");
     if (!encryptionKey) return null;
 
     const bytes = CryptoJS.AES.decrypt(cipherText, encryptionKey);
@@ -15,7 +18,7 @@ export const getVaultV2ConnectedOwner = () => {
     return JSON.parse(owner);
   } catch (e) {
     console.error(e);
-    window.localStorage.removeItem("as_sismo_ct");
-    deleteCookie("as_sismo_ek");
+    window.localStorage.removeItem("as_sismo_ct_v1");
+    deleteCookie("as_sismo_ek_v1");
   }
 };

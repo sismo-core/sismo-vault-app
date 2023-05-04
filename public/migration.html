@@ -27,8 +27,8 @@
       const callbackPath = getQueryParam("callbackPath");
       window.location.href = `${window.env.mintingAppUrl}${callbackPath}?as_sismo_ct=${encodeURIComponent(ct)}&as_sismo_ek=${encodeURIComponent(ek)}`;
     }
-    const ct = window.localStorage.getItem("as_sismo_ct");
-    const ek = getCookie("as_sismo_ek");
+    const ct = window.localStorage.getItem("as_sismo_ct_v1");
+    const ek = getCookie("as_sismo_ek_v1");
 
     if (!ct || !ek) {
         redirectToVaultAPP("not-connected", null);
