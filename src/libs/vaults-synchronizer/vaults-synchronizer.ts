@@ -179,7 +179,7 @@ export class VaultsSynchronizer {
     }
     try {
       if (ownersToAdd.length > 0)
-        await this._vaultClientV2.addOwners(ownersToAdd);
+        vaultV2 = await this._vaultClientV2.addOwners(ownersToAdd);
     } catch (e) {
       console.log(e);
     }
@@ -190,7 +190,9 @@ export class VaultsSynchronizer {
       );
       if (recoveryKeyV2) {
         if (recoveryKey.valid === false && recoveryKeyV2.valid !== false) {
-          await this._vaultClientV2.disableRecoveryKey(recoveryKey.key);
+          vaultV2 = await this._vaultClientV2.disableRecoveryKey(
+            recoveryKey.key
+          );
         }
         continue;
       }
@@ -285,7 +287,7 @@ export class VaultsSynchronizer {
     }
     try {
       if (ownersToAdd.length > 0)
-        await this._vaultClientV1.addOwners(ownersToAdd);
+        vaultV1 = await this._vaultClientV1.addOwners(ownersToAdd);
     } catch (e) {
       console.log(e);
     }
@@ -296,7 +298,9 @@ export class VaultsSynchronizer {
       );
       if (recoveryKeyV1) {
         if (recoveryKey.valid === false && recoveryKeyV1.valid !== false) {
-          await this._vaultClientV1.disableRecoveryKey(recoveryKey.key);
+          vaultV1 = await this._vaultClientV1.disableRecoveryKey(
+            recoveryKey.key
+          );
         }
         continue;
       }
