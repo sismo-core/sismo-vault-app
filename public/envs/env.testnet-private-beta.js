@@ -15,8 +15,8 @@ window.env = {
       address: "0x0000000000000000000000000000000000515110",
       sec: 515110,
       commitmentMapperPubKey: [
-        "0x2ab71fb864979b71106135acfa84afc1d756cda74f8f258896f896b4864f0256",
-        "0x30423b4c502f1cd4179a425723bf1e15c843733af2ecdee9aef6a0451ef2db74"    
+        "0x1a443bff214ac92facdfc3970109c14a82a5d2cd145821815e2be893dcebb498",
+        "0x1ab0875076678bbd098fabb491ef24096bb44e5ffe4e7f97859fbec050f48a6f"    
       ],
       commitmentReceipt: [
         "0x100691c4ac75b8431f65e2aeb4ba119c490db94b15eafcb5e6da0a4ada2cd18e",
