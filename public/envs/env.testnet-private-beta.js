@@ -9,7 +9,7 @@ window.env = {
     factoryApiUrl: "https://factory-api.staging.zikies.io",
     commitmentMapperUrlV2: "https://p13gt0vnph.execute-api.eu-west-1.amazonaws.com",
     commitmentMapperUrlV1: "https://x5y521b36b.execute-api.eu-west-1.amazonaws.com",
-    githubOauthClientId: "d3f98ef4b1abaa0354b0",
+    githubOauthClientId: "35b1e225b5f8f1401cc3",
     chainName: "goerli",
     sismoDestination: {
       address: "0x0000000000000000000000000000000000515110",
