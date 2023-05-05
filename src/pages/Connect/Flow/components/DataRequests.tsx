@@ -69,6 +69,7 @@ const OptionalTitle = styled.div<{ folded: boolean }>`
   color: ${(props) => props.theme.colors.blue3};
   padding-top: 16px;
   padding-bottom: ${(props) => (!props.folded ? "16px" : "0px")};
+  cursor: pointer;
 `;
 
 const CaretWrapper = styled.div<{ folded: boolean }>`
@@ -172,17 +173,12 @@ export default function DataRequests({
             {" "}
             <OptionalSeparator />
             <OptionalWrapper>
-              <OptionalTitle folded={optionalFolded}>
-                <div
-                  style={{ cursor: "pointer" }}
-                  onClick={() => setOptionalFolded(!optionalFolded)}
-                >
-                  Optional
-                </div>
-                <CaretWrapper
-                  folded={optionalFolded}
-                  onClick={() => setOptionalFolded(!optionalFolded)}
-                >
+              <OptionalTitle
+                folded={optionalFolded}
+                onClick={() => setOptionalFolded(!optionalFolded)}
+              >
+                <div>Optional</div>
+                <CaretWrapper folded={optionalFolded}>
                   <CaretUp size={16} color={colors.blue3} />
                 </CaretWrapper>
               </OptionalTitle>

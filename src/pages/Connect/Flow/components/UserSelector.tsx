@@ -14,16 +14,23 @@ import { ImportedAccount } from "../../../../libs/vault-client-v2";
 import { CaretDown } from "phosphor-react";
 import useOnClickOutside from "../../../../utils/useClickOutside";
 import { getMinimalIdentifier } from "../../../../utils/getMinimalIdentifier";
+import { getLargeIdentifier } from "../../../../utils/getLargeIdentifier";
 
 const OuterContainer = styled.div`
   position: relative;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  margin-right: 22px;
+  margin-left: 4px;
 `;
 
 const Container = styled.div<{ color: string; isSelectableByUser: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 96px;
+  flex-grow: 1;
+
   height: 24px;
   background: ${(props) => props.theme.colors.blue9};
   border-radius: 4px;
@@ -49,12 +56,13 @@ const Logo = styled.div`
 const UserTag = styled.div<{ isSelectableByUser: boolean }>`
   display: flex;
   align-items: center;
+  flex-grow: 1;
   gap: 6px;
-  width: ${(props) => (props.isSelectableByUser ? "64px" : "100%")};
 `;
 
 const UserId = styled.div`
-  //width: 56px;
+  max-width: 170px;
+  flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
@@ -80,10 +88,10 @@ const SelectorContainer = styled.div`
   background-color: ${(props) => props.theme.colors.blue9};
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
-  z-index: 1;
+  z-index: 2;
   padding: 4px 2px;
 
-  width: 240px;
+  width: 280px;
 
   box-sizing: border-box;
 `;
@@ -134,7 +142,7 @@ const DefaultTag = styled.div`
   padding: 2px 8px;
   gap: 10px;
 
-  width: 57px;
+  //width: 57px;
   height: 22px;
   font-size: 12px;
   line-height: 18px;
@@ -188,6 +196,24 @@ export default function UserSelector({
   }, [initialAccount]);
 
   function getReadableName(importedAccount: ImportedAccount) {
+    let humanReadableUserId = "";
+    if (
+      authRequestEligibility?.auth?.authType !== AuthType.VAULT &&
+      authRequestEligibility?.auth?.authType !== AuthType.EVM_ACCOUNT
+    ) {
+      humanReadableUserId = importedAccount?.profile?.login;
+    } else {
+      humanReadableUserId = importedAccount?.ens
+        ? importedAccount?.ens?.name
+        : getLargeIdentifier(importedAccount?.identifier);
+    }
+
+    // if (humanReadableUserId?.length > 15) {
+    //   humanReadableUserId = `${humanReadableUserId.slice(0, 10)}...`;
+    // }
+    return humanReadableUserId;
+  }
+  function getMinifiedReadableName(importedAccount: ImportedAccount) {
     let humanReadableUserId = "";
     if (
       authRequestEligibility?.auth?.authType !== AuthType.VAULT &&
@@ -271,7 +297,7 @@ export default function UserSelector({
                       <EthRounded size={14} color={color} />
                     )}
                   </Logo>
-                  <UserId>{getReadableName(account)}</UserId>
+                  <UserId>{getMinifiedReadableName(account)}</UserId>
                 </LogoUserTag>
                 {isDefault && <DefaultTag>Default</DefaultTag>}
               </ItemContainer>

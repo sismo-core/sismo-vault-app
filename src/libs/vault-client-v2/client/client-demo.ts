@@ -84,4 +84,10 @@ export class VaultClientDemo extends VaultClient {
   }
 
   public async delete(): Promise<void> {}
+
+  public async unlock(seed: string): Promise<Vault> {
+    return demoVault;
+  }
+
+  public lock(): void {}
 }
