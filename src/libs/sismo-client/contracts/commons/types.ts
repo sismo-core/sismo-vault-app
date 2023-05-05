@@ -1,10 +1,8 @@
-import { EddsaSignature, EddsaPublicKey } from "@sismo-core/crypto";
-
 /******************** ATTESTERS *****************/
 
-export type CommitmentMapperPubKey = EddsaPublicKey;
+export type CommitmentMapperPubKey = [string, string];
 
-export type CommitmentReceipt = EddsaSignature;
+export type CommitmentReceipt = [string, string, string];
 
 /******************** VAULT **********************/
 

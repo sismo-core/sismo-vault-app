@@ -12,21 +12,24 @@ import {
   deleteActiveSession,
 } from "./utils/createActiveSession";
 import {
-  CommitmentMapper,
   ImportedAccount,
   Owner,
   RecoveryKey,
   Vault,
-  VaultClient,
+  VaultClient as VaultClientV2,
   WalletPurpose,
-} from "../vault-client";
-import { AwsStore } from "../vault-client/stores/aws-store";
+} from "../vault-client-v2";
+import { VaultClient as VaultClientV1 } from "../vault-client-v1";
+import { AwsStore } from "../vault-client-v2/stores/aws-store";
 import { useVaultState } from "./useVaultState";
-import { getSeedActiveSession } from "./utils/getSeedActiveSession";
-import { LocalStore } from "../vault-client/stores/local-store";
-import { VaultClientDemo } from "../vault-client/client/client-demo";
-import { demoOwner } from "../vault-client/client/client-demo.mock";
-import { CommitmentMapperDemo } from "../vault-client/commitment-mapper/commitment-mapper.demo";
+import { getVaultV2ConnectedOwner } from "./utils/getVaultV2ConnectedOwner";
+import { LocalStore } from "../vault-client-v2/stores/local-store";
+import { VaultClientDemo } from "../vault-client-v2/client/client-demo";
+import { demoOwner } from "../vault-client-v2/client/client-demo.mock";
+import { CommitmentMapperDemo } from "../commitment-mapper/commitment-mapper-demo";
+import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
+import { VaultsSynchronizer } from "../vaults-synchronizer";
+import { CommitmentMapper, CommitmentMapperAWS } from "../commitment-mapper";
 
 type ReactVault = {
   mnemonics: string[];
@@ -41,6 +44,7 @@ type ReactVault = {
   deletable: boolean;
   recoveryKeys: RecoveryKey[];
   commitmentMapper: CommitmentMapper;
+  synchronizing: boolean;
   getVaultSecret: () => Promise<string>;
   disconnect: () => void;
   connect: (owner: Owner) => Promise<boolean>;
@@ -68,89 +72,136 @@ export const useVault = (): ReactVault => {
 export const SismoVaultContext = React.createContext(null);
 
 type Props = {
-  vaultUrl: string;
+  vaultV2Url: string;
+  vaultV1Url: string;
   children: ReactNode;
 };
 
 export default function SismoVaultProvider({
-  vaultUrl,
+  vaultV2Url,
+  vaultV1Url,
   children,
 }: Props): JSX.Element {
-  const vaultClient = useMemo(() => {
-    if (!vaultUrl) return;
-    const awsStore = new AwsStore({ vaultUrl: vaultUrl });
-    if (env.name === "DEMO") {
-      const localStore = new LocalStore();
-      const vault = new VaultClientDemo(localStore);
-      return vault;
-    }
-    return new VaultClient(awsStore);
-  }, [vaultUrl]);
   const vaultState = useVaultState();
+  const [loadingActiveSession, setLoadingActiveSession] = useState(true);
+  const [synchronizing, setSynchronizing] = useState(false);
+
+  const vaultClientV2 = useMemo(() => {
+    if (!vaultV2Url) return;
+    if (env.name === "DEMO") return new VaultClientDemo(new LocalStore());
+    return new VaultClientV2(new AwsStore({ vaultUrl: vaultV2Url }));
+  }, [vaultV2Url]);
+
+  const vaultClientV1 = useMemo(() => {
+    if (!vaultV1Url) return;
+    if (env.name === "DEMO") return null;
+    return new VaultClientV1(new AwsStore({ vaultUrl: vaultV1Url }));
+  }, [vaultV1Url]);
+
+  const vaultSynchronizer = new VaultsSynchronizer({
+    commitmentMapperV1: new CommitmentMapperAWS({
+      url: env.commitmentMapperUrlV1,
+    }),
+    commitmentMapperV2: new CommitmentMapperAWS({
+      url: env.commitmentMapperUrlV2,
+    }),
+    vaultClientV2,
+    vaultClientV1,
+  });
+
+  useEffect(() => {
+    const loadActiveSession = async () => {
+      const ownerConnectedV1 = getVaultV1ConnectedOwner();
+      const ownerConnectedV2 = getVaultV2ConnectedOwner();
+
+      // Add a loading state which trigger only the first time when the user don't have a VaultV2
+      setSynchronizing(true);
+      const res = await vaultSynchronizer.sync(
+        ownerConnectedV1,
+        ownerConnectedV2
+      );
+      if (res && res.vault && !Boolean(vaultState.connectedOwner)) {
+        await Promise.all([
+          vaultState.updateConnectedOwner(res.owner),
+          vaultState.updateVaultState(res.vault),
+        ]);
+        if (res.vault.settings.keepConnected) {
+          createActiveSession(res.owner, 24 * 30 * 24);
+        }
+      }
+      setLoadingActiveSession(false);
+      setSynchronizing(false);
+    };
+    loadActiveSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const connect = useCallback(async (owner: Owner): Promise<boolean> => {
-    const vault = await vaultClient.unlock(owner.seed);
-    if (!vault) return false;
+    let vaultV2 = await vaultClientV2.unlock(owner.seed);
+    let vaultV1 = await vaultClientV1.unlock(owner.seed);
+    if (!vaultV2) {
+      if (vaultV1) {
+        const { vault } = await vaultSynchronizer.sync(owner, null);
+        vaultV2 = vault;
+      } else {
+        return false;
+      }
+    }
     await Promise.all([
       vaultState.updateConnectedOwner(owner),
-      vaultState.updateVaultState(vault),
+      vaultState.updateVaultState(vaultV2),
     ]);
-    if (vault.settings.keepConnected) {
-      console.log("create active session");
+    if (vaultV2.settings.keepConnected) {
       createActiveSession(owner, 24 * 30 * 24);
+    }
+    if (vaultV2 && !vaultV1) {
+      await vaultSynchronizer.sync(null, owner);
     }
     return true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const syncVaults = () => {
+    vaultSynchronizer
+      .sync(vaultState.connectedOwner, vaultState.connectedOwner)
+      .then(async (res) => {
+        // Update the vault UI
+        if (res) {
+          const vault = await vaultClientV2.unlock(res.owner.seed);
+          vaultState.updateVaultState(vault);
+        }
+      });
+  };
+
   const disconnect = (): void => {
     vaultState.reset();
-    vaultClient.lock();
+    vaultClientV2.lock();
     deleteActiveSession();
   };
 
-  const [loadingActiveSession, setLoadingActiveSession] = useState(true);
-  useEffect(() => {
-    const owner = getSeedActiveSession();
-    if (!owner) {
-      setTimeout(() => {
-        setLoadingActiveSession(false);
-      }, 100);
-      return;
-    }
-    if (!owner) return;
-    const loadActiveSession = async (owner: Owner) => {
-      await connect(owner);
-      setTimeout(() => {
-        setLoadingActiveSession(false);
-      }, 100);
-    };
-    loadActiveSession(owner);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const isVaultExist = async (owner: Owner): Promise<boolean> => {
-    const vault = await vaultClient.unlock(owner.seed);
+    const vault = await vaultClientV2.unlock(owner.seed);
     if (!vault) return false;
     return true;
   };
 
   const create = async (): Promise<Vault> => {
-    return await vaultClient.create();
+    return await vaultClientV2.create();
   };
 
   const getVaultSecret = async (): Promise<string> => {
-    return await vaultClient.getVaultSecret();
+    return await vaultClientV2.getVaultSecret();
   };
 
   const getNextSeed = async (
     purpose: WalletPurpose
   ): Promise<{ seed: string; mnemonic: string; accountNumber: number }> => {
-    return await vaultClient.getNextSeed(purpose);
+    return await vaultClientV2.getNextSeed(purpose);
   };
 
   const generateRecoveryKey = async (name: string): Promise<string> => {
-    const vault = await vaultClient.generateRecoveryKey(name);
+    const vault = await vaultClientV2.generateRecoveryKey(name);
+    syncVaults();
     await vaultState.updateVaultState(vault);
     const mnemonic = vault.mnemonics[0];
     const accountNumber =
@@ -165,12 +216,13 @@ export default function SismoVaultProvider({
   };
 
   const disableRecoveryKey = async (key: string): Promise<void> => {
-    const vault = await vaultClient.disableRecoveryKey(key);
+    const vault = await vaultClientV2.disableRecoveryKey(key);
+    syncVaults();
     await vaultState.updateVaultState(vault);
   };
 
   const importAccount = async (account: ImportedAccount): Promise<void> => {
-    const vault = await vaultClient.importAccount(account);
+    const vault = await vaultClientV2.importAccount(account);
     if (account.type === "ethereum" && vaultState.autoImportOwners) {
       if (
         !vault.owners.find((owner) => owner.identifier === account.identifier)
@@ -179,6 +231,7 @@ export default function SismoVaultProvider({
         return;
       }
     }
+    syncVaults();
     await vaultState.updateVaultState(vault);
   };
 
@@ -186,24 +239,26 @@ export default function SismoVaultProvider({
     owner: Owner,
     account: ImportedAccount
   ): Promise<void> => {
-    const vault = await vaultClient.deleteImportedAccount(account);
+    const vault = await vaultClientV2.deleteImportedAccount(account);
     await vaultState.updateVaultState(vault);
   };
 
   const addOwner = async (ownerAdded: Owner): Promise<void> => {
-    const vault = await vaultClient.addOwner(ownerAdded);
+    const vault = await vaultClientV2.addOwner(ownerAdded);
+    syncVaults();
     await vaultState.updateVaultState(vault);
   };
 
   const deleteOwners = async (ownersDeleted: Owner[]): Promise<void> => {
-    const vault = await vaultClient.deleteOwners(ownersDeleted);
+    const vault = await vaultClientV2.deleteOwners(ownersDeleted);
+    await vaultClientV1.deleteOwners(ownersDeleted);
     await vaultState.updateVaultState(vault);
   };
 
   const setAutoImportOwners = async (
     autoImportOwners: boolean
   ): Promise<void> => {
-    const vault = await vaultClient.setAutoImportOwners(autoImportOwners);
+    const vault = await vaultClientV2.setAutoImportOwners(autoImportOwners);
     await vaultState.updateVaultState(vault);
   };
 
@@ -211,7 +266,7 @@ export default function SismoVaultProvider({
     owner: Owner,
     keepConnected: boolean
   ): Promise<void> => {
-    const vault = await vaultClient.setKeepConnected(keepConnected);
+    const vault = await vaultClientV2.setKeepConnected(keepConnected);
     if (!keepConnected) {
       deleteActiveSession();
     } else {
@@ -221,32 +276,26 @@ export default function SismoVaultProvider({
   };
 
   const updateName = async (name: string): Promise<void> => {
-    const vault = await vaultClient.updateName(name);
+    const vault = await vaultClientV2.updateName(name);
+    await vaultClientV1.unlock(vaultState.connectedOwner.seed);
     await vaultState.updateVaultState(vault);
   };
 
   const deleteVault = async (): Promise<void> => {
-    await vaultClient.delete();
+    await vaultClientV2.delete();
     await vaultState.reset();
   };
 
   // Connect to vault on demo mode
   useEffect(() => {
-    if (vaultClient && env.name === "DEMO") {
+    if (vaultClientV2 && env.name === "DEMO") {
       connect(demoOwner);
     }
-  }, [connect, vaultClient]);
+  }, [connect, vaultClientV2]);
 
   const commitmentMapper = useMemo(() => {
-    if (env.name === "DEMO") {
-      return new CommitmentMapperDemo({
-        url: env.commitmentMapperUrl,
-      });
-    }
-
-    return new CommitmentMapper({
-      url: env.commitmentMapperUrl,
-    });
+    if (env.name === "DEMO") return new CommitmentMapperDemo();
+    return new CommitmentMapperAWS({ url: env.commitmentMapperUrlV2 });
   }, []);
 
   return (
@@ -263,6 +312,7 @@ export default function SismoVaultProvider({
         isConnected: Boolean(vaultState.connectedOwner),
         deletable: vaultState.deletable,
         recoveryKeys: vaultState.recoveryKeys,
+        synchronizing,
         getVaultSecret,
         disableRecoveryKey,
         generateRecoveryKey,

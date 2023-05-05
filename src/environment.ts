@@ -2,10 +2,13 @@ type Environment = {
   name: "LOCAL" | "DEMO" | "STAGING_BETA" | "PROD_BETA" | "DEV_BETA";
   sentryReleaseName: string;
   disabledSentry: boolean;
-  vaultURL: string;
+  vaultV2URL: string;
+  vaultV1URL: string;
   factoryApiUrl: string;
   hubApiUrl: string;
-  commitmentMapperUrl?: string;
+  mintingAppUrl: string;
+  commitmentMapperUrlV1?: string;
+  commitmentMapperUrlV2?: string;
   githubOauthClientId?: string;
   chainName?: string;
   sismoDestination: {

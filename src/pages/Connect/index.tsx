@@ -124,6 +124,14 @@ export default function Connect(): JSX.Element {
     message: null,
   });
 
+  const {
+    getGroupMetadata,
+    getFactoryApp,
+    initDevConfig,
+    getClaimRequestEligibilities,
+    getAuthRequestEligibilities,
+  } = useSismo();
+
   /* ********************************************************** */
   /* ************************ LOAD IMAGE ********************** */
   /* ********************************************************** */
@@ -140,18 +148,12 @@ export default function Connect(): JSX.Element {
 
     if (factoryApp) {
       loadImage(factoryApp.logoUrl).then(() => {
-        setImgLoaded(true);
+        setTimeout(() => {
+          setImgLoaded(true);
+        }, 50);
       });
     }
   }, [factoryApp]);
-
-  const {
-    getGroupMetadata,
-    getFactoryApp,
-    initDevConfig,
-    getClaimRequestEligibilities,
-    getAuthRequestEligibilities,
-  } = useSismo();
 
   /* ********************************************************** */
   /* ************ GET THE REQUEST AND SET DEFAULT ************* */
@@ -544,6 +546,7 @@ export default function Connect(): JSX.Element {
   /* *********************************************************** */
   /* ***************** ON RESPONSE ***************************** */
   /* *********************************************************** */
+
   const zipurl = (data) => fromUint8Array(gzip(data), true);
 
   const onResponse = (response: SismoConnectResponse) => {
@@ -572,10 +575,28 @@ export default function Connect(): JSX.Element {
   };
 
   const loading =
-    vault?.loadingActiveSession ||
-    (vault?.isConnected
-      ? loadingEligible || !imgLoaded || !vault?.importedAccounts
-      : loadingEligible || !imgLoaded);
+    (vault.synchronizing ? false : vault.loadingActiveSession) ||
+    loadingEligible ||
+    !imgLoaded;
+
+  /* *********************************************************** */
+  /* ***************** LOADING MEASUREMENTS ******************** */
+  /* *********************************************************** */
+
+  useEffect(() => {
+    if (vault.loadingActiveSession) console.time("loading session");
+    else console.timeEnd("loading session");
+  }, [vault.loadingActiveSession]);
+
+  useEffect(() => {
+    if (loadingEligible) console.time("loading eligibility");
+    else console.timeEnd("loading eligibility");
+  }, [loadingEligible]);
+
+  useEffect(() => {
+    if (!imgLoaded) console.time("loading image");
+    else console.timeEnd("loading image");
+  }, [imgLoaded]);
 
   return (
     <Container>

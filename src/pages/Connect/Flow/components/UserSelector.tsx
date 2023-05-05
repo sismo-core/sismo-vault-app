@@ -10,7 +10,7 @@ import {
   GithubRounded,
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
-import { ImportedAccount } from "../../../../libs/vault-client";
+import { ImportedAccount } from "../../../../libs/vault-client-v2";
 import { CaretDown } from "phosphor-react";
 import useOnClickOutside from "../../../../utils/useClickOutside";
 import { getMinimalIdentifier } from "../../../../utils/getMinimalIdentifier";

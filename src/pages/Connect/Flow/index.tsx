@@ -19,10 +19,10 @@ import { capitalizeFirstLetter } from "../../../utils/capitalizeFirstLetter";
 import { getIsEligible } from "../utils/getIsEligible";
 import Button from "../../../components/Button";
 import DataRequests from "./components/DataRequests";
-import ConnectVaultModal from "../../Modals/ConnectVaultModal";
 import ProofModal from "./components/ProofModal";
 import { SignatureRequest } from "./components/SignatureRequest";
-import { ImportedAccount } from "../../../libs/vault-client";
+import { ImportedAccount } from "../../../libs/vault-client-v2";
+import SignInButton from "../../../components/SignInButton";
 
 const Container = styled.div`
   position: relative;
@@ -128,7 +128,6 @@ export default function ConnectFlow({
   onResponse,
   onUserInput,
 }: Props): JSX.Element {
-  const [connectIsOpen, setConnectIsOpen] = useState(false);
   const [loadingProof, setLoadingProof] = useState(false);
   const [, setErrorProof] = useState(false);
   const [response, setResponse] = useState<SismoConnectResponse>();
@@ -307,10 +306,6 @@ export default function ConnectFlow({
         isOpen={proofModalOpen}
         onClose={() => setProofModalOpen(false)}
       />
-      <ConnectVaultModal
-        isOpen={connectIsOpen}
-        onClose={() => setConnectIsOpen(false)}
-      />
       <Container>
         {hostName && (
           <GoBack onClick={() => goBack()}>
@@ -371,13 +366,7 @@ export default function ConnectFlow({
               Generate ZK proof
             </Button>
           ) : (
-            <Button
-              primary
-              style={{ width: 252 }}
-              onClick={() => setConnectIsOpen(true)}
-            >
-              Sign-in to Sismo
-            </Button>
+            <SignInButton />
           )}
         </CallToAction>
       </Container>

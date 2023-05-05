@@ -1,6 +1,6 @@
 import { useState } from "react";
 import MyVaultContainer from "../components/MyVaultContainer";
-import { ImportedAccount } from "../../../../libs/vault-client";
+import { ImportedAccount } from "../../../../libs/vault-client-v2";
 import ImportedAccounts from "./components/ImportedAccounts";
 
 export default function Accounts() {

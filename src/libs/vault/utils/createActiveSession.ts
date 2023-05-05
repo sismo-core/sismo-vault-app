@@ -2,7 +2,7 @@ import CryptoJS from "crypto-js";
 import { setCookie, deleteCookie } from "./cookies";
 import SHA3 from "sha3";
 import { BigNumber, utils } from "ethers";
-import { Owner } from "../../vault-client";
+import { Owner } from "../../vault-client-v2";
 
 const generateDataEncryptionKeyFromSeed = (seed: string) => {
   const hash = new SHA3(256);
@@ -19,8 +19,8 @@ export const createActiveSession = (owner: Owner, expireHours: number) => {
     JSON.stringify(owner),
     dataKeyEncryption
   ).toString();
-  setCookie("as_sismo_ek", dataKeyEncryption, expireHours);
-  localStorage.setItem("as_sismo_ct", ciphertext);
+  setCookie("as_sismo_ek_v1", dataKeyEncryption, expireHours);
+  localStorage.setItem("as_sismo_ct_v1", ciphertext);
 };
 
 export const deleteActiveSession = () => {

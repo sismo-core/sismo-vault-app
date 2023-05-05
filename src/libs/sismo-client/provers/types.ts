@@ -1,4 +1,4 @@
-import { ImportedAccount } from "../../vault-client";
+import { ImportedAccount } from "../../vault-client-v2";
 import { ClaimType } from "../sismo-connect-prover/sismo-connect-v1";
 import { BigNumberish } from "ethers";
 

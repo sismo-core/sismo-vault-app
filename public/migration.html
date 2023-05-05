@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <script src="./envs/env.js"></script>
+  <script>
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    function getCookie(cookieName) {
+        let name = cookieName + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(";");
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === " ") {
+            c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+            }
+        }
+        return null;
+    };
+
+    function redirectToVaultAPP(ct, ek) {
+      const callbackPath = getQueryParam("callbackPath");
+      window.location.href = `${window.env.mintingAppUrl}${callbackPath}?as_sismo_ct=${encodeURIComponent(ct)}&as_sismo_ek=${encodeURIComponent(ek)}`;
+    }
+    const ct = window.localStorage.getItem("as_sismo_ct_v1");
+    const ek = getCookie("as_sismo_ek_v1");
+
+    if (!ct || !ek) {
+        redirectToVaultAPP("not-connected", null);
+    } else {
+      redirectToVaultAPP(ct, ek);
+    }
+  </script>
+</html>

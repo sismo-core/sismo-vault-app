@@ -20,7 +20,7 @@ import {
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
 import UserSelector from "./UserSelector";
-import { ImportedAccount } from "../../../../libs/vault-client";
+import { ImportedAccount } from "../../../../libs/vault-client-v2";
 import { useVault } from "../../../../libs/vault";
 import { useImportAccount } from "../../../Modals/ImportAccount/provider";
 import { AccountType } from "../../../../libs/sismo-client";

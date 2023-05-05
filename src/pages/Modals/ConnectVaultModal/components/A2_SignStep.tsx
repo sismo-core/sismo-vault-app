@@ -4,7 +4,7 @@ import Button from "../../../../components/Button";
 import OwnerDetails from "../../../../components/OwnerDetails";
 import { useWallet } from "../../../../libs/wallet";
 import { useVault } from "../../../../libs/vault";
-import { Owner } from "../../../../libs/vault-client";
+import { Owner } from "../../../../libs/vault-client-v2";
 import { Seed } from "../../../../libs/sismo-client";
 import { useNotifications } from "../../../../components/Notifications/provider";
 import colors from "../../../../theme/colors";
