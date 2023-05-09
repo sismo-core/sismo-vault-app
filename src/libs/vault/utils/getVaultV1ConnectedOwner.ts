@@ -7,8 +7,13 @@ export const getVaultV1ConnectedOwner = () => {
     const encryptionKey = window.localStorage.getItem("minting_app_ek");
     if (!encryptionKey) return null;
 
+    console.log("cipherText", cipherText);
+    console.log("encryptionKey", encryptionKey);
+
     const bytes = CryptoJS.AES.decrypt(cipherText, encryptionKey);
+    console.log("bytes", bytes);
     const owner = bytes.toString(CryptoJS.enc.Utf8);
+    console.log("owner", owner);
 
     window.localStorage.removeItem("minting_app_ek");
     window.localStorage.removeItem("minting_app_ct");
