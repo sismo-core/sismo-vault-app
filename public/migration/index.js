@@ -8,7 +8,7 @@ function getQueryParam(param) {
 
 function redirectToMigration() {
     localStorage.setItem('migration_originalUrlParams', window.location.search);
-    let mintingAppMigrationUrl = `${window.env.mintingAppUrl}/migration-v2.html?no-migration=true`;
+    let mintingAppMigrationUrl = `${window.env.mintingAppUrl}/migration-v1.html?no-migration=true`;
     const url = new URL(window.location.href)
     localStorage.setItem(`sc_referrer`, document?.referrer);
     if (url.pathname) mintingAppMigrationUrl += `&callbackPath=${url.pathname}`;
