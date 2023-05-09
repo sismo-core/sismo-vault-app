@@ -2,13 +2,13 @@ function getQueryParam(param) {
     console.log("window.location.href", window.location.href);
     const url = new URL(window.location.href);
     const paramDecoded = url.searchParams.get(param);
-    console.log("paramDecoded", paramDecoded);
+    console.log("paramDecoded", paramDecoded); 
     return paramDecoded;
 }
 
 function redirectToMigration() {
     localStorage.setItem('migration_originalUrlParams', window.location.search);
-    let mintingAppMigrationUrl = `${window.env.mintingAppUrl}/migration-v1.html?no-migration=true`;
+    let mintingAppMigrationUrl = `${window.env.mintingAppUrl}/migration.html?no-migration=true`;
     const url = new URL(window.location.href)
     localStorage.setItem(`sc_referrer`, document?.referrer);
     if (url.pathname) mintingAppMigrationUrl += `&callbackPath=${url.pathname}`;
