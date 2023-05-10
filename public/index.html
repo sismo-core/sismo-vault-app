@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script src="%PUBLIC_URL%/envs/env.js"></script>
+    <script>
+      var timestamp = new Date().getTime();
+      var src = "%PUBLIC_URL%/envs/env.js?ver=" + timestamp;
+      document.write('<script src="' + src + '"><\/script>');
+    </script>
     <script src="%PUBLIC_URL%/migration/index.js"></script>
     <meta charset="utf-8"/>
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico"/>
