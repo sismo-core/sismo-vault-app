@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-  <script src="./envs/env.js"></script>
+  <script>
+    var timestamp = new Date().getTime();
+    var src = "./envs/env.js?ver=" + timestamp;
+    document.write('<script src="' + src + '"><\/script>');
+  </script>
   <script>
     function getQueryParam(param) {
       const urlParams = new URLSearchParams(window.location.search);
