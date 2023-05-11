@@ -84,6 +84,7 @@ export type SismoConnectRequest = {
 
   devConfig?: DevConfig;
   callbackPath?: string;
+  callbackUrl?: string;
   version: string;
   compressed?: boolean;
 };
