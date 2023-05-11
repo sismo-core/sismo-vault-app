@@ -370,7 +370,12 @@ export default function Connect(): JSX.Element {
 
     function setReferrerInfo() {
       try {
-        const referrer = getReferrer();
+        let referrer = null;
+        if (sismoConnectRequest.callbackUrl) {
+          referrer = sismoConnectRequest.callbackUrl;
+        } else {
+          referrer = getReferrer();
+        }
         if (referrer) {
           const referrerUrl = new URL(referrer);
           _referrerHostname =
@@ -393,15 +398,19 @@ export default function Connect(): JSX.Element {
         setReferrer(referrer);
         setHostname(_hostname);
         setReferrerUrl(_referrerHostname + _callbackRefererPath);
-        setCallbackUrl(
-          sismoConnectRequest.callbackPath &&
-            sismoConnectRequest.callbackPath.includes("chrome-extension://")
-            ? sismoConnectRequest.callbackPath
-            : _referrerHostname +
-                (sismoConnectRequest.callbackPath
-                  ? sismoConnectRequest.callbackPath
-                  : "")
-        );
+        if (sismoConnectRequest.callbackUrl) {
+          setCallbackUrl(sismoConnectRequest.callbackUrl);
+        } else {
+          setCallbackUrl(
+            sismoConnectRequest.callbackPath &&
+              sismoConnectRequest.callbackPath.includes("chrome-extension://")
+              ? sismoConnectRequest.callbackPath
+              : _referrerHostname +
+                  (sismoConnectRequest.callbackPath
+                    ? sismoConnectRequest.callbackPath
+                    : "")
+          );
+        }
       } catch (e) {
         if (isWrongUrl?.status) return;
         setIsWrongUrl({

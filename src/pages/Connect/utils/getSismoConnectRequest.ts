@@ -38,6 +38,7 @@ export const getSismoConnectRequest = (
   let _signature = searchParams.get("signature");
   let _devConfig = searchParams.get("devConfig");
   let _callbackPath = searchParams.get("callbackPath");
+  let _callbackUrl = searchParams.get("callbackUrl");
   let _version = searchParams.get("version");
   let _compressed = searchParams.get("compressed");
 
@@ -48,6 +49,7 @@ export const getSismoConnectRequest = (
     claims: JSON.parse(_claims),
     signature: JSON.parse(_signature),
     callbackPath: _callbackPath,
+    callbackUrl: _callbackUrl,
     devConfig: JSON.parse(_devConfig),
     version: _version,
     compressed: _compressed === "true",
