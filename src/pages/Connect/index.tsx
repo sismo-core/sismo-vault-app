@@ -584,7 +584,7 @@ export default function Connect(): JSX.Element {
   };
 
   const loading =
-    (vault.synchronizing ? false : vault.loadingActiveSession) ||
+    (vault.synchronizing ? true : vault.loadingActiveSession) ||
     loadingEligible ||
     !imgLoaded;
 
