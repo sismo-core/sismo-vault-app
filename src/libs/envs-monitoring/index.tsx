@@ -1,31 +1,26 @@
 import * as Sentry from "@sentry/react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import env from "../../environment";
 import { useVault } from "../vault";
 import packageJson from "../../../package.json";
 import { getMainMinified } from "../../utils/getMain";
+
+const COMMITMENT_MAPPER_PUBKEY = env.sismoDestination.commitmentMapperPubKey;
 
 export default function EnvsMonitoring({
   children,
 }: {
   children: React.ReactNode;
 }): JSX.Element {
-  // const [registryRoot, setRegistryRoot] = useState(null);
-  const [commitmentMapperPubKey, setCommitmentMapperPubKey] = useState(null);
   const vault = useVault();
 
   useEffect(() => {
     const logEnvironment = async () => {
-      const { data: dataMapper } = await axios.get(
-        `${env.commitmentMapperUrlV2}/sismo-address-commitment`
-      );
-
-      setCommitmentMapperPubKey(dataMapper.commitmentMapperPubKey);
       (window as any).env = {
         ...env,
         //synapsPubKey: commitmentSignerSynapsPubKey,
-        commitmentMapperPubKey: dataMapper.commitmentMapperPubKey,
+        commitmentMapperPubKey: COMMITMENT_MAPPER_PUBKEY,
         hydraS2Version: packageJson.dependencies["@sismo-core/hydra-s2"],
         pythia1Version: packageJson.dependencies["@sismo-core/pythia-1"],
       };
@@ -54,14 +49,13 @@ export default function EnvsMonitoring({
   }, []);
 
   useEffect(() => {
-    if (!commitmentMapperPubKey) return;
     if (!vault.importedAccounts) return;
     if (env.name === "DEMO") return;
     const test = () => {
       for (let account of [...vault.importedAccounts]) {
         if (
-          commitmentMapperPubKey[0] !== account.commitmentMapperPubKey[0] ||
-          commitmentMapperPubKey[1] !== account.commitmentMapperPubKey[1]
+          COMMITMENT_MAPPER_PUBKEY[0] !== account.commitmentMapperPubKey[0] ||
+          COMMITMENT_MAPPER_PUBKEY[1] !== account.commitmentMapperPubKey[1]
         ) {
           const msg = `Error: CommitmentMapperPubKeys mismatch between env and vault ${getMainMinified(
             account
@@ -74,7 +68,7 @@ export default function EnvsMonitoring({
       }
     };
     test();
-  }, [commitmentMapperPubKey, vault.importedAccounts]);
+  }, [vault.importedAccounts]);
 
   return <div>{children}</div>;
 }
