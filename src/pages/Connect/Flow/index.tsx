@@ -348,10 +348,10 @@ export default function ConnectFlow({
 
         <CallToAction>
           <LinkWrapper
-            href="https://docs.sismo.io/sismo-docs/readme/zkconnect"
+            href="https://docs.sismo.io/sismo-docs/discover-sismo-connect"
             target="_blank"
           >
-            What is sismoConnect
+            What is Sismo Connect
             <ArrowSquareOut size={12} color={colors.blue4} weight="bold" />
           </LinkWrapper>
 
