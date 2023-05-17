@@ -159,7 +159,7 @@ export default function ShardTag({
 
   let maxValue = 0;
   let selectableValues = [];
-  if (isSelectableByUser) {
+  try {
     maxValue = BigNumber.from(
       groupMetadataClaimRequestEligibility?.accountData?.value || 0
     ).toNumber();
@@ -170,6 +170,8 @@ export default function ShardTag({
             (_, i) => i + minValue
           )
         : [minValue];
+  } catch (e) {
+    console.log("e", e);
   }
 
   const isSelectorOpenable = selectableValues?.length > 1 && isSelectableByUser;
