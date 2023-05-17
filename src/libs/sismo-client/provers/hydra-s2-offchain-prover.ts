@@ -115,13 +115,10 @@ export class HydraS2OffchainProver extends Prover {
         for (const [identifier, value] of Object.entries(
           eligibleAccountsTreeData
         )) {
-          if (
-            BigNumber.from(value).toNumber() ===
-            BigNumber.from(requestedValue).toNumber()
-          ) {
+          if (BigNumber.from(value).eq(requestedValue)) {
             return {
               identifier,
-              value: BigNumber.from(value).toNumber(),
+              value: value,
             };
           }
         }
@@ -134,22 +131,20 @@ export class HydraS2OffchainProver extends Prover {
         )) {
           if (
             maxAccountData === null &&
-            BigNumber.from(value).toNumber() >=
-              BigNumber.from(requestedValue).toNumber()
+            BigNumber.from(value).gte(requestedValue)
           ) {
             maxAccountData = {
               identifier,
-              value: BigNumber.from(value).toNumber(),
+              value: value,
             };
           }
           if (
             maxAccountData &&
-            BigNumber.from(value).toNumber() >
-              BigNumber.from(maxAccountData?.value).toNumber()
+            BigNumber.from(value).gt(maxAccountData?.value)
           ) {
             maxAccountData = {
               identifier,
-              value: BigNumber.from(value).toNumber(),
+              value: value,
             };
           }
         }
