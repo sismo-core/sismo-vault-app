@@ -28,6 +28,7 @@ export class GroupProvider {
         `${this.hubApiUrl}/group-snapshots/${groupId}?timestamp=${timestamp}`
       )
       .then((res) => res.data.items);
+
     if (data.length !== 1)
       throw new Error(
         `Invalid groupId ${groupId} ${
@@ -43,11 +44,13 @@ export class GroupProvider {
         `${this.hubApiUrl}/groups/${groupsSnapshotMetadata.name}?${groupsQueryUrlAppendix}`
       )
       .then((res) => res.data.items[0]);
+
     const groupsGenerator = await axios
       .get(
         `${this.hubApiUrl}/group-generators/${groups.generatedBy}?latest=true`
       )
-      .then((res) => res.data.items[0]);
+      .then((res) => res.data.items[0])
+      .catch((err) => console.log(err));
 
     return {
       id: groups.id,
@@ -57,7 +60,7 @@ export class GroupProvider {
       accountsNumber: groupsSnapshotMetadata.properties.accountsNumber,
       groupGeneratorName: groups.generatedBy,
       lastGenerationTimestamp: groupsSnapshotMetadata.timestamp,
-      generationFrequency: groupsGenerator.generationFrequency,
+      generationFrequency: groupsGenerator?.generationFrequency ?? "once",
       dataUrl: groupsSnapshotMetadata.dataUrl,
     };
   }
