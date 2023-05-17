@@ -177,14 +177,14 @@ export default function Connect(): JSX.Element {
         return {
           ...auth,
           selectedUserId: "",
-          isOptIn: auth?.isOptional ? false : true,
+          isOptIn: auth?.isOptional ? null : true,
         };
       }),
       selectedClaims: _sismoConnectRequest?.claims?.map((claim) => {
         return {
           ...claim,
           selectedValue: null,
-          isOptIn: claim?.isOptional ? false : true,
+          isOptIn: claim?.isOptional ? null : true,
         };
       }),
       selectedSignature: {
@@ -598,6 +598,7 @@ export default function Connect(): JSX.Element {
   }, [vault.loadingActiveSession]);
 
   useEffect(() => {
+    console.log("loadingEligible", loadingEligible);
     if (loadingEligible) console.time("loading eligibility");
     else console.timeEnd("loading eligibility");
   }, [loadingEligible]);
