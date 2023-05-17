@@ -156,14 +156,21 @@ export default function ShardTag({
   const groupMetadata = groupMetadataClaimRequestEligibility?.groupMetadata;
 
   const minValue = groupMetadataClaimRequestEligibility?.claim?.value;
-  const maxValue = BigNumber.from(
-    groupMetadataClaimRequestEligibility?.accountData?.value || 0
-  ).toNumber();
 
-  const selectableValues =
-    groupMetadataClaimRequestEligibility?.claim?.claimType === ClaimType.GTE
-      ? Array.from({ length: maxValue - minValue + 1 }, (_, i) => i + minValue)
-      : [minValue];
+  let maxValue = 0;
+  let selectableValues = [];
+  if (isSelectableByUser) {
+    maxValue = BigNumber.from(
+      groupMetadataClaimRequestEligibility?.accountData?.value || 0
+    ).toNumber();
+    selectableValues =
+      groupMetadataClaimRequestEligibility?.claim?.claimType === ClaimType.GTE
+        ? Array.from(
+            { length: maxValue - minValue + 1 },
+            (_, i) => i + minValue
+          )
+        : [minValue];
+  }
 
   const isSelectorOpenable = selectableValues?.length > 1 && isSelectableByUser;
 
