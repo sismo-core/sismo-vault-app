@@ -1,4 +1,4 @@
-import env from "../../../environment";
+// import env from "../../../environment";
 import {
   AuthType,
   ClaimType,
@@ -59,24 +59,24 @@ export const getSismoConnectRequest = (
   /* ****** REMOVE ALL URL PARAMS  ************ */
   /* ****************************************** */
 
-  if (env.name !== "DEV_BETA") {
-    const url = new URL(window.location.href);
-    const deleteParams = [
-      "appId",
-      "namespace",
-      "auths",
-      "claims",
-      "signature",
-      "devConfig",
-      "callbackPath",
-      "version",
-      "compressed",
-    ];
-    deleteParams.forEach((param) => {
-      url.searchParams.delete(param);
-    });
-    window.history.replaceState({}, "", url.toString());
-  }
+  // if (env.name !== "DEV_BETA") {
+  //   const url = new URL(window.location.href);
+  //   const deleteParams = [
+  //     "appId",
+  //     "namespace",
+  //     "auths",
+  //     "claims",
+  //     "signature",
+  //     "devConfig",
+  //     "callbackPath",
+  //     "version",
+  //     "compressed",
+  //   ];
+  //   deleteParams.forEach((param) => {
+  //     url.searchParams.delete(param);
+  //   });
+  //   window.history.replaceState({}, "", url.toString());
+  // }
 
   /* ****************************************** */
   /* * SET DEFAULT NAMESPACE AND VERSION ****** */
