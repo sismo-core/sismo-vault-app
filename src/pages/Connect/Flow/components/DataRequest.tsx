@@ -97,6 +97,7 @@ type Props = {
   authRequestEligibility?: AuthRequestEligibility;
   groupMetadataClaimRequestEligibility?: GroupMetadataClaimRequestEligibility;
   selectedSismoConnectRequest: SelectedSismoConnectRequest;
+  isInitialOptin: boolean;
   loadingEligible: boolean;
   proofLoading: boolean;
   onUserInput: (
@@ -108,12 +109,13 @@ export function DataRequest({
   authRequestEligibility,
   groupMetadataClaimRequestEligibility,
   selectedSismoConnectRequest,
+  isInitialOptin,
   loadingEligible,
   proofLoading,
   onUserInput,
 }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isOptIn, setIsOptIn] = useState(false);
+  const [isOptIn, setIsOptIn] = useState(isInitialOptin);
   const [initialAccount, setInitialAccount] = useState<ImportedAccount>(null);
   const [initialValue, setInitialValue] = useState<number>(null);
   const importAccount = useImportAccount();
@@ -251,6 +253,10 @@ export function DataRequest({
     },
     [isAuth, isClaim, onUserInput, selectedSismoConnectRequest]
   );
+
+  useEffect(() => {
+    setIsOptIn(isInitialOptin);
+  }, [isInitialOptin]);
 
   /* ************************************************* */
   /* ********* SET INITIAL SELECTED USER ID ********** */

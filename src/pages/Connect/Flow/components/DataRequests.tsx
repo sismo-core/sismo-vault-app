@@ -101,7 +101,7 @@ export default function DataRequests({
   proofLoading,
   onUserInput,
 }: Props) {
-  const [optionalFolded, setOptionalFolded] = useState<boolean>(false);
+  const [optionalFolded, setOptionalFolded] = useState<boolean>(true);
 
   const requiredAuths = [];
   const optionalAuths = [];
@@ -129,6 +129,31 @@ export default function DataRequests({
     }
   }
 
+  function getInitialOptinFromAuth(
+    authRequestEligibility: AuthRequestEligibility
+  ) {
+    if (!authRequestEligibility?.isEligible) return false;
+    const selectedAuth = selectedSismoConnectRequest?.selectedAuths?.find(
+      (auth) => auth.uuid === authRequestEligibility.auth.uuid
+    );
+
+    return selectedAuth?.isOptIn !== null
+      ? selectedAuth?.isOptIn
+      : authRequestEligibility.isEligible;
+  }
+
+  function getInitialOptinFromClaim(
+    groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility
+  ) {
+    if (!groupMetadataClaimRequestEligibility?.isEligible) return false;
+    const selectedClaim = selectedSismoConnectRequest?.selectedClaims?.find(
+      (claim) => claim.uuid === groupMetadataClaimRequestEligibility.claim.uuid
+    );
+    return selectedClaim?.isOptIn !== null
+      ? selectedClaim?.isOptIn
+      : groupMetadataClaimRequestEligibility.isEligible;
+  }
+
   return (
     <Container>
       <Title>{appName} wants you to:</Title>
@@ -141,6 +166,9 @@ export default function DataRequests({
                 <DataRequest
                   authRequestEligibility={authRequestEligibility}
                   selectedSismoConnectRequest={selectedSismoConnectRequest}
+                  isInitialOptin={getInitialOptinFromAuth(
+                    authRequestEligibility
+                  )}
                   onUserInput={onUserInput}
                   loadingEligible={loadingEligible}
                   proofLoading={proofLoading}
@@ -158,6 +186,9 @@ export default function DataRequests({
                     groupMetadataClaimRequestEligibility={
                       groupMetadataClaimRequestEligibility
                     }
+                    isInitialOptin={getInitialOptinFromClaim(
+                      groupMetadataClaimRequestEligibility
+                    )}
                     selectedSismoConnectRequest={selectedSismoConnectRequest}
                     onUserInput={onUserInput}
                     loadingEligible={loadingEligible}
@@ -190,6 +221,9 @@ export default function DataRequests({
                       {index !== 0 && <ItemSeparator />}
                       <DataRequest
                         authRequestEligibility={authRequestEligibility}
+                        isInitialOptin={getInitialOptinFromAuth(
+                          authRequestEligibility
+                        )}
                         selectedSismoConnectRequest={
                           selectedSismoConnectRequest
                         }
@@ -212,6 +246,9 @@ export default function DataRequests({
                           groupMetadataClaimRequestEligibility={
                             groupMetadataClaimRequestEligibility
                           }
+                          isInitialOptin={getInitialOptinFromClaim(
+                            groupMetadataClaimRequestEligibility
+                          )}
                           selectedSismoConnectRequest={
                             selectedSismoConnectRequest
                           }

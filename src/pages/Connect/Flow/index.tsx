@@ -192,6 +192,10 @@ export default function ConnectFlow({
               if (auth?.uuid === authRequestEligibility?.auth?.uuid) {
                 return {
                   ...auth,
+                  isOptIn:
+                    auth?.isOptIn !== null
+                      ? auth.isOptIn
+                      : authRequestEligibility.isEligible,
                   selectedUserId: userAccount?.identifier,
                 };
               } else {
@@ -219,6 +223,10 @@ export default function ConnectFlow({
               ) {
                 return {
                   ...claim,
+                  isOptIn:
+                    claim?.isOptIn !== null
+                      ? claim.isOptIn
+                      : groupMetadataClaimRequestEligibility.isEligible,
                   selectedValue: initialClaimValue,
                 };
               } else {
