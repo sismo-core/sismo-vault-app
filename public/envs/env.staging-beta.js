@@ -2,6 +2,9 @@
 window.env = {
   name: "STAGING_BETA",
   disabledSentry: false,
+  featureFlags: {
+    twitterV2: true,
+  },
   mintingAppUrl: "https://staging.sismo.io",
   vaultV2URL: "https://vault-beta-api.sismo.io",
   vaultV1URL: "https://vault-api.zikies.io",

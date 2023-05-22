@@ -368,6 +368,12 @@ export default function Connect(): JSX.Element {
     let _hostname = "";
     let _referrerHostname = "";
 
+    function setCallbackUrlQueryParam(callbackUrl: string) {
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.set("callbackUrl", callbackUrl);
+      window.location.search = urlParams.toString();
+    }
+
     function setReferrerInfo() {
       try {
         let referrer = null;
@@ -401,15 +407,16 @@ export default function Connect(): JSX.Element {
         if (sismoConnectRequest.callbackUrl) {
           setCallbackUrl(sismoConnectRequest.callbackUrl);
         } else {
-          setCallbackUrl(
+          const callbackUrl =
             sismoConnectRequest.callbackPath &&
               sismoConnectRequest.callbackPath.includes("chrome-extension://")
               ? sismoConnectRequest.callbackPath
               : _referrerHostname +
                   (sismoConnectRequest.callbackPath
                     ? sismoConnectRequest.callbackPath
-                    : "")
-          );
+                    : "");
+          setCallbackUrlQueryParam(callbackUrl);
+          setCallbackUrl(callbackUrl);
         }
       } catch (e) {
         if (isWrongUrl?.status) return;

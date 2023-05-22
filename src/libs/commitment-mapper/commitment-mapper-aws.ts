@@ -107,6 +107,39 @@ export class CommitmentMapperAWS extends CommitmentMapper {
     };
   }
 
+  protected async _commitTwitterV2Eddsa({
+    callback,
+    twitterCode,
+    commitment,
+  }: {
+    callback: string;
+    twitterCode: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTwitterResult> {
+    const { data } = await axios.post(`${this._url}/commit-twitter-v2-eddsa`, {
+      callback: callback,
+      twitterCode: twitterCode,
+      commitment,
+    });
+
+    return {
+      commitmentMapperPubKey: [
+        data.commitmentMapperPubKey[0],
+        data.commitmentMapperPubKey[1],
+      ],
+      commitmentReceipt: [
+        data.commitmentReceipt[0],
+        data.commitmentReceipt[1],
+        data.commitmentReceipt[2],
+      ],
+      account: {
+        userId: parseInt(data.account.userId),
+        username: data.account.username,
+        identifier: data.account.identifier,
+      },
+    };
+  }
+
   protected async _migrateEddsa({
     receipt,
     identifier,

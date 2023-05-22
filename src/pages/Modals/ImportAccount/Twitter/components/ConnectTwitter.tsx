@@ -1,7 +1,7 @@
+import { goToTwitterAuth } from "../../../../../utils/navigateOAuth";
 import styled from "styled-components";
 import colors from "../../../../../theme/colors";
 import Icon from "../../../../../components/Icon";
-import env from "../../../../../../src/environment";
 
 const Content = styled.div`
   width: calc(330px - 60px);
@@ -37,12 +37,6 @@ const Success = styled.span`
 `;
 
 export default function ConnectTwitter(): JSX.Element {
-  localStorage.setItem(
-    "redirect_uri_twitter",
-    `${window.location.origin}${window.location.pathname}${window.location.search}`
-  );
-  localStorage.setItem("redirect_referrer_twitter", document.referrer);
-
   return (
     <Content>
       <Text>
@@ -54,11 +48,7 @@ export default function ConnectTwitter(): JSX.Element {
         </Success>{" "}
         in your Vault
       </Text>
-      <TwitterButton
-        onClick={() =>
-          (window.location.href = `${env.commitmentMapperUrlV2}/request-twitter-token?oauth_callback=${window.location.origin}/redirect`)
-        }
-      >
+      <TwitterButton onClick={() => goToTwitterAuth()}>
         <Icon name="logoTwitter-fill-white" style={{ marginRight: 10 }} />
         Continue with Twitter
       </TwitterButton>

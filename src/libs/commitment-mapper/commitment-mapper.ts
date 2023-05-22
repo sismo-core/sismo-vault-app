@@ -63,6 +63,15 @@ export abstract class CommitmentMapper {
     twitterOauthVerifier: string;
     commitment: string;
   }): Promise<CommitmentReceiptTwitterResult>;
+  protected abstract _commitTwitterV2Eddsa({
+    callback,
+    twitterCode,
+    commitment,
+  }: {
+    callback: string;
+    twitterCode: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTwitterResult>;
 
   public async migrateEddsa({
     receipt,
@@ -130,6 +139,22 @@ export abstract class CommitmentMapper {
     return await this._commitTwitterEddsa({
       twitterOauthToken,
       twitterOauthVerifier,
+      commitment,
+    });
+  }
+
+  public async getTwitterV2CommitmentReceipt(
+    callback: string,
+    twitterCode: string,
+    accountSecret: string,
+    vaultSecret: string
+  ): Promise<CommitmentReceiptTwitterResult> {
+    const poseidon = await buildPoseidon();
+    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
+
+    return await this._commitTwitterV2Eddsa({
+      callback,
+      twitterCode,
       commitment,
     });
   }

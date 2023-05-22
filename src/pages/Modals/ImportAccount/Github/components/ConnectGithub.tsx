@@ -1,7 +1,7 @@
+import { goToGitHubAuth } from "../../../../../utils/navigateOAuth";
 import styled from "styled-components";
 import colors from "../../../../../theme/colors";
 import Icon from "../../../../../components/Icon";
-import env from "../../../../../environment";
 
 const Content = styled.div`
   width: calc(330px - 60px);
@@ -37,18 +37,6 @@ const Success = styled.span`
 `;
 
 export default function ConnectGithub(): JSX.Element {
-  //let redirect_uri = null;
-  // if (env.name === "LOCAL") {
-  //   redirect_uri = `https://github-localhost-redirect.zikies.io${window.location.pathname}${window.location.search}`;
-  // } else {
-  //   redirect_uri = `${window.location.origin}${window.location.pathname}${window.location.search}`;
-  // }
-  localStorage.setItem(
-    "redirect_uri_github",
-    `${window.location.origin}${window.location.pathname}${window.location.search}`
-  );
-  localStorage.setItem("redirect_referrer_github", document.referrer);
-
   return (
     <Content>
       <Text>
@@ -60,11 +48,7 @@ export default function ConnectGithub(): JSX.Element {
         </Success>{" "}
         in your Vault
       </Text>
-      <GithubButton
-        onClick={() =>
-          (window.location.href = `https://github.com/login/oauth/authorize?client_id=${env.githubOauthClientId}&redirect_uri=${window.location.origin}/redirect`)
-        }
-      >
+      <GithubButton onClick={() => goToGitHubAuth()}>
         <Icon name="logoGithub-fill-white" style={{ marginRight: 10 }} />
         Continue with Github
       </GithubButton>

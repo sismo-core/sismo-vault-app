@@ -10,6 +10,10 @@ import { useWallet } from "../../../libs/wallet";
 import { useImportAccount } from "./provider";
 import ImportTwitter from "./Twitter";
 import env from "../../../environment";
+import { useVault } from "../../../libs/vault";
+import { featureFlagProvider } from "../../../utils/featureFlags";
+import { clearQueryParams } from "../../../utils/clearQueryParams";
+import { getTwitterCallbackURL } from "../../../utils/navigateOAuth";
 
 const Content = styled.div`
   display: flex;
@@ -41,22 +45,18 @@ export interface ImportingAccount {
   isOwner: boolean;
 }
 
-type ImportAccountModalProps = {
-  githubCode: string;
-  twitterOauth: { oauthToken: string; oauthVerifier: string };
-};
-
-export default function ImportAccountModal({
-  githubCode,
-  twitterOauth,
-}: ImportAccountModalProps): JSX.Element {
+export default function ImportAccountModal(): JSX.Element {
   const [blur, setBlur] = useState(false);
   const [outsideClosable, setOutsideClosable] = useState(true);
   const wallet = useWallet();
   const [display, setDisplay] = useState<
     "choice" | "ethereum" | "github" | "twitter"
   >(null);
-  const { isOpen, importType, accountTypes, close } = useImportAccount();
+  const { isOpen, importType, accountTypes, close, open } = useImportAccount();
+  const [githubCode, setGithubCode] = useState(null);
+  const [twitterOauth, setTwitterOauth] = useState(null);
+  const [twitterV2Oauth, setTwitterV2Oauth] = useState(null);
+  const vault = useVault();
 
   //Select the right flow to display
   useEffect(() => {
@@ -121,6 +121,114 @@ export default function ImportAccountModal({
     isOpen,
   ]);
 
+  /*********************************************************/
+  /*********************  WEB2 ACCOUNTS ********************/
+  /*********************************************************/
+
+  /***********************  GITHUB *************************/
+  useEffect(() => {
+    if (!vault.isConnected) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isGithubCallback = urlParams.get("callback_source") === "github";
+    if (!isGithubCallback) return;
+
+    const code = urlParams.get("code");
+    clearQueryParams("callback_source", "code");
+
+    setGithubCode(code);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vault.isConnected]);
+
+  useEffect(() => {
+    if (githubCode) {
+      open({
+        importType: "account",
+        accountTypes: ["github"],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [githubCode]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setGithubCode(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  /***********************  TWITTER v1 *************************/
+  useEffect(() => {
+    if (!vault.isConnected) return;
+    if (featureFlagProvider.isTwitterV2Enabled()) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isTwitterV1Callback =
+      urlParams.get("callback_source") === "twitter-v1";
+    if (!isTwitterV1Callback) return;
+
+    const oauthToken = urlParams.get("oauth_token");
+    const oauthVerifier = urlParams.get("oauth_verifier");
+    clearQueryParams("callback_source", "oauth_token", "oauth_verifier");
+
+    setTwitterOauth({
+      oauthToken: oauthToken,
+      oauthVerifier: oauthVerifier,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vault.isConnected]);
+
+  useEffect(() => {
+    if (twitterOauth) {
+      open({
+        importType: "account",
+        accountTypes: ["twitter"],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [twitterOauth]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setTwitterOauth(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  /***********************  TWITTER v2 *************************/
+  useEffect(() => {
+    if (!vault.isConnected) return;
+    if (!featureFlagProvider.isTwitterV2Enabled()) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isTwitterV2Redirect =
+      urlParams.get("callback_source") === "twitter-v2";
+    if (!isTwitterV2Redirect) return;
+
+    const code = urlParams.get("code");
+    clearQueryParams("code", "state", "callback_source", "redirected");
+
+    setTwitterV2Oauth({
+      callback: getTwitterCallbackURL(),
+      twitterCode: code,
+    });
+    // eslint-disabl  e-next-line react-hooks/exhaustive-deps
+  }, [vault.isConnected]);
+
+  useEffect(() => {
+    if (twitterV2Oauth) {
+      open({
+        importType: "account",
+        accountTypes: ["twitter"],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [twitterV2Oauth]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setTwitterV2Oauth(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
   if (!wallet.isConnected && display === "ethereum") return <></>;
 
   return (
@@ -144,7 +252,7 @@ export default function ImportAccountModal({
         <ImportGithub code={githubCode} isOpen={isOpen} />
       )}
       {display === "twitter" && (
-        <ImportTwitter oauth={twitterOauth} isOpen={isOpen} />
+        <ImportTwitter oauth={twitterOauth} oauthV2={twitterV2Oauth} />
       )}
 
       {display === "choice" && (

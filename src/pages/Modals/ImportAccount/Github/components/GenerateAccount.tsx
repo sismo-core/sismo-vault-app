@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import colors from "../../../../../theme/colors";
-import { useEffect } from "react";
 import { useImportAccount } from "../../provider";
 import Icon from "../../../../../components/Icon";
 import Button from "../../../../../components/Button";
@@ -65,19 +64,9 @@ type Props = {
   isOpen: boolean;
 };
 
-export default function GenerateAccount({ code, isOpen }: Props): JSX.Element {
+export default function GenerateAccount({ code }: Props): JSX.Element {
   const importAccount = useImportAccount();
   const generateRecoveryKey = useGenerateRecoveryKey();
-
-  useEffect(() => {
-    if (!isOpen) {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has("code")) {
-        url.searchParams.delete("code");
-        window.history.replaceState(null, "New badge details url", url);
-      }
-    }
-  }, [isOpen]);
 
   const submit = () => {
     setTimeout(() => importAccount.importGithub(code), 300);
