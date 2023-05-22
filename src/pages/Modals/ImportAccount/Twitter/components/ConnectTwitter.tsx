@@ -1,3 +1,4 @@
+import { featureFlagProvider } from "../../../../../utils/featureFlags";
 import styled from "styled-components";
 import colors from "../../../../../theme/colors";
 import Icon from "../../../../../components/Icon";
@@ -42,6 +43,7 @@ export default function ConnectTwitter(): JSX.Element {
     `${window.location.origin}${window.location.pathname}${window.location.search}`
   );
   localStorage.setItem("redirect_referrer_twitter", document.referrer);
+  localStorage.setItem("redirect_source", "twitter");
 
   return (
     <Content>
@@ -55,9 +57,15 @@ export default function ConnectTwitter(): JSX.Element {
         in your Vault
       </Text>
       <TwitterButton
-        onClick={() =>
-          (window.location.href = `${env.commitmentMapperUrlV2}/request-twitter-token?oauth_callback=${window.location.origin}/redirect`)
-        }
+        onClick={() => {
+          let href: string;
+          if (featureFlagProvider.isTwitterV2Enabled()) {
+            href = `${env.commitmentMapperUrlV2}/get-twitter-url?oauth_callback=${window.location.origin}/redirect`;
+          } else {
+            href = `${env.commitmentMapperUrlV2}/request-twitter-token?oauth_callback=${window.location.origin}/redirect`;
+          }
+          window.location.href = href;
+        }}
       >
         <Icon name="logoTwitter-fill-white" style={{ marginRight: 10 }} />
         Continue with Twitter

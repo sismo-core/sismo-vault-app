@@ -14,10 +14,12 @@ import Connect from "./Connect";
 import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
 import { getMockUrl } from "./Connect/mockRequest";
+import { featureFlagProvider } from "../utils/featureFlags";
 
 export default function Pages(): JSX.Element {
   const [githubCode, setGithubCode] = useState(null);
   const [twitterOauth, setTwitterOauth] = useState(null);
+  const [twitterV2Oauth, setTwitterV2Oauth] = useState(null);
   const importAccount = useImportAccount();
   const vault = useVault();
   const { open: openMyVault } = useMyVault();
@@ -58,13 +60,16 @@ export default function Pages(): JSX.Element {
 
   useEffect(() => {
     if (!vault.isConnected) return;
+    const isGithubRedirect =
+      localStorage.getItem("redirect_source") === "github";
+    if (!isGithubRedirect) return;
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const _code = urlParams.get("code");
     if (_code) {
       const _redirected = urlParams.get("redirected");
       if (!_redirected) {
-        // twitter redirection
+        // github redirection
         if (localStorage.getItem("redirect_uri_github")) {
           const splitRedirectUri = localStorage
             .getItem("redirect_uri_github")
@@ -88,6 +93,7 @@ export default function Pages(): JSX.Element {
       const url = new URL(window.location.href);
       url.searchParams.delete("redirected");
       window.history.replaceState(null, "New url", url);
+      localStorage.removeItem("redirect_source");
       setGithubCode(_code);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,10 +116,14 @@ export default function Pages(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [importAccount.isOpen]);
 
-  /***********************  TWITTER *************************/
-
+  /***********************  TWITTER v1 *************************/
   useEffect(() => {
+    if (featureFlagProvider.isTwitterV2Enabled()) return;
     if (!vault.isConnected) return;
+    const isTwitterRedirect =
+      localStorage.getItem("redirect_source") === "twitter";
+    if (!isTwitterRedirect) return;
+
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const _oauthToken = urlParams.get("oauth_token");
@@ -146,9 +156,61 @@ export default function Pages(): JSX.Element {
       const url = new URL(window.location.href);
       url.searchParams.delete("redirected");
       window.history.replaceState(null, "New url", url);
+
+      localStorage.removeItem("redirect_source");
       setTwitterOauth({
         oauthToken: _oauthToken,
         oauthVerifier: _oauthVerifier,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vault.isConnected]);
+
+  /***********************  TWITTER v2 *************************/
+  useEffect(() => {
+    if (!featureFlagProvider.isTwitterV2Enabled()) return;
+    if (!vault.isConnected) return;
+    const isTwitterRedirect =
+      localStorage.getItem("redirect_source") === "twitter";
+    if (!isTwitterRedirect) return;
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const _code = urlParams.get("code");
+    if (_code) {
+      const _redirected = urlParams.get("redirected");
+
+      if (!_redirected) {
+        // twitter redirection
+        if (localStorage.getItem("redirect_uri_twitter")) {
+          const splitRedirectUri = localStorage
+            .getItem("redirect_uri_twitter")
+            .split("?");
+          localStorage.removeItem("redirect_uri_twitter");
+
+          window.location.href = `${splitRedirectUri[0]}?${
+            splitRedirectUri[1] + "&"
+          }code=${_code}&redirected=true`;
+        }
+        return;
+      }
+
+      const referrer = localStorage.getItem("redirect_referrer_twitter");
+      Object.defineProperty(document, "referrer", {
+        get: function () {
+          return referrer;
+        },
+      });
+      localStorage.removeItem("redirect_referrer_twitter");
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete("redirected");
+      window.history.replaceState(null, "New url", url);
+
+      localStorage.removeItem("redirect_source");
+      setTwitterV2Oauth({
+        callback: `${window.location.origin}/redirect`,
+        twitterCode: _code,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -165,8 +227,19 @@ export default function Pages(): JSX.Element {
   }, [twitterOauth]);
 
   useEffect(() => {
+    if (twitterV2Oauth) {
+      importAccount.open({
+        importType: "account",
+        accountTypes: ["twitter"],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [twitterV2Oauth]);
+
+  useEffect(() => {
     if (!importAccount.isOpen) {
       setTwitterOauth(null);
+      setTwitterV2Oauth(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [importAccount.isOpen]);
@@ -178,6 +251,7 @@ export default function Pages(): JSX.Element {
         <ImportAccountModal
           githubCode={githubCode}
           twitterOauth={twitterOauth}
+          twitterV2Oauth={twitterV2Oauth}
         />
         <ConnectVaultModal
           isOpen={connectIsOpen}

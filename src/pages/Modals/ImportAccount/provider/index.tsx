@@ -31,6 +31,10 @@ type ImportAccountHook = {
     oauthToken: string;
     oauthVerifier: string;
   }) => void;
+  importTwitterV2: (twitterOauth: {
+    callback: string;
+    twitterCode: string;
+  }) => void;
   isOpen: boolean;
   importType: "account" | "owner";
 };
@@ -315,6 +319,69 @@ export default function ImportAccountModalProvider({
     }
   };
 
+  const importTwitterV2 = async (oauth: {
+    callback: string;
+    twitterCode: string;
+  }) => {
+    setImporting("account");
+    setLastImportedAccount(null);
+    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
+      WalletPurpose.IMPORTED_ACCOUNT
+    );
+    try {
+      const commitmentMapperSecret =
+        CommitmentMapper.generateCommitmentMapperSecret(seed);
+      const vaultSecret = await vault.getVaultSecret();
+      console.log("oauth:" + JSON.stringify(oauth));
+      const { commitmentReceipt, commitmentMapperPubKey, account } =
+        await vault.commitmentMapper.getTwitterV2CommitmentReceipt(
+          oauth.callback,
+          oauth.twitterCode,
+          commitmentMapperSecret,
+          vaultSecret
+        );
+
+      await vault.importAccount({
+        identifier: account.identifier,
+        seed,
+        commitmentReceipt,
+        commitmentMapperPubKey,
+        type: "twitter",
+        profile: {
+          login: account.username,
+          id: account.userId,
+          name: "",
+          avatar: "",
+        },
+        wallet: {
+          accountNumber: accountNumber,
+          mnemonic: mnemonic,
+        },
+        timestamp: Date.now(),
+      });
+    } catch (e) {
+      if (
+        e?.response?.data?.error === "Address is already used for a commitment!"
+      ) {
+        console.error(e);
+        Sentry.withScope(function (scope) {
+          scope.setLevel("fatal");
+          Sentry.captureException(e);
+        });
+        notificationAdded({
+          text: "Twitter account already imported in this vault or in another one",
+          type: "error",
+        });
+        setImporting(null);
+      } else {
+        triggerError(e);
+      }
+      return;
+    } finally {
+      setImporting(null);
+    }
+  };
+
   return (
     <ModalsContext.Provider
       value={{
@@ -327,6 +394,7 @@ export default function ImportAccountModalProvider({
         importEthereum,
         importGithub,
         importTwitter,
+        importTwitterV2,
         isOpen,
         importType,
       }}

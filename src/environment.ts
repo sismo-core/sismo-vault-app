@@ -1,7 +1,12 @@
+type FeatureFlags = {
+  twitterV2?: boolean;
+};
+
 type Environment = {
   name: "LOCAL" | "DEMO" | "STAGING_BETA" | "PROD_BETA" | "DEV_BETA";
   sentryReleaseName: string;
   disabledSentry: boolean;
+  featureFlags?: FeatureFlags;
   vaultV2URL: string;
   vaultV1URL: string;
   factoryApiUrl: string;

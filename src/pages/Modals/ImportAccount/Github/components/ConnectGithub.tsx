@@ -48,6 +48,7 @@ export default function ConnectGithub(): JSX.Element {
     `${window.location.origin}${window.location.pathname}${window.location.search}`
   );
   localStorage.setItem("redirect_referrer_github", document.referrer);
+  localStorage.setItem("redirect_source", "github");
 
   return (
     <Content>

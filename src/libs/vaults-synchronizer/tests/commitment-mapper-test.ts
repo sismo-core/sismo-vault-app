@@ -70,6 +70,26 @@ export class CommitmentMapperTest extends CommitmentMapper {
     };
   }
 
+  protected async _commitTwitterV2Eddsa({
+    callback,
+    twitterCode,
+    commitment,
+  }: {
+    callback: string;
+    twitterCode: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTwitterResult> {
+    return {
+      commitmentMapperPubKey: this._pubKey,
+      commitmentReceipt: this._commitmentReceipt,
+      account: {
+        userId: null,
+        username: null,
+        identifier: null,
+      },
+    };
+  }
+
   protected async _migrateEddsa({
     receipt,
     identifier,

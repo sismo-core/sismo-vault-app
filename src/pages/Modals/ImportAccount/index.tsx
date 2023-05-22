@@ -44,11 +44,13 @@ export interface ImportingAccount {
 type ImportAccountModalProps = {
   githubCode: string;
   twitterOauth: { oauthToken: string; oauthVerifier: string };
+  twitterV2Oauth: { callback: string; twitterCode: string };
 };
 
 export default function ImportAccountModal({
   githubCode,
   twitterOauth,
+  twitterV2Oauth,
 }: ImportAccountModalProps): JSX.Element {
   const [blur, setBlur] = useState(false);
   const [outsideClosable, setOutsideClosable] = useState(true);
@@ -144,7 +146,11 @@ export default function ImportAccountModal({
         <ImportGithub code={githubCode} isOpen={isOpen} />
       )}
       {display === "twitter" && (
-        <ImportTwitter oauth={twitterOauth} isOpen={isOpen} />
+        <ImportTwitter
+          oauth={twitterOauth}
+          oauthV2={twitterV2Oauth}
+          isOpen={isOpen}
+        />
       )}
 
       {display === "choice" && (
