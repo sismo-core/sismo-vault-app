@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <script>
+    const redirectURILocalStorageName = "sismo_redirect_uri";
+
+    function copyQueryParams(destinationURL) {
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.forEach((queryParamValue, queryParamName) => 
+        destinationURL.searchParams.append(queryParamName, queryParamValue)
+      ); 
+    }
+    
+    function redirect() {
+      const redirectDestinationURI = localStorage.getItem(redirectURILocalStorageName);
+      if (!redirectDestinationURI) {
+        console.log("Unknown redirect destination");
+        return;
+      }
+      localStorage.removeItem(redirectURILocalStorageName);
+      const redirectDestinationURL = new URL(redirectDestinationURI);
+      copyQueryParams(redirectDestinationURL);
+      window.location.href = redirectDestinationURL;
+    }
+
+    redirect();
+  </script>
+</html>

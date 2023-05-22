@@ -1,6 +1,6 @@
+import { featureFlagProvider } from "../../../../../utils/featureFlags";
 import styled from "styled-components";
 import colors from "../../../../../theme/colors";
-import { useEffect } from "react";
 import { useImportAccount } from "../../provider";
 import Icon from "../../../../../components/Icon";
 import Button from "../../../../../components/Button";
@@ -62,25 +62,22 @@ export interface ImportingAccount {
 
 type Props = {
   oauth?: { oauthToken: string; oauthVerifier: string };
-  isOpen: boolean;
+  oauthV2?: { callback: string; twitterCode: string };
 };
 
-export default function GenerateAccount({ oauth, isOpen }: Props): JSX.Element {
+export default function GenerateAccount({
+  oauth,
+  oauthV2,
+}: Props): JSX.Element {
   const importAccount = useImportAccount();
   const generateRecoveryKey = useGenerateRecoveryKey();
 
-  useEffect(() => {
-    if (!isOpen) {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has("oauth_token")) {
-        url.searchParams.delete("oauth_token");
-        window.history.replaceState(null, "New badge details url", url);
-      }
-    }
-  }, [isOpen]);
-
   const submit = () => {
-    setTimeout(() => importAccount.importTwitter(oauth), 300);
+    if (featureFlagProvider.isTwitterV2Enabled()) {
+      setTimeout(() => importAccount.importTwitterV2(oauthV2), 300);
+    } else {
+      setTimeout(() => importAccount.importTwitter(oauth), 300);
+    }
     importAccount.close();
   };
 

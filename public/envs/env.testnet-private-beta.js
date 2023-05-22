@@ -2,6 +2,9 @@
 window.env = {
     name: "DEV_BETA",
     disabledSentry: false,
+    featureFlags: {
+      twitterV2: true,
+    },
     mintingAppUrl: "https://testnets.zikies.io",
     vaultV2URL: "https://vault-beta-api.zikies.io",
     vaultV1URL: "https://vault-api.zikies.io",

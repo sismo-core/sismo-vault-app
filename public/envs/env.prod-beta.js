@@ -2,6 +2,9 @@
 window.env = {
   name: "PROD_BETA",
   disabledSentry: false,
+  featureFlags: {
+    twitterV2: false,
+  },
   mintingAppUrl: "https://app.sismo.io",
   vaultV2URL: "https://vault-beta-api.sismo.io",
   vaultV1URL: "https://vault-api.sismo.io",

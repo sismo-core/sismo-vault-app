@@ -264,6 +264,12 @@ export class VaultsSynchronizer {
     let vaultSecret = null;
 
     for (let account of vaultV2.importedAccounts) {
+      if (
+        account.type !== "github" &&
+        account.type !== "ethereum" &&
+        account.type !== "twitter"
+      )
+        continue;
       if (isAccountInVault(account.identifier, vaultV1)) continue;
 
       try {
