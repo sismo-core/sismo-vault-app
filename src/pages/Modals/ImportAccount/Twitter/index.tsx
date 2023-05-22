@@ -3,12 +3,13 @@ import GenerateAccount from "./components/GenerateAccount";
 
 type Props = {
   oauth?: { oauthToken: string; oauthVerifier: string };
-  isOpen: boolean;
+  oauthV2?: { callback: string; twitterCode: string };
 };
 
-export default function ImportTwitter({ oauth, isOpen }: Props): JSX.Element {
-  return oauth ? (
-    <GenerateAccount oauth={oauth} isOpen={isOpen} />
+export default function ImportTwitter({ oauth, oauthV2 }: Props): JSX.Element {
+  const hasOAuth = oauth || oauthV2;
+  return hasOAuth ? (
+    <GenerateAccount oauth={oauth} oauthV2={oauthV2} />
   ) : (
     <ConnectTwitter />
   );

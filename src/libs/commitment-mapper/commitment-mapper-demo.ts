@@ -62,6 +62,26 @@ export class CommitmentMapperDemo extends CommitmentMapper {
     };
   }
 
+  protected async _commitTwitterV2Eddsa({
+    callback,
+    twitterCode,
+    commitment,
+  }: {
+    callback: string;
+    twitterCode: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTwitterResult> {
+    return {
+      commitmentMapperPubKey: commitmentMapperPubKeyDemo,
+      commitmentReceipt: commitmentReceiptDemo,
+      account: {
+        userId: 1234,
+        username: "importedTwitter",
+        identifier: "1234",
+      },
+    };
+  }
+
   protected async _migrateEddsa({
     receipt,
     identifier,
