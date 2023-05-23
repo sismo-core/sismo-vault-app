@@ -60,11 +60,13 @@ export default function Pages(): JSX.Element {
 
   useEffect(() => {
     if (!vault.isConnected) return;
-    const isGithubRedirect =
-      localStorage.getItem("redirect_source") === "github";
-    if (!isGithubRedirect) return;
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
+    const _callbackSource = urlParams.get("callback_source");
+    const isGithubCallback =
+      _callbackSource !== "twitter-v1" && _callbackSource !== "twitter-v2";
+    if (!isGithubCallback) return;
+
     const _code = urlParams.get("code");
     if (_code) {
       const _redirected = urlParams.get("redirected");
@@ -77,7 +79,7 @@ export default function Pages(): JSX.Element {
           localStorage.removeItem("redirect_uri_github");
           window.location.href = `${splitRedirectUri[0]}?${
             splitRedirectUri[1] + "&"
-          }code=${_code}&redirected=true`;
+          }code=${_code}&callback_source=${_callbackSource}&redirected=true`;
         }
         return;
       }
@@ -92,8 +94,10 @@ export default function Pages(): JSX.Element {
 
       const url = new URL(window.location.href);
       url.searchParams.delete("redirected");
+      url.searchParams.delete("callback_source");
+      url.searchParams.delete("code");
       window.history.replaceState(null, "New url", url);
-      localStorage.removeItem("redirect_source");
+
       setGithubCode(_code);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,12 +124,13 @@ export default function Pages(): JSX.Element {
   useEffect(() => {
     if (featureFlagProvider.isTwitterV2Enabled()) return;
     if (!vault.isConnected) return;
-    const isTwitterRedirect =
-      localStorage.getItem("redirect_source") === "twitter";
-    if (!isTwitterRedirect) return;
 
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
+    const _callbackSource = urlParams.get("callback_source");
+    const isTwitterV1Callback = _callbackSource === "twitter-v1";
+    if (!isTwitterV1Callback) return;
+
     const _oauthToken = urlParams.get("oauth_token");
     if (_oauthToken) {
       const _oauthVerifier = urlParams.get("oauth_verifier");
@@ -140,7 +145,7 @@ export default function Pages(): JSX.Element {
           localStorage.removeItem("redirect_uri_twitter");
           window.location.href = `${splitRedirectUri[0]}?${
             splitRedirectUri[1] + "&"
-          }oauth_token=${_oauthToken}&oauth_verifier=${_oauthVerifier}&redirected=true`;
+          }oauth_token=${_oauthToken}&oauth_verifier=${_oauthVerifier}&callback_source=${_callbackSource}&redirected=true`;
         }
         return;
       }
@@ -155,9 +160,11 @@ export default function Pages(): JSX.Element {
 
       const url = new URL(window.location.href);
       url.searchParams.delete("redirected");
+      url.searchParams.delete("callback_source");
+      url.searchParams.delete("oauth_token");
+      url.searchParams.delete("oauth_verifier");
       window.history.replaceState(null, "New url", url);
 
-      localStorage.removeItem("redirect_source");
       setTwitterOauth({
         oauthToken: _oauthToken,
         oauthVerifier: _oauthVerifier,
@@ -170,12 +177,13 @@ export default function Pages(): JSX.Element {
   useEffect(() => {
     if (!featureFlagProvider.isTwitterV2Enabled()) return;
     if (!vault.isConnected) return;
-    const isTwitterRedirect =
-      localStorage.getItem("redirect_source") === "twitter";
-    if (!isTwitterRedirect) return;
 
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
+    const _callbackSource = urlParams.get("callback_source");
+    const isTwitterV2Redirect = _callbackSource === "twitter-v2";
+    if (!isTwitterV2Redirect) return;
+
     const _code = urlParams.get("code");
     if (_code) {
       const _redirected = urlParams.get("redirected");
@@ -190,7 +198,7 @@ export default function Pages(): JSX.Element {
 
           window.location.href = `${splitRedirectUri[0]}?${
             splitRedirectUri[1] + "&"
-          }code=${_code}&redirected=true`;
+          }code=${_code}&callback_source=${_callbackSource}&redirected=true`;
         }
         return;
       }
@@ -204,12 +212,13 @@ export default function Pages(): JSX.Element {
       localStorage.removeItem("redirect_referrer_twitter");
 
       const url = new URL(window.location.href);
+      url.searchParams.delete("code");
+      url.searchParams.delete("callback_source");
       url.searchParams.delete("redirected");
       window.history.replaceState(null, "New url", url);
 
-      localStorage.removeItem("redirect_source");
       setTwitterV2Oauth({
-        callback: `${window.location.origin}/redirect`,
+        callback: `${window.location.origin}/redirect?callback_source=twitter-v2`,
         twitterCode: _code,
       });
     }

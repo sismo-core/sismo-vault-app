@@ -43,7 +43,6 @@ export default function ConnectTwitter(): JSX.Element {
     `${window.location.origin}${window.location.pathname}${window.location.search}`
   );
   localStorage.setItem("redirect_referrer_twitter", document.referrer);
-  localStorage.setItem("redirect_source", "twitter");
 
   return (
     <Content>
@@ -60,9 +59,15 @@ export default function ConnectTwitter(): JSX.Element {
         onClick={() => {
           let href: string;
           if (featureFlagProvider.isTwitterV2Enabled()) {
-            href = `${env.commitmentMapperUrlV2}/get-twitter-url?oauth_callback=${window.location.origin}/redirect`;
+            const oauth_callback = encodeURI(
+              `${window.location.origin}/redirect?callback_source=twitter-v2`
+            );
+            href = `${env.commitmentMapperUrlV2}/get-twitter-v2-url?oauth_callback=${oauth_callback}`;
           } else {
-            href = `${env.commitmentMapperUrlV2}/request-twitter-token?oauth_callback=${window.location.origin}/redirect`;
+            const oauth_callback = encodeURI(
+              `${window.location.origin}/redirect?callback_source=twitter-v1`
+            );
+            href = `${env.commitmentMapperUrlV2}/request-twitter-token?oauth_callback=${oauth_callback}`;
           }
           window.location.href = href;
         }}
