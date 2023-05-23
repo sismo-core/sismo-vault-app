@@ -1,11 +1,11 @@
-import { buildPoseidon } from "@sismo-core/crypto";
 import { CommitmentMapper } from "../../../commitment-mapper";
 import { ImportedAccount } from "../../../vault-client-v1";
+import { getPoseidon } from "../../../getPoseidon";
 
 let poseidon = null;
 
 export const getS1Commitment = async (account: ImportedAccount) => {
-  poseidon = poseidon ?? (await buildPoseidon());
+  poseidon = await getPoseidon();
   const oldAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
     account.seed
   );
@@ -17,7 +17,7 @@ export const getS2Commitment = async (
   account: ImportedAccount,
   vaultSecret: string
 ) => {
-  poseidon = poseidon ?? (await buildPoseidon());
+  poseidon = await getPoseidon();
   const newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
     account.seed
   );

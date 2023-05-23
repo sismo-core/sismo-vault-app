@@ -256,11 +256,6 @@ export default function ConnectFlow({
     setErrorProof(false);
     try {
       const vaultSecret = await vault.getVaultSecret();
-      const registryTreeRoot = await getRegistryTreeRoot(
-        selectedSismoConnectRequest
-      );
-
-      setRegistryTreeRoot(registryTreeRoot);
 
       const _sismoConnectResponse = await generateResponse(
         selectedSismoConnectRequest,
@@ -272,6 +267,10 @@ export default function ConnectFlow({
       setResponse(_sismoConnectResponse);
 
       if (selectedSismoConnectRequest?.devConfig?.displayRawResponse) {
+        const registryTreeRoot = await getRegistryTreeRoot(
+          selectedSismoConnectRequest
+        );
+        setRegistryTreeRoot(registryTreeRoot);
         setProofModalOpen(true);
         return;
       }

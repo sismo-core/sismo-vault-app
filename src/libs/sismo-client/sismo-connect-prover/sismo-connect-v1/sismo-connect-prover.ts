@@ -468,6 +468,17 @@ export class SismoConnectProver {
     const sismoConnectProofs = await Promise.all(promises);
     response.proofs = sismoConnectProofs;
 
+    // const proofs = [];
+    // for (let claimPromise of claimPromises) {
+    //   const proof = await claimPromise;
+    //   proofs.push(proof);
+    // }
+    // for (let authPromise of authPromises) {
+    //   const proof = await authPromise;
+    //   proofs.push(proof);
+    // }
+    // response.proofs = proofs;
+
     return response;
   }
 }
