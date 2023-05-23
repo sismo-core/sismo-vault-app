@@ -332,7 +332,6 @@ export default function ImportAccountModalProvider({
       const commitmentMapperSecret =
         CommitmentMapper.generateCommitmentMapperSecret(seed);
       const vaultSecret = await vault.getVaultSecret();
-      console.log("oauth:" + JSON.stringify(oauth));
       const { commitmentReceipt, commitmentMapperPubKey, account } =
         await vault.commitmentMapper.getTwitterV2CommitmentReceipt(
           oauth.callback,

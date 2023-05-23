@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <script>
+    const redirectURILocalStorageName = "sismo_redirect_uri";
+
+    function redirectOAuthCallbacks() {
+      const redirectDestinationURI = localStorage.getItem(redirectURILocalStorageName);
+      if (!redirectDestinationURI) {
+        console.log("Unknown redirect destination");
+        return;
+      }
+      localStorage.removeItem(redirectURILocalStorageName);
+      const redirectDestinationURL = new URL(redirectDestinationURI);
+      copyOAuthQueryParams(redirectDestinationURL);
+      window.location.href = redirectDestinationURL;
+    }
+
+    function copyOAuthQueryParams(destinationURL) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const callbackSource = urlParams.get("callback_source");
+      destinationURL.searchParams.append("callback_source", callbackSource);
+  
+      switch(callbackSource) {
+        case "github":
+          copyQueryParams(destinationURL, "code");
+          break;
+        case "twitter-v1":
+          copyQueryParams(destinationURL, "oauth_token", "oauth_verifier")
+          break;
+        case "twitter-v2":
+          copyQueryParams(destinationURL, "code");
+          break;
+        default:
+          console.log("Unknown callback source");
+      }
+    }
+
+    function copyQueryParams(destinationURL, ...queryParams) {
+      const urlParams = new URLSearchParams(window.location.search);
+      queryParams.forEach(
+        queryParam => destinationURL.searchParams.append(queryParam, urlParams.get(queryParam))
+      );
+    }
+
+    redirectOAuthCallbacks();
+  </script>
+</html>
