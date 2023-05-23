@@ -32,7 +32,6 @@ export class DevRegistryTreeReader extends RegistryTreeReaderBase {
     );
 
     let groupData = await this.getAccountsTreeData(devGroup);
-    console.log("getAccountsTree", groupData);
     let accountTree = new KVMerkleTree(groupData, poseidon, 20);
 
     if (!accountTreeRoots.has(groupId)) {

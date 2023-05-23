@@ -256,12 +256,13 @@ export default function ConnectFlow({
     setErrorProof(false);
     try {
       const vaultSecret = await vault.getVaultSecret();
-
+      console.time("generateResponse");
       const _sismoConnectResponse = await generateResponse(
         selectedSismoConnectRequest,
         vault.importedAccounts,
         vaultSecret
       );
+      console.timeEnd("generateResponse");
       setErrorProof(false);
       setLoadingProof(false);
       setResponse(_sismoConnectResponse);

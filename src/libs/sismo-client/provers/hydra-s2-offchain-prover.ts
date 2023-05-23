@@ -86,8 +86,7 @@ export class HydraS2OffchainProver extends Prover {
       extraData,
     });
 
-    const proof = await prover.generateSnarkProof(userParams);
-    return proof;
+    return await prover.generateSnarkProof(userParams);
   }
 
   public async getEligibility({
