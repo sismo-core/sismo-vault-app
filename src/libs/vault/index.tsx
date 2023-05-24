@@ -111,6 +111,11 @@ export default function SismoVaultProvider({
 
   useEffect(() => {
     const loadActiveSession = async () => {
+      if (env.name === "DEMO") {
+        setSynchronizing(false);
+        setLoadingActiveSession(false);
+        return;
+      }
       const ownerConnectedV1 = getVaultV1ConnectedOwner();
       const ownerConnectedV2 = getVaultV2ConnectedOwner();
 
@@ -138,13 +143,16 @@ export default function SismoVaultProvider({
 
   const connect = useCallback(async (owner: Owner): Promise<boolean> => {
     let vaultV2 = await vaultClientV2.unlock(owner.seed);
-    let vaultV1 = await vaultClientV1.unlock(owner.seed);
-    if (!vaultV2) {
-      if (vaultV1) {
-        const { vault } = await vaultSynchronizer.sync(owner, null);
-        vaultV2 = vault;
-      } else {
-        return false;
+    let vaultV1 = null;
+    if (env.name !== "DEMO") {
+      vaultV1 = await vaultClientV1.unlock(owner.seed);
+      if (!vaultV2) {
+        if (vaultV1) {
+          const { vault } = await vaultSynchronizer.sync(owner, null);
+          vaultV2 = vault;
+        } else {
+          return false;
+        }
       }
     }
     await Promise.all([
@@ -155,13 +163,18 @@ export default function SismoVaultProvider({
       createActiveSession(owner, 24 * 30 * 24);
     }
     if (vaultV2 && !vaultV1) {
-      await vaultSynchronizer.sync(null, owner);
+      if (env.name !== "DEMO") {
+        await vaultSynchronizer.sync(null, owner);
+      }
     }
     return true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const syncVaults = () => {
+    if (env.name === "DEMO") {
+      return;
+    }
     vaultSynchronizer
       .sync(vaultState.connectedOwner, vaultState.connectedOwner)
       .then(async (res) => {

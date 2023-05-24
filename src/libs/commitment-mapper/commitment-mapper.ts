@@ -1,7 +1,7 @@
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { BigNumber } from "ethers";
 import SHA3 from "sha3";
-import { getPoseidon } from "../getPoseidon";
+import { getPoseidon } from "../poseidon";
 
 export type CommitmentReceiptResult = {
   commitmentMapperPubKey: [string, string];

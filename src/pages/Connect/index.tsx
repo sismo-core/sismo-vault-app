@@ -152,6 +152,10 @@ export default function Connect(): JSX.Element {
           setImgLoaded(true);
         }, 50);
       });
+    } else {
+      if (env.name === "DEMO") {
+        setImgLoaded(true);
+      }
     }
   }, [factoryApp]);
 
@@ -345,6 +349,7 @@ export default function Connect(): JSX.Element {
         const factoryApp = await getFactoryApp(sismoConnectRequest.appId);
         setFactoryApp(factoryApp);
       } catch (e) {
+        if (env.name === "DEMO") return;
         if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
@@ -598,7 +603,6 @@ export default function Connect(): JSX.Element {
   }, [vault.loadingActiveSession]);
 
   useEffect(() => {
-    console.log("loadingEligible", loadingEligible);
     if (loadingEligible) console.time("loading eligibility");
     else console.timeEnd("loading eligibility");
   }, [loadingEligible]);
