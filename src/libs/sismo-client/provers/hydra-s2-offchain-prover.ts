@@ -9,8 +9,6 @@ import {
   SnarkProof,
   UserParams,
   VaultInput,
-  StatementInput,
-  KVMerkleTree,
 } from "@sismo-core/hydra-s2";
 import { DevRegistryTreeReader } from "../registry-tree-readers/dev-registry-tree-reader";
 import { Cache } from "../caches";
@@ -88,8 +86,7 @@ export class HydraS2OffchainProver extends Prover {
       extraData,
     });
 
-    const proof = await prover.generateSnarkProof(userParams);
-    return proof;
+    return await prover.generateSnarkProof(userParams);
   }
 
   public async getEligibility({
@@ -285,30 +282,7 @@ export class HydraS2OffchainProver extends Prover {
       const hasDataRequest = groupId && groupTimestamp && requestedValue;
 
       if (hasDataRequest) {
-        let accountsTree: KVMerkleTree;
-        let registryTree: KVMerkleTree;
-
-        accountsTree = await this.registryTreeReader.getAccountsTree({
-          groupId,
-          account: source.identifier,
-          timestamp: groupTimestamp,
-        });
-
-        registryTree = await this.registryTreeReader.getRegistryTree();
-
         const claimedValue = BigNumber.from(requestedValue);
-
-        const statementInput: StatementInput = {
-          value: BigNumber.from(claimedValue),
-          comparator:
-            claimType === ClaimType.GTE
-              ? 0
-              : claimType === ClaimType.EQ
-              ? 1
-              : null,
-          registryTree: registryTree,
-          accountsTree: accountsTree,
-        };
 
         const requestIdentifier = this.requestIdentifier({
           appId,
@@ -318,7 +292,21 @@ export class HydraS2OffchainProver extends Prover {
         });
 
         userParams["requestIdentifier"] = requestIdentifier;
-        userParams["statement"] = statementInput;
+        userParams["statement"] = {
+          value: BigNumber.from(claimedValue),
+          comparator:
+            claimType === ClaimType.GTE
+              ? 0
+              : claimType === ClaimType.EQ
+              ? 1
+              : null,
+          registryTree: await this.registryTreeReader.getRegistryTree(),
+          accountsTree: await this.registryTreeReader.getAccountsTree({
+            groupId,
+            account: source.identifier,
+            timestamp: groupTimestamp,
+          }),
+        };
       }
     }
 

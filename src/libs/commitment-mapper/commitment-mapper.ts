@@ -1,7 +1,7 @@
-import { buildPoseidon } from "@sismo-core/crypto";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { BigNumber } from "ethers";
 import SHA3 from "sha3";
+import { getPoseidon } from "../poseidon";
 
 export type CommitmentReceiptResult = {
   commitmentMapperPubKey: [string, string];
@@ -75,7 +75,7 @@ export abstract class CommitmentMapper {
     oldCommitmentSecret: any;
     newCommitmentSecret: any;
   }): Promise<CommitmentReceiptResult> {
-    const poseidon = await buildPoseidon();
+    const poseidon = await getPoseidon();
 
     //[oldAccountSecret]
     //[vaultSecret, newAccountSecret]
@@ -96,7 +96,7 @@ export abstract class CommitmentMapper {
     accountSecret: string,
     vaultSecret: string
   ): Promise<CommitmentReceiptResult> {
-    const poseidon = await buildPoseidon();
+    const poseidon = await getPoseidon();
 
     const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
 
@@ -112,7 +112,7 @@ export abstract class CommitmentMapper {
     accountSecret: string,
     vaultSecret: string
   ): Promise<CommitmentReceiptGithubResult> {
-    const poseidon = await buildPoseidon();
+    const poseidon = await getPoseidon();
     const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
 
     return await this._commitGithubEddsa({ githubCode, commitment });
@@ -124,7 +124,7 @@ export abstract class CommitmentMapper {
     accountSecret: string,
     vaultSecret: string
   ): Promise<CommitmentReceiptTwitterResult> {
-    const poseidon = await buildPoseidon();
+    const poseidon = await getPoseidon();
     const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
 
     return await this._commitTwitterEddsa({

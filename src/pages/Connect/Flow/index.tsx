@@ -256,22 +256,22 @@ export default function ConnectFlow({
     setErrorProof(false);
     try {
       const vaultSecret = await vault.getVaultSecret();
-      const registryTreeRoot = await getRegistryTreeRoot(
-        selectedSismoConnectRequest
-      );
-
-      setRegistryTreeRoot(registryTreeRoot);
-
+      console.time("generateResponse");
       const _sismoConnectResponse = await generateResponse(
         selectedSismoConnectRequest,
         vault.importedAccounts,
         vaultSecret
       );
+      console.timeEnd("generateResponse");
       setErrorProof(false);
       setLoadingProof(false);
       setResponse(_sismoConnectResponse);
 
       if (selectedSismoConnectRequest?.devConfig?.displayRawResponse) {
+        const registryTreeRoot = await getRegistryTreeRoot(
+          selectedSismoConnectRequest
+        );
+        setRegistryTreeRoot(registryTreeRoot);
         setProofModalOpen(true);
         return;
       }

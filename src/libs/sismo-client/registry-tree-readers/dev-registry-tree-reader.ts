@@ -4,7 +4,6 @@ import {
   SNARK_FIELD,
 } from "@sismo-core/hydra-s2";
 
-import { buildPoseidon } from "@sismo-core/hydra-s2";
 import { ethers, BigNumber } from "ethers";
 import { DevGroup } from "../sismo-connect-prover/sismo-connect-v1";
 import {
@@ -12,6 +11,9 @@ import {
   OffchainGetAccountsTreeEligibilityInputs,
   RegistryTreeReaderBase,
 } from "./types";
+import { getPoseidon } from "../../poseidon";
+
+const accountTreeRoots = new Map<string, string>();
 
 export class DevRegistryTreeReader extends RegistryTreeReaderBase {
   private _devGroups: DevGroup[];
@@ -24,36 +26,44 @@ export class DevRegistryTreeReader extends RegistryTreeReaderBase {
   public async getAccountsTree({
     groupId,
   }: OffchainGetAccountsTreeInputs): Promise<KVMerkleTree> {
-    const poseidon = await buildPoseidon();
+    const poseidon = await getPoseidon();
     const devGroup = this._devGroups.find(
       (devGroup) => devGroup.groupId === groupId
     );
 
     let groupData = await this.getAccountsTreeData(devGroup);
+    let accountTree = new KVMerkleTree(groupData, poseidon, 20);
 
-    let _accountsTree = new KVMerkleTree(groupData, poseidon, 20);
-    return _accountsTree;
+    if (!accountTreeRoots.has(groupId)) {
+      accountTreeRoots.set(groupId, accountTree.getRoot().toHexString());
+    }
+    return accountTree;
   }
 
   public async getRegistryTree(): Promise<KVMerkleTree> {
-    const poseidon = await buildPoseidon();
+    const poseidon = await getPoseidon();
     const registryTreeData = {};
 
     for (const devGroup of this._devGroups) {
-      const accountsTree = await this.getAccountsTree({
-        groupId: devGroup.groupId,
-      } as OffchainGetAccountsTreeInputs);
+      let accountsTreeRoot = null;
+
+      if (!accountTreeRoots.has(devGroup.groupId)) {
+        const accountsTree = await this.getAccountsTree({
+          groupId: devGroup.groupId,
+        } as OffchainGetAccountsTreeInputs);
+        accountsTreeRoot = accountsTree.getRoot().toHexString();
+      } else {
+        accountsTreeRoot = accountTreeRoots.get(devGroup.groupId);
+      }
 
       const accountsTreeValue = this.encodeAccountsTreeValue(
         devGroup.groupId,
         devGroup.groupTimestamp
       );
 
-      registryTreeData[accountsTree.getRoot().toHexString()] =
-        accountsTreeValue;
+      registryTreeData[accountsTreeRoot] = accountsTreeValue;
     }
-    const registryTree = new KVMerkleTree(registryTreeData, poseidon, 20);
-    return registryTree;
+    return new KVMerkleTree(registryTreeData, poseidon, 20);
   }
 
   public async getAccountsTreeEligibility({

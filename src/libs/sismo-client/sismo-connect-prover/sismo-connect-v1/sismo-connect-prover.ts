@@ -279,60 +279,20 @@ export class SismoConnectProver {
     /* ************** PREPARE CLAIM PROMISES **************** */
     /* ****************************************************** */
 
-    let claimPromises: Promise<SismoConnectProof>[] = [];
+    let claimProofs: SismoConnectProof[] = [];
 
     if (filteredSelectedClaimRequestEligibilities?.length) {
-      claimPromises = filteredSelectedClaimRequestEligibilities?.map(
-        async (selectedClaimRequestEligibility): Promise<SismoConnectProof> => {
-          const source = importedAccounts.find(
-            (importedAccount) =>
-              importedAccount?.identifier?.toLowerCase() ===
-              selectedClaimRequestEligibility?.accountData?.identifier?.toLowerCase()
-          );
-
-          if (!source)
-            throw new Error("No eligible account found for this claim request");
-
-          const _generateProofInputs = {
-            appId,
-            namespace,
-            vaultSecret, // VAULT SECRET MUST BE ADDED TO THE PROOF FOR THE CIRCUIT
-            extraData,
-            source,
-            groupId: selectedClaimRequestEligibility?.claim?.groupId,
-            groupTimestamp:
-              selectedClaimRequestEligibility?.claim?.groupTimestamp,
-            requestedValue:
-              selectedClaimRequestEligibility?.selectedClaim?.selectedValue ??
-              selectedClaimRequestEligibility?.claim?.value,
-            claimType: selectedClaimRequestEligibility?.claim?.claimType,
-          } as OffchainProofRequest;
-
-          const snarkProof = await this.prover.generateProof(
-            _generateProofInputs
-          );
-
-          const claimResponse = {
-            claimType: selectedClaimRequestEligibility?.claim?.claimType,
-            groupId: selectedClaimRequestEligibility?.claim?.groupId,
-            groupTimestamp:
-              selectedClaimRequestEligibility?.claim?.groupTimestamp,
-            value:
-              selectedClaimRequestEligibility?.selectedClaim?.selectedValue ??
-              selectedClaimRequestEligibility?.claim?.value,
-            extraData: selectedClaimRequestEligibility?.claim?.extraData,
-            isSelectableByUser:
-              selectedClaimRequestEligibility?.claim?.isSelectableByUser,
-          } as Claim;
-
-          return {
-            claims: [claimResponse],
-            proofData: snarkProof.toBytes(),
-            extraData: "",
-            provingScheme: ProvingScheme.HYDRA_S2,
-          };
-        }
-      );
+      for (let selectedClaimRequestEligibility of filteredSelectedClaimRequestEligibilities) {
+        const proof = await this.getClaimProof(
+          selectedClaimRequestEligibility,
+          importedAccounts,
+          appId,
+          namespace,
+          vaultSecret,
+          extraData
+        );
+        claimProofs.push(proof);
+      }
     }
 
     /* ************************************************************* */
@@ -463,11 +423,62 @@ export class SismoConnectProver {
       );
     }
 
-    const promises = [...claimPromises, ...authPromises];
-
-    const sismoConnectProofs = await Promise.all(promises);
-    response.proofs = sismoConnectProofs;
+    const authProofs = await Promise.all(authPromises);
+    response.proofs = [...authProofs, ...claimProofs];
 
     return response;
   }
+
+  private getClaimProof = async (
+    selectedClaimRequestEligibility,
+    importedAccounts,
+    appId,
+    namespace,
+    vaultSecret,
+    extraData
+  ): Promise<SismoConnectProof> => {
+    const source = importedAccounts.find(
+      (importedAccount) =>
+        importedAccount?.identifier?.toLowerCase() ===
+        selectedClaimRequestEligibility?.accountData?.identifier?.toLowerCase()
+    );
+
+    if (!source)
+      throw new Error("No eligible account found for this claim request");
+
+    const _generateProofInputs = {
+      appId,
+      namespace,
+      vaultSecret, // VAULT SECRET MUST BE ADDED TO THE PROOF FOR THE CIRCUIT
+      extraData,
+      source,
+      groupId: selectedClaimRequestEligibility?.claim?.groupId,
+      groupTimestamp: selectedClaimRequestEligibility?.claim?.groupTimestamp,
+      requestedValue:
+        selectedClaimRequestEligibility?.selectedClaim?.selectedValue ??
+        selectedClaimRequestEligibility?.claim?.value,
+      claimType: selectedClaimRequestEligibility?.claim?.claimType,
+    } as OffchainProofRequest;
+
+    const snarkProof = await this.prover.generateProof(_generateProofInputs);
+
+    const claimResponse = {
+      claimType: selectedClaimRequestEligibility?.claim?.claimType,
+      groupId: selectedClaimRequestEligibility?.claim?.groupId,
+      groupTimestamp: selectedClaimRequestEligibility?.claim?.groupTimestamp,
+      value:
+        selectedClaimRequestEligibility?.selectedClaim?.selectedValue ??
+        selectedClaimRequestEligibility?.claim?.value,
+      extraData: selectedClaimRequestEligibility?.claim?.extraData,
+      isSelectableByUser:
+        selectedClaimRequestEligibility?.claim?.isSelectableByUser,
+    } as Claim;
+
+    return {
+      claims: [claimResponse],
+      proofData: snarkProof.toBytes(),
+      extraData: "",
+      provingScheme: ProvingScheme.HYDRA_S2,
+    };
+  };
 }
