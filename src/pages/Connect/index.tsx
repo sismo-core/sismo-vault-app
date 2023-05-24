@@ -152,10 +152,6 @@ export default function Connect(): JSX.Element {
           setImgLoaded(true);
         }, 50);
       });
-    } else {
-      if (env.name === "DEMO") {
-        setImgLoaded(true);
-      }
     }
   }, [factoryApp]);
 
