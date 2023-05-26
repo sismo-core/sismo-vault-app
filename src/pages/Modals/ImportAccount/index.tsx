@@ -203,7 +203,7 @@ export default function ImportAccountModal(): JSX.Element {
     if (!isTwitterV2Redirect) return;
 
     const code = urlParams.get("code");
-    clearQueryParams("code", "state", "callback_source", "redirected");
+    clearQueryParams("code", "state", "callback_source");
 
     setTwitterV2Oauth({
       callback: getTwitterCallbackURL(),
