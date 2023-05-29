@@ -8,11 +8,13 @@ import ImportGithub from "./Github";
 import { zIndex } from "../../../theme/z-index";
 import { useWallet } from "../../../libs/wallet";
 import { useImportAccount } from "./provider";
+import ImportTelegram from "./Telegram";
 import ImportTwitter from "./Twitter";
 import env from "../../../environment";
 import { useVault } from "../../../libs/vault";
 import { featureFlagProvider } from "../../../utils/featureFlags";
 import { clearQueryParams } from "../../../utils/clearQueryParams";
+import { clearLocationHash } from "../../../utils/clearLocationHash";
 import { getTwitterCallbackURL } from "../../../utils/navigateOAuth";
 
 const Content = styled.div`
@@ -50,10 +52,11 @@ export default function ImportAccountModal(): JSX.Element {
   const [outsideClosable, setOutsideClosable] = useState(true);
   const wallet = useWallet();
   const [display, setDisplay] = useState<
-    "choice" | "ethereum" | "github" | "twitter"
+    "choice" | "ethereum" | "github" | "twitter" | "telegram"
   >(null);
   const { isOpen, importType, accountTypes, close, open } = useImportAccount();
   const [githubCode, setGithubCode] = useState(null);
+  const [telegramPayload, setTelegramPayload] = useState(null);
   const [twitterOauth, setTwitterOauth] = useState(null);
   const [twitterV2Oauth, setTwitterV2Oauth] = useState(null);
   const vault = useVault();
@@ -97,6 +100,15 @@ export default function ImportAccountModal(): JSX.Element {
       setDisplay("twitter");
       return;
     }
+
+    if (
+      accountTypes &&
+      accountTypes.length === 1 &&
+      accountTypes[0] === "telegram"
+    ) {
+      setDisplay("telegram");
+      return;
+    }
     setDisplay("choice");
   }, [accountTypes, importType, isOpen]);
 
@@ -124,6 +136,39 @@ export default function ImportAccountModal(): JSX.Element {
   /*********************************************************/
   /*********************  WEB2 ACCOUNTS ********************/
   /*********************************************************/
+
+  /***********************  TELEGRAM *************************/
+  useEffect(() => {
+    if (!vault.isConnected) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isGithubCallback = urlParams.get("callback_source") === "telegram";
+    if (!isGithubCallback) return;
+
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const payload = hashParams.get("tgAuthResult");
+    clearQueryParams("callback_source");
+    clearLocationHash();
+
+    setTelegramPayload(payload);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vault.isConnected]);
+
+  useEffect(() => {
+    if (telegramPayload) {
+      open({
+        importType: "account",
+        accountTypes: ["telegram"],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [telegramPayload]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setTelegramPayload(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   /***********************  GITHUB *************************/
   useEffect(() => {
@@ -248,12 +293,11 @@ export default function ImportAccountModal(): JSX.Element {
           }
         />
       )}
-      {display === "github" && (
-        <ImportGithub code={githubCode} isOpen={isOpen} />
-      )}
+      {display === "github" && <ImportGithub code={githubCode} />}
       {display === "twitter" && (
         <ImportTwitter oauth={twitterOauth} oauthV2={twitterV2Oauth} />
       )}
+      {display === "telegram" && <ImportTelegram payload={telegramPayload} />}
 
       {display === "choice" && (
         <Content>
@@ -274,6 +318,12 @@ export default function ImportAccountModal(): JSX.Element {
                     onClick={() => setDisplay("twitter")}
                   />
                 )}
+                {featureFlagProvider.isTelegramEnabled() && (
+                  <Account
+                    type={"telegram"}
+                    onClick={() => setDisplay("telegram")}
+                  />
+                )}
               </>
             ) : (
               <>
@@ -286,6 +336,12 @@ export default function ImportAccountModal(): JSX.Element {
                   type={"twitter"}
                   onClick={() => setDisplay("twitter")}
                 />
+                {featureFlagProvider.isTelegramEnabled() && (
+                  <Account
+                    type={"telegram"}
+                    onClick={() => setDisplay("telegram")}
+                  />
+                )}
               </>
             )}
           </Accounts>

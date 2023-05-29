@@ -5,6 +5,7 @@ function getQueryParam(param) {
 
 function redirectToMigration() {
     localStorage.setItem('migration_originalUrlParams', window.location.search);
+    localStorage.setItem('migration_originalUrlHash', window.location.hash);
     let mintingAppMigrationUrl = `${window.env.mintingAppUrl}/migration.html?no-migration=true`;
     const url = new URL(window.location.href)
     localStorage.setItem(`sc_referrer`, document?.referrer);
@@ -18,13 +19,20 @@ function removeQueryParameters(paramsToRemove) {
     window.history.replaceState({}, '', url);
 }
 
-function restoreOriginalUrlParams() {
+function restoreOriginalUrl() {
+    const url = new URL(window.location.href);
     const originalUrlParams = localStorage.getItem('migration_originalUrlParams');
     if (originalUrlParams) {
-        const url = new URL(window.location.href);
         url.search = originalUrlParams;
-        window.history.replaceState({}, '', url);
         localStorage.removeItem('migration_originalUrlParams');
+    }
+    const originalUrlHash = localStorage.getItem('migration_originalUrlHash');
+    if (originalUrlHash) {
+        url.hash = originalUrlHash;
+        localStorage.removeItem('migration_originalUrlHash');
+    }
+    if (originalUrlParams || originalUrlHash) {
+        window.history.replaceState({}, '', url);
     }
 }
 
@@ -34,7 +42,7 @@ function checkAndProcessParamsKey() {
     const as_sismo_ct = getQueryParam('as_sismo_ct');
     const as_sismo_ek = getQueryParam('as_sismo_ek');
     removeQueryParameters(['as_sismo_ct', 'as_sismo_ek']);
-    restoreOriginalUrlParams();
+    restoreOriginalUrl();
     if (as_sismo_ct === "not-connected") return;
 
     if (as_sismo_ct && as_sismo_ek) {

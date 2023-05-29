@@ -3,6 +3,10 @@
   <script>
     const redirectURILocalStorageName = "sismo_redirect_uri";
 
+    function copyLocationHash(destinationURL) {
+      destinationURL.hash = location.hash;
+    }
+
     function copyQueryParams(destinationURL) {
       const urlParams = new URLSearchParams(window.location.search);
       urlParams.forEach((queryParamValue, queryParamName) => 
@@ -18,6 +22,7 @@
       }
       localStorage.removeItem(redirectURILocalStorageName);
       const redirectDestinationURL = new URL(redirectDestinationURI);
+      copyLocationHash(redirectDestinationURL);
       copyQueryParams(redirectDestinationURL);
       window.location.href = redirectDestinationURL;
     }

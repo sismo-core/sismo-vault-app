@@ -10,6 +10,12 @@ export const getGitHubCallbackURL = (): string => {
   return callbackURL.toString();
 };
 
+export const getTelegramCallbackURL = (): string => {
+  const callbackURL = new URL(`${window.location.origin}/redirect.html`);
+  callbackURL.searchParams.append(CALLBACK_SOURCE_QUERY_PARAM_NAME, "telegram");
+  return callbackURL.toString();
+};
+
 export const getTwitterCallbackURL = (): string => {
   const callbackURL = new URL(`${window.location.origin}/redirect.html`);
   callbackURL.searchParams.append(
@@ -38,4 +44,14 @@ export const goToTwitterAuth = (): void => {
     ? "get-twitter-v2-url"
     : "request-twitter-token";
   window.location.href = `${env.commitmentMapperUrlV2}/${commitmentMapperPath}?oauth_callback=${callbackURL}`;
+};
+
+export const goToTelegramAuth = (): void => {
+  localStorage.setItem(
+    SISMO_REDIRECT_URI_LOCAL_STORAGE_KEY,
+    `${window.location.origin}${window.location.pathname}${window.location.search}`
+  );
+  const origin = encodeURIComponent(window.location.origin);
+  const callbackURL = encodeURIComponent(getTelegramCallbackURL());
+  window.location.href = `https://oauth.telegram.org/auth?bot_id=${env.telegramBotId}&origin=${origin}&return_to=${callbackURL}`;
 };
