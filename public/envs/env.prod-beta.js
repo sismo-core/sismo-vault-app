@@ -3,7 +3,8 @@ window.env = {
   name: "PROD_BETA",
   disabledSentry: false,
   featureFlags: {
-    twitterV2: false,
+    telegram: false,
+    twitterV2: true,
   },
   mintingAppUrl: "https://app.sismo.io",
   vaultV2URL: "https://vault-beta-api.sismo.io",
@@ -13,6 +14,7 @@ window.env = {
   commitmentMapperUrlV2: "https://httqvtidxi.execute-api.eu-west-1.amazonaws.com",
   commitmentMapperUrlV1: "https://sibgc1bwn8.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "ed165a166320d0676ccb",
+  telegramBotId:"6040785698",
   chainName: "gnosis",
   sismoDestination: {
     address: "0x0000000000000000000000000000000000515110",

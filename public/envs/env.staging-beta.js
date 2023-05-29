@@ -3,6 +3,7 @@ window.env = {
   name: "STAGING_BETA",
   disabledSentry: false,
   featureFlags: {
+    telegram: true,
     twitterV2: true,
   },
   mintingAppUrl: "https://staging.sismo.io",
@@ -13,6 +14,7 @@ window.env = {
   commitmentMapperUrlV2: "https://httqvtidxi.execute-api.eu-west-1.amazonaws.com",
   commitmentMapperUrlV1: "https://sibgc1bwn8.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "ed165a166320d0676ccb",
+  telegramBotId:"6081452828",
   chainName: "gnosis",
   sismoDestination: {
     address: "0x0000000000000000000000000000000000515110",
