@@ -57,6 +57,9 @@ export default function Account({ type, onClick }: Props): JSX.Element {
         {type === "github" && (
           <Icon name="logoGithub-fill-bluem05" style={{ height: "100%" }} />
         )}
+        {type === "telegram" && (
+          <Icon name="logoTelegram-fill-bluem05" style={{ height: "100%" }} />
+        )}
       </AccountLogo>
       <AccountText>
         {type === "ethereum" && (
@@ -74,6 +77,12 @@ export default function Account({ type, onClick }: Props): JSX.Element {
         {type === "github" && (
           <>
             Github <br />
+            account
+          </>
+        )}
+        {type === "telegram" && (
+          <>
+            Telegram <br />
             account
           </>
         )}

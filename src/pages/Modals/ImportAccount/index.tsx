@@ -14,6 +14,7 @@ import { useVault } from "../../../libs/vault";
 import { featureFlagProvider } from "../../../utils/featureFlags";
 import { clearQueryParams } from "../../../utils/clearQueryParams";
 import { getTwitterCallbackURL } from "../../../utils/navigateOAuth";
+import ImportTelegram from "./Telegram";
 
 const Content = styled.div`
   display: flex;
@@ -50,7 +51,7 @@ export default function ImportAccountModal(): JSX.Element {
   const [outsideClosable, setOutsideClosable] = useState(true);
   const wallet = useWallet();
   const [display, setDisplay] = useState<
-    "choice" | "ethereum" | "github" | "twitter"
+    "choice" | "ethereum" | "github" | "twitter" | "telegram"
   >(null);
   const { isOpen, importType, accountTypes, close, open } = useImportAccount();
   const [githubCode, setGithubCode] = useState(null);
@@ -95,6 +96,15 @@ export default function ImportAccountModal(): JSX.Element {
       accountTypes[0] === "twitter"
     ) {
       setDisplay("twitter");
+      return;
+    }
+
+    if (
+      accountTypes &&
+      accountTypes.length === 1 &&
+      accountTypes[0] === "telegram"
+    ) {
+      setDisplay("telegram");
       return;
     }
     setDisplay("choice");
@@ -254,6 +264,7 @@ export default function ImportAccountModal(): JSX.Element {
       {display === "twitter" && (
         <ImportTwitter oauth={twitterOauth} oauthV2={twitterV2Oauth} />
       )}
+      {display === "telegram" && <ImportTelegram />}
 
       {display === "choice" && (
         <Content>
@@ -274,6 +285,10 @@ export default function ImportAccountModal(): JSX.Element {
                     onClick={() => setDisplay("twitter")}
                   />
                 )}
+                <Account
+                  type={"telegram"}
+                  onClick={() => setDisplay("telegram")}
+                />
               </>
             ) : (
               <>
@@ -285,6 +300,10 @@ export default function ImportAccountModal(): JSX.Element {
                 <Account
                   type={"twitter"}
                   onClick={() => setDisplay("twitter")}
+                />
+                <Account
+                  type={"telegram"}
+                  onClick={() => setDisplay("telegram")}
                 />
               </>
             )}

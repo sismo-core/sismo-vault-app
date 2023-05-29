@@ -39,3 +39,7 @@ export const goToTwitterAuth = (): void => {
     : "request-twitter-token";
   window.location.href = `${env.commitmentMapperUrlV2}/${commitmentMapperPath}?oauth_callback=${callbackURL}`;
 };
+
+export const goToTelegramAuth = (): void => {
+  console.log("TODO: Go to telegram auth page");
+};
