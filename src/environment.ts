@@ -15,6 +15,7 @@ type Environment = {
   commitmentMapperUrlV1?: string;
   commitmentMapperUrlV2?: string;
   githubOauthClientId?: string;
+  telegramBotId?: string;
   chainName?: string;
   sismoDestination: {
     address: string;

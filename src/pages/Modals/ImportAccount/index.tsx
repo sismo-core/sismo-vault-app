@@ -13,6 +13,7 @@ import env from "../../../environment";
 import { useVault } from "../../../libs/vault";
 import { featureFlagProvider } from "../../../utils/featureFlags";
 import { clearQueryParams } from "../../../utils/clearQueryParams";
+import { clearLocationHash } from "../../../utils/clearLocationHash";
 import { getTwitterCallbackURL } from "../../../utils/navigateOAuth";
 import ImportTelegram from "./Telegram";
 
@@ -55,6 +56,7 @@ export default function ImportAccountModal(): JSX.Element {
   >(null);
   const { isOpen, importType, accountTypes, close, open } = useImportAccount();
   const [githubCode, setGithubCode] = useState(null);
+  const [telegramPayload, setTelegramPayload] = useState(null);
   const [twitterOauth, setTwitterOauth] = useState(null);
   const [twitterV2Oauth, setTwitterV2Oauth] = useState(null);
   const vault = useVault();
@@ -134,6 +136,39 @@ export default function ImportAccountModal(): JSX.Element {
   /*********************************************************/
   /*********************  WEB2 ACCOUNTS ********************/
   /*********************************************************/
+
+  /***********************  TELEGRAM *************************/
+  useEffect(() => {
+    if (!vault.isConnected) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isGithubCallback = urlParams.get("callback_source") === "telegram";
+    if (!isGithubCallback) return;
+
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const payload = hashParams.get("tgAuthResult");
+    clearQueryParams("callback_source");
+    clearLocationHash();
+
+    setTelegramPayload(payload);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vault.isConnected]);
+
+  useEffect(() => {
+    if (telegramPayload) {
+      open({
+        importType: "account",
+        accountTypes: ["telegram"],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [telegramPayload]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setTelegramPayload(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   /***********************  GITHUB *************************/
   useEffect(() => {
