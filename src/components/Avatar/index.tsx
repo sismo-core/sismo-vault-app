@@ -74,6 +74,12 @@ export default function Avatar({
           style={{ width: "100%", height: "100%" }}
         />
       )}
+      {(account as ImportedAccount)?.type === "telegram" && (
+        <Icon
+          name="logoTelegram-fill-blue0"
+          style={{ width: "100%", height: "100%" }}
+        />
+      )}
       {!(account as ImportedAccount)?.type && account && account.identifier && (
         <Blockies seed={account.identifier} size={8} scale={scale} />
       )}
