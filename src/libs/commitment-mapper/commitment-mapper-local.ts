@@ -2,6 +2,7 @@ import {
   CommitmentMapper,
   CommitmentReceiptGithubResult,
   CommitmentReceiptResult,
+  CommitmentReceiptTelegramResult,
   CommitmentReceiptTwitterResult,
 } from "./commitment-mapper";
 
@@ -37,6 +38,28 @@ export class CommitmentMapperLocal extends CommitmentMapper {
         name: null,
         avatarUrl: null,
         identifier: null,
+      },
+    };
+  }
+
+  protected async _commitTelegramEddsa({
+    payload,
+    commitment,
+  }: {
+    payload: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTelegramResult> {
+    return {
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
+      account: {
+        id: null,
+        first_name: null,
+        last_name: null,
+        username: null,
+        photo_url: null,
+        auth_date: null,
+        hash: null,
       },
     };
   }

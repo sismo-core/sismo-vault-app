@@ -27,6 +27,7 @@ type ImportAccountHook = {
     importType: "account" | "owner"
   ) => void;
   importGithub: (githubCode: string) => void;
+  importTelegram: (telegramPayload: string) => void;
   importTwitter: (twitterOauth: {
     oauthToken: string;
     oauthVerifier: string;
@@ -193,6 +194,67 @@ export default function ImportAccountModalProvider({
       }
     }
     setImporting(null);
+  };
+
+  const importTelegram = async (telegramPayload: string) => {
+    setImporting("account");
+    setLastImportedAccount(null);
+
+    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
+      WalletPurpose.IMPORTED_ACCOUNT
+    );
+
+    try {
+      const commitmentMapperSecret =
+        CommitmentMapper.generateCommitmentMapperSecret(seed);
+      const vaultSecret = await vault.getVaultSecret();
+
+      const { commitmentReceipt, commitmentMapperPubKey, account } =
+        await vault.commitmentMapper.getTelegramCommitmentReceipt(
+          telegramPayload,
+          commitmentMapperSecret,
+          vaultSecret
+        );
+      await vault.importAccount({
+        identifier: account.id.toString(),
+        seed,
+        commitmentReceipt,
+        commitmentMapperPubKey,
+        type: "telegram",
+        profile: {
+          login: account.username,
+          id: account.id,
+          name: account.first_name,
+          avatar: account.photo_url,
+        },
+        wallet: {
+          accountNumber: accountNumber,
+          mnemonic: mnemonic,
+        },
+        timestamp: Date.now(),
+      });
+    } catch (e) {
+      //Check if the account is already in the vault
+      if (
+        e?.response?.data?.error === "Address is already used for a commitment!"
+      ) {
+        console.error(e);
+        Sentry.withScope(function (scope) {
+          scope.setLevel("fatal");
+          Sentry.captureException(e);
+        });
+        notificationAdded({
+          text: "Telegram account already imported in this vault or in another one",
+          type: "error",
+        });
+        setImporting(null);
+      } else {
+        triggerError(e);
+      }
+      return;
+    } finally {
+      setImporting(null);
+    }
   };
 
   const importGithub = async (githubCode: string) => {
@@ -392,6 +454,7 @@ export default function ImportAccountModalProvider({
         accountTypes,
         importEthereum,
         importGithub,
+        importTelegram,
         importTwitter,
         importTwitterV2,
         isOpen,

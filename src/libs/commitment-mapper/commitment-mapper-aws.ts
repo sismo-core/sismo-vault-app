@@ -3,6 +3,7 @@ import {
   CommitmentMapper,
   CommitmentReceiptGithubResult,
   CommitmentReceiptResult,
+  CommitmentReceiptTelegramResult,
   CommitmentReceiptTwitterResult,
 } from "./commitment-mapper";
 
@@ -70,6 +71,40 @@ export class CommitmentMapperAWS extends CommitmentMapper {
         name: data.account.name,
         avatarUrl: data.account.avatarUrl,
         identifier: data.account.identifier,
+      },
+    };
+  }
+
+  protected async _commitTelegramEddsa({
+    payload,
+    commitment,
+  }: {
+    payload: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTelegramResult> {
+    const { data } = await axios.post(`${this._url}/commit-telegram-eddsa`, {
+      payload,
+      commitment,
+    });
+
+    return {
+      commitmentMapperPubKey: [
+        data.commitmentMapperPubKey[0],
+        data.commitmentMapperPubKey[1],
+      ],
+      commitmentReceipt: [
+        data.commitmentReceipt[0],
+        data.commitmentReceipt[1],
+        data.commitmentReceipt[2],
+      ],
+      account: {
+        id: data.account.id,
+        first_name: data.account.first_name,
+        last_name: data.account.last_name,
+        username: data.account.username,
+        photo_url: data.account.photo_url,
+        auth_date: data.account.auth_date,
+        hash: data.account.hash,
       },
     };
   }

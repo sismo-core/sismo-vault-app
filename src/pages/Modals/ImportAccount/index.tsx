@@ -8,6 +8,7 @@ import ImportGithub from "./Github";
 import { zIndex } from "../../../theme/z-index";
 import { useWallet } from "../../../libs/wallet";
 import { useImportAccount } from "./provider";
+import ImportTelegram from "./Telegram";
 import ImportTwitter from "./Twitter";
 import env from "../../../environment";
 import { useVault } from "../../../libs/vault";
@@ -15,7 +16,6 @@ import { featureFlagProvider } from "../../../utils/featureFlags";
 import { clearQueryParams } from "../../../utils/clearQueryParams";
 import { clearLocationHash } from "../../../utils/clearLocationHash";
 import { getTwitterCallbackURL } from "../../../utils/navigateOAuth";
-import ImportTelegram from "./Telegram";
 
 const Content = styled.div`
   display: flex;
@@ -293,13 +293,11 @@ export default function ImportAccountModal(): JSX.Element {
           }
         />
       )}
-      {display === "github" && (
-        <ImportGithub code={githubCode} isOpen={isOpen} />
-      )}
+      {display === "github" && <ImportGithub code={githubCode} />}
       {display === "twitter" && (
         <ImportTwitter oauth={twitterOauth} oauthV2={twitterV2Oauth} />
       )}
-      {display === "telegram" && <ImportTelegram />}
+      {display === "telegram" && <ImportTelegram payload={telegramPayload} />}
 
       {display === "choice" && (
         <Content>

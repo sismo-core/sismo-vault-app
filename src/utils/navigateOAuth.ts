@@ -53,9 +53,5 @@ export const goToTelegramAuth = (): void => {
   );
   const origin = encodeURIComponent(window.location.origin);
   const callbackURL = encodeURIComponent(getTelegramCallbackURL());
-  console.log(
-    `should go to https://oauth.telegram.org/auth?bot_id=${env.telegramBotId}&origin=${callbackURL}`
-  );
   window.location.href = `https://oauth.telegram.org/auth?bot_id=${env.telegramBotId}&origin=${origin}&return_to=${callbackURL}`;
-  console.log("TODO: Go to telegram auth page");
 };

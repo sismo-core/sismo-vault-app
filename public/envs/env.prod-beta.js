@@ -13,6 +13,7 @@ window.env = {
   commitmentMapperUrlV2: "https://x93oogcd5e.execute-api.eu-west-1.amazonaws.com",
   commitmentMapperUrlV1: "https://sibgc1bwn8.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "ed165a166320d0676ccb",
+  telegramBotId:"6223780197",
   chainName: "gnosis",
   sismoDestination: {
     address: "0x0000000000000000000000000000000000515110",

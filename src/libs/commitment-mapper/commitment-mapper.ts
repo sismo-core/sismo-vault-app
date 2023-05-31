@@ -18,6 +18,18 @@ export type CommitmentReceiptGithubResult = {
   };
 } & CommitmentReceiptResult;
 
+export type CommitmentReceiptTelegramResult = {
+  account: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    username: string;
+    photo_url: string;
+    auth_date: number;
+    hash: string;
+  };
+} & CommitmentReceiptResult;
+
 export type CommitmentReceiptTwitterResult = {
   account: {
     userId: number;
@@ -54,6 +66,13 @@ export abstract class CommitmentMapper {
     githubCode: string;
     commitment: string;
   }): Promise<CommitmentReceiptGithubResult>;
+  protected abstract _commitTelegramEddsa({
+    payload,
+    commitment,
+  }: {
+    payload: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTelegramResult>;
   protected abstract _commitTwitterEddsa({
     twitterOauthToken,
     twitterOauthVerifier,
@@ -125,6 +144,17 @@ export abstract class CommitmentMapper {
     const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
 
     return await this._commitGithubEddsa({ githubCode, commitment });
+  }
+
+  public async getTelegramCommitmentReceipt(
+    payload: string,
+    accountSecret: string,
+    vaultSecret: string
+  ): Promise<CommitmentReceiptTelegramResult> {
+    const poseidon = await buildPoseidon();
+    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
+
+    return await this._commitTelegramEddsa({ payload, commitment });
   }
 
   public async getTwitterCommitmentReceipt(

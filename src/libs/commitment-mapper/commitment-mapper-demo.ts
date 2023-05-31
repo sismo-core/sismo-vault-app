@@ -2,6 +2,7 @@ import {
   CommitmentMapper,
   CommitmentReceiptGithubResult,
   CommitmentReceiptResult,
+  CommitmentReceiptTelegramResult,
   CommitmentReceiptTwitterResult,
 } from "./commitment-mapper";
 import { commitmentMapperPubKeyDemo, commitmentReceiptDemo } from "./mocks";
@@ -38,6 +39,28 @@ export class CommitmentMapperDemo extends CommitmentMapper {
         name: "data.account.name",
         avatarUrl: "",
         identifier: "1234",
+      },
+    };
+  }
+
+  protected async _commitTelegramEddsa({
+    payload,
+    commitment,
+  }: {
+    payload: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTelegramResult> {
+    return {
+      commitmentMapperPubKey: commitmentMapperPubKeyDemo,
+      commitmentReceipt: commitmentReceiptDemo,
+      account: {
+        id: 1234,
+        first_name: "data.account.first_name",
+        last_name: "data.account.last_name",
+        username: "data.account.username",
+        photo_url: "data.account.photo_url",
+        auth_date: 1234,
+        hash: "data.account.hash",
       },
     };
   }

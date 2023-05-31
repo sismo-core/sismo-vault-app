@@ -60,15 +60,15 @@ export interface ImportingAccount {
 }
 
 type Props = {
-  code?: string;
+  payload?: string;
 };
 
-export default function GenerateAccount({ code }: Props): JSX.Element {
+export default function GenerateAccount({ payload }: Props): JSX.Element {
   const importAccount = useImportAccount();
   const generateRecoveryKey = useGenerateRecoveryKey();
 
   const submit = () => {
-    setTimeout(() => importAccount.importGithub(code), 300);
+    setTimeout(() => importAccount.importTelegram(payload), 300);
     importAccount.close();
   };
 
@@ -76,7 +76,7 @@ export default function GenerateAccount({ code }: Props): JSX.Element {
     <Content>
       <Header style={{ marginBottom: 10 }}>
         <Icon
-          name="logoGithub-fill-white"
+          name="logoTelegram-fill-white"
           style={{ width: 33, marginRight: 10 }}
         />
         <img
@@ -90,12 +90,12 @@ export default function GenerateAccount({ code }: Props): JSX.Element {
       </Header>
       <Title style={{ marginBottom: 20 }}>
         <p>
-          Import your Github <br />
+          Import your Telegram <br />
           <Purple>as an eligible account</Purple>
         </p>
       </Title>
       <Points style={{ marginBottom: 5 }}>
-        <Point>A GitHub account can only be imported into one Vault</Point>
+        <Point>A Telegram account can only be imported into one Vault</Point>
       </Points>
       <Backup
         style={{ marginBottom: 30 }}
