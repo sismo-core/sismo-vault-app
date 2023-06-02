@@ -1,16 +1,16 @@
-//app.sismo.io
+// https://staging.dev.vault-beta.sismo.io/
 window.env = {
   name: "DEV_BETA",
   disabledSentry: false,
   mintingAppUrl: null,
   vaultV2URL: "https://dev.vault-beta-api.sismo.io",
-  vaultV1URL: "https://vault-api.zikies.io",
-  hubApiUrl: "https://hub.sismo.io",
+  vaultV1URL: "https://dev.vault-beta-api.sismo.io",
+  hubApiUrl: "https://hub.testnets.sismo.io",
   factoryApiUrl: "https://factory-api.sismo.io",
   commitmentMapperUrlV2: "https://btwu3bqo4a.execute-api.eu-west-1.amazonaws.com",
   commitmentMapperUrlV1: "https://x5y521b36b.execute-api.eu-west-1.amazonaws.com",
   githubOauthClientId: "d3f98ef4b1abaa0354b0",
-  chainName: "gnosis",
+  chainName: "goerli",
   sismoDestination: {
     address: "0x0000000000000000000000000000000000515110",
     sec: 515110,

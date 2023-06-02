@@ -1,4 +1,4 @@
-//app.sismo.io
+// Your local env
 window.env = {
   name: "DEV_BETA",
   disabledSentry: false,

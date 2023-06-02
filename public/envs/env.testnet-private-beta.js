@@ -1,4 +1,4 @@
-//app.sismo.io
+// https://vault-beta.zikies.io/
 window.env = {
     name: "DEV_BETA",
     disabledSentry: false,
