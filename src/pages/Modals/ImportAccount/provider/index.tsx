@@ -216,16 +216,16 @@ export default function ImportAccountModalProvider({
           vaultSecret
         );
       await vault.importAccount({
-        identifier: account.id.toString(),
+        identifier: account.identifier,
         seed,
         commitmentReceipt,
         commitmentMapperPubKey,
         type: "telegram",
         profile: {
           login: account.username,
-          id: account.id,
-          name: account.first_name,
-          avatar: account.photo_url,
+          id: account.userId,
+          name: account.firstName,
+          avatar: account.photoUrl,
         },
         wallet: {
           accountNumber: accountNumber,

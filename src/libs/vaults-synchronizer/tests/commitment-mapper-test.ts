@@ -62,12 +62,13 @@ export class CommitmentMapperTest extends CommitmentMapper {
       commitmentMapperPubKey: this._pubKey,
       commitmentReceipt: this._commitmentReceipt,
       account: {
-        id: null,
-        first_name: null,
-        last_name: null,
+        identifier: null,
+        firstName: null,
+        lastName: null,
+        userId: null,
         username: null,
-        photo_url: null,
-        auth_date: null,
+        photoUrl: null,
+        authDate: null,
         hash: null,
       },
     };

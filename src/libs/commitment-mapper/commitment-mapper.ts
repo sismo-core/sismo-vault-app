@@ -20,12 +20,13 @@ export type CommitmentReceiptGithubResult = {
 
 export type CommitmentReceiptTelegramResult = {
   account: {
-    id: number;
-    first_name: string;
-    last_name: string;
+    identifier: string;
+    firstName: string;
+    lastName: string;
+    userId: number;
     username: string;
-    photo_url: string;
-    auth_date: number;
+    photoUrl: string;
+    authDate: number;
     hash: string;
   };
 } & CommitmentReceiptResult;

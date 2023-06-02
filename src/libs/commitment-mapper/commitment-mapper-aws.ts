@@ -98,12 +98,13 @@ export class CommitmentMapperAWS extends CommitmentMapper {
         data.commitmentReceipt[2],
       ],
       account: {
-        id: data.account.id,
-        first_name: data.account.first_name,
-        last_name: data.account.last_name,
+        identifier: data.account.identifier,
+        firstName: data.account.first_name,
+        lastName: data.account.last_name,
+        userId: data.account.id,
         username: data.account.username,
-        photo_url: data.account.photo_url,
-        auth_date: data.account.auth_date,
+        photoUrl: data.account.photo_url,
+        authDate: data.account.auth_date,
         hash: data.account.hash,
       },
     };

@@ -53,12 +53,13 @@ export class CommitmentMapperLocal extends CommitmentMapper {
       commitmentMapperPubKey: null,
       commitmentReceipt: null,
       account: {
-        id: null,
-        first_name: null,
-        last_name: null,
+        identifier: null,
+        firstName: null,
+        lastName: null,
+        userId: null,
         username: null,
-        photo_url: null,
-        auth_date: null,
+        photoUrl: null,
+        authDate: null,
         hash: null,
       },
     };

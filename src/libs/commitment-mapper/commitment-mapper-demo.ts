@@ -54,12 +54,13 @@ export class CommitmentMapperDemo extends CommitmentMapper {
       commitmentMapperPubKey: commitmentMapperPubKeyDemo,
       commitmentReceipt: commitmentReceiptDemo,
       account: {
-        id: 1234,
-        first_name: "data.account.first_name",
-        last_name: "data.account.last_name",
+        identifier: "identifier",
+        firstName: "data.account.first_name",
+        lastName: "data.account.last_name",
+        userId: 1234,
         username: "data.account.username",
-        photo_url: "data.account.photo_url",
-        auth_date: 1234,
+        photoUrl: "data.account.photo_url",
+        authDate: 1234,
         hash: "data.account.hash",
       },
     };
