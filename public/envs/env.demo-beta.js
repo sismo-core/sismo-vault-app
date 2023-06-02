@@ -1,4 +1,4 @@
-//app.sismo.io
+// https://demo.vault-beta.sismo.io/
 window.env = {
   name: "DEMO",
   disabledSentry: false,
