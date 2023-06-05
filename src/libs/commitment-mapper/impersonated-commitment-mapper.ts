@@ -3,6 +3,7 @@ import {
   CommitmentMapper,
   CommitmentReceiptGithubResult,
   CommitmentReceiptResult,
+  CommitmentReceiptTelegramResult,
   CommitmentReceiptTwitterResult,
 } from "./commitment-mapper";
 import { BigNumber } from "ethers";
@@ -101,6 +102,51 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
         userId: null,
         username: null,
         identifier: null,
+      },
+    };
+  }
+
+  protected async _commitTwitterV2Eddsa({
+    callback,
+    twitterCode,
+    commitment,
+  }: {
+    callback: string;
+    twitterCode: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTwitterResult> {
+    return {
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
+      account: {
+        userId: null,
+        username: null,
+        identifier: null,
+      },
+    };
+  }
+
+  protected async _commitTelegramEddsa({
+    botId,
+    payload,
+    commitment,
+  }: {
+    botId: string;
+    payload: string;
+    commitment: string;
+  }): Promise<CommitmentReceiptTelegramResult> {
+    return {
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
+      account: {
+        identifier: null,
+        firstName: null,
+        lastName: null,
+        userId: null,
+        username: null,
+        photoUrl: null,
+        authDate: null,
+        hash: null,
       },
     };
   }
