@@ -6,7 +6,7 @@ import {
   VaultClient as VaultClientV1,
   WalletPurpose,
 } from "../vault-client-v1";
-import { VaultClient as VaultClientV2 } from "../vault-client-v2";
+import { VaultClient as VaultClientV2 } from "../vault-client";
 import { getExistingVaultSeed } from "./utils/getVaultSeed";
 import { isAccountInVault } from "./utils/isAccountInVault";
 import { isOwnerInVault } from "./utils/isOwnerInVault";

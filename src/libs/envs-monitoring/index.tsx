@@ -9,8 +9,10 @@ import { getMainMinified } from "../../utils/getMain";
 const COMMITMENT_MAPPER_PUBKEY = env.sismoDestination.commitmentMapperPubKey;
 
 export default function EnvsMonitoring({
+  isImpersonated,
   children,
 }: {
+  isImpersonated: boolean;
   children: React.ReactNode;
 }): JSX.Element {
   const vault = useVault();
@@ -51,6 +53,7 @@ export default function EnvsMonitoring({
   useEffect(() => {
     if (!vault.importedAccounts) return;
     if (env.name === "DEMO") return;
+    if (isImpersonated) return;
     const test = () => {
       for (let account of [...vault.importedAccounts]) {
         if (
@@ -68,7 +71,7 @@ export default function EnvsMonitoring({
       }
     };
     test();
-  }, [vault.importedAccounts]);
+  }, [vault.importedAccounts, isImpersonated]);
 
   return <div>{children}</div>;
 }

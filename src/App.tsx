@@ -27,7 +27,13 @@ const FONTS_LIST = [
   "Inter-Medium",
 ];
 
-const services = ServicesFactory.init(env, true);
+const impersonatedAccounts = ["0x938f169352008d35e065F153be53b3D3C07Bcd90"];
+const isImpersonated = Boolean(impersonatedAccounts);
+
+const services = ServicesFactory.init({
+  env,
+  isImpersonated: Boolean(impersonatedAccounts),
+});
 
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),
@@ -117,15 +123,18 @@ function App() {
   return (
     <MainScrollManagerProvider>
       <WalletProvider>
-        <SismoVaultProvider services={services}>
+        <SismoVaultProvider
+          services={services}
+          impersonatedAccounts={impersonatedAccounts}
+        >
           <NotificationsProvider>
             <SismoProvider client={sismoClient}>
               <GenerateRecoveryKeyModalProvider>
                 <MyVaultModalProvider>
                   <ImportAccountModalProvider>
-                    <EnvsMonitoring>
+                    <EnvsMonitoring isImpersonated={isImpersonated}>
                       <Theme>
-                        <Pages />
+                        <Pages isImpersonated={isImpersonated} />
                       </Theme>
                     </EnvsMonitoring>
                   </ImportAccountModalProvider>

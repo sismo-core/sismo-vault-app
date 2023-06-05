@@ -11,7 +11,7 @@ import { Cache } from "../../cache-service";
 import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
 import env from "../../../environment";
 import { GroupProvider } from "../providers/group-provider";
-import { ImportedAccount } from "../../vault-client-v2";
+import { ImportedAccount } from "../../vault-client";
 
 export class SismoClient {
   private factoryProvider: FactoryProvider;

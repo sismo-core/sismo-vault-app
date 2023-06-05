@@ -13,8 +13,9 @@ export type HashCommitmentReceiptAPIResponse = {
   commitmentReceipt: [string, string, string];
 };
 
-export class ImpersonateCommitmentMapper extends CommitmentMapper {
+export class ImpersonatedCommitmentMapper extends CommitmentMapper {
   private _cache: MemoryCache;
+  public publicSeed = BigNumber.from(1543534646453).toHexString();
 
   constructor() {
     super();
@@ -39,6 +40,31 @@ export class ImpersonateCommitmentMapper extends CommitmentMapper {
     };
   }
 
+  // protected async _commitEddsaFromHandle({
+  //   handle, // e.g "github:ben"
+  //   commitment,
+  // }: {
+  //   handle: string;
+  //   commitment: string;
+  // }): Promise<CommitmentReceiptGithubResult> {
+  //   // account = resolveHandle(handle) // github:...
+
+  //   const { commitmentMapperPubKey, commitmentReceipt } =
+  //     await this._getCommitmentReceip(, commitment);
+
+  //   return {
+  //     commitmentMapperPubKey: null,
+  //     commitmentReceipt: null,
+  //     account: {
+  //       profileId: null,
+  //       login: null,
+  //       name: null,
+  //       avatarUrl: null,
+  //       identifier: null,
+  //     },
+  //   };
+  // }
+
   protected async _commitGithubEddsa({
     githubCode,
     commitment,
@@ -46,12 +72,9 @@ export class ImpersonateCommitmentMapper extends CommitmentMapper {
     githubCode: string;
     commitment: string;
   }): Promise<CommitmentReceiptGithubResult> {
-    const { commitmentMapperPubKey, commitmentReceipt } =
-      await this._getCommitmentReceipt(githubCode, commitment);
-
     return {
-      commitmentMapperPubKey,
-      commitmentReceipt,
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
       account: {
         profileId: null,
         login: null,
@@ -71,12 +94,9 @@ export class ImpersonateCommitmentMapper extends CommitmentMapper {
     twitterOauthVerifier: string;
     commitment: string;
   }): Promise<CommitmentReceiptTwitterResult> {
-    const { commitmentMapperPubKey, commitmentReceipt } =
-      await this._constructCommitmentReceipt(twitterOauthToken, commitment);
-
     return {
-      commitmentMapperPubKey,
-      commitmentReceipt,
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
       account: {
         userId: null,
         username: null,
@@ -134,12 +154,9 @@ export class ImpersonateCommitmentMapper extends CommitmentMapper {
   ): Promise<HashCommitmentReceiptAPIResponse> {
     // instantiate the eddsaAccount of this commitmentMapper implementation
     // this will be used to sign the receipt
-    const secret = {
-      seed: "8f20413d064da1efcc4866807b7781473d2de56abc0e173b84ad437f59abbe15",
-    };
 
     const eddsaAccount = await EddsaAccount.generateFromSeed(
-      BigNumber.from(secret.seed)
+      BigNumber.from(this.publicSeed)
     );
 
     // construct the receipt

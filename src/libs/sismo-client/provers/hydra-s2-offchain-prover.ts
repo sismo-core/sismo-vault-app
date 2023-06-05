@@ -1,5 +1,5 @@
 import { keccak256 } from "ethers/lib/utils";
-import { ImportedAccount } from "../../vault-client-v2";
+import { ImportedAccount } from "../../vault-client";
 import {
   EddsaPublicKey,
   EddsaSignature,

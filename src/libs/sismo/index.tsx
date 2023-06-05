@@ -10,7 +10,7 @@ import {
 } from "../sismo-client/sismo-connect-prover/sismo-connect-v1";
 import { FactoryApp } from "../sismo-client";
 import { GroupMetadata } from "../sismo-client/providers/group-provider";
-import { ImportedAccount } from "../vault-client-v2";
+import { ImportedAccount } from "../vault-client";
 
 export type Sismo = {
   initDevConfig: (sismoConnectRequest: SismoConnectRequest) => void;

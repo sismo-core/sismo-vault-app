@@ -21,7 +21,7 @@ import Button from "../../../components/Button";
 import DataRequests from "./components/DataRequests";
 import ProofModal from "./components/ProofModal";
 import { SignatureRequest } from "./components/SignatureRequest";
-import { ImportedAccount } from "../../../libs/vault-client-v2";
+import { ImportedAccount } from "../../../libs/vault-client";
 import SignInButton from "../../../components/SignInButton";
 
 const Container = styled.div`
