@@ -27,9 +27,13 @@ const FONTS_LIST = [
   "Inter-Medium",
 ];
 
-const impersonatedAccounts = ["0x938f169352008d35e065F153be53b3D3C07Bcd90"];
-const isImpersonated = Boolean(impersonatedAccounts);
+const impersonatedAccounts = [
+  "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+  "0x35Af38bAC1793642D2fd3d71807aA54A56ed8183",
+];
+//const impersonatedAccounts = null;
 
+const isImpersonated = Boolean(impersonatedAccounts);
 const services = ServicesFactory.init({
   env,
   isImpersonated: Boolean(impersonatedAccounts),
@@ -37,6 +41,7 @@ const services = ServicesFactory.init({
 
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),
+  services,
 });
 
 const removeHexadecimalNumbers = (event: Sentry.Event) => {

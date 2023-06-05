@@ -16,7 +16,8 @@ export type HashCommitmentReceiptAPIResponse = {
 
 export class ImpersonatedCommitmentMapper extends CommitmentMapper {
   private _cache: MemoryCache;
-  public publicSeed = BigNumber.from(1543534646453).toHexString();
+  private _privateSeed = BigNumber.from(1543534646453).toHexString();
+  private _commitmentMapperPubKey: [string, string];
 
   constructor() {
     super();
@@ -194,6 +195,20 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     return commitmentReceipt;
   }
 
+  protected async _getCommitmentMapperPubKeyFromSeed(
+    seed: string
+  ): Promise<[string, string]> {
+    const eddsaAccount = await EddsaAccount.generateFromSeed(
+      BigNumber.from(seed)
+    );
+
+    const pubKeyHex = eddsaAccount
+      .getPubKey()
+      .map((pubKey: BigNumber) => pubKey.toHexString()) as [string, string];
+
+    return pubKeyHex;
+  }
+
   protected async _constructCommitmentReceipt(
     ethAddress: string,
     commitment: string
@@ -202,7 +217,7 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     // this will be used to sign the receipt
 
     const eddsaAccount = await EddsaAccount.generateFromSeed(
-      BigNumber.from(this.publicSeed)
+      BigNumber.from(this._privateSeed)
     );
 
     // construct the receipt
@@ -212,7 +227,7 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     );
     const msg = poseidon([ethAddressBigNumber, commitment]);
     // sign the receipt => this is the commitmentReceipt
-    const commitmentReceipt = await eddsaAccount.sign(msg);
+    const commitmentReceipt = eddsaAccount.sign(msg);
 
     // convert bigNumber receipt to HexString
     const commitmentReceiptHex = commitmentReceipt.map((receipt: BigNumber) =>
@@ -222,9 +237,23 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
       .getPubKey()
       .map((coord: BigNumber) => coord.toHexString());
 
+    this._commitmentMapperPubKey = pubKeyHex as [string, string];
+
     return {
-      commitmentMapperPubKey: pubKeyHex as [string, string],
+      commitmentMapperPubKey: this._commitmentMapperPubKey,
       commitmentReceipt: commitmentReceiptHex as [string, string, string],
     };
+  }
+
+  public getPrivateSeed(): string {
+    return this._privateSeed;
+  }
+
+  public async getCommitmentMapperPubKey(): Promise<[string, string]> {
+    if (!this._commitmentMapperPubKey) {
+      this._commitmentMapperPubKey =
+        await this._getCommitmentMapperPubKeyFromSeed(this._privateSeed);
+    }
+    return this._commitmentMapperPubKey;
   }
 }

@@ -19,6 +19,7 @@ type Configuration = {
   commitmentMapperV1: CommitmentMapper;
   commitmentMapper: CommitmentMapper;
   impersonatedVaultCreator: ImpersonatedVaultCreator;
+  isImpersonated: boolean;
 };
 
 export class ServicesFactory {
@@ -45,6 +46,7 @@ export class ServicesFactory {
           url: env.commitmentMapperUrlV2,
         }),
         impersonatedVaultCreator: null,
+        isImpersonated,
       };
       return new ServicesFactory(configuration);
     }
@@ -63,6 +65,7 @@ export class ServicesFactory {
           vaultClient: vaultClient,
           commitmentMapper: commitmentMapper,
         }),
+        isImpersonated,
       };
       return new ServicesFactory(configuration);
     }
@@ -94,6 +97,7 @@ export class ServicesFactory {
       commitmentMapperV1,
       commitmentMapper,
       impersonatedVaultCreator: null,
+      isImpersonated,
     };
 
     return new ServicesFactory(configuration);
@@ -124,5 +128,9 @@ export class ServicesFactory {
 
   public getImpersonatedVaultCreator() {
     return this._configuration.impersonatedVaultCreator;
+  }
+
+  public getIsImpersonated() {
+    return this._configuration.isImpersonated;
   }
 }

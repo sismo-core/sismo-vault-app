@@ -2,6 +2,7 @@ import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { BigNumber } from "ethers";
 import SHA3 from "sha3";
 import { getPoseidon } from "../poseidon";
+import env from "../../environment";
 
 export type CommitmentReceiptResult = {
   commitmentMapperPubKey: [string, string];
@@ -94,6 +95,10 @@ export abstract class CommitmentMapper {
     twitterCode: string;
     commitment: string;
   }): Promise<CommitmentReceiptTwitterResult>;
+
+  public async getCommitmentMapperPubKey(): Promise<[string, string]> {
+    return env.sismoDestination.commitmentMapperPubKey;
+  }
 
   public async migrateEddsa({
     receipt,

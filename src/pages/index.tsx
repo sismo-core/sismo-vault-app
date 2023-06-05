@@ -18,7 +18,6 @@ export default function Pages({
 }: {
   isImpersonated: boolean;
 }): JSX.Element {
-
   const vault = useVault();
   const { open: openMyVault } = useMyVault();
 
@@ -54,9 +53,7 @@ export default function Pages({
       <BrowserRouter>
         {/* Modals */}
 
-        <ImportAccountModal
-          isImpersonated={isImpersonated}
-        />
+        <ImportAccountModal isImpersonated={isImpersonated} />
 
         <ConnectVaultModal
           isOpen={connectIsOpen}
@@ -79,7 +76,7 @@ export default function Pages({
         <GenerateRecoveryKeyModal />
         {/* Detect if the environment is correct and align with onchain data*/}
         <Notifications />
-        <Navbar />
+        <Navbar isImpersonated={isImpersonated} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/connect" element={<Connect />} />

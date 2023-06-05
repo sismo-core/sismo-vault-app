@@ -16,6 +16,7 @@ export const devConfig = {
       groupTimestamp: "latest",
       data: {
         "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045": 2,
+        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 2,
       },
     },
     // {
@@ -100,14 +101,14 @@ export const auths: AuthRequest[] = [
   //   isSelectableByUser: true,
   //   extraData: "",
   // },
-  {
-    authType: AuthType.GITHUB,
-    isAnon: false,
-    userId: "124567",
-    isOptional: false,
-    isSelectableByUser: true,
-    extraData: "",
-  },
+  // {
+  //   authType: AuthType.GITHUB,
+  //   isAnon: false,
+  //   userId: "124567",
+  //   isOptional: false,
+  //   isSelectableByUser: true,
+  //   extraData: "",
+  // },
   {
     authType: AuthType.EVM_ACCOUNT,
     isAnon: false,
@@ -164,5 +165,5 @@ searchParams.set("devConfig", JSON.stringify(devConfig));
 export const sismoConnectRequestMockUrl = url.toString();
 
 export function getMockUrl() {
-  //  console.log(sismoConnectRequestMockUrl);
+  console.log(sismoConnectRequestMockUrl);
 }

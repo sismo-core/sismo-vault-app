@@ -21,9 +21,10 @@ export class ImpersonatedVaultCreator {
     impersonatedAccounts: string[];
   }) {
     this._vaultClient.create();
-
     const vaultSecret = await this._vaultClient.getVaultSecret();
-    const accountSecret = this._commitmentMapper.publicSeed;
+
+    // dynamic
+    const accountSecret = this._commitmentMapper.getPrivateSeed();
 
     const updatedVaultsArray = await Promise.all(
       impersonatedAccounts.map(async (account) => {
@@ -56,6 +57,7 @@ export class ImpersonatedVaultCreator {
 
     const vault = await this._vaultClient.addOwner(owner);
 
+    console.log("vault", vault);
     return {
       vault,
       owner,

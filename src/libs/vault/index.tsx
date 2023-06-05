@@ -93,14 +93,12 @@ export default function SismoVaultProvider({
       }
 
       if (Boolean(impersonatedAccounts)) {
-        console.log("HERE");
         const impersonatedVaultCreator = services.getImpersonatedVaultCreator();
         const { owner, vault } = await impersonatedVaultCreator.create({
           impersonatedAccounts,
         });
-        console.log(owner);
-        vaultState.updateConnectedOwner(owner);
-        vaultState.updateVaultState(vault);
+        await vaultState.updateConnectedOwner(owner);
+        await vaultState.updateVaultState(vault);
         setSynchronizing(false);
         setLoadingActiveSession(false);
         return;

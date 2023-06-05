@@ -410,21 +410,21 @@ export default function Connect(): JSX.Element {
         } else {
           const callbackUrl =
             sismoConnectRequest.callbackPath &&
-              sismoConnectRequest.callbackPath.includes("chrome-extension://")
+            sismoConnectRequest.callbackPath.includes("chrome-extension://")
               ? sismoConnectRequest.callbackPath
               : _referrerHostname +
-                  (sismoConnectRequest.callbackPath
-                    ? sismoConnectRequest.callbackPath
-                    : "");
+                (sismoConnectRequest.callbackPath
+                  ? sismoConnectRequest.callbackPath
+                  : "");
           setCallbackUrlQueryParam(callbackUrl);
           setCallbackUrl(callbackUrl);
         }
       } catch (e) {
         if (isWrongUrl?.status) return;
-        setIsWrongUrl({
-          status: true,
-          message: "Invalid referrer: " + e,
-        });
+        // setIsWrongUrl({
+        //   status: true,
+        //   message: "Invalid referrer: " + e,
+        // });
         console.log(e);
         Sentry.captureException(e);
       }

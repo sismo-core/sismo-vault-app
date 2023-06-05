@@ -25,6 +25,7 @@ import {
 
 import { isHexlify } from "./utils/isHexlify";
 import { SNARK_FIELD } from "@sismo-core/crypto";
+import { ServicesFactory } from "../../../services-factory";
 
 export class SismoConnectProver {
   public version = SISMO_CONNECT_VERSION;
@@ -34,11 +35,13 @@ export class SismoConnectProver {
   constructor({
     factoryProvider,
     cache,
+    services,
   }: {
     factoryProvider: FactoryProvider;
     cache: Cache;
+    services: ServicesFactory;
   }) {
-    this.prover = new HydraS2OffchainProver({ cache });
+    this.prover = new HydraS2OffchainProver({ cache, services });
     this.factoryProvider = factoryProvider;
   }
 
