@@ -1,4 +1,4 @@
-import { CommitmentMapperLocal } from "../../commitment-mapper";
+import { LocalCommitmentMapper } from "../../commitment-mapper";
 import {
   ImportedAccount,
   Owner,
@@ -39,8 +39,8 @@ describe("Vaults Synchronizer", () => {
     vaultClientV2 = new VaultClientV2(storeV2);
 
     vaultSynchronizer = new VaultsSynchronizer({
-      commitmentMapperV1: new CommitmentMapperLocal(),
-      commitmentMapperV2: new CommitmentMapperLocal(),
+      commitmentMapperV1: new LocalCommitmentMapper(),
+      commitmentMapperV2: new LocalCommitmentMapper(),
       vaultClientV2,
       vaultClientV1,
     });

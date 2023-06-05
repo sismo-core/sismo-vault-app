@@ -1,6 +1,6 @@
 import { Cache } from "./cache";
 
-export class InMemoryCache extends Cache {
+export class MemoryCache extends Cache {
   private cache: Map<string, any>;
 
   constructor() {

@@ -7,7 +7,7 @@ import {
   SismoConnectResponse,
   SelectedSismoConnectRequest,
 } from "../sismo-connect-prover/sismo-connect-v1";
-import { Cache } from "../caches";
+import { Cache } from "../../cache-service";
 import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
 import env from "../../../environment";
 import { GroupProvider } from "../providers/group-provider";
@@ -31,6 +31,8 @@ export class SismoClient {
         cache: cache,
       }),
     };
+
+    // Add commitment mapper service
   }
 
   public async initDevConfig(sismoConnectRequest: SismoConnectRequest) {

@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from "ethers";
 import { ImportedAccount } from "../../../vault-client-v2";
-import { Cache } from "../../caches";
+import { Cache } from "../../../cache-service";
 import { HydraS2OffchainProver } from "../../provers/hydra-s2-offchain-prover";
 import { OffchainProofRequest } from "../../provers/types";
 import { FactoryProvider } from "../../providers/factory-provider";

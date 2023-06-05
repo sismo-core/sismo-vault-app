@@ -11,7 +11,7 @@ import {
   VaultInput,
 } from "@sismo-core/hydra-s2";
 import { DevRegistryTreeReader } from "../registry-tree-readers/dev-registry-tree-reader";
-import { Cache } from "../caches";
+import { Cache } from "../../cache-service";
 import { ethers, BigNumber } from "ethers";
 import { CommitmentMapper } from "..";
 import {
@@ -27,6 +27,7 @@ import { ClaimType, DevConfig } from "../sismo-connect-prover/sismo-connect-v1";
 import { RegistryTreeReader } from "../registry-tree-readers/registry-tree-reader";
 
 export class HydraS2OffchainProver extends Prover {
+  // change types to a singgle type RegistryTreeReaderBase (for example)
   registryTreeReader: RegistryTreeReader | DevRegistryTreeReader;
 
   constructor({ cache }: { cache?: Cache }) {
@@ -63,6 +64,7 @@ export class HydraS2OffchainProver extends Prover {
     claimType,
     extraData,
   }: OffchainProofRequest): Promise<SnarkProof> {
+    // service comitment mapper.getCommitmentMapperPubKey
     const commitmentMapperPubKey =
       env.sismoDestination.commitmentMapperPubKey.map((string) =>
         BigNumber.from(string)

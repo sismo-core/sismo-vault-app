@@ -26,10 +26,10 @@ import { getVaultV2ConnectedOwner } from "./utils/getVaultV2ConnectedOwner";
 import { LocalStore } from "../vault-client-v2/stores/local-store";
 import { VaultClientDemo } from "../vault-client-v2/client/client-demo";
 import { demoOwner } from "../vault-client-v2/client/client-demo.mock";
-import { CommitmentMapperDemo } from "../commitment-mapper/commitment-mapper-demo";
 import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
 import { VaultsSynchronizer } from "../vaults-synchronizer";
-import { CommitmentMapper, CommitmentMapperAWS } from "../commitment-mapper";
+import { CommitmentMapper } from "../commitment-mapper";
+import { ServicesFactory } from "../services-factory";
 
 type ReactVault = {
   mnemonics: string[];
@@ -74,12 +74,14 @@ export const SismoVaultContext = React.createContext(null);
 type Props = {
   vaultV2Url: string;
   vaultV1Url: string;
+  services: ServicesFactory;
   children: ReactNode;
 };
 
 export default function SismoVaultProvider({
   vaultV2Url,
   vaultV1Url,
+  services,
   children,
 }: Props): JSX.Element {
   const vaultState = useVaultState();
@@ -88,6 +90,7 @@ export default function SismoVaultProvider({
 
   const vaultClientV2 = useMemo(() => {
     if (!vaultV2Url) return;
+    // TODO: add in memory store for impersonate mode
     if (env.name === "DEMO") return new VaultClientDemo(new LocalStore());
     return new VaultClientV2(new AwsStore({ vaultUrl: vaultV2Url }));
   }, [vaultV2Url]);
@@ -99,12 +102,8 @@ export default function SismoVaultProvider({
   }, [vaultV1Url]);
 
   const vaultSynchronizer = new VaultsSynchronizer({
-    commitmentMapperV1: new CommitmentMapperAWS({
-      url: env.commitmentMapperUrlV1,
-    }),
-    commitmentMapperV2: new CommitmentMapperAWS({
-      url: env.commitmentMapperUrlV2,
-    }),
+    commitmentMapperV1: services.getCommitmentMapperV1(),
+    commitmentMapperV2: services.getCommitmentMapper(),
     vaultClientV2,
     vaultClientV1,
   });
@@ -307,9 +306,8 @@ export default function SismoVaultProvider({
   }, [connect, vaultClientV2]);
 
   const commitmentMapper = useMemo(() => {
-    if (env.name === "DEMO") return new CommitmentMapperDemo();
-    return new CommitmentMapperAWS({ url: env.commitmentMapperUrlV2 });
-  }, []);
+    return services.getCommitmentMapper();
+  }, [services]);
 
   return (
     <SismoVaultContext.Provider
