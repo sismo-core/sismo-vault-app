@@ -1,3 +1,4 @@
+import { sha256 } from "ethers/lib/utils";
 import { ImpersonatedCommitmentMapper } from "../commitment-mapper";
 import { ImportedAccount, Owner, VaultClient, VaultV4 } from "../vault-client";
 
@@ -24,27 +25,48 @@ export class ImpersonatedVaultCreator {
     const vaultSecret = await this._vaultClient.getVaultSecret();
 
     // dynamic
-    const accountSecret = this._commitmentMapper.getPrivateSeed();
+    const updatedVaultsArray = [];
 
-    const updatedVaultsArray = await Promise.all(
-      impersonatedAccounts.map(async (account) => {
-        if (account.startsWith("0x")) {
-          return await this._importAccountFromEthereum({
-            account,
-            accountSecret,
-            vaultSecret,
-          });
-        }
+    for (const account of impersonatedAccounts) {
+      let vault: VaultV4;
+      const accountSecret = sha256(account);
+      if (account.startsWith("0x")) {
+        vault = await this._importAccountFromEthereum({
+          account,
+          accountSecret,
+          vaultSecret,
+        });
+      }
 
-        if (account.startsWith("github:")) {
-          // TODO: implement
-        }
+      if (account.startsWith("github:")) {
+        // TODO: implement
+      }
 
-        if (account.startsWith("twitter:")) {
-          // TODO: implement
-        }
-      })
-    );
+      if (account.startsWith("twitter:")) {
+        // TODO: implement
+      }
+      updatedVaultsArray.push(vault);
+    }
+
+    // const updatedVaultsArray = await Promise.all(
+    //   impersonatedAccounts.map(async (account) => {
+    //     if (account.startsWith("0x")) {
+    //       return await this._importAccountFromEthereum({
+    //         account,
+    //         accountSecret,
+    //         vaultSecret,
+    //       });
+    //     }
+
+    //     if (account.startsWith("github:")) {
+    //       // TODO: implement
+    //     }
+
+    //     if (account.startsWith("twitter:")) {
+    //       // TODO: implement
+    //     }
+    //   })
+    // );
 
     const firstImportedAccount =
       updatedVaultsArray[impersonatedAccounts.length - 1].importedAccounts[0];
@@ -56,7 +78,6 @@ export class ImpersonatedVaultCreator {
     };
 
     const vault = await this._vaultClient.addOwner(owner);
-
     console.log("vault", vault);
     return {
       vault,
