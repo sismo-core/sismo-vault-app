@@ -1,5 +1,8 @@
 import { sha256 } from "ethers/lib/utils";
-import { ImpersonatedCommitmentMapper } from "../commitment-mapper";
+import {
+  CommitmentMapper,
+  ImpersonatedCommitmentMapper,
+} from "../commitment-mapper";
 import { ImportedAccount, Owner, VaultClient, VaultV4 } from "../vault-client";
 
 type Configuration = {
@@ -29,11 +32,11 @@ export class ImpersonatedVaultCreator {
 
     for (const account of impersonatedAccounts) {
       let vault: VaultV4;
-      const accountSecret = sha256(account);
+      const seed = sha256(account);
       if (account.startsWith("0x")) {
         vault = await this._importAccountFromEthereum({
           account,
-          accountSecret,
+          seed,
           vaultSecret,
         });
       }
@@ -78,7 +81,6 @@ export class ImpersonatedVaultCreator {
     };
 
     const vault = await this._vaultClient.addOwner(owner);
-    console.log("vault", vault);
     return {
       vault,
       owner,
@@ -87,24 +89,27 @@ export class ImpersonatedVaultCreator {
 
   private async _importAccountFromEthereum({
     account,
-    accountSecret,
+    seed,
     vaultSecret,
   }: {
     account: string;
-    accountSecret: string;
+    seed: string;
     vaultSecret: string;
   }): Promise<VaultV4> {
+    const commitmentMapperSecret =
+      CommitmentMapper.generateCommitmentMapperSecret(seed);
+
     const { commitmentMapperPubKey, commitmentReceipt } =
       await this._commitmentMapper.getEthereumCommitmentReceipt(
         account,
         "eth-signature-not-used",
-        accountSecret,
+        commitmentMapperSecret,
         vaultSecret
       );
 
     const importedAccount: ImportedAccount = {
       identifier: account,
-      seed: accountSecret,
+      seed: seed,
       commitmentReceipt,
       commitmentMapperPubKey,
       type: "ethereum",

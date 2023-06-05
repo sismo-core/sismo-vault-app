@@ -225,6 +225,7 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     const ethAddressBigNumber = BigNumber.from(ethAddress.toLowerCase()).mod(
       SNARK_FIELD
     );
+
     const msg = poseidon([ethAddressBigNumber, commitment]);
     // sign the receipt => this is the commitmentReceipt
     const commitmentReceipt = eddsaAccount.sign(msg);
@@ -254,6 +255,7 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
       this._commitmentMapperPubKey =
         await this._getCommitmentMapperPubKeyFromSeed(this._privateSeed);
     }
+
     return this._commitmentMapperPubKey;
   }
 }

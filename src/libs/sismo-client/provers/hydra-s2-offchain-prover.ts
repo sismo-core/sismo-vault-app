@@ -73,8 +73,6 @@ export class HydraS2OffchainProver extends Prover {
     claimType,
     extraData,
   }: OffchainProofRequest): Promise<SnarkProof> {
-    console.log(this._services);
-
     const commitmentMapperPubKey = await this._services
       .getCommitmentMapper()
       .getCommitmentMapperPubKey();
@@ -281,9 +279,6 @@ export class HydraS2OffchainProver extends Prover {
     if (destination) {
       const hydraS2Account: HydraS2Account =
         this.getHydraS2Account(destination);
-
-      console.log("destination: ", destination);
-      console.log("hydraS2Account: ", hydraS2Account);
 
       userParams["destination"] = {
         ...hydraS2Account,

@@ -2,7 +2,7 @@ import {
   AuthRequest,
   AuthType,
   ClaimRequest,
-  //ClaimType,
+  ClaimType,
   SignatureRequest,
   SismoConnectRequest,
 } from "../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
@@ -45,15 +45,15 @@ export const devConfig = {
 };
 
 export const claims: ClaimRequest[] = [
-  // {
-  //   claimType: ClaimType.GTE,
-  //   groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-  //   groupTimestamp: "latest",
-  //   isOptional: false,
-  //   isSelectableByUser: true,
-  //   value: 2,
-  //   extraData: "",
-  // } as ClaimRequest,
+  {
+    claimType: ClaimType.GTE,
+    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
+    groupTimestamp: "latest",
+    isOptional: false,
+    isSelectableByUser: true,
+    value: 2,
+    extraData: "",
+  } as ClaimRequest,
   // {
   //   claimType: ClaimType.GTE,
   //   groupId: "0xd138c33e8a6a450336a6c5dda990cf95",

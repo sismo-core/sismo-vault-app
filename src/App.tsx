@@ -28,8 +28,7 @@ const FONTS_LIST = [
 ];
 
 const impersonatedAccounts = [
-  "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-  "0x35Af38bAC1793642D2fd3d71807aA54A56ed8183",
+  "0x938f169352008d35e065F153be53b3D3C07Bcd90".toLowerCase(),
 ];
 //const impersonatedAccounts = null;
 
