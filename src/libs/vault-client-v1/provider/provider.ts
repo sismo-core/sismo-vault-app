@@ -1,6 +1,6 @@
 import SHA3 from "sha3";
 import CryptoJS from "crypto-js";
-import { BaseStore } from "../stores/base-store";
+import { BaseStore } from "../../vault-store/base-store";
 
 export class VaultProvider {
   private store: BaseStore;

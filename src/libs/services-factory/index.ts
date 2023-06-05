@@ -4,11 +4,15 @@ import {
   CommitmentMapper,
   ImpersonateCommitmentMapper,
 } from "../commitment-mapper";
+import { VaultClient as VaultClientV1 } from "../vault-client-v1";
+import { VaultClient } from "../vault-client-v2";
+import { AWSStore } from "../vault-store/aws-store";
+import { MemoryStore } from "../vault-store/memory-store";
 
 // factory service
 type Configuration = {
-  // vaultV1Store: VaultStore;
-  // vaultStore: VaultStore; // V2
+  vaultClientV1: VaultClientV1;
+  vaultClient: VaultClient; // V2
   commitmentMapperV1: CommitmentMapper;
   commitmentMapper: CommitmentMapper;
 };
@@ -23,8 +27,10 @@ export class ServicesFactory {
   static init(env: Environment, impersonateMode: boolean) {
     if (env.name === "DEMO") {
       return new ServicesFactory({
-        // vaultV1Store: null,
-        // vaultStore: new AwsVaultStore({ vaultUrl: env.vaultV2Url }),
+        vaultClientV1: null,
+        vaultClient: new VaultClient(
+          new AWSStore({ vaultUrl: env.vaultV2URL })
+        ),
         commitmentMapperV1: null,
         commitmentMapper: new AWSCommitmentMapper({
           url: env.commitmentMapperUrlV2,
@@ -34,16 +40,18 @@ export class ServicesFactory {
 
     if (impersonateMode) {
       return new ServicesFactory({
-        // vaultV1Store: null,
-        // vaultStore: new InMemoryVaultStore(),
+        vaultClientV1: null,
+        vaultClient: new VaultClient(new MemoryStore()),
         commitmentMapperV1: null,
         commitmentMapper: new ImpersonateCommitmentMapper(),
       });
     }
 
     return new ServicesFactory({
-      // vaultV1Store: new AwsVaultStore({ vaultUrl: env.vaultV1Url });
-      // vaultStore: new AwsVaultStore({ vaultUrl: env.vaultV2Url });
+      vaultClientV1: new VaultClientV1(
+        new AWSStore({ vaultUrl: env.vaultV1URL })
+      ),
+      vaultClient: new VaultClient(new AWSStore({ vaultUrl: env.vaultV2URL })),
       commitmentMapperV1: new AWSCommitmentMapper({
         url: env.commitmentMapperUrlV1,
       }),
@@ -61,12 +69,14 @@ export class ServicesFactory {
     return this._configuration.commitmentMapper;
   }
 
-  public getVaultV1() {
+  public getVaultClientV1() {
+    return this._configuration.vaultClientV1;
     // if (!this._configuration.vaultStoreV1) return null;
     // return new VaultClient({ store: this._configuration.vaultStoreV1 });
   }
 
-  public getVault() {
+  public getVaultClient() {
+    return this._configuration.vaultClient;
     //	return new VaultClient({ store: this._configuration.vaultStore });
   }
 }

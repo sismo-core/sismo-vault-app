@@ -3,7 +3,7 @@ import { Seed } from "../../sismo-client";
 import migration from "../migration/migration";
 import { ImportedAccount } from "..";
 import { VaultProvider } from "../provider/provider";
-import { BaseStore } from "../stores/base-store";
+import { BaseStore } from "../../vault-store/base-store";
 import { SismoWallet, WalletPurpose } from "../wallet";
 import { RecoveryKey, Vault } from "./client.types";
 import SHA3 from "sha3";

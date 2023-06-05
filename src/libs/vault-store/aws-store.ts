@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BaseStore } from "./base-store";
 
-export class AwsStore extends BaseStore {
+export class AWSStore extends BaseStore {
   private vaultUrl: string;
 
   constructor({ vaultUrl }: { vaultUrl: string }) {

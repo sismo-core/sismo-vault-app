@@ -6,8 +6,8 @@ import {
   Vault,
   VaultClient as VaultClientV1,
 } from "../../vault-client-v1";
-import { LocalStore } from "../../vault-client-v1/stores/local-store";
 import { VaultClient as VaultClientV2 } from "../../vault-client-v2";
+import { LocalStore } from "../../vault-store/local-store";
 import { isAccountInVault } from "../utils/isAccountInVault";
 import { isOwnerInVault } from "../utils/isOwnerInVault";
 import { isRecoveryKeyInVault } from "../utils/isRecoveryKeyInVault";

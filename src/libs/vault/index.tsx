@@ -16,15 +16,10 @@ import {
   Owner,
   RecoveryKey,
   Vault,
-  VaultClient as VaultClientV2,
   WalletPurpose,
 } from "../vault-client-v2";
-import { VaultClient as VaultClientV1 } from "../vault-client-v1";
-import { AwsStore } from "../vault-client-v2/stores/aws-store";
 import { useVaultState } from "./useVaultState";
 import { getVaultV2ConnectedOwner } from "./utils/getVaultV2ConnectedOwner";
-import { LocalStore } from "../vault-client-v2/stores/local-store";
-import { VaultClientDemo } from "../vault-client-v2/client/client-demo";
 import { demoOwner } from "../vault-client-v2/client/client-demo.mock";
 import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
 import { VaultsSynchronizer } from "../vaults-synchronizer";
@@ -72,15 +67,11 @@ export const useVault = (): ReactVault => {
 export const SismoVaultContext = React.createContext(null);
 
 type Props = {
-  vaultV2Url: string;
-  vaultV1Url: string;
   services: ServicesFactory;
   children: ReactNode;
 };
 
 export default function SismoVaultProvider({
-  vaultV2Url,
-  vaultV1Url,
   services,
   children,
 }: Props): JSX.Element {
@@ -88,18 +79,8 @@ export default function SismoVaultProvider({
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
   const [synchronizing, setSynchronizing] = useState(false);
 
-  const vaultClientV2 = useMemo(() => {
-    if (!vaultV2Url) return;
-    // TODO: add in memory store for impersonate mode
-    if (env.name === "DEMO") return new VaultClientDemo(new LocalStore());
-    return new VaultClientV2(new AwsStore({ vaultUrl: vaultV2Url }));
-  }, [vaultV2Url]);
-
-  const vaultClientV1 = useMemo(() => {
-    if (!vaultV1Url) return;
-    if (env.name === "DEMO") return null;
-    return new VaultClientV1(new AwsStore({ vaultUrl: vaultV1Url }));
-  }, [vaultV1Url]);
+  const vaultClientV2 = services.getVaultClient();
+  const vaultClientV1 = services.getVaultClientV1();
 
   const vaultSynchronizer = new VaultsSynchronizer({
     commitmentMapperV1: services.getCommitmentMapperV1(),
