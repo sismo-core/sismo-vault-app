@@ -79,7 +79,10 @@ export default function Pages({
         <Navbar isImpersonated={isImpersonated} />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/connect" element={<Connect />} />
+          <Route
+            path="/connect"
+            element={<Connect isImpersonated={isImpersonated} />}
+          />
           {/* <Route
             path="*"
             element={<Navigate to={`/connect`} replace={true} />}

@@ -26,22 +26,21 @@ import env from "../../../environment";
 import { ClaimType, DevConfig } from "../sismo-connect-prover/sismo-connect-v1";
 import { RegistryTreeReader } from "../registry-tree-readers/registry-tree-reader";
 import { RegistryTreeReaderBase } from "../registry-tree-readers/types";
-import { ServicesFactory } from "../../services-factory";
 
-export class HydraS2OffchainProver extends Prover {
+export class HydraS2ClientProver extends Prover {
   private _registryTreeReader: RegistryTreeReaderBase;
-  private _services: ServicesFactory;
+  private _commitmentMapperService: CommitmentMapper;
 
   constructor({
     cache,
-    services,
+    commitmentMapperService,
   }: {
     cache?: Cache;
-    services: ServicesFactory;
+    commitmentMapperService: CommitmentMapper;
   }) {
     super();
     this._registryTreeReader = new RegistryTreeReader({ cache });
-    this._services = services;
+    this._commitmentMapperService = commitmentMapperService;
   }
 
   public async initDevConfig(devConfig?: DevConfig) {
@@ -73,9 +72,8 @@ export class HydraS2OffchainProver extends Prover {
     claimType,
     extraData,
   }: OffchainProofRequest): Promise<SnarkProof> {
-    const commitmentMapperPubKey = await this._services
-      .getCommitmentMapper()
-      .getCommitmentMapperPubKey();
+    const commitmentMapperPubKey =
+      await this._commitmentMapperService.getPubKey();
 
     const eddsaPublicKey = commitmentMapperPubKey.map((string) =>
       BigNumber.from(string)

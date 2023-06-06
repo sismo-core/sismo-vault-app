@@ -10,6 +10,7 @@ import { AWSStore } from "../vault-store/aws-store";
 import { MemoryStore } from "../vault-store/memory-store";
 import { VaultsSynchronizer } from "../vaults-synchronizer";
 import { ImpersonatedVaultCreator } from "../impersonated-vault-creator";
+import { Web2Resolver } from "../web2-resolver";
 
 // factory service
 type Configuration = {
@@ -19,6 +20,7 @@ type Configuration = {
   commitmentMapperV1: CommitmentMapper;
   commitmentMapper: CommitmentMapper;
   impersonatedVaultCreator: ImpersonatedVaultCreator;
+  web2Resolver: Web2Resolver;
   isImpersonated: boolean;
 };
 
@@ -46,6 +48,7 @@ export class ServicesFactory {
           url: env.commitmentMapperUrlV2,
         }),
         impersonatedVaultCreator: null,
+        web2Resolver: new Web2Resolver(),
         isImpersonated,
       };
       return new ServicesFactory(configuration);
@@ -54,6 +57,7 @@ export class ServicesFactory {
     if (isImpersonated) {
       const vaultClient = new VaultClient(new MemoryStore());
       const commitmentMapper = new ImpersonatedCommitmentMapper();
+      const web2Resolver = new Web2Resolver();
 
       const configuration = {
         vaultsSynchronizer: null,
@@ -64,7 +68,9 @@ export class ServicesFactory {
         impersonatedVaultCreator: new ImpersonatedVaultCreator({
           vaultClient: vaultClient,
           commitmentMapper: commitmentMapper,
+          web2Resolver: web2Resolver,
         }),
+        web2Resolver: web2Resolver,
         isImpersonated,
       };
       return new ServicesFactory(configuration);
@@ -97,6 +103,7 @@ export class ServicesFactory {
       commitmentMapperV1,
       commitmentMapper,
       impersonatedVaultCreator: null,
+      web2Resolver: new Web2Resolver(),
       isImpersonated,
     };
 
@@ -113,13 +120,10 @@ export class ServicesFactory {
 
   public getVaultClientV1() {
     return this._configuration.vaultClientV1;
-    // if (!this._configuration.vaultStoreV1) return null;
-    // return new VaultClient({ store: this._configuration.vaultStoreV1 });
   }
 
   public getVaultClient() {
     return this._configuration.vaultClient;
-    //	return new VaultClient({ store: this._configuration.vaultStore });
   }
 
   public getVaultsSynchronizer() {

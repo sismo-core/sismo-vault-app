@@ -10,50 +10,41 @@ import {
 export const devConfig = {
   enabled: true,
   displayRawResponse: true,
-  devGroups: [
-    {
-      groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-      groupTimestamp: "latest",
-      data: {
-        "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045": 2,
-        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 2,
-      },
-    },
-    // {
-    //   groupId: "0x8d5e3ee2049c1c7d363ea88b2b424877",
-    //   groupTimestamp: "latest",
-    //   data: {
-    //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
-    //   },
-    // },
-    // {
-    //   groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
-    //   groupTimestamp: "latest",
-    //   data: {
-    //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+  // devGroups: [
+  //   {
+  //     groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
+  //     groupTimestamp: "latest",
+  //     data: {
+  //       "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045": 2,
+  //       "0x938f169352008d35e065F153be53b3D3C07Bcd90": 2,
+  //     },
+  //   },
+  // {
+  //   groupId: "0x8d5e3ee2049c1c7d363ea88b2b424877",
+  //   groupTimestamp: "latest",
+  //   data: {
+  //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+  //   },
+  // },
+  // {
+  //   groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
+  //   groupTimestamp: "latest",
+  //   data: {
+  //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
 
-    //   },
-    // },
-    // {
-    //   groupId: "0x682544d549b8a461d7fe3e589846bb7b",
-    //   groupTimestamp: "latest",
-    //   data: {
-    //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
-    //   },
-    // },
-  ],
+  //   },
+  // },
+  // {
+  //   groupId: "0x682544d549b8a461d7fe3e589846bb7b",
+  //   groupTimestamp: "latest",
+  //   data: {
+  //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+  //   },
+  // },
+  // ],
 };
 
 export const claims: ClaimRequest[] = [
-  {
-    claimType: ClaimType.GTE,
-    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-    groupTimestamp: "latest",
-    isOptional: false,
-    isSelectableByUser: true,
-    value: 2,
-    extraData: "",
-  } as ClaimRequest,
   // {
   //   claimType: ClaimType.GTE,
   //   groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
@@ -63,15 +54,26 @@ export const claims: ClaimRequest[] = [
   //   value: 2,
   //   extraData: "",
   // } as ClaimRequest,
-  // {
-  //   claimType: ClaimType.GTE,
-  //   groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-  //   groupTimestamp: "latest",
-  //   isOptional: true,
-  //   isSelectableByUser: true,
-  //   value: 2,
-  //   extraData: "",
-  // } as ClaimRequest,
+  //sismo-contributors
+  {
+    claimType: ClaimType.GTE,
+    groupId: "0xe9ed316946d3d98dfcd829a53ec9822e",
+    groupTimestamp: "latest",
+    isOptional: false,
+    isSelectableByUser: true,
+    value: 2,
+    extraData: "",
+  } as ClaimRequest,
+  {
+    claimType: ClaimType.GTE,
+    // twitter ethereum influencers : groupId 0xa92d84058abdb05961ada4de0f902b0c
+    groupId: "0xa92d84058abdb05961ada4de0f902b0c",
+    groupTimestamp: "latest",
+    isOptional: false,
+    isSelectableByUser: true,
+    value: 2,
+    extraData: "",
+  } as ClaimRequest,
 ];
 
 //0x1878EA9134D500A3cEF3E89589ECA3656EECf48f

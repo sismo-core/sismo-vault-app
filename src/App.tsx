@@ -28,7 +28,14 @@ const FONTS_LIST = [
 ];
 
 const impersonatedAccounts = [
-  "0x938f169352008d35e065F153be53b3D3C07Bcd90".toLowerCase(),
+  //"0x938f169352008d35e065F153be53b3D3C07Bcd90",
+  // "github:Baoufa",
+  // "github:leosayous21",
+  // "github:gabin54",
+  "twitter:VitalikButerin:295218901",
+  //"twitter:VitalikButerin",
+  // "twitter:hasufl:566534886",
+  // "twitter:haydenzadams:702654540387127296",
 ];
 //const impersonatedAccounts = null;
 

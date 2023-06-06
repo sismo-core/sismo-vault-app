@@ -5,9 +5,12 @@ import {
   CommitmentReceiptResult,
   CommitmentReceiptTelegramResult,
   CommitmentReceiptTwitterResult,
+  Web2ImpersonatedCommitmentResult,
 } from "./commitment-mapper";
 import { BigNumber } from "ethers";
 import { MemoryCache } from "../cache-service";
+import { ImportedAccount } from "../vault-client";
+import { getPoseidon } from "../poseidon";
 
 export type HashCommitmentReceiptAPIResponse = {
   commitmentMapperPubKey: [string, string];
@@ -17,11 +20,38 @@ export type HashCommitmentReceiptAPIResponse = {
 export class ImpersonatedCommitmentMapper extends CommitmentMapper {
   private _cache: MemoryCache;
   private _privateSeed = BigNumber.from(1543534646453).toHexString();
-  private _commitmentMapperPubKey: [string, string];
 
   constructor() {
     super();
     this._cache = new MemoryCache();
+  }
+
+  public async getWeb2ImpersonatedCommitmentReceipt(
+    account: Partial<ImportedAccount>,
+    accountSecret: string,
+    vaultSecret: string
+  ): Promise<Web2ImpersonatedCommitmentResult> {
+    const poseidon = await getPoseidon();
+    const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
+
+    const { commitmentMapperPubKey, commitmentReceipt } =
+      await this._commitEthereumEddsa({
+        ethAddress: account.identifier,
+        ethSignature: "",
+        commitment,
+      });
+
+    return {
+      identifier: account.identifier,
+      commitmentMapperPubKey,
+      commitmentReceipt,
+      profile: {
+        id: account.profile?.id,
+        login: account.profile?.login,
+        name: account.profile?.name,
+        avatar: account.profile?.avatar,
+      },
+    };
   }
 
   protected async _commitEthereumEddsa({
@@ -41,31 +71,6 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
       commitmentReceipt,
     };
   }
-
-  // protected async _commitEddsaFromHandle({
-  //   handle, // e.g "github:ben"
-  //   commitment,
-  // }: {
-  //   handle: string;
-  //   commitment: string;
-  // }): Promise<CommitmentReceiptGithubResult> {
-  //   // account = resolveHandle(handle) // github:...
-
-  //   const { commitmentMapperPubKey, commitmentReceipt } =
-  //     await this._getCommitmentReceip(, commitment);
-
-  //   return {
-  //     commitmentMapperPubKey: null,
-  //     commitmentReceipt: null,
-  //     account: {
-  //       profileId: null,
-  //       login: null,
-  //       name: null,
-  //       avatarUrl: null,
-  //       identifier: null,
-  //     },
-  //   };
-  // }
 
   protected async _commitGithubEddsa({
     githubCode,
@@ -171,7 +176,7 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     };
   }
 
-  protected async _getCommitmentReceipt(
+  private async _getCommitmentReceipt(
     ethAddress: string,
     commitment: string
   ): Promise<HashCommitmentReceiptAPIResponse> {
@@ -195,11 +200,9 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     return commitmentReceipt;
   }
 
-  protected async _getCommitmentMapperPubKeyFromSeed(
-    seed: string
-  ): Promise<[string, string]> {
+  private async _getPubKeyFromSeed(): Promise<[string, string]> {
     const eddsaAccount = await EddsaAccount.generateFromSeed(
-      BigNumber.from(seed)
+      BigNumber.from(this._privateSeed)
     );
 
     const pubKeyHex = eddsaAccount
@@ -209,7 +212,7 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     return pubKeyHex;
   }
 
-  protected async _constructCommitmentReceipt(
+  private async _constructCommitmentReceipt(
     ethAddress: string,
     commitment: string
   ): Promise<HashCommitmentReceiptAPIResponse> {
@@ -238,24 +241,13 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
       .getPubKey()
       .map((coord: BigNumber) => coord.toHexString());
 
-    this._commitmentMapperPubKey = pubKeyHex as [string, string];
-
     return {
-      commitmentMapperPubKey: this._commitmentMapperPubKey,
+      commitmentMapperPubKey: pubKeyHex as [string, string],
       commitmentReceipt: commitmentReceiptHex as [string, string, string],
     };
   }
 
-  public getPrivateSeed(): string {
-    return this._privateSeed;
-  }
-
-  public async getCommitmentMapperPubKey(): Promise<[string, string]> {
-    if (!this._commitmentMapperPubKey) {
-      this._commitmentMapperPubKey =
-        await this._getCommitmentMapperPubKeyFromSeed(this._privateSeed);
-    }
-
-    return this._commitmentMapperPubKey;
+  public async getPubKey(): Promise<[string, string]> {
+    return await this._getPubKeyFromSeed();
   }
 }
