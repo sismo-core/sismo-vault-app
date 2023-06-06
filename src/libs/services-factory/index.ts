@@ -21,7 +21,6 @@ type Configuration = {
   commitmentMapper: CommitmentMapper;
   impersonatedVaultCreator: ImpersonatedVaultCreator;
   web2Resolver: Web2Resolver;
-  isImpersonated: boolean;
 };
 
 export class ServicesFactory {
@@ -49,7 +48,6 @@ export class ServicesFactory {
         }),
         impersonatedVaultCreator: null,
         web2Resolver: new Web2Resolver(),
-        isImpersonated,
       };
       return new ServicesFactory(configuration);
     }
@@ -71,7 +69,6 @@ export class ServicesFactory {
           web2Resolver: web2Resolver,
         }),
         web2Resolver: web2Resolver,
-        isImpersonated,
       };
       return new ServicesFactory(configuration);
     }
@@ -104,7 +101,6 @@ export class ServicesFactory {
       commitmentMapper,
       impersonatedVaultCreator: null,
       web2Resolver: new Web2Resolver(),
-      isImpersonated,
     };
 
     return new ServicesFactory(configuration);
@@ -134,7 +130,7 @@ export class ServicesFactory {
     return this._configuration.impersonatedVaultCreator;
   }
 
-  public getIsImpersonated() {
-    return this._configuration.isImpersonated;
+  public getWeb2Resolver() {
+    return this._configuration.web2Resolver;
   }
 }

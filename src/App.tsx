@@ -28,13 +28,14 @@ const FONTS_LIST = [
 ];
 
 const impersonatedAccounts = [
-  //"0x938f169352008d35e065F153be53b3D3C07Bcd90",
-  // "github:Baoufa",
-  // "github:leosayous21",
-  // "github:gabin54",
-  "twitter:VitalikButerin:295218901",
-  //"twitter:VitalikButerin",
-  // "twitter:hasufl:566534886",
+  "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+  "0x938f169352008d35e0",
+  "github:Baoufa",
+  // // "github:leosayous21",
+  "github:gabin5fzefezfez",
+  // "twitter:VitalikButerin:295218901",
+  "twitter:VitalikButerin",
+  "twitter:hasufl:566534886",
   // "twitter:haydenzadams:702654540387127296",
 ];
 //const impersonatedAccounts = null;
@@ -42,7 +43,7 @@ const impersonatedAccounts = [
 const isImpersonated = Boolean(impersonatedAccounts);
 const services = ServicesFactory.init({
   env,
-  isImpersonated: Boolean(impersonatedAccounts),
+  isImpersonated,
 });
 
 const sismoClient = new SismoClient({
@@ -134,11 +135,11 @@ function App() {
   return (
     <MainScrollManagerProvider>
       <WalletProvider>
-        <SismoVaultProvider
-          services={services}
-          impersonatedAccounts={impersonatedAccounts}
-        >
-          <NotificationsProvider>
+        <NotificationsProvider>
+          <SismoVaultProvider
+            services={services}
+            impersonatedAccounts={impersonatedAccounts}
+          >
             <SismoProvider client={sismoClient}>
               <GenerateRecoveryKeyModalProvider>
                 <MyVaultModalProvider>
@@ -152,8 +153,8 @@ function App() {
                 </MyVaultModalProvider>
               </GenerateRecoveryKeyModalProvider>
             </SismoProvider>
-          </NotificationsProvider>
-        </SismoVaultProvider>
+          </SismoVaultProvider>
+        </NotificationsProvider>
       </WalletProvider>
     </MainScrollManagerProvider>
   );

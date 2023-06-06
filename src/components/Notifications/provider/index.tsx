@@ -1,7 +1,7 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useCallback, useContext, useRef, useState } from "react";
 
 export type NotificationsState = {
-  notificationAdded: (notification: Notification) => void;
+  notificationAdded: (notification: Notification, timeout?: number) => void;
   notificationDeleted: (id: number) => void;
   notifications: Notification[];
 };
@@ -26,28 +26,32 @@ export default function NotificationsProvider({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const id = useRef(0);
 
-  const notificationAdded = (notification: Notification) => {
-    const _notifications = [...notifications];
+  const notificationAdded = useCallback(
+    (notification: Notification, timeout?: number) => {
+      setNotifications((currentNotifications) => {
+        const _notifications = [...currentNotifications];
 
-    _notifications.push({
-      ...notification,
-      id: id.current,
-    });
+        _notifications.push({
+          ...notification,
+          id: id.current,
+        });
 
-    const _id = id.current;
-    setTimeout(() => {
-      notificationDeleted(_id);
-    }, 8000);
+        const _id = id.current;
+        setTimeout(() => {
+          notificationDeleted(_id);
+        }, timeout || 8000);
 
-    id.current = id.current + 1;
+        id.current = id.current + 1;
 
-    if (_notifications.length > 8) {
-      _notifications.shift();
-    }
+        if (_notifications.length > 8) {
+          _notifications.shift();
+        }
 
-    setNotifications(_notifications);
-  };
-
+        return _notifications;
+      });
+    },
+    []
+  );
   const notificationDeleted = (id: number) => {
     setNotifications((currentNotifications) => {
       const _notifications = [...currentNotifications];

@@ -4,7 +4,8 @@ import {
   ImpersonatedCommitmentMapper,
 } from "../commitment-mapper";
 import { ImportedAccount, Owner, VaultClient, VaultV4 } from "../vault-client";
-import { Web2Resolver } from "../web2-resolver";
+import { IdentifierType, Web2Resolver } from "../web2-resolver";
+import { isValidEthAddress } from "../../utils/regex";
 
 type Configuration = {
   vaultClient: VaultClient;
@@ -23,20 +24,89 @@ export class ImpersonatedVaultCreator {
     this._web2Resolver = configuration.web2Resolver;
   }
 
+  public async getImpersonationState({
+    impersonatedAccounts,
+  }: {
+    impersonatedAccounts: string[];
+  }): Promise<{
+    isImpersonated: boolean;
+    validAccounts: string[];
+    impersonationErrors: string[];
+  }> {
+    const validAccounts = [];
+    const impersonationErrors = [];
+
+    for (const account of impersonatedAccounts) {
+      if (account.startsWith("0x")) {
+        isValidEthAddress(account)
+          ? validAccounts.push(account)
+          : impersonationErrors.push(
+              `Invalid impersonated Ethereum address: ${account}`
+            );
+        continue;
+      }
+
+      const identifierType = this._web2Resolver.getIdentifierType(account);
+
+      if (identifierType && identifierType !== IdentifierType.GITHUB) {
+        const parsedProfileType = account.split(":")[0];
+        const parsedProfileHandle = account.split(":")[1];
+        const parsedProfileId = account.split(":")[2];
+
+        if (!parsedProfileId) {
+          impersonationErrors.push(
+            `Invalid impersonated identifier: ${account} - please use the following format ${parsedProfileType}:${parsedProfileHandle}:{id}`
+          );
+          continue;
+        }
+
+        try {
+          await this._web2Resolver.resolve(account);
+          validAccounts.push(account);
+          continue;
+        } catch (e) {
+          impersonationErrors.push(
+            `Invalid impersonated identifier: ${account} - ${e}`
+          );
+          continue;
+        }
+      }
+
+      if (identifierType === IdentifierType.GITHUB) {
+        try {
+          await this._web2Resolver.resolve(account);
+          validAccounts.push(account);
+          continue;
+        } catch (e) {
+          impersonationErrors.push(
+            `Invalid impersonated identifier: ${account} - ${e}`
+          );
+          continue;
+        }
+      }
+    }
+
+    return {
+      isImpersonated: validAccounts.length > 0,
+      validAccounts,
+      impersonationErrors,
+    };
+  }
+
   public async create({
     impersonatedAccounts,
   }: {
     impersonatedAccounts: string[];
   }) {
-    const initialVault = this._vaultClient.create();
-    const updatedVaultsArray: VaultV4[] = [];
-    updatedVaultsArray.push(initialVault);
+    const { validAccounts } = await this.getImpersonationState({
+      impersonatedAccounts,
+    });
+
+    let vault = this._vaultClient.create();
     const vaultSecret = await this._vaultClient.getVaultSecret();
 
-    for (const account of impersonatedAccounts) {
+    for (const account of validAccounts) {
       try {
-        let vault: VaultV4;
-
         // if account is an ethereum address
         if (account.startsWith("0x")) {
           const seed = sha256(account);
@@ -45,7 +115,6 @@ export class ImpersonatedVaultCreator {
             seed,
             vaultSecret,
           });
-          updatedVaultsArray.push(vault);
           continue;
         }
 
@@ -54,23 +123,15 @@ export class ImpersonatedVaultCreator {
           const resolvedAccount = await this._web2Resolver.resolve(account);
           const seed = sha256(resolvedAccount.identifier);
 
-          const accountNumber =
-            updatedVaultsArray[
-              updatedVaultsArray.length - 1
-            ].importedAccounts.filter(
-              (el) =>
-                el.wallet && el.wallet.mnemonic === initialVault.mnemonics[0]
-            )?.length || 0;
+          const accountNumber = this._getAccountNumber(vault);
 
           vault = await this._importAccountFromWeb2({
             account: resolvedAccount,
             seed,
             vaultSecret,
-            mnemonic: initialVault.mnemonics[0],
+            mnemonic: vault.mnemonics[0],
             accountNumber: accountNumber,
           });
-
-          updatedVaultsArray.push(vault);
           continue;
         }
       } catch (e) {
@@ -79,16 +140,18 @@ export class ImpersonatedVaultCreator {
       }
     }
 
-    const firstImportedAccount =
-      updatedVaultsArray[updatedVaultsArray.length - 1].importedAccounts[0];
+    const firstImportedAccount = vault.importedAccounts[0];
 
-    const owner: Owner = firstImportedAccount && {
-      identifier: firstImportedAccount.identifier,
-      seed: firstImportedAccount.seed,
-      timestamp: firstImportedAccount.timestamp,
-    };
+    const owner: Owner = firstImportedAccount
+      ? {
+          identifier: firstImportedAccount.identifier,
+          seed: firstImportedAccount.seed,
+          timestamp: firstImportedAccount.timestamp,
+        }
+      : { identifier: "", seed: "", timestamp: 0 };
 
-    const vault = owner && (await this._vaultClient.addOwner(owner));
+    vault = await this._vaultClient.addOwner(owner);
+
     return {
       vault,
       owner,
@@ -166,5 +229,13 @@ export class ImpersonatedVaultCreator {
     };
 
     return await this._vaultClient.importAccount(importedAccount);
+  }
+
+  private _getAccountNumber(vault: VaultV4) {
+    return (
+      vault.importedAccounts.filter(
+        (el: any) => el.wallet && el.wallet.mnemonic === vault.mnemonics[0]
+      )?.length || 0
+    );
   }
 }

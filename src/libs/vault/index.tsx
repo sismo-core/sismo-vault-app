@@ -24,6 +24,7 @@ import { demoOwner } from "../vault-client/client/demo-client.mock";
 import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
 import { CommitmentMapper } from "../commitment-mapper";
 import { ServicesFactory } from "../services-factory";
+import { useNotifications } from "../../components/Notifications/provider";
 
 type ReactVault = {
   mnemonics: string[];
@@ -77,12 +78,27 @@ export default function SismoVaultProvider({
   children,
 }: Props): JSX.Element {
   const vaultState = useVaultState();
+  const { notificationAdded } = useNotifications();
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
   const [synchronizing, setSynchronizing] = useState(false);
+  const [impersonationErrors, setImpersonationErrors] = useState<string[]>([]);
 
   const vaultClient = services.getVaultClient();
   const vaultClientV1 = services.getVaultClientV1();
   const vaultSynchronizer = services.getVaultsSynchronizer();
+
+  useEffect(() => {
+    if (impersonationErrors.length === 0) return;
+    for (const error of impersonationErrors) {
+      notificationAdded(
+        {
+          text: error,
+          type: "error",
+        },
+        100000
+      );
+    }
+  }, [impersonationErrors, notificationAdded]);
 
   useEffect(() => {
     const loadActiveSession = async () => {
@@ -94,6 +110,13 @@ export default function SismoVaultProvider({
 
       if (Boolean(impersonatedAccounts)) {
         const impersonatedVaultCreator = services.getImpersonatedVaultCreator();
+        const { impersonationErrors } =
+          await impersonatedVaultCreator.getImpersonationState({
+            impersonatedAccounts,
+          });
+        if (impersonationErrors.length > 0) {
+          setImpersonationErrors(impersonationErrors);
+        }
         const { owner, vault } = await impersonatedVaultCreator.create({
           impersonatedAccounts,
         });
