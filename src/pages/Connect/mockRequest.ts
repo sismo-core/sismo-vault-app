@@ -44,12 +44,20 @@ export const devConfig = {
   ],
 };
 
+export const sismoConnectRequestMock: SismoConnectRequest = {
+  appId: "0x73316ca511efe1e14a63fcebdc9d8b24",
+  namespace: "main",
+  displayRawResponse: true,
+  callbackPath: null,
+  version: "sismo-connect-v1",
+};
+
 export const vault = {
   impersonate: [
     "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-    // "github:leosayous21",
+    "github:leosayous21",
     // "github:baoufa",
-    // "twitter:VitalikButerin:295218901",
+    "twitter:VitalikButerin:295218901",
     // "github:DONOTEXIST_123456789",
   ],
 };
@@ -95,13 +103,6 @@ export const signature: SignatureRequest = {
   extraData: "",
 };
 
-export const sismoConnectRequestMock: SismoConnectRequest = {
-  appId: "0x73316ca511efe1e14a63fcebdc9d8b24",
-  namespace: "main",
-  callbackPath: null,
-  version: "sismo-connect-v1",
-};
-
 //const url = new URL("http://dev.vault-beta.sismo.io/connect");
 const url = new URL("http://localhost:3000/connect");
 const searchParams = url.searchParams;
@@ -113,8 +114,12 @@ searchParams.set("callbackPath", sismoConnectRequestMock.callbackPath);
 searchParams.set("auths", JSON.stringify(auths));
 searchParams.set("claims", JSON.stringify(claims));
 // searchParams.set("signature", JSON.stringify(signature));
-searchParams.set("devConfig", JSON.stringify(devConfig));
-//searchParams.set("vault", JSON.stringify(vault));
+//searchParams.set("devConfig", JSON.stringify(devConfig));
+searchParams.set("vault", JSON.stringify(vault));
+searchParams.set(
+  "displayRawResponse",
+  sismoConnectRequestMock.displayRawResponse.toString()
+);
 
 export const sismoConnectRequestMockUrl = url.toString();
 

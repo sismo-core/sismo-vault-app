@@ -304,7 +304,10 @@ export default function ConnectFlow({
       setLoadingProof(false);
       setResponse(_sismoConnectResponse);
 
-      if (selectedSismoConnectRequest?.devConfig?.displayRawResponse) {
+      if (
+        selectedSismoConnectRequest?.devConfig?.displayRawResponse ||
+        selectedSismoConnectRequest?.displayRawResponse
+      ) {
         const registryTreeRoot = await getRegistryTreeRoot(
           selectedSismoConnectRequest
         );

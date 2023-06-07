@@ -41,6 +41,7 @@ export const getSismoConnectRequest = (
   let _callbackUrl = searchParams.get("callbackUrl");
   let _version = searchParams.get("version");
   let _compressed = searchParams.get("compressed");
+  let _displayRawResponse = searchParams.get("displayRawResponse");
 
   const request: SismoConnectRequest = {
     appId: _appId,
@@ -53,7 +54,10 @@ export const getSismoConnectRequest = (
     devConfig: JSON.parse(_devConfig),
     version: _version,
     compressed: _compressed === "true",
+    displayRawResponse: _displayRawResponse === "true" ? true : false,
   };
+
+  console.log("request", request);
 
   /* ****************************************** */
   /* ****** REMOVE ALL URL PARAMS  ************ */

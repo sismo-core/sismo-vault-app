@@ -30,6 +30,7 @@ export class ParseSismoConnectRequest {
     let _version = searchParams.get("version");
     let _compressed = searchParams.get("compressed");
     let _vault = searchParams.get("vault");
+    let _displayRawResponse = searchParams.get("displayRawResponse");
 
     const request: SismoConnectRequest = {
       appId: _appId,
@@ -43,6 +44,7 @@ export class ParseSismoConnectRequest {
       vault: JSON.parse(_vault),
       version: _version,
       compressed: _compressed === "true",
+      displayRawResponse: _displayRawResponse === "true" ? true : false,
     };
 
     return request;
