@@ -1,6 +1,7 @@
-import { Account, ProfileResolver } from "./profile-resolver";
+import { Account, ProfileApiResolver } from "./profile-api-resolver";
 import { OctokitResponse } from "@octokit/types";
 import axios from "axios";
+import { IndexDbCache } from "../../cache-service/indexdb-cache";
 
 //api url: https://api.github.com/users/{username}
 
@@ -11,15 +12,22 @@ type GitHubUser = {
   avatar_url: string;
 };
 
-export class GithubResolver extends ProfileResolver {
+export class GithubApiResolver extends ProfileApiResolver {
   private _apiUrl: string;
+  protected _cache: IndexDbCache;
 
   constructor({ apiUrl }: { apiUrl: string }) {
     super();
     this._apiUrl = apiUrl;
+    this._cache = new IndexDbCache();
   }
 
   protected async _getProfile(identifier: string): Promise<Account> {
+    const cachedProfile = await this._cache.get(`github:${identifier}`);
+    if (cachedProfile) {
+      return cachedProfile;
+    }
+
     const res = (await axios.get(
       `${this._apiUrl}/users/${identifier}`
     )) as OctokitResponse<GitHubUser>;
@@ -32,6 +40,8 @@ export class GithubResolver extends ProfileResolver {
         avatar: res.data.avatar_url,
       },
     };
+
+    await this._cache.set(`github:${identifier}`, account);
 
     return account;
   }

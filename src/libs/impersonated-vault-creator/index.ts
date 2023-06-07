@@ -87,7 +87,7 @@ export class ImpersonatedVaultCreator {
     }
 
     return {
-      isImpersonated: validAccounts.length > 0,
+      isImpersonated: impersonatedAccounts.length > 0,
       validAccounts,
       impersonationErrors,
     };
@@ -122,7 +122,6 @@ export class ImpersonatedVaultCreator {
         if (this._web2Resolver.getIdentifierType(account)) {
           const resolvedAccount = await this._web2Resolver.resolve(account);
           const seed = sha256(resolvedAccount.identifier);
-
           const accountNumber = this._getAccountNumber(vault);
 
           vault = await this._importAccountFromWeb2({
@@ -141,7 +140,6 @@ export class ImpersonatedVaultCreator {
     }
 
     const firstImportedAccount = vault.importedAccounts[0];
-
     const owner: Owner = firstImportedAccount
       ? {
           identifier: firstImportedAccount.identifier,
@@ -149,7 +147,6 @@ export class ImpersonatedVaultCreator {
           timestamp: firstImportedAccount.timestamp,
         }
       : { identifier: "", seed: "", timestamp: 0 };
-
     vault = await this._vaultClient.addOwner(owner);
 
     return {

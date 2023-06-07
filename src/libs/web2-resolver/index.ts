@@ -1,5 +1,5 @@
 import { ImportedAccount } from "../vault-client-v1";
-import { ProfileResolver, GithubResolver } from "./profile-resolvers";
+import { ProfileApiResolver, GithubApiResolver } from "./profile-api-resolvers";
 
 type Account = Partial<ImportedAccount>;
 
@@ -10,10 +10,10 @@ export enum IdentifierType {
 }
 
 export class Web2Resolver {
-  private _githubResolver: ProfileResolver;
+  private _githubResolver: ProfileApiResolver;
 
   constructor() {
-    this._githubResolver = new GithubResolver({
+    this._githubResolver = new GithubApiResolver({
       apiUrl: "https://api.github.com",
     });
   }
@@ -21,11 +21,12 @@ export class Web2Resolver {
   public async resolve(identifier: string): Promise<Account> {
     const identifierType = this.getIdentifierType(identifier);
     const parsedProfileId = this._parseIdFromWeb2(identifier);
+    const parsedProfileHandle = this._parseHandleFromWeb2(identifier);
 
     let account: Account;
     switch (identifierType) {
       case IdentifierType.GITHUB:
-        account = await this._githubResolver.getProfile(identifier);
+        account = await this._githubResolver.getProfile(parsedProfileHandle);
         account.identifier = this._toSismoIdentifier({
           identifier: account.profile.id.toString(),
           identifierType,
@@ -110,6 +111,11 @@ export class Web2Resolver {
       return null;
     }
     return profileId;
+  }
+
+  private _parseHandleFromWeb2(identifier): string {
+    const profileHandle = identifier.split(":")[1];
+    return profileHandle;
   }
 
   private _toSismoIdentifier({
