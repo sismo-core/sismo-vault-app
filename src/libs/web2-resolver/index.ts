@@ -52,7 +52,7 @@ export class Web2Resolver {
     }
   }
 
-  public getIdentifierType(identifier: string): Web2IdentifierType {
+  public getIdentifierType(identifier: string): Web2IdentifierType | null {
     const profileType = identifier.split(":")[0] as HumanReadableIdentifierType;
 
     if (!profileType) {

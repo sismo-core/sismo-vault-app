@@ -27,19 +27,12 @@ const FONTS_LIST = [
   "Inter-Medium",
 ];
 
-const impersonatedAccounts = [
-  // "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-  "github:leosayous21",
-  // "twitter:VitalikButerin:295218901",
-  "github:DONOTEXIST_123456789",
-];
-//const impersonatedAccounts = null;
-
-const isImpersonated = Boolean(impersonatedAccounts);
 const services = ServicesFactory.init({
   env,
-  isImpersonated,
 });
+
+const isImpersonated =
+  services.getParseSismoConnectRequest().get()?.vault?.impersonate?.length > 0;
 
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),
@@ -133,7 +126,7 @@ function App() {
         <NotificationsProvider>
           <SismoVaultProvider
             services={services}
-            impersonatedAccounts={impersonatedAccounts}
+            isImpersonated={isImpersonated}
           >
             <SismoProvider client={sismoClient}>
               <GenerateRecoveryKeyModalProvider>

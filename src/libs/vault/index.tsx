@@ -68,13 +68,13 @@ export const SismoVaultContext = React.createContext(null);
 
 type Props = {
   services: ServicesFactory;
-  impersonatedAccounts?: string[];
+  isImpersonated?: boolean;
   children: ReactNode;
 };
 
 export default function SismoVaultProvider({
   services,
-  impersonatedAccounts,
+  isImpersonated,
   children,
 }: Props): JSX.Element {
   const vaultState = useVaultState();
@@ -108,18 +108,14 @@ export default function SismoVaultProvider({
         return;
       }
 
-      if (Boolean(impersonatedAccounts)) {
+      if (isImpersonated) {
         const impersonatedVaultCreator = services.getImpersonatedVaultCreator();
         const { impersonationErrors } =
-          await impersonatedVaultCreator.getImpersonationState({
-            impersonatedAccounts,
-          });
+          await impersonatedVaultCreator.getImpersonationState();
         if (impersonationErrors.length > 0) {
           setImpersonationErrors(impersonationErrors);
         }
-        const { owner, vault } = await impersonatedVaultCreator.create({
-          impersonatedAccounts,
-        });
+        const { owner, vault } = await impersonatedVaultCreator.create();
         owner && (await vaultState.updateConnectedOwner(owner));
         vault && (await vaultState.updateVaultState(vault));
         setSynchronizing(false);

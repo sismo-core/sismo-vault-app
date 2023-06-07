@@ -83,6 +83,9 @@ export type SismoConnectRequest = {
   signature?: SignatureRequest;
 
   devConfig?: DevConfig;
+  vault?: {
+    impersonate: string[];
+  };
   callbackPath?: string;
   callbackUrl?: string;
   version: string;

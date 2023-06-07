@@ -162,6 +162,7 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   /* ************ GET THE REQUEST AND SET DEFAULT ************* */
   /* ********************************************************** */
 
+  // TODO refactor using ServicesFactory.getParseSismoConnectRequest
   useEffect(() => {
     const _sismoConnectRequest = getSismoConnectRequest(searchParams);
     if (
@@ -424,10 +425,10 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
         }
       } catch (e) {
         if (isWrongUrl?.status) return;
-        // setIsWrongUrl({
-        //   status: true,
-        //   message: "Invalid referrer: " + e,
-        // });
+        setIsWrongUrl({
+          status: true,
+          message: "Invalid referrer: " + e,
+        });
         console.log(e);
         Sentry.captureException(e);
       }

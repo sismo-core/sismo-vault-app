@@ -11,97 +11,104 @@ type Configuration = {
   vaultClient: VaultClient;
   commitmentMapper: ImpersonatedCommitmentMapper;
   web2Resolver: Web2Resolver;
+  impersonatedAccounts: string[];
 };
 
 export class ImpersonatedVaultCreator {
   private _vaultClient: VaultClient;
   private _commitmentMapper: ImpersonatedCommitmentMapper;
   private _web2Resolver: Web2Resolver;
+  private _impersonatedAccounts: string[];
 
   constructor(configuration: Configuration) {
     this._vaultClient = configuration.vaultClient;
     this._commitmentMapper = configuration.commitmentMapper;
     this._web2Resolver = configuration.web2Resolver;
+    this._impersonatedAccounts = configuration.impersonatedAccounts;
   }
 
-  public async getImpersonationState({
-    impersonatedAccounts,
-  }: {
-    impersonatedAccounts: string[];
-  }): Promise<{
+  public async getImpersonationState(): Promise<{
     isImpersonated: boolean;
     validAccounts: string[];
     impersonationErrors: string[];
   }> {
+    if (this._impersonatedAccounts.length === 0) {
+      return {
+        isImpersonated: false,
+        validAccounts: [],
+        impersonationErrors: [],
+      };
+    }
+
     const validAccounts = [];
     const impersonationErrors = [];
 
-    for (const account of impersonatedAccounts) {
-      if (account.startsWith("0x")) {
-        isValidEthAddress(account)
-          ? validAccounts.push(account)
-          : impersonationErrors.push(
-              `Invalid impersonated Ethereum address: ${account}`
+    for (const account of this._impersonatedAccounts) {
+      try {
+        if (account.startsWith("0x")) {
+          isValidEthAddress(account)
+            ? validAccounts.push(account)
+            : impersonationErrors.push(
+                `Invalid impersonated Ethereum address: ${account}`
+              );
+          continue;
+        }
+
+        const identifierType = this._web2Resolver.getIdentifierType(account);
+
+        if (identifierType && identifierType !== Web2IdentifierType.GITHUB) {
+          const parsedProfileHandle = account.split(":")[1];
+          const parsedProfileId = account.split(":")[2];
+
+          if (!parsedProfileId) {
+            impersonationErrors.push(
+              `Invalid impersonated identifier: ${account} - please use the following format ${this._web2Resolver.fromWeb2IdTypeToHumanReadable(
+                identifierType
+              )}:${parsedProfileHandle}:{id}`
             );
-        continue;
-      }
+            continue;
+          }
 
-      const identifierType = this._web2Resolver.getIdentifierType(account);
-
-      if (identifierType && identifierType !== Web2IdentifierType.GITHUB) {
-        const parsedProfileHandle = account.split(":")[1];
-        const parsedProfileId = account.split(":")[2];
-
-        if (!parsedProfileId) {
-          impersonationErrors.push(
-            `Invalid impersonated identifier: ${account} - please use the following format ${this._web2Resolver.fromWeb2IdTypeToHumanReadable(
-              identifierType
-            )}:${parsedProfileHandle}:{id}`
-          );
-          continue;
+          try {
+            await this._web2Resolver.resolve(account);
+            validAccounts.push(account);
+            continue;
+          } catch (e) {
+            impersonationErrors.push(
+              `Invalid impersonated identifier: ${account} - ${e}`
+            );
+            continue;
+          }
         }
 
-        try {
-          await this._web2Resolver.resolve(account);
-          validAccounts.push(account);
-          continue;
-        } catch (e) {
-          impersonationErrors.push(
-            `Invalid impersonated identifier: ${account} - ${e}`
-          );
-          continue;
+        if (identifierType === Web2IdentifierType.GITHUB) {
+          try {
+            await this._web2Resolver.resolve(account);
+            validAccounts.push(account);
+            continue;
+          } catch (e) {
+            impersonationErrors.push(
+              `Invalid impersonated identifier: ${account} - account does not exist or is not public. ${e}`
+            );
+            continue;
+          }
         }
-      }
-
-      if (identifierType === Web2IdentifierType.GITHUB) {
-        try {
-          await this._web2Resolver.resolve(account);
-          validAccounts.push(account);
-          continue;
-        } catch (e) {
-          impersonationErrors.push(
-            `Invalid impersonated identifier: ${account} - account do not exist or is not public. ${e}`
-          );
-          continue;
-        }
+      } catch (e) {
+        impersonationErrors.push(
+          `Invalid impersonated identifier: ${account} - please use the following format 0x{ethereumAddress} or {web2}:{handle}:{id}`
+        );
       }
     }
 
     return {
-      isImpersonated: impersonatedAccounts.length > 0,
+      isImpersonated: this._impersonatedAccounts.length > 0,
       validAccounts,
       impersonationErrors,
     };
   }
 
-  public async create({
-    impersonatedAccounts,
-  }: {
-    impersonatedAccounts: string[];
-  }) {
-    const { validAccounts } = await this.getImpersonationState({
-      impersonatedAccounts,
-    });
+  public async create() {
+    const { validAccounts } = await this.getImpersonationState();
 
     let vault = this._vaultClient.create();
     const vaultSecret = await this._vaultClient.getVaultSecret();
@@ -122,7 +129,6 @@ export class ImpersonatedVaultCreator {
         // if account is a web2 identifier
         if (this._web2Resolver.getIdentifierType(account)) {
           const resolvedAccount = await this._web2Resolver.resolve(account);
-          console.log(resolvedAccount);
           const seed = sha256(resolvedAccount.identifier);
           const accountNumber = this._getAccountNumber(vault);
 

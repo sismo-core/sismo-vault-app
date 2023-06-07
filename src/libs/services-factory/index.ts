@@ -11,9 +11,11 @@ import { MemoryStore } from "../vault-store/memory-store";
 import { VaultsSynchronizer } from "../vaults-synchronizer";
 import { ImpersonatedVaultCreator } from "../impersonated-vault-creator";
 import { Web2Resolver } from "../web2-resolver";
+import { ParseSismoConnectRequest } from "../parse-sismo-connect-request";
 
 // factory service
 type Configuration = {
+  parseSismoConnectRequest: ParseSismoConnectRequest;
   vaultsSynchronizer: VaultsSynchronizer;
   vaultClientV1: VaultClientV1;
   vaultClient: VaultClient; // V2
@@ -30,15 +32,15 @@ export class ServicesFactory {
     this._configuration = configuration;
   }
 
-  static init({
-    env,
-    isImpersonated,
-  }: {
-    env: Environment;
-    isImpersonated: boolean;
-  }) {
+  static init({ env }: { env: Environment }) {
+    const parseSismoConnectRequest = new ParseSismoConnectRequest();
+    const impersonatedAccounts =
+      parseSismoConnectRequest.get()?.vault?.impersonate;
+    const isImpersonated = Boolean(impersonatedAccounts?.length > 0);
+
     if (env.name === "DEMO") {
       const configuration = {
+        parseSismoConnectRequest: parseSismoConnectRequest,
         vaultsSynchronizer: null,
         vaultClientV1: null,
         vaultClient: new DemoVaultClient(new MemoryStore()),
@@ -58,6 +60,7 @@ export class ServicesFactory {
       const web2Resolver = new Web2Resolver();
 
       const configuration = {
+        parseSismoConnectRequest: parseSismoConnectRequest,
         vaultsSynchronizer: null,
         vaultClientV1: null,
         vaultClient: vaultClient,
@@ -67,6 +70,7 @@ export class ServicesFactory {
           vaultClient: vaultClient,
           commitmentMapper: commitmentMapper,
           web2Resolver: web2Resolver,
+          impersonatedAccounts: impersonatedAccounts,
         }),
         web2Resolver: web2Resolver,
       };
@@ -94,6 +98,7 @@ export class ServicesFactory {
     });
 
     const configuration = {
+      parseSismoConnectRequest: parseSismoConnectRequest,
       vaultsSynchronizer,
       vaultClientV1,
       vaultClient,
@@ -104,6 +109,10 @@ export class ServicesFactory {
     };
 
     return new ServicesFactory(configuration);
+  }
+
+  public getParseSismoConnectRequest() {
+    return this._configuration.parseSismoConnectRequest;
   }
 
   public getCommitmentMapperV1() {
