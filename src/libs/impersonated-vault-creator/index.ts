@@ -4,7 +4,7 @@ import {
   ImpersonatedCommitmentMapper,
 } from "../commitment-mapper";
 import { ImportedAccount, Owner, VaultClient, VaultV4 } from "../vault-client";
-import { IdentifierType, Web2Resolver } from "../web2-resolver";
+import { Web2IdentifierType, Web2Resolver } from "../web2-resolver";
 import { isValidEthAddress } from "../../utils/regex";
 
 type Configuration = {
@@ -48,14 +48,15 @@ export class ImpersonatedVaultCreator {
 
       const identifierType = this._web2Resolver.getIdentifierType(account);
 
-      if (identifierType && identifierType !== IdentifierType.GITHUB) {
-        const parsedProfileType = account.split(":")[0];
+      if (identifierType && identifierType !== Web2IdentifierType.GITHUB) {
         const parsedProfileHandle = account.split(":")[1];
         const parsedProfileId = account.split(":")[2];
 
         if (!parsedProfileId) {
           impersonationErrors.push(
-            `Invalid impersonated identifier: ${account} - please use the following format ${parsedProfileType}:${parsedProfileHandle}:{id}`
+            `Invalid impersonated identifier: ${account} - please use the following format ${this._web2Resolver.fromWeb2IdTypeToHumanReadable(
+              identifierType
+            )}:${parsedProfileHandle}:{id}`
           );
           continue;
         }
@@ -72,7 +73,7 @@ export class ImpersonatedVaultCreator {
         }
       }
 
-      if (identifierType === IdentifierType.GITHUB) {
+      if (identifierType === Web2IdentifierType.GITHUB) {
         try {
           await this._web2Resolver.resolve(account);
           validAccounts.push(account);

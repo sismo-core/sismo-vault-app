@@ -1,7 +1,8 @@
-import { Account, ProfileApiResolver } from "./profile-api-resolver";
+import { ProfileApiResolver } from "./profile-api-resolver";
 import { OctokitResponse } from "@octokit/types";
 import axios from "axios";
 import { IndexDbCache } from "../../cache-service/indexdb-cache";
+import { Profile } from "../../vault-client";
 
 //api url: https://api.github.com/users/{username}
 
@@ -22,7 +23,7 @@ export class GithubApiResolver extends ProfileApiResolver {
     this._cache = new IndexDbCache();
   }
 
-  protected async _getProfile(identifier: string): Promise<Account> {
+  protected async _getProfile(identifier: string): Promise<Profile> {
     const cachedProfile = await this._cache.get(`github:${identifier}`);
     if (cachedProfile) {
       return cachedProfile;
@@ -32,17 +33,14 @@ export class GithubApiResolver extends ProfileApiResolver {
       `${this._apiUrl}/users/${identifier}`
     )) as OctokitResponse<GitHubUser>;
 
-    const account: Account = {
-      profile: {
-        login: res.data.login,
-        id: res.data.id,
-        name: res.data.name,
-        avatar: res.data.avatar_url,
-      },
+    const profile: Profile = {
+      login: res.data.login,
+      id: res.data.id,
+      name: res.data.name,
+      avatar: res.data.avatar_url,
     };
 
-    await this._cache.set(`github:${identifier}`, account);
-
-    return account;
+    await this._cache.set(`github:${identifier}`, profile);
+    return profile;
   }
 }

@@ -3,10 +3,16 @@ import { ProfileApiResolver, GithubApiResolver } from "./profile-api-resolvers";
 
 type Account = Partial<ImportedAccount>;
 
-export enum IdentifierType {
+export enum Web2IdentifierType {
   GITHUB = "0x1001",
   TWITTER = "0x1002",
   TELEGRAM = "0x1003",
+}
+
+export enum HumanReadableIdentifierType {
+  GITHUB = "github",
+  TWITTER = "twitter",
+  TELEGRAM = "telegram",
 }
 
 export class Web2Resolver {
@@ -18,6 +24,44 @@ export class Web2Resolver {
     });
   }
 
+  public fromWeb2IdTypeToHumanReadable(idType: Web2IdentifierType): string {
+    switch (idType) {
+      case Web2IdentifierType.GITHUB:
+        return HumanReadableIdentifierType.GITHUB;
+      case Web2IdentifierType.TWITTER:
+        return HumanReadableIdentifierType.TWITTER;
+      case Web2IdentifierType.TELEGRAM:
+        return HumanReadableIdentifierType.TELEGRAM;
+      default:
+        throw new Error("Unsupported identifier type");
+    }
+  }
+
+  public fromHumanReadableToWeb2IdType(
+    humanReadableIdType: HumanReadableIdentifierType
+  ): Web2IdentifierType {
+    switch (humanReadableIdType) {
+      case HumanReadableIdentifierType.GITHUB:
+        return Web2IdentifierType.GITHUB;
+      case HumanReadableIdentifierType.TWITTER:
+        return Web2IdentifierType.TWITTER;
+      case HumanReadableIdentifierType.TELEGRAM:
+        return Web2IdentifierType.TELEGRAM;
+      default:
+        throw new Error("Unsupported identifier type");
+    }
+  }
+
+  public getIdentifierType(identifier: string): Web2IdentifierType {
+    const profileType = identifier.split(":")[0] as HumanReadableIdentifierType;
+
+    if (!profileType) {
+      throw new Error("Web2Resolver: Invalid identifier");
+    }
+
+    return this.fromHumanReadableToWeb2IdType(profileType);
+  }
+
   public async resolve(identifier: string): Promise<Account> {
     const identifierType = this.getIdentifierType(identifier);
     const parsedProfileId = this._parseIdFromWeb2(identifier);
@@ -25,8 +69,10 @@ export class Web2Resolver {
 
     let account: Account;
     switch (identifierType) {
-      case IdentifierType.GITHUB:
-        account = await this._githubResolver.getProfile(parsedProfileHandle);
+      case Web2IdentifierType.GITHUB:
+        account.profile = await this._githubResolver.getProfile(
+          parsedProfileHandle
+        );
         account.identifier = this._toSismoIdentifier({
           identifier: account.profile.id.toString(),
           identifierType,
@@ -34,10 +80,12 @@ export class Web2Resolver {
         account.type = "github";
 
         break;
-      case IdentifierType.TWITTER:
+      case Web2IdentifierType.TWITTER || Web2IdentifierType.TELEGRAM:
         if (!parsedProfileId) {
           throw new Error(
-            `Invalid identifier: ${identifier} - Please use the following format: twitter:{handle}:{id}`
+            `Invalid identifier: ${identifier} - Please use the following format: ${this.fromWeb2IdTypeToHumanReadable(
+              identifierType
+            )}:{handle}:{id}`
           );
         }
 
@@ -55,54 +103,12 @@ export class Web2Resolver {
           },
         };
         break;
-      case IdentifierType.TELEGRAM:
-        if (!parsedProfileId) {
-          throw new Error(
-            `Invalid identifier: ${identifier} - Please use the following format: telegram:{handle}:{id}`
-          );
-        }
-        account = {
-          identifier: this._toSismoIdentifier({
-            identifier: parsedProfileId,
-            identifierType,
-          }),
-          type: "telegram",
-          profile: {
-            login: parsedProfileId,
-            id: parseInt(parsedProfileId),
-            name: parsedProfileId,
-            avatar: "",
-          },
-        };
-        break;
       default:
         throw new Error(
           "Unsupported identifier type. Please use github, twitter or telegram."
         );
     }
-
     return account;
-  }
-
-  public getIdentifierType(identifier: string): IdentifierType {
-    const profileType = identifier.split(":")[0];
-
-    if (!profileType) {
-      throw new Error("Web2Resolver: Invalid identifier");
-    }
-
-    switch (profileType) {
-      case "github":
-        return IdentifierType.GITHUB;
-      case "twitter":
-        return IdentifierType.TWITTER;
-      case "telegram":
-        return IdentifierType.TELEGRAM;
-      default:
-        throw new Error(
-          "Unsupported identifier type. Please use github, twitter or telegram."
-        );
-    }
   }
 
   private _parseIdFromWeb2(identifier): string | null {
@@ -123,7 +129,7 @@ export class Web2Resolver {
     identifierType,
   }: {
     identifier: string;
-    identifierType: IdentifierType;
+    identifierType: Web2IdentifierType;
   }): string {
     let prefix = identifierType;
     let suffix = "0".repeat(36 - identifier.length) + identifier;
