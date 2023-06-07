@@ -80,7 +80,7 @@ export class ImpersonatedVaultCreator {
           continue;
         } catch (e) {
           impersonationErrors.push(
-            `Invalid impersonated identifier: ${account} - ${e}`
+            `Invalid impersonated identifier: ${account} - account do not exist or is not public. ${e}`
           );
           continue;
         }

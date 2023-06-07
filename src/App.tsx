@@ -29,14 +29,9 @@ const FONTS_LIST = [
 
 const impersonatedAccounts = [
   // "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-  //"0x938f169352008d35e0",
-  // "github:Baoufa",
   "github:leosayous21",
-  // "github:gabin5fzefezfez",
   // "twitter:VitalikButerin:295218901",
-  //"twitter:VitalikButerin",
-  //"twitter:hasufl:566534886",
-  // "twitter:haydenzadams:702654540387127296",
+  "github:DONOTEXIST_123456789",
 ];
 //const impersonatedAccounts = null;
 
