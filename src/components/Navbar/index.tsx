@@ -212,28 +212,25 @@ export default function Navbar({
               />
               {logoLoaded && (
                 <Tag>
-                  {env.name === "STAGING_BETA" &&
-                    `
+                  {isImpersonated
+                    ? "Impersonated"
+                    : env.name === "STAGING_BETA"
+                    ? `
                       Staging
-                    `}
-                  {env.name === "PROD_BETA" &&
                     `
+                    : env.name === "PROD_BETA"
+                    ? `
                       Beta
-                    `}
-                  {env.name === "DEMO" &&
                     `
+                    : env.name === "DEMO"
+                    ? `
                       Demo
-                    `}
-                  {env.name === "DEV_BETA" &&
-                    !isImpersonated &&
                     `
+                    : env.name === "DEV_BETA"
+                    ? `
                       Dev
-                    `}
-                  {env.name === "DEV_BETA" &&
-                    isImpersonated &&
                     `
-                      Impersonated
-                    `}
+                    : null}
                 </Tag>
               )}
             </Logo>
