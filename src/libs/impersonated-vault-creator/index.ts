@@ -122,6 +122,7 @@ export class ImpersonatedVaultCreator {
         // if account is a web2 identifier
         if (this._web2Resolver.getIdentifierType(account)) {
           const resolvedAccount = await this._web2Resolver.resolve(account);
+          console.log(resolvedAccount);
           const seed = sha256(resolvedAccount.identifier);
           const accountNumber = this._getAccountNumber(vault);
 

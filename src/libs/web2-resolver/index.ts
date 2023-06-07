@@ -70,14 +70,17 @@ export class Web2Resolver {
     let account: Account;
     switch (identifierType) {
       case Web2IdentifierType.GITHUB:
-        account.profile = await this._githubResolver.getProfile(
+        let profile = await this._githubResolver.getProfile(
           parsedProfileHandle
         );
-        account.identifier = this._toSismoIdentifier({
-          identifier: account.profile.id.toString(),
-          identifierType,
-        });
-        account.type = "github";
+        account = {
+          identifier: this._toSismoIdentifier({
+            identifier: profile.id.toString(),
+            identifierType,
+          }),
+          type: "github",
+          profile,
+        };
 
         break;
       case Web2IdentifierType.TWITTER || Web2IdentifierType.TELEGRAM:
