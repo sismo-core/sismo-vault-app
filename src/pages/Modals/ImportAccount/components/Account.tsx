@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
-import { AccountType } from "../../../../libs/vault-client-v2";
+import { AccountType } from "../../../../libs/vault-client";
 import Icon from "../../../../components/Icon";
 
 const Container = styled.div`

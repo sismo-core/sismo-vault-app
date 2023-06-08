@@ -1,5 +1,5 @@
 import { VaultProvider } from ".";
-import { LocalStore } from "../stores/local-store";
+import { LocalStore } from "../../vault-store/local-store";
 
 describe("Vault provider", () => {
   let provider: VaultProvider;

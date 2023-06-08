@@ -47,7 +47,14 @@ export interface ImportingAccount {
   isOwner: boolean;
 }
 
-export default function ImportAccountModal(): JSX.Element {
+
+type ImportAccountModalProps = {
+  isImpersonated: boolean;
+};
+
+export default function ImportAccountModal({
+  isImpersonated,
+}: ImportAccountModalProps): JSX.Element {
   const [blur, setBlur] = useState(false);
   const [outsideClosable, setOutsideClosable] = useState(true);
   const wallet = useWallet();
@@ -68,7 +75,7 @@ export default function ImportAccountModal(): JSX.Element {
       setDisplay(null);
       return;
     }
-    if (env.name === "DEMO") {
+    if (env.name === "DEMO" || isImpersonated) {
       setDisplay("ethereum");
       return;
     }
@@ -110,7 +117,7 @@ export default function ImportAccountModal(): JSX.Element {
       return;
     }
     setDisplay("choice");
-  }, [accountTypes, importType, isOpen]);
+  }, [accountTypes, importType, isOpen, isImpersonated]);
 
   useEffect(() => {
     if (!isOpen) return;

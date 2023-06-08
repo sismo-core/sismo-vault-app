@@ -1,5 +1,5 @@
 import { RecoveryKey, ImportedAccount, Owner, VaultClient } from ".";
-import { LocalStore } from "../stores/local-store";
+import { LocalStore } from "../../vault-store/local-store";
 
 describe("Vault client V1", () => {
   let vaultClient: VaultClient;

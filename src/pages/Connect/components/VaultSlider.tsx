@@ -302,12 +302,14 @@ const ProofLoaderText = styled.div`
 type Props = {
   proofLoading?: boolean;
   vaultSliderOpen: boolean;
+  isImpersonated: boolean;
   setVaultSliderOpen: (value: boolean) => void;
 };
 
 export default function VaultSlider({
   proofLoading = false,
   vaultSliderOpen,
+  isImpersonated,
   setVaultSliderOpen,
 }: Props): JSX.Element {
   const ref = useRef(null);
@@ -332,12 +334,12 @@ export default function VaultSlider({
 
   useEffect(() => {
     if (!vault.isConnected) return;
-    if (env.name === "DEMO") {
+    if (env.name === "DEMO" || isImpersonated) {
       setTimeout(() => {
         setVaultSliderOpen(true);
       }, 300);
     }
-  }, [setVaultSliderOpen, vault.isConnected]);
+  }, [setVaultSliderOpen, vault.isConnected, isImpersonated]);
 
   useEffect(() => {
     if (!vault.isConnected) return;

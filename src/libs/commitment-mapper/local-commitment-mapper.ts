@@ -5,9 +5,8 @@ import {
   CommitmentReceiptTelegramResult,
   CommitmentReceiptTwitterResult,
 } from "./commitment-mapper";
-import { commitmentMapperPubKeyDemo, commitmentReceiptDemo } from "./mocks";
 
-export class CommitmentMapperDemo extends CommitmentMapper {
+export class LocalCommitmentMapper extends CommitmentMapper {
   protected async _commitEthereumEddsa({
     ethAddress,
     ethSignature,
@@ -18,8 +17,8 @@ export class CommitmentMapperDemo extends CommitmentMapper {
     commitment: string;
   }): Promise<CommitmentReceiptResult> {
     return {
-      commitmentMapperPubKey: commitmentMapperPubKeyDemo,
-      commitmentReceipt: commitmentReceiptDemo,
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
     };
   }
 
@@ -31,14 +30,14 @@ export class CommitmentMapperDemo extends CommitmentMapper {
     commitment: string;
   }): Promise<CommitmentReceiptGithubResult> {
     return {
-      commitmentMapperPubKey: commitmentMapperPubKeyDemo,
-      commitmentReceipt: commitmentReceiptDemo,
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
       account: {
-        profileId: 1234,
-        login: "importedGithub",
-        name: "data.account.name",
-        avatarUrl: "",
-        identifier: "1234",
+        profileId: null,
+        login: null,
+        name: null,
+        avatarUrl: null,
+        identifier: null,
       },
     };
   }
@@ -53,17 +52,17 @@ export class CommitmentMapperDemo extends CommitmentMapper {
     commitment: string;
   }): Promise<CommitmentReceiptTelegramResult> {
     return {
-      commitmentMapperPubKey: commitmentMapperPubKeyDemo,
-      commitmentReceipt: commitmentReceiptDemo,
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
       account: {
-        identifier: "identifier",
-        firstName: "data.account.first_name",
-        lastName: "data.account.last_name",
-        userId: 1234,
-        username: "data.account.username",
-        photoUrl: "data.account.photo_url",
-        authDate: 1234,
-        hash: "data.account.hash",
+        identifier: null,
+        firstName: null,
+        lastName: null,
+        userId: null,
+        username: null,
+        photoUrl: null,
+        authDate: null,
+        hash: null,
       },
     };
   }
@@ -78,12 +77,12 @@ export class CommitmentMapperDemo extends CommitmentMapper {
     commitment: string;
   }): Promise<CommitmentReceiptTwitterResult> {
     return {
-      commitmentMapperPubKey: commitmentMapperPubKeyDemo,
-      commitmentReceipt: commitmentReceiptDemo,
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
       account: {
-        userId: 1234,
-        username: "importedTwitter",
-        identifier: "1234",
+        userId: null,
+        username: null,
+        identifier: null,
       },
     };
   }
@@ -98,12 +97,12 @@ export class CommitmentMapperDemo extends CommitmentMapper {
     commitment: string;
   }): Promise<CommitmentReceiptTwitterResult> {
     return {
-      commitmentMapperPubKey: commitmentMapperPubKeyDemo,
-      commitmentReceipt: commitmentReceiptDemo,
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
       account: {
-        userId: 1234,
-        username: "importedTwitter",
-        identifier: "1234",
+        userId: null,
+        username: null,
+        identifier: null,
       },
     };
   }
@@ -120,8 +119,8 @@ export class CommitmentMapperDemo extends CommitmentMapper {
     newCommitment: string;
   }): Promise<CommitmentReceiptResult> {
     return {
-      commitmentMapperPubKey: commitmentMapperPubKeyDemo,
-      commitmentReceipt: commitmentReceiptDemo,
+      commitmentMapperPubKey: null,
+      commitmentReceipt: null,
     };
   }
 }

@@ -1,7 +1,7 @@
 import { BaseStore } from "./base-store";
 import SHA3 from "sha3";
 
-export class LocalStore extends BaseStore {
+export class MemoryStore extends BaseStore {
   private mapper: Map<string, string>;
 
   constructor() {
@@ -22,9 +22,5 @@ export class LocalStore extends BaseStore {
     const hash = new SHA3(256);
     const id = hash.update(token).digest("hex");
     this.mapper.set(id, cipherText);
-  }
-
-  public reset() {
-    this.mapper = new Map();
   }
 }

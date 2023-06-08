@@ -7,11 +7,12 @@ import {
   SismoConnectResponse,
   SelectedSismoConnectRequest,
 } from "../sismo-connect-prover/sismo-connect-v1";
-import { Cache } from "../caches";
+import { Cache } from "../../cache-service";
 import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
 import env from "../../../environment";
 import { GroupProvider } from "../providers/group-provider";
-import { ImportedAccount } from "../../vault-client-v2";
+import { ImportedAccount } from "../../vault-client";
+import { ServicesFactory } from "../../services-factory";
 
 export class SismoClient {
   private factoryProvider: FactoryProvider;
@@ -20,7 +21,13 @@ export class SismoClient {
     "sismo-connect-v1": SismoConnectProverV1;
   };
 
-  constructor({ cache }: { cache: Cache }) {
+  constructor({
+    cache,
+    services,
+  }: {
+    cache: Cache;
+    services: ServicesFactory;
+  }) {
     this.factoryProvider = new FactoryProvider({
       factoryApiUrl: env.factoryApiUrl,
     });
@@ -29,8 +36,11 @@ export class SismoClient {
       "sismo-connect-v1": new SismoConnectProverV1({
         factoryProvider: this.factoryProvider,
         cache: cache,
+        services,
       }),
     };
+
+    // Add commitment mapper service
   }
 
   public async initDevConfig(sismoConnectRequest: SismoConnectRequest) {

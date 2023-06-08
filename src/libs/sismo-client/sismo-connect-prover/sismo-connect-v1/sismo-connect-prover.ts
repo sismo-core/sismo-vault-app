@@ -1,7 +1,7 @@
 import { ethers, BigNumber } from "ethers";
-import { ImportedAccount } from "../../../vault-client-v2";
-import { Cache } from "../../caches";
-import { HydraS2OffchainProver } from "../../provers/hydra-s2-offchain-prover";
+import { ImportedAccount } from "../../../vault-client";
+import { Cache } from "../../../cache-service";
+import { HydraS2ClientProver } from "../../provers/hydra-s2-client-prover";
 import { OffchainProofRequest } from "../../provers/types";
 import { FactoryProvider } from "../../providers/factory-provider";
 import {
@@ -25,20 +25,26 @@ import {
 
 import { isHexlify } from "./utils/isHexlify";
 import { SNARK_FIELD } from "@sismo-core/crypto";
+import { ServicesFactory } from "../../../services-factory";
 
 export class SismoConnectProver {
   public version = SISMO_CONNECT_VERSION;
-  private prover: HydraS2OffchainProver;
+  private prover: HydraS2ClientProver;
   private factoryProvider: FactoryProvider;
 
   constructor({
     factoryProvider,
     cache,
+    services,
   }: {
     factoryProvider: FactoryProvider;
     cache: Cache;
+    services: ServicesFactory;
   }) {
-    this.prover = new HydraS2OffchainProver({ cache });
+    this.prover = new HydraS2ClientProver({
+      cache,
+      commitmentMapperService: services.getCommitmentMapper(),
+    });
     this.factoryProvider = factoryProvider;
   }
 

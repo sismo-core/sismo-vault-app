@@ -1,5 +1,5 @@
 import { keccak256 } from "ethers/lib/utils";
-import { ImportedAccount } from "../../vault-client-v2";
+import { ImportedAccount } from "../../vault-client";
 import {
   EddsaPublicKey,
   EddsaSignature,
@@ -11,7 +11,7 @@ import {
   VaultInput,
 } from "@sismo-core/hydra-s2";
 import { DevRegistryTreeReader } from "../registry-tree-readers/dev-registry-tree-reader";
-import { Cache } from "../caches";
+import { Cache } from "../../cache-service";
 import { ethers, BigNumber } from "ethers";
 import { CommitmentMapper } from "..";
 import {
@@ -25,13 +25,22 @@ import env from "../../../environment";
 
 import { ClaimType, DevConfig } from "../sismo-connect-prover/sismo-connect-v1";
 import { RegistryTreeReader } from "../registry-tree-readers/registry-tree-reader";
+import { RegistryTreeReaderBase } from "../registry-tree-readers/types";
 
-export class HydraS2OffchainProver extends Prover {
-  registryTreeReader: RegistryTreeReader | DevRegistryTreeReader;
+export class HydraS2ClientProver extends Prover {
+  private _registryTreeReader: RegistryTreeReaderBase;
+  private _commitmentMapperService: CommitmentMapper;
 
-  constructor({ cache }: { cache?: Cache }) {
+  constructor({
+    cache,
+    commitmentMapperService,
+  }: {
+    cache?: Cache;
+    commitmentMapperService: CommitmentMapper;
+  }) {
     super();
-    this.registryTreeReader = new RegistryTreeReader({ cache });
+    this._registryTreeReader = new RegistryTreeReader({ cache });
+    this._commitmentMapperService = commitmentMapperService;
   }
 
   public async initDevConfig(devConfig?: DevConfig) {
@@ -40,14 +49,14 @@ export class HydraS2OffchainProver extends Prover {
         throw new Error("devGroups is required in devConfig");
 
       console.log("///////////// DEVMODE /////////////");
-      this.registryTreeReader = new DevRegistryTreeReader({
+      this._registryTreeReader = new DevRegistryTreeReader({
         devGroups: devConfig.devGroups,
       });
     }
   }
 
   public async getRegistryTreeRoot(): Promise<string> {
-    const registryTree = await this.registryTreeReader.getRegistryTree();
+    const registryTree = await this._registryTreeReader.getRegistryTree();
     return registryTree.getRoot().toHexString();
   }
 
@@ -64,11 +73,13 @@ export class HydraS2OffchainProver extends Prover {
     extraData,
   }: OffchainProofRequest): Promise<SnarkProof> {
     const commitmentMapperPubKey =
-      env.sismoDestination.commitmentMapperPubKey.map((string) =>
-        BigNumber.from(string)
-      ) as EddsaPublicKey;
+      await this._commitmentMapperService.getPubKey();
 
-    const prover = new HydraS2Prover(commitmentMapperPubKey, {
+    const eddsaPublicKey = commitmentMapperPubKey.map((string) =>
+      BigNumber.from(string)
+    ) as EddsaPublicKey;
+
+    const prover = new HydraS2Prover(eddsaPublicKey, {
       wasmPath: "/hydra/s2_v1/hydra-s2.wasm",
       zkeyPath: "/hydra/s2_v1/hydra-s2.zkey",
     });
@@ -97,7 +108,7 @@ export class HydraS2OffchainProver extends Prover {
     claimType,
   }: GetEligibilityInputs): Promise<AccountData> {
     const eligibleAccountsTreeData =
-      await this.registryTreeReader.getAccountsTreeEligibility({
+      await this._registryTreeReader.getAccountsTreeEligibility({
         accounts,
         groupId,
         timestamp: groupTimestamp,
@@ -266,6 +277,7 @@ export class HydraS2OffchainProver extends Prover {
     if (destination) {
       const hydraS2Account: HydraS2Account =
         this.getHydraS2Account(destination);
+
       userParams["destination"] = {
         ...hydraS2Account,
         verificationEnabled: true,
@@ -300,8 +312,8 @@ export class HydraS2OffchainProver extends Prover {
               : claimType === ClaimType.EQ
               ? 1
               : null,
-          registryTree: await this.registryTreeReader.getRegistryTree(),
-          accountsTree: await this.registryTreeReader.getAccountsTree({
+          registryTree: await this._registryTreeReader.getRegistryTree(),
+          accountsTree: await this._registryTreeReader.getAccountsTree({
             groupId,
             account: source.identifier,
             timestamp: groupTimestamp,

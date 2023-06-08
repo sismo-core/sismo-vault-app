@@ -13,18 +13,20 @@ export type Owner = {
   };
 };
 
+export type Profile = {
+  login: string;
+  id: number;
+  name: string;
+  avatar: string;
+};
+
 export type ImportedAccount = {
   identifier: string;
   seed: string;
   commitmentReceipt: CommitmentReceipt;
   commitmentMapperPubKey: CommitmentMapperPubKey;
   type: AccountType;
-  profile?: {
-    login: string;
-    id: number;
-    name: string;
-    avatar: string;
-  };
+  profile?: Profile;
   wallet?: {
     mnemonic: string;
     accountNumber: number;

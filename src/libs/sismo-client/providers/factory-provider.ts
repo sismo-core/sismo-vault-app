@@ -11,6 +11,7 @@ export type FactoryApp = {
   lastUpdatedAt: number;
 };
 
+// FactoryApiService
 export class FactoryProvider {
   private factoryApiUrl: string;
 

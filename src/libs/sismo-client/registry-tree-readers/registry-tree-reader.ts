@@ -6,7 +6,7 @@ import {
   OffChainGroupProperties,
   RegistryTreeReaderBase,
 } from "./types";
-import { Cache } from "../caches";
+import { Cache } from "../../cache-service";
 import env from "../../../environment";
 import { ChunkedGroups } from "./chunked-groups";
 import { fetchJsonTree } from "./services/available-data";

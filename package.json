@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.7.1",
+    "@octokit/types": "^9.2.3",
     "@sentry/react": "^7.10.0",
     "@sismo-core/crypto": "^1.0.6",
     "@sismo-core/hydra-s2": "^1.0.0",

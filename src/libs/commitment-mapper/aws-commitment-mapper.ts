@@ -7,7 +7,7 @@ import {
   CommitmentReceiptTwitterResult,
 } from "./commitment-mapper";
 
-export class CommitmentMapperAWS extends CommitmentMapper {
+export class AWSCommitmentMapper extends CommitmentMapper {
   private _url: string;
 
   constructor({ url }: { url: string }) {

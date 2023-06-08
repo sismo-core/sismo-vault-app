@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useVault } from "../../../libs/vault";
 import { useSismo } from "../../../libs/sismo";
 import * as Sentry from "@sentry/react";
-import { ArrowLeft, ArrowSquareOut, Info } from "phosphor-react";
+import { ArrowLeft, ArrowSquareOut, Info, Warning } from "phosphor-react";
 import { FactoryApp } from "../../../libs/sismo-client";
 
 import {
@@ -21,7 +21,7 @@ import Button from "../../../components/Button";
 import DataRequests from "./components/DataRequests";
 import ProofModal from "./components/ProofModal";
 import { SignatureRequest } from "./components/SignatureRequest";
-import { ImportedAccount } from "../../../libs/vault-client-v2";
+import { ImportedAccount } from "../../../libs/vault-client";
 import SignInButton from "../../../components/SignInButton";
 
 const Container = styled.div`
@@ -101,7 +101,43 @@ const LinkWrapper = styled.a`
   text-decoration: none;
 `;
 
+const WarningWrapper = styled.div`
+  flex-shrink: 0;
+`;
+
+const ImpersonatedBanner = styled.div`
+  display: flex;
+  gap: 12px;
+
+  width: 100%;
+  padding: 12px 16px;
+
+  background-color: ${(props) => props.theme.colors.orange2};
+  color: ${(props) => props.theme.colors.orange5};
+  border-radius: 5px;
+  font-size: 14px;
+
+  box-sizing: border-box;
+  margin-bottom: 24px;
+`;
+
+const ImpersonatedDescription = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const ImpersonatedTitle = styled.div`
+  font-family: ${(props) => props.theme.fonts.bold};
+  font-size: 14px;
+`;
+
+const ImpersonatedText = styled.div`
+  font-family: ${(props) => props.theme.fonts.medium};
+`;
+
 type Props = {
+  isImpersonated: boolean;
   factoryApp: FactoryApp;
   selectedSismoConnectRequest?: SelectedSismoConnectRequest;
   authRequestEligibilities: AuthRequestEligibility[];
@@ -117,6 +153,7 @@ type Props = {
 };
 
 export default function ConnectFlow({
+  isImpersonated,
   factoryApp,
   selectedSismoConnectRequest,
   authRequestEligibilities,
@@ -267,7 +304,10 @@ export default function ConnectFlow({
       setLoadingProof(false);
       setResponse(_sismoConnectResponse);
 
-      if (selectedSismoConnectRequest?.devConfig?.displayRawResponse) {
+      if (
+        selectedSismoConnectRequest?.devConfig?.displayRawResponse ||
+        selectedSismoConnectRequest?.displayRawResponse
+      ) {
         const registryTreeRoot = await getRegistryTreeRoot(
           selectedSismoConnectRequest
         );
@@ -333,6 +373,21 @@ export default function ConnectFlow({
             </HoverTooltip>
           </SecondLine>
         </ContentTitle>
+
+        {isImpersonated && (
+          <ImpersonatedBanner>
+            <WarningWrapper>
+              <Warning size={28} color={colors.orange5} />
+            </WarningWrapper>
+            <ImpersonatedDescription>
+              <ImpersonatedTitle>Impersonated mode</ImpersonatedTitle>
+              <ImpersonatedText>
+                The generated proof is based on impersonated accounts. It should
+                not be used in production.
+              </ImpersonatedText>
+            </ImpersonatedDescription>
+          </ImpersonatedBanner>
+        )}
 
         <DataRequests
           authRequestEligibilities={authRequestEligibilities}

@@ -3,8 +3,8 @@ import {
   ImportedAccount,
   VaultClient as VaultClientV2,
   WalletPurpose,
-} from "../../vault-client-v2";
-import { LocalStore } from "../../vault-client-v2/stores/local-store";
+} from "../../vault-client";
+import { LocalStore } from "../../vault-store/local-store";
 import { CommitmentMapperTest } from "./commitment-mapper-test";
 import { getS1Commitment, getS2Commitment } from "./utils/getCommitments";
 import { VaultsSynchronizerTest } from "./vaults-synchronizer-test";

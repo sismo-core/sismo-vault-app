@@ -13,7 +13,11 @@ import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
 import { getMockUrl } from "./Connect/mockRequest";
 
-export default function Pages(): JSX.Element {
+export default function Pages({
+  isImpersonated,
+}: {
+  isImpersonated: boolean;
+}): JSX.Element {
   const vault = useVault();
   const { open: openMyVault } = useMyVault();
 
@@ -48,7 +52,9 @@ export default function Pages(): JSX.Element {
     <>
       <BrowserRouter>
         {/* Modals */}
-        <ImportAccountModal />
+
+        <ImportAccountModal isImpersonated={isImpersonated} />
+
         <ConnectVaultModal
           isOpen={connectIsOpen}
           onClose={() => setConnectIsOpen(false)}
@@ -70,10 +76,13 @@ export default function Pages(): JSX.Element {
         <GenerateRecoveryKeyModal />
         {/* Detect if the environment is correct and align with onchain data*/}
         <Notifications />
-        <Navbar />
+        <Navbar isImpersonated={isImpersonated} />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/connect" element={<Connect />} />
+          <Route
+            path="/connect"
+            element={<Connect isImpersonated={isImpersonated} />}
+          />
           {/* <Route
             path="*"
             element={<Navigate to={`/connect`} replace={true} />}

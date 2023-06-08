@@ -85,8 +85,11 @@ const ContentContainer = styled.div`
 // export type EligibleGroup = {
 //   [account: string]: number;
 // };
+type Props = {
+  isImpersonated: boolean;
+};
 
-export default function Connect(): JSX.Element {
+export default function Connect({ isImpersonated }: Props): JSX.Element {
   const [searchParams] = useSearchParams();
   const vault = useVault();
   const [vaultSliderOpen, setVaultSliderOpen] = useState(false);
@@ -159,6 +162,7 @@ export default function Connect(): JSX.Element {
   /* ************ GET THE REQUEST AND SET DEFAULT ************* */
   /* ********************************************************** */
 
+  // TODO refactor using ServicesFactory.getParseSismoConnectRequest
   useEffect(() => {
     const _sismoConnectRequest = getSismoConnectRequest(searchParams);
     if (
@@ -410,12 +414,12 @@ export default function Connect(): JSX.Element {
         } else {
           const callbackUrl =
             sismoConnectRequest.callbackPath &&
-              sismoConnectRequest.callbackPath.includes("chrome-extension://")
+            sismoConnectRequest.callbackPath.includes("chrome-extension://")
               ? sismoConnectRequest.callbackPath
               : _referrerHostname +
-                  (sismoConnectRequest.callbackPath
-                    ? sismoConnectRequest.callbackPath
-                    : "");
+                (sismoConnectRequest.callbackPath
+                  ? sismoConnectRequest.callbackPath
+                  : "");
           setCallbackUrlQueryParam(callbackUrl);
           setCallbackUrl(callbackUrl);
         }
@@ -630,8 +634,10 @@ export default function Connect(): JSX.Element {
           <VaultSlider
             vaultSliderOpen={vaultSliderOpen}
             setVaultSliderOpen={setVaultSliderOpen}
+            isImpersonated={isImpersonated}
           />
           <Flow
+            isImpersonated={isImpersonated}
             factoryApp={factoryApp}
             selectedSismoConnectRequest={selectedSismoConnectRequest}
             authRequestEligibilities={authRequestEligibilities}

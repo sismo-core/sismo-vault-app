@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import Blockies from "react-blockies";
-import { ImportedAccount, Owner } from "../../libs/vault-client-v2";
+import { ImportedAccount, Owner } from "../../libs/vault-client";
 import Icon from "../Icon";
 import { Account } from "../../libs/sismo-client";
 

@@ -1,12 +1,12 @@
 import { VaultClient } from "./client";
 import { ImportedAccount, Owner, Vault } from "./client.types";
-import { demoVault } from "./client-demo.mock";
+import { demoVault } from "./demo-client.mock";
 import {
   commitmentMapperPubKeyDemo,
   commitmentReceiptDemo,
 } from "../../commitment-mapper/mocks";
 
-export class VaultClientDemo extends VaultClient {
+export class DemoVaultClient extends VaultClient {
   public create(): Vault {
     return demoVault;
   }

@@ -1,4 +1,4 @@
-import { Cache } from "../../caches";
+import { Cache } from "../../../cache-service";
 import { MerkleTreeData } from "@sismo-core/hydra-s2";
 import { fetchDataTree } from "../services/available-data";
 

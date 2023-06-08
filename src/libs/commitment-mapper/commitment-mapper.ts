@@ -2,11 +2,18 @@ import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { BigNumber } from "ethers";
 import SHA3 from "sha3";
 import { getPoseidon } from "../poseidon";
+import env from "../../environment";
+import { Profile } from "../vault-client";
 
 export type CommitmentReceiptResult = {
   commitmentMapperPubKey: [string, string];
   commitmentReceipt: [string, string, string];
 };
+
+export type Web2ImpersonatedCommitmentResult = {
+  identifier: string;
+  profile: Profile;
+} & CommitmentReceiptResult;
 
 export type CommitmentReceiptGithubResult = {
   account: {
@@ -95,6 +102,10 @@ export abstract class CommitmentMapper {
     commitment: string;
   }): Promise<CommitmentReceiptTwitterResult>;
 
+  public async getPubKey(): Promise<[string, string]> {
+    return env.sismoDestination.commitmentMapperPubKey;
+  }
+
   public async migrateEddsa({
     receipt,
     identifier,
@@ -128,9 +139,7 @@ export abstract class CommitmentMapper {
     vaultSecret: string
   ): Promise<CommitmentReceiptResult> {
     const poseidon = await getPoseidon();
-
     const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
-
     return await this._commitEthereumEddsa({
       ethAddress,
       ethSignature,

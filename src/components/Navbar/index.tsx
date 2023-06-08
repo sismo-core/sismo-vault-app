@@ -139,7 +139,11 @@ const Inline = styled.div`
   align-items: center;
 `;
 
-export default function Navbar(): JSX.Element {
+export default function Navbar({
+  isImpersonated,
+}: {
+  isImpersonated: boolean;
+}): JSX.Element {
   const vault = useVault();
   const navigate = useNavigate();
   let location = useLocation();
@@ -208,22 +212,25 @@ export default function Navbar(): JSX.Element {
               />
               {logoLoaded && (
                 <Tag>
-                  {env.name === "STAGING_BETA" &&
-                    `
+                  {isImpersonated
+                    ? "Impersonated"
+                    : env.name === "STAGING_BETA"
+                    ? `
                       Staging
-                    `}
-                  {env.name === "PROD_BETA" &&
                     `
+                    : env.name === "PROD_BETA"
+                    ? `
                       Beta
-                    `}
-                  {env.name === "DEMO" &&
                     `
+                    : env.name === "DEMO"
+                    ? `
                       Demo
-                    `}
-                  {env.name === "DEV_BETA" &&
                     `
+                    : env.name === "DEV_BETA"
+                    ? `
                       Dev
-                    `}
+                    `
+                    : null}
                 </Tag>
               )}
             </Logo>

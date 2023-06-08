@@ -16,20 +16,15 @@ import {
   Owner,
   RecoveryKey,
   Vault,
-  VaultClient as VaultClientV2,
   WalletPurpose,
-} from "../vault-client-v2";
-import { VaultClient as VaultClientV1 } from "../vault-client-v1";
-import { AwsStore } from "../vault-client-v2/stores/aws-store";
+} from "../vault-client";
 import { useVaultState } from "./useVaultState";
 import { getVaultV2ConnectedOwner } from "./utils/getVaultV2ConnectedOwner";
-import { LocalStore } from "../vault-client-v2/stores/local-store";
-import { VaultClientDemo } from "../vault-client-v2/client/client-demo";
-import { demoOwner } from "../vault-client-v2/client/client-demo.mock";
-import { CommitmentMapperDemo } from "../commitment-mapper/commitment-mapper-demo";
+import { demoOwner } from "../vault-client/client/demo-client.mock";
 import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
-import { VaultsSynchronizer } from "../vaults-synchronizer";
-import { CommitmentMapper, CommitmentMapperAWS } from "../commitment-mapper";
+import { CommitmentMapper } from "../commitment-mapper";
+import { ServicesFactory } from "../services-factory";
+import { useNotifications } from "../../components/Notifications/provider";
 
 type ReactVault = {
   mnemonics: string[];
@@ -72,42 +67,38 @@ export const useVault = (): ReactVault => {
 export const SismoVaultContext = React.createContext(null);
 
 type Props = {
-  vaultV2Url: string;
-  vaultV1Url: string;
+  services: ServicesFactory;
+  isImpersonated?: boolean;
   children: ReactNode;
 };
 
 export default function SismoVaultProvider({
-  vaultV2Url,
-  vaultV1Url,
+  services,
+  isImpersonated,
   children,
 }: Props): JSX.Element {
   const vaultState = useVaultState();
+  const { notificationAdded } = useNotifications();
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
   const [synchronizing, setSynchronizing] = useState(false);
+  const [impersonationErrors, setImpersonationErrors] = useState<string[]>([]);
 
-  const vaultClientV2 = useMemo(() => {
-    if (!vaultV2Url) return;
-    if (env.name === "DEMO") return new VaultClientDemo(new LocalStore());
-    return new VaultClientV2(new AwsStore({ vaultUrl: vaultV2Url }));
-  }, [vaultV2Url]);
+  const vaultClient = services.getVaultClient();
+  const vaultClientV1 = services.getVaultClientV1();
+  const vaultSynchronizer = services.getVaultsSynchronizer();
 
-  const vaultClientV1 = useMemo(() => {
-    if (!vaultV1Url) return;
-    if (env.name === "DEMO") return null;
-    return new VaultClientV1(new AwsStore({ vaultUrl: vaultV1Url }));
-  }, [vaultV1Url]);
-
-  const vaultSynchronizer = new VaultsSynchronizer({
-    commitmentMapperV1: new CommitmentMapperAWS({
-      url: env.commitmentMapperUrlV1,
-    }),
-    commitmentMapperV2: new CommitmentMapperAWS({
-      url: env.commitmentMapperUrlV2,
-    }),
-    vaultClientV2,
-    vaultClientV1,
-  });
+  useEffect(() => {
+    if (impersonationErrors.length === 0) return;
+    for (const error of impersonationErrors) {
+      notificationAdded(
+        {
+          text: error,
+          type: "error",
+        },
+        100000
+      );
+    }
+  }, [impersonationErrors, notificationAdded]);
 
   useEffect(() => {
     const loadActiveSession = async () => {
@@ -116,6 +107,22 @@ export default function SismoVaultProvider({
         setLoadingActiveSession(false);
         return;
       }
+
+      if (isImpersonated) {
+        const impersonatedVaultCreator = services.getImpersonatedVaultCreator();
+        const { impersonationErrors } =
+          await impersonatedVaultCreator.getImpersonationState();
+        if (impersonationErrors.length > 0) {
+          setImpersonationErrors(impersonationErrors);
+        }
+        const { owner, vault } = await impersonatedVaultCreator.create();
+        owner && (await vaultState.updateConnectedOwner(owner));
+        vault && (await vaultState.updateVaultState(vault));
+        setSynchronizing(false);
+        setLoadingActiveSession(false);
+        return;
+      }
+
       const ownerConnectedV1 = getVaultV1ConnectedOwner();
       const ownerConnectedV2 = getVaultV2ConnectedOwner();
 
@@ -142,9 +149,9 @@ export default function SismoVaultProvider({
   }, []);
 
   const connect = useCallback(async (owner: Owner): Promise<boolean> => {
-    let vaultV2 = await vaultClientV2.unlock(owner.seed);
+    let vaultV2 = await vaultClient.unlock(owner.seed);
     let vaultV1 = null;
-    if (env.name !== "DEMO") {
+    if (env.name !== "DEMO" && vaultSynchronizer) {
       vaultV1 = await vaultClientV1.unlock(owner.seed);
       if (!vaultV2) {
         if (vaultV1) {
@@ -163,7 +170,7 @@ export default function SismoVaultProvider({
       createActiveSession(owner, 24 * 30 * 24);
     }
     if (vaultV2 && !vaultV1) {
-      if (env.name !== "DEMO") {
+      if (env.name !== "DEMO" && vaultSynchronizer) {
         await vaultSynchronizer.sync(null, owner);
       }
     }
@@ -172,15 +179,17 @@ export default function SismoVaultProvider({
   }, []);
 
   const syncVaults = () => {
-    if (env.name === "DEMO") {
+    if (env.name === "DEMO" || !vaultSynchronizer) {
+      console.log("No vault synchronizer");
       return;
     }
+    console.log("Sync vaults");
     vaultSynchronizer
       .sync(vaultState.connectedOwner, vaultState.connectedOwner)
       .then(async (res) => {
         // Update the vault UI
         if (res) {
-          const vault = await vaultClientV2.unlock(res.owner.seed);
+          const vault = await vaultClient.unlock(res.owner.seed);
           vaultState.updateVaultState(vault);
         }
       });
@@ -188,32 +197,32 @@ export default function SismoVaultProvider({
 
   const disconnect = (): void => {
     vaultState.reset();
-    vaultClientV2.lock();
+    vaultClient.lock();
     deleteActiveSession();
   };
 
   const isVaultExist = async (owner: Owner): Promise<boolean> => {
-    const vault = await vaultClientV2.unlock(owner.seed);
+    const vault = await vaultClient.unlock(owner.seed);
     if (!vault) return false;
     return true;
   };
 
   const create = async (): Promise<Vault> => {
-    return await vaultClientV2.create();
+    return await vaultClient.create();
   };
 
   const getVaultSecret = async (): Promise<string> => {
-    return await vaultClientV2.getVaultSecret();
+    return await vaultClient.getVaultSecret();
   };
 
   const getNextSeed = async (
     purpose: WalletPurpose
   ): Promise<{ seed: string; mnemonic: string; accountNumber: number }> => {
-    return await vaultClientV2.getNextSeed(purpose);
+    return await vaultClient.getNextSeed(purpose);
   };
 
   const generateRecoveryKey = async (name: string): Promise<string> => {
-    const vault = await vaultClientV2.generateRecoveryKey(name);
+    const vault = await vaultClient.generateRecoveryKey(name);
     syncVaults();
     await vaultState.updateVaultState(vault);
     const mnemonic = vault.mnemonics[0];
@@ -229,13 +238,13 @@ export default function SismoVaultProvider({
   };
 
   const disableRecoveryKey = async (key: string): Promise<void> => {
-    const vault = await vaultClientV2.disableRecoveryKey(key);
+    const vault = await vaultClient.disableRecoveryKey(key);
     syncVaults();
     await vaultState.updateVaultState(vault);
   };
 
   const importAccount = async (account: ImportedAccount): Promise<void> => {
-    const vault = await vaultClientV2.importAccount(account);
+    const vault = await vaultClient.importAccount(account);
     if (account.type === "ethereum" && vaultState.autoImportOwners) {
       if (
         !vault.owners.find((owner) => owner.identifier === account.identifier)
@@ -252,18 +261,18 @@ export default function SismoVaultProvider({
     owner: Owner,
     account: ImportedAccount
   ): Promise<void> => {
-    const vault = await vaultClientV2.deleteImportedAccount(account);
+    const vault = await vaultClient.deleteImportedAccount(account);
     await vaultState.updateVaultState(vault);
   };
 
   const addOwner = async (ownerAdded: Owner): Promise<void> => {
-    const vault = await vaultClientV2.addOwner(ownerAdded);
+    const vault = await vaultClient.addOwner(ownerAdded);
     syncVaults();
     await vaultState.updateVaultState(vault);
   };
 
   const deleteOwners = async (ownersDeleted: Owner[]): Promise<void> => {
-    const vault = await vaultClientV2.deleteOwners(ownersDeleted);
+    const vault = await vaultClient.deleteOwners(ownersDeleted);
     await vaultClientV1.deleteOwners(ownersDeleted);
     await vaultState.updateVaultState(vault);
   };
@@ -271,7 +280,7 @@ export default function SismoVaultProvider({
   const setAutoImportOwners = async (
     autoImportOwners: boolean
   ): Promise<void> => {
-    const vault = await vaultClientV2.setAutoImportOwners(autoImportOwners);
+    const vault = await vaultClient.setAutoImportOwners(autoImportOwners);
     await vaultState.updateVaultState(vault);
   };
 
@@ -279,7 +288,7 @@ export default function SismoVaultProvider({
     owner: Owner,
     keepConnected: boolean
   ): Promise<void> => {
-    const vault = await vaultClientV2.setKeepConnected(keepConnected);
+    const vault = await vaultClient.setKeepConnected(keepConnected);
     if (!keepConnected) {
       deleteActiveSession();
     } else {
@@ -289,27 +298,26 @@ export default function SismoVaultProvider({
   };
 
   const updateName = async (name: string): Promise<void> => {
-    const vault = await vaultClientV2.updateName(name);
+    const vault = await vaultClient.updateName(name);
     await vaultClientV1.unlock(vaultState.connectedOwner.seed);
     await vaultState.updateVaultState(vault);
   };
 
   const deleteVault = async (): Promise<void> => {
-    await vaultClientV2.delete();
+    await vaultClient.delete();
     await vaultState.reset();
   };
 
   // Connect to vault on demo mode
   useEffect(() => {
-    if (vaultClientV2 && env.name === "DEMO") {
+    if (vaultClient && env.name === "DEMO") {
       connect(demoOwner);
     }
-  }, [connect, vaultClientV2]);
+  }, [connect, vaultClient]);
 
   const commitmentMapper = useMemo(() => {
-    if (env.name === "DEMO") return new CommitmentMapperDemo();
-    return new CommitmentMapperAWS({ url: env.commitmentMapperUrlV2 });
-  }, []);
+    return services.getCommitmentMapper();
+  }, [services]);
 
   return (
     <SismoVaultContext.Provider

@@ -12,19 +12,20 @@ export const devConfig = {
   displayRawResponse: true,
   devGroups: [
     {
-      groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
+      groupId: "0xe9ed316946d3d98dfcd829a53ec9822e",
       groupTimestamp: "latest",
       data: {
         "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045": 2,
+        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 2,
       },
     },
-    // {
-    //   groupId: "0x8d5e3ee2049c1c7d363ea88b2b424877",
-    //   groupTimestamp: "latest",
-    //   data: {
-    //     "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
-    //   },
-    // },
+    {
+      groupId: "0xa92d84058abdb05961ada4de0f902b0c",
+      groupTimestamp: "latest",
+      data: {
+        "0x938f169352008d35e065F153be53b3D3C07Bcd90": 3,
+      },
+    },
     // {
     //   groupId: "0x42c768bb8ae79e4c5c05d3b51a4ec74a",
     //   groupTimestamp: "latest",
@@ -43,95 +44,56 @@ export const devConfig = {
   ],
 };
 
-export const claims: ClaimRequest[] = [
-  {
-    claimType: ClaimType.GTE,
-    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-    groupTimestamp: "latest",
-    isOptional: false,
-    isSelectableByUser: true,
-    value: 2,
-    extraData: "",
-  } as ClaimRequest,
-  {
-    claimType: ClaimType.GTE,
-    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-    groupTimestamp: "latest",
-    isOptional: false,
-    isSelectableByUser: true,
-    value: 2,
-    extraData: "",
-  } as ClaimRequest,
-  {
-    claimType: ClaimType.GTE,
-    groupId: "0xd138c33e8a6a450336a6c5dda990cf95",
-    groupTimestamp: "latest",
-    isOptional: true,
-    isSelectableByUser: true,
-    value: 2,
-    extraData: "",
-  } as ClaimRequest,
-];
+export const sismoConnectRequestMock: SismoConnectRequest = {
+  appId: "0x73316ca511efe1e14a63fcebdc9d8b24",
+  namespace: "main",
+  displayRawResponse: true,
+  callbackPath: null,
+  version: "sismo-connect-v1",
+};
 
-//0x1878EA9134D500A3cEF3E89589ECA3656EECf48f
+export const vault = {
+  impersonate: [
+    "0x938f169352008d35e065F153be53b3D3C07Bcd90",
+    "github:leosayous21",
+    // "github:baoufa",
+    "twitter:VitalikButerin:295218901",
+    // "github:DONOTEXIST_123456789",
+  ],
+};
 
 export const auths: AuthRequest[] = [
   {
-    authType: AuthType.VAULT,
-    isAnon: false,
-    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-    isOptional: false,
-    isSelectableByUser: true,
-    extraData: "",
-  },
-  {
-    authType: AuthType.EVM_ACCOUNT,
-    isAnon: false,
-    userId: "0x25fcc2A4B8e5387649ba3B6DeDDcAC343D8E11B6",
-    isOptional: false,
-    isSelectableByUser: true,
-    extraData: "",
-  },
-  // {
-  //   authType: AuthType.TWITTER,
-  //   isAnon: false,
-  //   userId: "971701818",
-  //   isOptional: false,
-  //   isSelectableByUser: true,
-  //   extraData: "",
-  // },
-  {
     authType: AuthType.GITHUB,
     isAnon: false,
-    userId: "124567",
+    userId: "11630545",
     isOptional: false,
     isSelectableByUser: true,
     extraData: "",
   },
+];
+
+export const claims: ClaimRequest[] = [
   {
-    authType: AuthType.EVM_ACCOUNT,
-    isAnon: false,
-    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-    isOptional: true,
-    isSelectableByUser: false,
-    extraData: "",
-  },
-  {
-    authType: AuthType.EVM_ACCOUNT,
-    isAnon: false,
-    userId: "0x938f169352008d35e065F153be53b3D3C07Bcd90",
-    isOptional: true,
+    // Sismo Contributors
+    claimType: ClaimType.GTE,
+    groupId: "0xe9ed316946d3d98dfcd829a53ec9822e",
+    groupTimestamp: "latest",
+    isOptional: false,
     isSelectableByUser: true,
+    value: 2,
     extraData: "",
-  },
-  // {
-  //   authType: AuthType.TWITTER,
-  //   isAnon: false,
-  //   userId: "971701818",
-  //   isOptional: true,
-  //   isSelectableByUser: false,
-  //   extraData: "",
-  // },
+  } as ClaimRequest,
+  {
+    claimType: ClaimType.GTE,
+    // twitter ethereum influencers : groupId 0xa92d84058abdb05961ada4de0f902b0c
+    groupId: "0xa92d84058abdb05961ada4de0f902b0c",
+    groupTimestamp: "latest",
+    isOptional: false,
+    isSelectableByUser: true,
+    value: 2,
+    extraData: "",
+  } as ClaimRequest,
 ];
 
 export const signature: SignatureRequest = {
@@ -139,13 +101,6 @@ export const signature: SignatureRequest = {
     "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of usin",
   isSelectableByUser: true,
   extraData: "",
-};
-
-export const sismoConnectRequestMock: SismoConnectRequest = {
-  appId: "0x97f25a024703a13d6cf18b84639e4c02",
-  namespace: "main",
-  callbackPath: null,
-  version: "sismo-connect-v1",
 };
 
 //const url = new URL("http://dev.vault-beta.sismo.io/connect");
@@ -158,11 +113,16 @@ searchParams.set("namespace", sismoConnectRequestMock.namespace);
 searchParams.set("callbackPath", sismoConnectRequestMock.callbackPath);
 searchParams.set("auths", JSON.stringify(auths));
 searchParams.set("claims", JSON.stringify(claims));
-searchParams.set("signature", JSON.stringify(signature));
-searchParams.set("devConfig", JSON.stringify(devConfig));
+// searchParams.set("signature", JSON.stringify(signature));
+//searchParams.set("devConfig", JSON.stringify(devConfig));
+searchParams.set("vault", JSON.stringify(vault));
+searchParams.set(
+  "displayRawResponse",
+  sismoConnectRequestMock.displayRawResponse.toString()
+);
 
 export const sismoConnectRequestMockUrl = url.toString();
 
 export function getMockUrl() {
-  //  console.log(sismoConnectRequestMockUrl);
+  // console.log(sismoConnectRequestMockUrl);
 }

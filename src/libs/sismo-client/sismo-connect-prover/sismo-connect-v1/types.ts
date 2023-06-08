@@ -1,7 +1,7 @@
 import { BigNumberish } from "@ethersproject/bignumber";
 import { AccountData } from "../../provers/types";
 import { GroupMetadata } from "../../providers";
-import { ImportedAccount } from "../../../vault-client-v2";
+import { ImportedAccount } from "../../../vault-client";
 
 // import Claim from the packages
 
@@ -83,6 +83,10 @@ export type SismoConnectRequest = {
   signature?: SignatureRequest;
 
   devConfig?: DevConfig;
+  displayRawResponse?: boolean;
+  vault?: {
+    impersonate: string[];
+  };
   callbackPath?: string;
   callbackUrl?: string;
   version: string;

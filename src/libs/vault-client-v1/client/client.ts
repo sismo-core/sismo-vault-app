@@ -3,12 +3,12 @@ import { Seed } from "../../sismo-client";
 import migration from "../migration/migration";
 import { ImportedAccount } from "..";
 import { VaultProvider } from "../provider/provider";
-import { BaseStore } from "../stores/base-store";
 import { SismoWallet, WalletPurpose } from "../wallet";
 import { RecoveryKey, Vault } from "./client.types";
 import SHA3 from "sha3";
 import { BigNumber } from "ethers";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
+import { BaseStore } from "../../vault-store/base-store";
 
 export class VaultClient {
   private _provider: VaultProvider;

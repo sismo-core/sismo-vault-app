@@ -3,7 +3,7 @@ type FeatureFlags = {
   telegram: boolean;
 };
 
-type Environment = {
+export type Environment = {
   name: "LOCAL" | "DEMO" | "STAGING_BETA" | "PROD_BETA" | "DEV_BETA";
   sentryReleaseName: string;
   disabledSentry: boolean;

@@ -5,7 +5,7 @@ import YesNoModal from "../../../../../components/YesNoModal";
 import { getMainMinified } from "../../../../../utils/getMain";
 import Icon from "../../../../../components/Icon";
 import { useVault } from "../../../../../libs/vault";
-import { Owner } from "../../../../../libs/vault-client-v2";
+import { Owner } from "../../../../../libs/vault-client";
 import Avatar from "../../../../../components/Avatar";
 
 const Container = styled.div`

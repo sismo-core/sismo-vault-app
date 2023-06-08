@@ -14,7 +14,8 @@ import GenerateRecoveryKeyModalProvider from "./pages/Modals/GenerateRecoveryKey
 import MainScrollManagerProvider from "./libs/main-scroll-manager";
 import EnvsMonitoring from "./libs/envs-monitoring";
 import { SismoClient } from "./libs/sismo-client";
-import { IndexDbCache } from "./libs/sismo-client/caches/indexdb-cache";
+import { IndexDbCache } from "./libs/cache-service/indexdb-cache";
+import { ServicesFactory } from "./libs/services-factory";
 
 const FONTS_LIST = [
   "BebasNeuePro-Regular",
@@ -26,8 +27,17 @@ const FONTS_LIST = [
   "Inter-Medium",
 ];
 
+const services = ServicesFactory.init({
+  env,
+});
+
+// TODO REFACTOR THIS TO AVOID THIS GLOBAL VARIABLE AND USE A CONTEXT INSTEAD WITH HOOKS TO ACCESS SERVICES
+const isImpersonated =
+  services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
+
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),
+  services,
 });
 
 const removeHexadecimalNumbers = (event: Sentry.Event) => {
@@ -109,29 +119,31 @@ function App() {
     Promise.all(FONTS_LIST.map((font) => loadFonts(font)));
   }, []);
 
+  // services from the factoryService to SismoProvider and vaultProvider
+
   return (
     <MainScrollManagerProvider>
       <WalletProvider>
-        <SismoVaultProvider
-          vaultV2Url={env.vaultV2URL}
-          vaultV1Url={env.vaultV1URL}
-        >
-          <NotificationsProvider>
+        <NotificationsProvider>
+          <SismoVaultProvider
+            services={services}
+            isImpersonated={isImpersonated}
+          >
             <SismoProvider client={sismoClient}>
               <GenerateRecoveryKeyModalProvider>
                 <MyVaultModalProvider>
                   <ImportAccountModalProvider>
-                    <EnvsMonitoring>
+                    <EnvsMonitoring isImpersonated={isImpersonated}>
                       <Theme>
-                        <Pages />
+                        <Pages isImpersonated={isImpersonated} />
                       </Theme>
                     </EnvsMonitoring>
                   </ImportAccountModalProvider>
                 </MyVaultModalProvider>
               </GenerateRecoveryKeyModalProvider>
             </SismoProvider>
-          </NotificationsProvider>
-        </SismoVaultProvider>
+          </SismoVaultProvider>
+        </NotificationsProvider>
       </WalletProvider>
     </MainScrollManagerProvider>
   );

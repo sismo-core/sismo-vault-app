@@ -2,7 +2,7 @@ import { VaultClient as VaultClientV1 } from "../../vault-client-v1";
 import {
   ImportedAccount,
   VaultClient as VaultClientV2,
-} from "../../vault-client-v2";
+} from "../../vault-client";
 import { VaultsSynchronizer } from "../vaults-synchronizer";
 
 export class VaultsSynchronizerTest extends VaultsSynchronizer {

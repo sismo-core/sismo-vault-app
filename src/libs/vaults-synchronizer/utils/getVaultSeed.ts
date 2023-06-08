@@ -1,5 +1,5 @@
 import { Vault, VaultClient as VaultClientV1 } from "../../vault-client-v1";
-import { VaultClient as VaultClientV2 } from "../../vault-client-v2";
+import { VaultClient as VaultClientV2 } from "../../vault-client";
 
 /*
  * Return a seed of seed which have a Vault in the corresponding vaultClient
