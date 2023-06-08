@@ -57,8 +57,6 @@ export const getSismoConnectRequest = (
     displayRawResponse: _displayRawResponse === "true" ? true : false,
   };
 
-  console.log("request", request);
-
   /* ****************************************** */
   /* ****** REMOVE ALL URL PARAMS  ************ */
   /* ****************************************** */
