@@ -6,7 +6,7 @@ import { getMainMinified } from "../../../../../utils/getMain";
 import Icon from "../../../../../components/Icon";
 import { useNotifications } from "../../../../../components/Notifications/provider";
 import { getMinimalIdentifier } from "../../../../../utils/getMinimalIdentifier";
-import { useVault } from "../../../../../libs/vault";
+import { useVault } from "../../../../../hooks/vault";
 import Avatar from "../../../../../components/Avatar";
 import { ImportedAccount } from "../../../../../libs/vault-client";
 import * as Sentry from "@sentry/react";

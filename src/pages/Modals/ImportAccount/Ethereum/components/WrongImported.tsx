@@ -1,7 +1,7 @@
 import Button from "../../../../../components/Button";
 import { Text } from "../../../../../components/Text";
 import Account from "../../../../../components/Account";
-import { useWallet } from "../../../../../libs/wallet";
+import { useWallet } from "../../../../../hooks/wallet";
 import { getMinimalIdentifier } from "../../../../../utils/getMinimalIdentifier";
 
 type Props = {

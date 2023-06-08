@@ -4,7 +4,7 @@ import Loader from "../Loader";
 import { useEffect, useRef, useState } from "react";
 import { getMainMinified } from "../../utils/getMain";
 import { useMyVault } from "../../pages/Modals/MyVault/Provider";
-import { useVault } from "../../libs/vault";
+import { useVault } from "../../hooks/vault";
 import Avatar from "../Avatar";
 
 const Container = styled.div<{ isOpen: boolean }>`

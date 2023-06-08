@@ -5,21 +5,19 @@ import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
 import * as Sentry from "@sentry/react";
 import { FactoryApp } from "../../libs/sismo-client";
-import { useSismo } from "../../libs/sismo";
+import { useSismo } from "../../hooks/sismo";
 import { getSismoConnectRequest } from "./utils/getSismoConnectRequest";
-import { getReferrer } from "./utils/getReferrerApp";
+import { getReferrer } from "./utils/getReferrer";
 import {
   RequestGroupMetadata,
   SismoConnectRequest,
-  SISMO_CONNECT_VERSION,
-  ClaimType,
   AuthRequestEligibility,
   GroupMetadataClaimRequestEligibility,
   SelectedSismoConnectRequest,
   SismoConnectResponse,
-} from "../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
-import { useVault } from "../../libs/vault";
-import { getSismoConnectResponseBytes } from "../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1/utils/getSismoConnectResponseBytes";
+} from "../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+import { useVault } from "../../hooks/vault";
+import { getSismoConnectResponseBytes } from "../../libs/sismo-connect-provers/sismo-connect-prover-v1/utils/getSismoConnectResponseBytes";
 import Skeleton from "./components/Skeleton";
 import Flow from "./Flow";
 import VaultSlider from "./components/VaultSlider";
@@ -27,6 +25,10 @@ import Logo from "./components/Logo";
 import Redirection from "./components/Redirection";
 import { gzip } from "pako";
 import { fromUint8Array } from "js-base64";
+import {
+  RequestValidationStatus,
+  validateSismoConnectRequest,
+} from "./utils/validate-sismo-connect-request";
 
 const Container = styled.div`
   position: relative;
@@ -162,7 +164,6 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   /* ************ GET THE REQUEST AND SET DEFAULT ************* */
   /* ********************************************************** */
 
-  // TODO refactor using ServicesFactory.getParseSismoConnectRequest
   useEffect(() => {
     const _sismoConnectRequest = getSismoConnectRequest(searchParams);
     if (
@@ -207,90 +208,12 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   useEffect(() => {
     if (!sismoConnectRequest) return;
     if (isWrongUrl?.status) return;
-
-    if (
-      !sismoConnectRequest.version ||
-      sismoConnectRequest.version !== SISMO_CONNECT_VERSION
-    ) {
+    const requestValidation = validateSismoConnectRequest(sismoConnectRequest);
+    if (requestValidation.status === RequestValidationStatus.Error) {
       setIsWrongUrl({
         status: true,
-        message:
-          "Invalid version query parameter: " + sismoConnectRequest.version,
+        message: requestValidation.message,
       });
-      return;
-    }
-    if (!sismoConnectRequest.appId) {
-      setIsWrongUrl({
-        status: true,
-        message: "Invalid appId query parameter: " + sismoConnectRequest.appId,
-      });
-      return;
-    }
-    // if (!sismoConnectRequest.namespace) {
-    //   setIsWrongUrl({
-    //     status: true,
-    //     message:
-    //       "Invalid namespace query parameter: " + sismoConnectRequest.namespace,
-    //   });
-    //   return;
-    // }
-
-    if (
-      !sismoConnectRequest?.claims?.length &&
-      !sismoConnectRequest?.auths?.length
-    ) {
-      setIsWrongUrl({
-        status: true,
-        message:
-          "Invalid request: you must specify at least one claim or one auth",
-      });
-      return;
-    }
-
-    if (sismoConnectRequest?.claims) {
-      for (const claim of sismoConnectRequest?.claims) {
-        if (
-          claim?.claimType !== ClaimType.GTE &&
-          claim?.claimType !== ClaimType.EQ &&
-          typeof claim?.claimType !== "undefined"
-        ) {
-          setIsWrongUrl({
-            status: true,
-            message:
-              "Invalid claimType: claimType" +
-              claim.claimType +
-              " will be supported soon. Please use GTE or EQ for now.",
-          });
-          return;
-        }
-      }
-    }
-
-    if (
-      sismoConnectRequest?.devConfig &&
-      Boolean(sismoConnectRequest?.claims?.length)
-    ) {
-      const claimGroupIds = sismoConnectRequest?.claims?.map(
-        (claim) => claim?.groupId
-      );
-      const devConfigGroupIds = sismoConnectRequest?.devConfig?.devGroups?.map(
-        (group) => group?.groupId
-      );
-      const missingGroups = claimGroupIds?.filter(
-        (groupId) => !devConfigGroupIds?.includes(groupId)
-      );
-      if (
-        missingGroups?.length > 0 &&
-        sismoConnectRequest?.devConfig?.devGroups?.length > 0
-      ) {
-        setIsWrongUrl({
-          status: true,
-          message:
-            "Invalid devConfig: claimRequest groups are not defined in your devConfig. Please add the following groups to your devConfig: " +
-            missingGroups.join(", "),
-        });
-        return;
-      }
     }
   }, [sismoConnectRequest, isWrongUrl?.status]);
 
@@ -402,10 +325,6 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
               : "";
         }
 
-        //TODO could be nice to use something like this instead of callbackUrl + hostname + referrerUrl + TDL etc..
-        //And in props use ReferrerApp
-        //const referrerApp = getReferrerApp(sismoConnectRequest);
-        //console.log("referrerApp", referrerApp);
         setReferrer(referrer);
         setHostname(_hostname);
         setReferrerUrl(_referrerHostname + _callbackRefererPath);
@@ -489,6 +408,7 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   useEffect(() => {
     if (!sismoConnectRequest) return;
     //if (!vault.importedAccounts) return;
+    console.log("requestGroupsMetadata", requestGroupsMetadata);
     if (sismoConnectRequest?.claims?.length && !requestGroupsMetadata) return;
 
     const getEligibilities = async () => {

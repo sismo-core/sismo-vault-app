@@ -6,7 +6,7 @@ import {
   ImportedAccount,
   WalletPurpose,
 } from "../../../../libs/vault-client";
-import { useVault } from "../../../../libs/vault";
+import { useVault } from "../../../../hooks/vault";
 import * as Sentry from "@sentry/react";
 import { useNotifications } from "../../../../components/Notifications/provider";
 

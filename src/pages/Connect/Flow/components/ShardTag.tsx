@@ -3,7 +3,7 @@ import colors from "../../../../theme/colors";
 import {
   ClaimType,
   GroupMetadataClaimRequestEligibility,
-} from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+} from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import { CaretDown, Info } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import useOnClickOutside from "../../../../utils/useClickOutside";

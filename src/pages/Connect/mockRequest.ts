@@ -5,7 +5,7 @@ import {
   ClaimType,
   SignatureRequest,
   SismoConnectRequest,
-} from "../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+} from "../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 
 export const devConfig = {
   enabled: true,

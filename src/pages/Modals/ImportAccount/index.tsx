@@ -6,12 +6,12 @@ import Account from "./components/Account";
 import ImportEthereum from "./Ethereum";
 import ImportGithub from "./Github";
 import { zIndex } from "../../../theme/z-index";
-import { useWallet } from "../../../libs/wallet";
+import { useWallet } from "../../../hooks/wallet";
 import { useImportAccount } from "./provider";
 import ImportTelegram from "./Telegram";
 import ImportTwitter from "./Twitter";
 import env from "../../../environment";
-import { useVault } from "../../../libs/vault";
+import { useVault } from "../../../hooks/vault";
 import { featureFlagProvider } from "../../../utils/featureFlags";
 import { clearQueryParams } from "../../../utils/clearQueryParams";
 import { clearLocationHash } from "../../../utils/clearLocationHash";
@@ -46,7 +46,6 @@ export interface ImportingAccount {
   isDestination: boolean;
   isOwner: boolean;
 }
-
 
 type ImportAccountModalProps = {
   isImpersonated: boolean;
@@ -325,12 +324,13 @@ export default function ImportAccountModal({
                     onClick={() => setDisplay("twitter")}
                   />
                 )}
-                {featureFlagProvider.isTelegramEnabled() && (
-                  <Account
-                    type={"telegram"}
-                    onClick={() => setDisplay("telegram")}
-                  />
-                )}
+                {featureFlagProvider.isTelegramEnabled() &&
+                  accountTypes.includes("telegram") && (
+                    <Account
+                      type={"telegram"}
+                      onClick={() => setDisplay("telegram")}
+                    />
+                  )}
               </>
             ) : (
               <>

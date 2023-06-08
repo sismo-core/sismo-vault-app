@@ -1,12 +1,12 @@
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
-import { AuthType } from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+import { AuthType } from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import {
   EthRounded,
   GithubRounded,
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
-import { useMainMinified } from "../../../../libs/wallet/hooks/useMainMinified";
+import { useMainMinified } from "../../../../hooks/wallet/hooks/useMainMinified";
 import { resolveSismoIdentifier } from "../../utils/resolveSismoIdentifier";
 
 const Container = styled.div<{ optIn: boolean }>`

@@ -2,7 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
 import { Owner } from "../../../../libs/vault-client";
-import { useVault } from "../../../../libs/vault";
+import { useVault } from "../../../../hooks/vault";
 import Button from "../../../../components/Button";
 import Icon from "../../../../components/Icon";
 import { useNotifications } from "../../../../components/Notifications/provider";

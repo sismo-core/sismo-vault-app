@@ -4,8 +4,8 @@ import SwitchActiveTutoStep from "./components/SwitchActiveTutoStep";
 import GenerateAccount from "./components/GenerateAccountStep";
 import AlreadyImported from "./components/AlreadyImportedStep";
 import WhereIsAddressStep from "./components/WhereIsAddressStep";
-import { useWallet } from "../../../../libs/wallet";
-import { useVault } from "../../../../libs/vault";
+import { useWallet } from "../../../../hooks/wallet";
+import { useVault } from "../../../../hooks/vault";
 import { useImportAccount } from "../provider";
 import WrongImported from "./components/WrongImported";
 

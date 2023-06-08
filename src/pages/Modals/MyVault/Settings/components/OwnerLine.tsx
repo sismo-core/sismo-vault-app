@@ -4,7 +4,7 @@ import colors from "../../../../../theme/colors";
 import YesNoModal from "../../../../../components/YesNoModal";
 import { getMainMinified } from "../../../../../utils/getMain";
 import Icon from "../../../../../components/Icon";
-import { useVault } from "../../../../../libs/vault";
+import { useVault } from "../../../../../hooks/vault";
 import { Owner } from "../../../../../libs/vault-client";
 import Avatar from "../../../../../components/Avatar";
 

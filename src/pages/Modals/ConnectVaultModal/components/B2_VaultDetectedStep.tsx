@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import Button from "../../../../components/Button";
 import { Question } from "phosphor-react";
-import { useWallet } from "../../../../libs/wallet";
+import { useWallet } from "../../../../hooks/wallet";
 import { getMinimalIdentifier } from "../../../../utils/getMinimalIdentifier";
 import { Owner } from "../../../../libs/vault-client";
-import { useVault } from "../../../../libs/vault";
+import { useVault } from "../../../../hooks/vault";
 import { useNotifications } from "../../../../components/Notifications/provider";
 import { useEffect, useState } from "react";
 import VaultAccessModal from "./VaultAccessModal";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
-import { useVault } from "../../libs/vault";
+import { useVault } from "../../hooks/vault";
 import ConnectVaultModal from "../../pages/Modals/ConnectVaultModal";
 import Button from "../Button";
 

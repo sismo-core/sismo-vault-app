@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import ImportAccountModal from "./Modals/ImportAccount";
 import MyVaultModal from "./Modals/MyVault";
-import { useVault } from "../libs/vault";
+import { useVault } from "../hooks/vault";
 import { useMyVault } from "./Modals/MyVault/Provider";
 import GenerateRecoveryKeyModal from "./Modals/GenerateRecoveryKey";
 import AlphaNotification from "../components/ZikiNotification";

@@ -1,4 +1,4 @@
-import { SismoConnectRequest } from "../sismo-client/sismo-connect-prover/sismo-connect-v1";
+import { SismoConnectRequest } from "../sismo-connect-provers/sismo-connect-prover-v1";
 
 export type VaultConfig = Pick<SismoConnectRequest, "vault">;
 

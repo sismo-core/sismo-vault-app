@@ -2,7 +2,7 @@ import styled from "styled-components";
 import colors from "../../../../../theme/colors";
 import { useNotifications } from "../../../../../components/Notifications/provider";
 import * as Sentry from "@sentry/react";
-import { useVault } from "../../../../../libs/vault";
+import { useVault } from "../../../../../hooks/vault";
 import CheckBox from "../../../../../components/CheckBox";
 
 const Container = styled.div`

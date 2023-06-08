@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Ziki from "../../../../../../components/Ziki";
 import colors from "../../../../../../theme/colors";
-import { useVault } from "../../../../../../libs/vault";
+import { useVault } from "../../../../../../hooks/vault";
 
 const Container = styled.div`
   display: flex;

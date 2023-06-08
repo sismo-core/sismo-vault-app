@@ -12,6 +12,8 @@ import { VaultsSynchronizer } from "../vaults-synchronizer";
 import { ImpersonatedVaultCreator } from "../impersonated-vault-creator";
 import { Web2Resolver } from "../web2-resolver";
 import { VaultConfigParser } from "../vault-config-parser";
+import { SismoConnectProvers } from "../sismo-connect-provers";
+import { IndexDbCache } from "../cache-service/indexdb-cache";
 
 // factory service
 type Configuration = {
@@ -23,6 +25,7 @@ type Configuration = {
   commitmentMapper: CommitmentMapper;
   impersonatedVaultCreator: ImpersonatedVaultCreator;
   web2Resolver: Web2Resolver;
+  sismoConnectProvers: SismoConnectProvers;
 };
 
 export class ServicesFactory {
@@ -37,18 +40,25 @@ export class ServicesFactory {
     const impersonatedAccounts = vaultConfigParser.get()?.vault?.impersonate;
     const isImpersonated = Boolean(impersonatedAccounts?.length > 0);
 
+    const cache = new IndexDbCache();
+
     if (env.name === "DEMO") {
+      const commitmentMapper = new AWSCommitmentMapper({
+        url: env.commitmentMapperUrlV2,
+      });
       const configuration = {
         vaultConfigParser: vaultConfigParser,
         vaultsSynchronizer: null,
         vaultClientV1: null,
         vaultClient: new DemoVaultClient(new MemoryStore()),
         commitmentMapperV1: null,
-        commitmentMapper: new AWSCommitmentMapper({
-          url: env.commitmentMapperUrlV2,
-        }),
+        commitmentMapper,
         impersonatedVaultCreator: null,
         web2Resolver: new Web2Resolver(),
+        sismoConnectProvers: new SismoConnectProvers({
+          cache: cache,
+          commitmentMapperService: commitmentMapper,
+        }),
       };
       return new ServicesFactory(configuration);
     }
@@ -72,6 +82,10 @@ export class ServicesFactory {
           impersonatedAccounts: impersonatedAccounts,
         }),
         web2Resolver: web2Resolver,
+        sismoConnectProvers: new SismoConnectProvers({
+          cache: cache,
+          commitmentMapperService: commitmentMapper,
+        }),
       };
       return new ServicesFactory(configuration);
     }
@@ -105,9 +119,17 @@ export class ServicesFactory {
       commitmentMapper,
       impersonatedVaultCreator: null,
       web2Resolver: new Web2Resolver(),
+      sismoConnectProvers: new SismoConnectProvers({
+        cache: cache,
+        commitmentMapperService: commitmentMapper,
+      }),
     };
 
     return new ServicesFactory(configuration);
+  }
+
+  public getSismoConnectProvers() {
+    return this._configuration.sismoConnectProvers;
   }
 
   public getVaultConfigParser() {

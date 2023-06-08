@@ -5,7 +5,7 @@ import { zIndex } from "../../../theme/z-index";
 import { useGenerateRecoveryKey } from "./provider";
 import { useEffect, useState } from "react";
 import Button from "../../../components/Button";
-import { useVault } from "../../../libs/vault";
+import { useVault } from "../../../hooks/vault";
 import { useNotifications } from "../../../components/Notifications/provider";
 import Icon from "../../../components/Icon";
 import Loader from "../../../components/Loader";

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import {
   AuthRequestEligibility,
   AuthType,
-} from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+} from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import { useEffect, useRef, useState } from "react";
 import colors from "../../../../theme/colors";
 import {

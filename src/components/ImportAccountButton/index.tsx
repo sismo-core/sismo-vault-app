@@ -5,7 +5,7 @@ import Loader from "../Loader";
 import colors from "../../theme/colors";
 import { AccountType } from "../../libs/vault-client";
 import { useImportAccount } from "../../pages/Modals/ImportAccount/provider";
-import { useVault } from "../../libs/vault";
+import { useVault } from "../../hooks/vault";
 
 const Container = styled.div`
   display: flex;

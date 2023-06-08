@@ -1,4 +1,4 @@
-import { AuthType } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+import { AuthType } from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 
 const startsWithHexadecimal = (str) => {
   let hexRegex = /^0x[0-9a-fA-F]{6}/;

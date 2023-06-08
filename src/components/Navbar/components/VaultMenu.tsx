@@ -6,7 +6,7 @@ import OwnerDetails from "../../OwnerDetails";
 //import Button from "../../Button";
 import { getMainMinified } from "../../../utils/getMain";
 import { useMyVault } from "../../../pages/Modals/MyVault/Provider";
-import { useVault } from "../../../libs/vault";
+import { useVault } from "../../../hooks/vault";
 
 const Container = styled.div`
   display: flex;

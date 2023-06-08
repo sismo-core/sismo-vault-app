@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import Button from "../../../../components/Button";
 import { ArrowRight } from "phosphor-react";
-import { useWallet } from "../../../../libs/wallet";
+import { useWallet } from "../../../../hooks/wallet";
 
 const Container = styled.div`
   width: 320px;

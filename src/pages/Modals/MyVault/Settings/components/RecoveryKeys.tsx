@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Button from "../../../../../components/Button";
 import colors from "../../../../../theme/colors";
-import { useVault } from "../../../../../libs/vault";
+import { useVault } from "../../../../../hooks/vault";
 import { useGenerateRecoveryKey } from "../../../GenerateRecoveryKey/provider";
 import RecoveryKeyLine from "./RecoveryKeyLine";
 

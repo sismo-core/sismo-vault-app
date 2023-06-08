@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { useState, useEffect, useRef } from "react";
 
-import { useVault } from "../../../libs/vault";
-import { useSismo } from "../../../libs/sismo";
+import { useVault } from "../../../hooks/vault";
+import { useSismo } from "../../../hooks/sismo";
 import * as Sentry from "@sentry/react";
 import { ArrowLeft, ArrowSquareOut, Info, Warning } from "phosphor-react";
 import { FactoryApp } from "../../../libs/sismo-client";
@@ -12,13 +12,13 @@ import {
   GroupMetadataClaimRequestEligibility,
   SismoConnectResponse,
   SelectedSismoConnectRequest,
-} from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+} from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import HoverTooltip from "../../../components/HoverTooltip";
 import colors from "../../../theme/colors";
 import { capitalizeFirstLetter } from "../../../utils/capitalizeFirstLetter";
 import { getIsEligible } from "../utils/getIsEligible";
 import Button from "../../../components/Button";
-import DataRequests from "./components/DataRequests";
+import DataRequests from "./DataRequests";
 import ProofModal from "./components/ProofModal";
 import { SignatureRequest } from "./components/SignatureRequest";
 import { ImportedAccount } from "../../../libs/vault-client";

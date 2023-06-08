@@ -4,8 +4,8 @@ import styled from "styled-components";
 import Account from "../../../../../components/Account";
 import Icon from "../../../../../components/Icon";
 import HorizontalSteps from "../../../../../components/HorizontalSteps";
-import { useWallet } from "../../../../../libs/wallet";
-import { useVault } from "../../../../../libs/vault";
+import { useWallet } from "../../../../../hooks/wallet";
+import { useVault } from "../../../../../hooks/vault";
 import { Seed } from "../../../../../libs/sismo-client";
 
 const Top = styled.div`

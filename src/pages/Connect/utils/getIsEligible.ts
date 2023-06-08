@@ -1,7 +1,7 @@
 import {
   AuthRequestEligibility,
   GroupMetadataClaimRequestEligibility,
-} from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+} from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 
 export function getIsEligible(
   groupMetadataClaimRequestEligibilities: GroupMetadataClaimRequestEligibility[],
