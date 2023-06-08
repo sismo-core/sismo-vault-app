@@ -33,7 +33,7 @@ const services = ServicesFactory.init({
 
 // TODO REFACTOR THIS TO AVOID THIS GLOBAL VARIABLE AND USE A CONTEXT INSTEAD WITH HOOKS TO ACCESS SERVICES
 const isImpersonated =
-  services.getParseSismoConnectRequest().get()?.vault?.impersonate?.length > 0;
+  services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
 
 const sismoClient = new SismoClient({
   cache: new IndexDbCache(),

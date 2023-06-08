@@ -11,11 +11,11 @@ import { MemoryStore } from "../vault-store/memory-store";
 import { VaultsSynchronizer } from "../vaults-synchronizer";
 import { ImpersonatedVaultCreator } from "../impersonated-vault-creator";
 import { Web2Resolver } from "../web2-resolver";
-import { ParseSismoConnectRequest } from "../parse-sismo-connect-request";
+import { VaultConfigParser } from "../vault-config-parser";
 
 // factory service
 type Configuration = {
-  parseSismoConnectRequest: ParseSismoConnectRequest;
+  vaultConfigParser: VaultConfigParser;
   vaultsSynchronizer: VaultsSynchronizer;
   vaultClientV1: VaultClientV1;
   vaultClient: VaultClient; // V2
@@ -33,14 +33,13 @@ export class ServicesFactory {
   }
 
   static init({ env }: { env: Environment }) {
-    const parseSismoConnectRequest = new ParseSismoConnectRequest();
-    const impersonatedAccounts =
-      parseSismoConnectRequest.get()?.vault?.impersonate;
+    const vaultConfigParser = new VaultConfigParser();
+    const impersonatedAccounts = vaultConfigParser.get()?.vault?.impersonate;
     const isImpersonated = Boolean(impersonatedAccounts?.length > 0);
 
     if (env.name === "DEMO") {
       const configuration = {
-        parseSismoConnectRequest: parseSismoConnectRequest,
+        vaultConfigParser: vaultConfigParser,
         vaultsSynchronizer: null,
         vaultClientV1: null,
         vaultClient: new DemoVaultClient(new MemoryStore()),
@@ -60,7 +59,7 @@ export class ServicesFactory {
       const web2Resolver = new Web2Resolver();
 
       const configuration = {
-        parseSismoConnectRequest: parseSismoConnectRequest,
+        vaultConfigParser: vaultConfigParser,
         vaultsSynchronizer: null,
         vaultClientV1: null,
         vaultClient: vaultClient,
@@ -98,7 +97,7 @@ export class ServicesFactory {
     });
 
     const configuration = {
-      parseSismoConnectRequest: parseSismoConnectRequest,
+      vaultConfigParser: vaultConfigParser,
       vaultsSynchronizer,
       vaultClientV1,
       vaultClient,
@@ -111,8 +110,8 @@ export class ServicesFactory {
     return new ServicesFactory(configuration);
   }
 
-  public getParseSismoConnectRequest() {
-    return this._configuration.parseSismoConnectRequest;
+  public getVaultConfigParser() {
+    return this._configuration.vaultConfigParser;
   }
 
   public getCommitmentMapperV1() {
