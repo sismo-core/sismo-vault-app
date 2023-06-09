@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import env from "../../environment";
@@ -9,7 +9,6 @@ import { useSismo } from "../../libs/sismo";
 import { getSismoConnectRequest } from "./utils/getSismoConnectRequest";
 import { getReferrer } from "./utils/getReferrerApp";
 import {
-  RequestGroupMetadata,
   SismoConnectRequest,
   SISMO_CONNECT_VERSION,
   ClaimType,
@@ -100,9 +99,6 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
 
   const [sismoConnectRequest, setSismoConnectRequest] =
     useState<SismoConnectRequest>(null);
-
-  const [requestGroupsMetadata, setRequestGroupsMetadata] =
-    useState<RequestGroupMetadata[]>(null);
 
   const [
     groupMetadataClaimRequestEligibilities,
@@ -425,10 +421,10 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
         }
       } catch (e) {
         if (isWrongUrl?.status) return;
-        setIsWrongUrl({
-          status: true,
-          message: "Invalid referrer: " + e,
-        });
+        // setIsWrongUrl({
+        //   status: true,
+        //   message: "Invalid referrer: " + e,
+        // });
         console.log(e);
         Sentry.captureException(e);
       }
@@ -440,46 +436,41 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   /* ***************** GET THE GROUP METADATA ****************** */
   /* *********************************************************** */
 
-  useEffect(() => {
-    if (!sismoConnectRequest) return;
+  const getRequestGroupsMetadata = useCallback(async () => {
+    if (!sismoConnectRequest?.claims?.length) return null;
+    try {
+      const startTime = Date.now();
+      const _claimRequests = sismoConnectRequest?.claims;
+      const res = await Promise.all(
+        _claimRequests.map((_claimRequest) => {
+          return getGroupMetadata(
+            _claimRequest?.groupId,
+            _claimRequest?.groupTimestamp
+          );
+        })
+      );
 
-    async function getGroupMetadataData() {
-      if (!sismoConnectRequest?.claims?.length) {
-        setRequestGroupsMetadata(null);
-        return;
-      }
-      try {
-        const _claimRequests = sismoConnectRequest?.claims;
-        const res = await Promise.all(
-          _claimRequests.map((_claimRequest) => {
-            return getGroupMetadata(
-              _claimRequest?.groupId,
-              _claimRequest?.groupTimestamp
-            );
-          })
-        );
+      const requestGroupsMetadata = _claimRequests.map(
+        (_claimRequest, index) => {
+          return {
+            claim: _claimRequest,
+            groupMetadata: res[index],
+          };
+        }
+      );
+      const endTime = Date.now();
+      console.log("getRequestGroupsMetadata", endTime - startTime, "ms");
 
-        const requestGroupsMetadata = _claimRequests.map(
-          (_claimRequest, index) => {
-            return {
-              claim: _claimRequest,
-              groupMetadata: res[index],
-            };
-          }
-        );
-
-        setRequestGroupsMetadata(requestGroupsMetadata);
-      } catch (e) {
-        if (isWrongUrl?.status) return;
-        setIsWrongUrl({
-          status: true,
-          message: "Invalid Claim requests: " + e,
-        });
-        Sentry.captureException(e);
-        console.error(e);
-      }
+      return requestGroupsMetadata;
+    } catch (e) {
+      if (isWrongUrl?.status) return;
+      setIsWrongUrl({
+        status: true,
+        message: "Invalid Claim requests: " + e,
+      });
+      Sentry.captureException(e);
+      console.error(e);
     }
-    getGroupMetadataData();
   }, [getGroupMetadata, isWrongUrl?.status, sismoConnectRequest]);
 
   /* *********************************************************** */
@@ -489,7 +480,7 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   useEffect(() => {
     if (!sismoConnectRequest) return;
     //if (!vault.importedAccounts) return;
-    if (sismoConnectRequest?.claims?.length && !requestGroupsMetadata) return;
+    // if (sismoConnectRequest?.claims?.length) return;
 
     const getEligibilities = async () => {
       if (
@@ -502,18 +493,27 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
         setLoadingEligible(true);
 
         if (sismoConnectRequest?.auths?.length) {
+          const startTime = Date.now();
           const authRequestEligibilities = await getAuthRequestEligibilities(
             sismoConnectRequest,
             vault?.importedAccounts || []
           );
+          const endTime = Date.now();
+          console.log("getAuthRequestEligibilities", endTime - startTime, "ms");
           setAuthRequestEligibilities(authRequestEligibilities);
         }
 
         if (sismoConnectRequest?.claims?.length) {
-          const claimRequestEligibilities = await getClaimRequestEligibilities(
-            sismoConnectRequest,
-            vault?.importedAccounts || []
-          );
+          const startTime2 = Date.now();
+
+          const [claimRequestEligibilities, requestGroupsMetadata] =
+            await Promise.all([
+              getClaimRequestEligibilities(
+                sismoConnectRequest,
+                vault?.importedAccounts || []
+              ),
+              getRequestGroupsMetadata(),
+            ]);
 
           const groupMetadataClaimRequestEligibilities =
             claimRequestEligibilities.map((claimRequestEligibility) => {
@@ -532,6 +532,9 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
           setGroupMetadataClaimRequestEligibilities(
             groupMetadataClaimRequestEligibilities
           );
+
+          const endTime2 = Date.now();
+          console.log("ClaimRequestEligibilities", endTime2 - startTime2, "ms");
         }
         setLoadingEligible(false);
       } catch (e) {
@@ -548,10 +551,11 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   }, [
     getClaimRequestEligibilities,
     getAuthRequestEligibilities,
-    requestGroupsMetadata,
     vault?.importedAccounts,
     sismoConnectRequest,
     isWrongUrl?.status,
+    getGroupMetadata,
+    getRequestGroupsMetadata,
   ]);
 
   /* *********************************************************** */
@@ -599,6 +603,11 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
     (vault.synchronizing ? true : vault.loadingActiveSession) ||
     loadingEligible ||
     !imgLoaded;
+
+  useEffect(() => {
+    if (loading) console.time("loading");
+    else console.timeEnd("loading");
+  }, [loading]);
 
   /* *********************************************************** */
   /* ***************** LOADING MEASUREMENTS ******************** */

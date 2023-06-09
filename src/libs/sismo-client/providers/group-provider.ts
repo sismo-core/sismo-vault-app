@@ -1,4 +1,5 @@
 import axios from "axios";
+import { MemoryCache } from "../../cache-service";
 
 export type GroupMetadata = {
   id: string;
@@ -14,15 +15,22 @@ export type GroupMetadata = {
 
 export class GroupProvider {
   private hubApiUrl: string;
+  private _cache: MemoryCache;
 
   constructor({ hubApiUrl }) {
     this.hubApiUrl = hubApiUrl;
+    this._cache = new MemoryCache();
   }
 
   public async getGroupMetadata(
     groupId: string,
     timestamp: "latest" | number
   ): Promise<GroupMetadata> {
+    const cachedGroupMetadata = await this._cache.get(
+      `${groupId}-${timestamp}`
+    );
+    if (cachedGroupMetadata) return cachedGroupMetadata;
+
     const data = await axios
       .get(
         `${this.hubApiUrl}/group-snapshots/${groupId}?timestamp=${timestamp}`
@@ -52,7 +60,7 @@ export class GroupProvider {
       .then((res) => res.data.items[0])
       .catch((err) => console.log(err));
 
-    return {
+    const groupMetadata = {
       id: groups.id,
       name: groups.name,
       description: groups.description,
@@ -63,5 +71,8 @@ export class GroupProvider {
       generationFrequency: groupsGenerator?.generationFrequency ?? "once",
       dataUrl: groupsSnapshotMetadata.dataUrl,
     };
+
+    await this._cache.set(`${groupId}-${timestamp}`, groupMetadata);
+    return groupMetadata;
   }
 }
