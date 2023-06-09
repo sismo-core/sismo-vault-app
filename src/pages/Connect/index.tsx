@@ -439,7 +439,6 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   const getRequestGroupsMetadata = useCallback(async () => {
     if (!sismoConnectRequest?.claims?.length) return null;
     try {
-      const startTime = Date.now();
       const _claimRequests = sismoConnectRequest?.claims;
       const res = await Promise.all(
         _claimRequests.map((_claimRequest) => {
@@ -458,9 +457,6 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
           };
         }
       );
-      const endTime = Date.now();
-      console.log("getRequestGroupsMetadata", endTime - startTime, "ms");
-
       return requestGroupsMetadata;
     } catch (e) {
       if (isWrongUrl?.status) return;
@@ -493,19 +489,14 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
         setLoadingEligible(true);
 
         if (sismoConnectRequest?.auths?.length) {
-          const startTime = Date.now();
           const authRequestEligibilities = await getAuthRequestEligibilities(
             sismoConnectRequest,
             vault?.importedAccounts || []
           );
-          const endTime = Date.now();
-          console.log("getAuthRequestEligibilities", endTime - startTime, "ms");
           setAuthRequestEligibilities(authRequestEligibilities);
         }
 
         if (sismoConnectRequest?.claims?.length) {
-          const startTime2 = Date.now();
-
           const [claimRequestEligibilities, requestGroupsMetadata] =
             await Promise.all([
               getClaimRequestEligibilities(
@@ -532,9 +523,6 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
           setGroupMetadataClaimRequestEligibilities(
             groupMetadataClaimRequestEligibilities
           );
-
-          const endTime2 = Date.now();
-          console.log("ClaimRequestEligibilities", endTime2 - startTime2, "ms");
         }
         setLoadingEligible(false);
       } catch (e) {
