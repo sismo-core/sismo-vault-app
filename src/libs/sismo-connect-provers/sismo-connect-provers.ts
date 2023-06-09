@@ -77,7 +77,7 @@ export class SismoConnectProvers {
 
   public async getClaimRequestEligibilities(
     sismoConnectRequest: SismoConnectRequest,
-    importedAccounts: ImportedAccount[]
+    identifiers: string[]
   ): Promise<ClaimRequestEligibility[]> {
     this._validateRequest(sismoConnectRequest);
     const sismoConnectProver = this.sismoConnectProvers[
@@ -86,7 +86,7 @@ export class SismoConnectProvers {
 
     return await sismoConnectProver.getClaimRequestEligibilities(
       sismoConnectRequest,
-      importedAccounts
+      identifiers
     );
   }
 

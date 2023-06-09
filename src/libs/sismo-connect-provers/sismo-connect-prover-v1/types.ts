@@ -35,10 +35,6 @@ export type RequestGroupMetadata = {
   groupMetadata: GroupMetadata;
 };
 
-export type GroupMetadataClaimRequestEligibility = ClaimRequestEligibility & {
-  groupMetadata: GroupMetadata;
-};
-
 export type ClaimRequestEligibility = {
   claim: ClaimRequest;
   accountData: AccountData;

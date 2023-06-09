@@ -63,7 +63,7 @@ const ButtonsWrapper = styled.div`
 type Props = {
   selectedSismoConnectRequest: SelectedSismoConnectRequest;
   proofLoading: boolean;
-  onUserInput: (
+  onSelectedSismoRequest: (
     selectedSismoConnectRequest: SelectedSismoConnectRequest
   ) => void;
 };
@@ -71,7 +71,7 @@ type Props = {
 export function SignatureRequest({
   selectedSismoConnectRequest,
   proofLoading,
-  onUserInput,
+  onSelectedSismoRequest,
 }: Props): JSX.Element {
   const vault = useVault();
 
@@ -97,7 +97,7 @@ export function SignatureRequest({
   const onSave = () => {
     setIsEditing(false);
     setSavedValue(liveValue);
-    onUserInput({
+    onSelectedSismoRequest({
       ...selectedSismoConnectRequest,
       selectedSignature: {
         ...selectedSismoConnectRequest.selectedSignature,

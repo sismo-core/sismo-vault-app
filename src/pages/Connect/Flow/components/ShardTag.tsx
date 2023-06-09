@@ -1,13 +1,15 @@
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
 import {
+  ClaimRequest,
+  ClaimRequestEligibility,
   ClaimType,
-  GroupMetadataClaimRequestEligibility,
 } from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import { CaretDown, Info } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import useOnClickOutside from "../../../../utils/useClickOutside";
 import { BigNumber } from "ethers";
+import { GroupMetadata } from "../../../../libs/sismo-client";
 
 const OuterContainer = styled.div`
   display: flex;
@@ -121,21 +123,25 @@ const SelectorItem = styled.div<{ isSelected: boolean }>`
 `;
 
 type Props = {
-  groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility;
+  groupMetadata: GroupMetadata;
+  claim: ClaimRequest;
+  claimRequestEligibility: ClaimRequestEligibility;
   isSelectableByUser: boolean;
   initialValue: number;
   optIn?: boolean;
   isOptional: boolean;
 
   onClaimChange: (
-    groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
+    claimRequestEligibility: ClaimRequestEligibility,
     selectedValue: number
   ) => void;
   onModal?: (id: string) => void;
 };
 
 export default function ShardTag({
-  groupMetadataClaimRequestEligibility,
+  groupMetadata,
+  claim,
+  claimRequestEligibility,
   isSelectableByUser,
   initialValue,
   optIn = true,
@@ -151,20 +157,19 @@ export default function ShardTag({
 
   const color = !optIn ? colors.blue3 : colors.blue0;
 
-  const requestedValue = groupMetadataClaimRequestEligibility?.claim?.value;
-  const claimType = groupMetadataClaimRequestEligibility?.claim?.claimType;
-  const groupMetadata = groupMetadataClaimRequestEligibility?.groupMetadata;
+  const requestedValue = claim?.value;
+  const claimType = claim?.claimType;
 
-  const minValue = groupMetadataClaimRequestEligibility?.claim?.value;
+  const minValue = claim?.value;
 
   let maxValue = 0;
   let selectableValues = [];
   try {
     maxValue = BigNumber.from(
-      groupMetadataClaimRequestEligibility?.accountData?.value || 0
+      claimRequestEligibility?.accountData?.value || 0
     ).toNumber();
     selectableValues =
-      groupMetadataClaimRequestEligibility?.claim?.claimType === ClaimType.GTE
+      claimRequestEligibility?.claim?.claimType === ClaimType.GTE
         ? Array.from(
             { length: maxValue - minValue + 1 },
             (_, i) => i + minValue
@@ -187,11 +192,11 @@ export default function ShardTag({
   }, [initialValue]);
 
   function onValueChange(
-    groupMetadataClaimRequestEligibility: GroupMetadataClaimRequestEligibility,
+    claimRequestEligibility: ClaimRequestEligibility,
     value: number
   ) {
     setSelectedValue(value);
-    onClaimChange(groupMetadataClaimRequestEligibility, value);
+    onClaimChange(claimRequestEligibility, value);
   }
 
   return (
@@ -256,7 +261,7 @@ export default function ShardTag({
                   isSelected={isSelected}
                   onClick={() => {
                     setIsSelectorOpen(false);
-                    onValueChange(groupMetadataClaimRequestEligibility, value);
+                    onValueChange(claimRequestEligibility, value);
                   }}
                 >
                   {value}

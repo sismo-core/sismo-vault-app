@@ -317,7 +317,12 @@ export default function ImportAccountModal({
                     onClick={() => setDisplay("ethereum")}
                   />
                 )}
-                <Account type={"github"} onClick={() => setDisplay("github")} />
+                {accountTypes.includes("github") && (
+                  <Account
+                    type={"github"}
+                    onClick={() => setDisplay("github")}
+                  />
+                )}
                 {accountTypes.includes("twitter") && (
                   <Account
                     type={"twitter"}

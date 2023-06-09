@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 
 import { useVault } from "../../../hooks/vault";
 import { useSismo } from "../../../hooks/sismo";
@@ -8,20 +8,18 @@ import { ArrowLeft, ArrowSquareOut, Info, Warning } from "phosphor-react";
 import { FactoryApp } from "../../../libs/sismo-client";
 
 import {
-  AuthRequestEligibility,
-  GroupMetadataClaimRequestEligibility,
   SismoConnectResponse,
   SelectedSismoConnectRequest,
+  RequestGroupMetadata,
+  SismoConnectRequest,
 } from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import HoverTooltip from "../../../components/HoverTooltip";
 import colors from "../../../theme/colors";
 import { capitalizeFirstLetter } from "../../../utils/capitalizeFirstLetter";
-import { getIsEligible } from "../utils/getIsEligible";
 import Button from "../../../components/Button";
 import DataRequests from "./DataRequests";
 import ProofModal from "./components/ProofModal";
 import { SignatureRequest } from "./components/SignatureRequest";
-import { ImportedAccount } from "../../../libs/vault-client";
 import SignInButton from "../../../components/SignInButton";
 
 const Container = styled.div`
@@ -35,6 +33,13 @@ const Container = styled.div`
   border-radius: 10px;
   z-index: 2;
   box-sizing: border-box;
+`;
+
+const Title = styled.div`
+  font-size: 14px;
+  line-height: 20px;
+  font-family: ${(props) => props.theme.fonts.bold};
+  color: ${(props) => props.theme.colors.blue0};
 `;
 
 const GoBack = styled.div`
@@ -138,32 +143,22 @@ const ImpersonatedText = styled.div`
 
 type Props = {
   isImpersonated: boolean;
+  requestGroupsMetadata: RequestGroupMetadata[];
+  sismoConnectRequest: SismoConnectRequest;
   factoryApp: FactoryApp;
-  selectedSismoConnectRequest?: SelectedSismoConnectRequest;
-  authRequestEligibilities: AuthRequestEligibility[];
-  groupMetadataClaimRequestEligibilities: GroupMetadataClaimRequestEligibility[];
-  referrerUrl?: string;
   callbackUrl: string;
   hostName: string;
-  loadingEligible: boolean;
-  onUserInput: (
-    selectedSismoConnectRequest: SelectedSismoConnectRequest
-  ) => void;
   onResponse: (response: SismoConnectResponse) => void;
 };
 
 export default function ConnectFlow({
   isImpersonated,
+  requestGroupsMetadata,
+  sismoConnectRequest,
   factoryApp,
-  selectedSismoConnectRequest,
-  authRequestEligibilities,
-  groupMetadataClaimRequestEligibilities,
-  loadingEligible,
-  referrerUrl,
   callbackUrl,
   hostName,
   onResponse,
-  onUserInput,
 }: Props): JSX.Element {
   const [loadingProof, setLoadingProof] = useState(false);
   const [, setErrorProof] = useState(false);
@@ -171,118 +166,12 @@ export default function ConnectFlow({
   const [registryTreeRoot, setRegistryTreeRoot] = useState<string>();
   const [proofModalOpen, setProofModalOpen] = useState(false);
 
+  const [isEligible, setIsEligible] = useState(false);
+  const [selectedSismoConnectRequest, setSelectedSismoConnectRequest] =
+    useState<SelectedSismoConnectRequest | null>(null);
+
   const { getRegistryTreeRoot, generateResponse } = useSismo();
   const vault = useVault();
-
-  /* ************************************************************* */
-  /* ********************* SET DEFAULT VALUE ********************* */
-  /* ************************************************************* */
-
-  const isDefaultSet = useRef(false);
-  useEffect(() => {
-    if (!selectedSismoConnectRequest) return;
-    if (!authRequestEligibilities && !groupMetadataClaimRequestEligibilities)
-      return;
-    if (isDefaultSet.current) return;
-
-    let newSelectedSismoConnectRequest: SelectedSismoConnectRequest = {
-      ...selectedSismoConnectRequest,
-    };
-
-    if (selectedSismoConnectRequest?.signature?.message) {
-      newSelectedSismoConnectRequest = {
-        ...newSelectedSismoConnectRequest,
-        selectedSignature: {
-          ...newSelectedSismoConnectRequest?.signature,
-          selectedMessage: selectedSismoConnectRequest?.signature?.message,
-        },
-      };
-    }
-
-    if (authRequestEligibilities?.length > 0) {
-      for (const authRequestEligibility of authRequestEligibilities) {
-        if (!authRequestEligibility?.accounts?.length) continue;
-
-        let userAccount: ImportedAccount;
-
-        if (authRequestEligibility?.auth?.userId === "0") {
-          userAccount = authRequestEligibility?.accounts[0];
-        }
-
-        if (authRequestEligibility?.auth?.userId !== "0") {
-          const defaultAccount = authRequestEligibility?.accounts.find(
-            (account) =>
-              account.identifier?.toLowerCase() ===
-              authRequestEligibility?.auth?.userId?.toLowerCase()
-          );
-
-          if (defaultAccount) {
-            userAccount = defaultAccount;
-          } else {
-            userAccount = authRequestEligibility?.accounts[0];
-          }
-        }
-        newSelectedSismoConnectRequest = {
-          ...newSelectedSismoConnectRequest,
-          selectedAuths: newSelectedSismoConnectRequest?.selectedAuths?.map(
-            (auth) => {
-              if (auth?.uuid === authRequestEligibility?.auth?.uuid) {
-                return {
-                  ...auth,
-                  isOptIn:
-                    auth?.isOptIn !== null
-                      ? auth.isOptIn
-                      : authRequestEligibility.isEligible,
-                  selectedUserId: userAccount?.identifier,
-                };
-              } else {
-                return auth;
-              }
-            }
-          ),
-        };
-      }
-    }
-
-    if (groupMetadataClaimRequestEligibilities?.length > 0) {
-      for (const groupMetadataClaimRequestEligibility of groupMetadataClaimRequestEligibilities) {
-        if (!groupMetadataClaimRequestEligibility?.accountData) continue;
-
-        const initialClaimValue =
-          groupMetadataClaimRequestEligibility?.claim?.value;
-
-        newSelectedSismoConnectRequest = {
-          ...newSelectedSismoConnectRequest,
-          selectedClaims: newSelectedSismoConnectRequest.selectedClaims.map(
-            (claim) => {
-              if (
-                claim.uuid === groupMetadataClaimRequestEligibility?.claim?.uuid
-              ) {
-                return {
-                  ...claim,
-                  isOptIn:
-                    claim?.isOptIn !== null
-                      ? claim.isOptIn
-                      : groupMetadataClaimRequestEligibility.isEligible,
-                  selectedValue: initialClaimValue,
-                };
-              } else {
-                return claim;
-              }
-            }
-          ),
-        };
-      }
-    }
-
-    isDefaultSet.current = true;
-    onUserInput(newSelectedSismoConnectRequest);
-  }, [
-    selectedSismoConnectRequest,
-    authRequestEligibilities,
-    groupMetadataClaimRequestEligibilities,
-    onUserInput,
-  ]);
 
   /* ***************************************************** */
   /* ************* GENERATE RESPONSE ********************* */
@@ -341,11 +230,6 @@ export default function ConnectFlow({
     }
   };
 
-  let isSismoConnectRequestEligible: boolean = getIsEligible(
-    groupMetadataClaimRequestEligibilities,
-    authRequestEligibilities
-  );
-
   return (
     <>
       <ProofModal
@@ -389,22 +273,28 @@ export default function ConnectFlow({
           </ImpersonatedBanner>
         )}
 
+        <Title style={{ marginBottom: 8 }}>
+          {factoryApp?.name} wants you to:
+        </Title>
+
         <DataRequests
-          authRequestEligibilities={authRequestEligibilities}
-          groupMetadataClaimRequestEligibilities={
-            groupMetadataClaimRequestEligibilities
-          }
+          sismoConnectRequest={sismoConnectRequest}
+          requestGroupsMetadata={requestGroupsMetadata}
           selectedSismoConnectRequest={selectedSismoConnectRequest}
-          appName={factoryApp?.name}
-          onUserInput={onUserInput}
-          loadingEligible={loadingEligible}
           proofLoading={loadingProof}
+          onSelectedSismoRequest={(selectedSismoRequest) => {
+            console.log("selectedSismoRequest", selectedSismoRequest);
+            setSelectedSismoConnectRequest(selectedSismoRequest);
+          }}
+          onEligible={(_isEligible) => setIsEligible(_isEligible)}
         />
 
         {selectedSismoConnectRequest?.signature?.message?.length > 0 && (
           <SignatureRequest
+            onSelectedSismoRequest={(selectedSismoRequest) =>
+              setSelectedSismoConnectRequest(selectedSismoRequest)
+            }
             selectedSismoConnectRequest={selectedSismoConnectRequest}
-            onUserInput={onUserInput}
             proofLoading={loadingProof}
           />
         )}
@@ -424,7 +314,7 @@ export default function ConnectFlow({
               style={{ width: 252 }}
               onClick={() => generate()}
               loading={loadingProof}
-              disabled={!isSismoConnectRequestEligible}
+              disabled={!isEligible}
             >
               Generate ZK proof
             </Button>

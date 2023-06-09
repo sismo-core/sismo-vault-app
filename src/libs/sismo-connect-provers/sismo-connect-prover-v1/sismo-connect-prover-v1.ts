@@ -53,13 +53,13 @@ export class SismoConnectProverV1 {
 
   public async getClaimRequestEligibilities(
     sismoConnectRequest: SismoConnectRequest,
-    importedAccounts: ImportedAccount[]
+    identifiers: string[]
   ): Promise<ClaimRequestEligibility[]> {
     if (!Boolean(sismoConnectRequest?.claims?.length)) return [];
 
     const claimRequestEligibilities = await Promise.all(
       sismoConnectRequest?.claims?.map(async (claim) => {
-        return this._getClaimRequestEligibility(claim, importedAccounts);
+        return this._getClaimRequestEligibility(claim, identifiers);
       })
     );
     return claimRequestEligibilities;
@@ -67,14 +67,10 @@ export class SismoConnectProverV1 {
 
   private async _getClaimRequestEligibility(
     claim: ClaimRequest,
-    importedAccounts: ImportedAccount[]
+    identifiers: string[]
   ): Promise<ClaimRequestEligibility> {
-    const _accounts = importedAccounts?.map((account) => account.identifier);
-
-    // TODO add in accounts all vault based accounts
-
     const accountData = await this.prover.getEligibility({
-      accounts: _accounts,
+      accounts: identifiers,
       groupId: claim.groupId,
       groupTimestamp: claim.groupTimestamp,
       requestedValue: claim.value,
@@ -218,9 +214,11 @@ export class SismoConnectProverV1 {
     /* *** GET CLAIM REQUEST AND AUTH REQUEST ELIGIBILITIES *** */
     /* ******************************************************** */
 
+    // TODO
+
     const claimRequestEligibilities = await this.getClaimRequestEligibilities(
       selectedSismoConnectRequest,
-      importedAccounts
+      []
     );
 
     const authRequestEligibilities = await this.getAuthRequestEligibilities(

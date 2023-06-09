@@ -1,17 +1,17 @@
 import {
   AuthRequestEligibility,
-  GroupMetadataClaimRequestEligibility,
+  ClaimRequestEligibility,
 } from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 
 export function getIsEligible(
-  groupMetadataClaimRequestEligibilities: GroupMetadataClaimRequestEligibility[],
+  claimRequestEligibilities: ClaimRequestEligibility[],
   authRequestEligibilities: AuthRequestEligibility[]
 ) {
-  if (groupMetadataClaimRequestEligibilities?.length) {
-    for (const groupMetadataClaimRequestEligibility of groupMetadataClaimRequestEligibilities) {
+  if (claimRequestEligibilities?.length) {
+    for (const claimRequestEligibility of claimRequestEligibilities) {
       let isClaimEligible =
-        groupMetadataClaimRequestEligibility?.claim?.isOptional === false
-          ? groupMetadataClaimRequestEligibility?.isEligible
+        claimRequestEligibility?.claim?.isOptional === false
+          ? claimRequestEligibility?.isEligible
           : true;
 
       if (!isClaimEligible) {

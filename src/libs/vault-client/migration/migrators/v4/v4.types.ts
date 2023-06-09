@@ -47,7 +47,7 @@ export type RecoveryKey = {
   timestamp: number;
 };
 
-export type AccountType = "ethereum" | "github" | "twitter" | "telegram";
+export type AccountType = string;
 
 export type VaultV4 = {
   mnemonics: string[];

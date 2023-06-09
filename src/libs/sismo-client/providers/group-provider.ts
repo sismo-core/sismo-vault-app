@@ -1,8 +1,10 @@
 import axios from "axios";
+import { AccountType } from "../types";
 
 export type GroupMetadata = {
   id: string;
   name: string;
+  accountTypes: AccountType[];
   description: string;
   specs: string;
   accountsNumber: number;
@@ -54,6 +56,7 @@ export class GroupProvider {
 
     return {
       id: groups.id,
+      accountTypes: groups.accountSources,
       name: groups.name,
       description: groups.description,
       specs: groups.specs,
