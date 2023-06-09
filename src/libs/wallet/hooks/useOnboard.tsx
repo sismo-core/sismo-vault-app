@@ -135,7 +135,11 @@ export const useOnboard = (): OnboardHook => {
     async (ens) => {
       try {
         if (!mainnetProvider) return null;
+        if (EnsCache[ens]) {
+          return EnsCache[ens];
+        }
         const res = await mainnetProvider.resolveName(ens);
+        EnsCache[ens] = res;
         return res;
       } catch (e) {
         return null;
