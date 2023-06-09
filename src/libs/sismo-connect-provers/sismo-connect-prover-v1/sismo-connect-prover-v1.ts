@@ -1,8 +1,11 @@
 import { ethers, BigNumber } from "ethers";
 import { ImportedAccount } from "../../vault-client";
-import { Cache } from "../../cache-service";
-import { HydraS2Prover } from "../hydra-provers/hydra-s2-prover";
-import { ProofRequest } from "../hydra-provers/types";
+import {
+  DataSource,
+  ExternalDataSource,
+  ProofRequest,
+  SismoConnectAppDataSource,
+} from "../../hydra-provers/types";
 import {
   ClaimRequestEligibility,
   AuthRequestEligibility,
@@ -17,38 +20,31 @@ import {
   AuthRequest,
   SelectedClaimRequestEligibility,
   SelectedAuthRequestEligibility,
-  ProvingScheme,
-  SISMO_CONNECT_VERSION,
   Claim,
+  RequestGroupMetadata,
 } from "./types";
 
 import { isHexlify } from "./utils/isHexlify";
-import { SNARK_FIELD } from "@sismo-core/crypto";
+import { EddsaSignature, SNARK_FIELD } from "@sismo-core/crypto";
+import { getAllVaultIdentifiers } from "../../../utils/getAllVaultIdentifiers";
+import { HydraProver } from "../../hydra-provers/hydra-prover";
 import { CommitmentMapper } from "../../commitment-mapper";
+import { keccak256 } from "ethers/lib/utils";
+import { getPoseidon } from "../../poseidon";
 
 export class SismoConnectProverV1 {
-  public version = SISMO_CONNECT_VERSION;
-  private prover: HydraS2Prover;
+  private hydraProver: HydraProver;
 
-  constructor({
-    cache,
-    commitmentMapperService,
-  }: {
-    cache: Cache;
-    commitmentMapperService: CommitmentMapper;
-  }) {
-    this.prover = new HydraS2Prover({
-      cache,
-      commitmentMapperService,
-    });
+  constructor({ hydraProver }: { hydraProver: HydraProver }) {
+    this.hydraProver = hydraProver;
   }
 
   public async initDevConfig(devConfig?: DevConfig) {
-    await this.prover.initDevConfig(devConfig);
+    await this.hydraProver.initDevConfig(devConfig);
   }
 
   public async getRegistryTreeRoot(): Promise<string> {
-    return await this.prover.getRegistryTreeRoot();
+    return await this.hydraProver.getRegistryTreeRoot();
   }
 
   public async getClaimRequestEligibilities(
@@ -69,7 +65,7 @@ export class SismoConnectProverV1 {
     claim: ClaimRequest,
     identifiers: string[]
   ): Promise<ClaimRequestEligibility> {
-    const accountData = await this.prover.getEligibility({
+    const accountData = await this.hydraProver.getEligibility({
       accounts: identifiers,
       groupId: claim.groupId,
       groupTimestamp: claim.groupTimestamp,
@@ -165,6 +161,7 @@ export class SismoConnectProverV1 {
 
   public async generateResponse(
     selectedSismoConnectRequest: SelectedSismoConnectRequest,
+    requestGroupsMetadata: RequestGroupMetadata[],
     importedAccounts: ImportedAccount[],
     vaultSecret: string
   ): Promise<SismoConnectResponse> {
@@ -214,11 +211,16 @@ export class SismoConnectProverV1 {
     /* *** GET CLAIM REQUEST AND AUTH REQUEST ELIGIBILITIES *** */
     /* ******************************************************** */
 
-    // TODO
+    const groupsMetadata = requestGroupsMetadata?.map((el) => el.groupMetadata);
+    const identifiers = await getAllVaultIdentifiers(
+      groupsMetadata,
+      vaultSecret,
+      importedAccounts
+    );
 
     const claimRequestEligibilities = await this.getClaimRequestEligibilities(
       selectedSismoConnectRequest,
-      []
+      identifiers
     );
 
     const authRequestEligibilities = await this.getAuthRequestEligibilities(
@@ -277,16 +279,92 @@ export class SismoConnectProverV1 {
     }
 
     /* ****************************************************** */
-    /* ************** PREPARE CLAIM PROMISES **************** */
+    /* *************** GENERATE CLAIM PROOFS **************** */
     /* ****************************************************** */
 
     let claimProofs: SismoConnectProof[] = [];
 
     if (filteredSelectedClaimRequestEligibilities?.length) {
       for (let selectedClaimRequestEligibility of filteredSelectedClaimRequestEligibilities) {
+        // Define if the source is a ExternalAccount or a SismoCOnnectAccount
+        let source: DataSource;
+        const sourceIdentifier =
+          selectedClaimRequestEligibility?.accountData?.identifier;
+
+        if (sourceIdentifier.length > 42) {
+          if (selectedSismoConnectRequest.version !== "sismo-connect-v1.1") {
+            throw new Error(
+              "Group of vaultId not available on sismo-connect-v1"
+            );
+          }
+          // Sismo Connect Account
+
+          // Retrieve the right appId
+          const groupMetadata = requestGroupsMetadata.find(
+            (el) => el.claim.uuid === selectedClaimRequestEligibility.claim.uuid
+          ).groupMetadata;
+          const accountTypes = groupMetadata.accountTypes;
+
+          let namespace = null;
+          const poseidon = await getPoseidon();
+          for (let accountType of accountTypes) {
+            const match = accountType.match(
+              /sismo-connect-app\(appid=(0x[a-fA-F0-9]+)\)/i
+            );
+            if (match) {
+              const appId = match[1];
+              const _namespace = BigNumber.from(
+                keccak256(
+                  ethers.utils.solidityPack(
+                    ["uint128", "uint128"],
+                    [appId, BigNumber.from(0)]
+                  )
+                )
+              )
+                .mod(SNARK_FIELD)
+                .toHexString();
+
+              const identifier = poseidon([
+                vaultSecret,
+                _namespace,
+              ]).toHexString();
+              if (identifier === sourceIdentifier) {
+                namespace = _namespace;
+                break;
+              }
+            }
+          }
+
+          source = source as SismoConnectAppDataSource;
+          source = {
+            identifier: sourceIdentifier,
+            secret: vaultSecret,
+            namespace: namespace,
+          };
+        } else {
+          // HydraAccount
+          const importedAccount = importedAccounts?.find(
+            (importedAccount) =>
+              importedAccount?.identifier?.toLowerCase() ===
+              sourceIdentifier?.toLowerCase()
+          );
+          source = source as ExternalDataSource;
+          source = {
+            identifier: sourceIdentifier,
+            secret: CommitmentMapper.generateCommitmentMapperSecret(
+              importedAccount.seed
+            ),
+            commitmentReceipt: [
+              BigNumber.from(importedAccount.commitmentReceipt[0]),
+              BigNumber.from(importedAccount.commitmentReceipt[1]),
+              BigNumber.from(importedAccount.commitmentReceipt[2]),
+            ] as EddsaSignature,
+          };
+        }
+
         const proof = await this._generateClaimProof(
           selectedClaimRequestEligibility,
-          importedAccounts,
+          source,
           appId,
           namespace,
           vaultSecret,
@@ -354,72 +432,15 @@ export class SismoConnectProverV1 {
 
     if (filteredSelectedAuthRequestEligibilities?.length) {
       authPromises = filteredSelectedAuthRequestEligibilities?.map(
-        async (selectedAuthRequestEligibility): Promise<SismoConnectProof> => {
-          let _generateProofInputs = {
+        async (selectedAuthRequestEligibility) => {
+          return await this._generateAuthProof(
+            selectedAuthRequestEligibility,
+            importedAccounts,
             appId,
             namespace,
-            vaultSecret, // VAULT SECRET MUST BE ADDED TO THE PROOF FOR THE CIRCUIT
-            extraData,
-          } as ProofRequest;
-
-          if (
-            selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT &&
-            !selectedAuthRequestEligibility?.selectedAuth?.selectedUserId
-          ) {
-            throw new Error("No account selected for this auth request");
-          }
-
-          if (
-            selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT &&
-            !selectedAuthRequestEligibility?.isEligible
-          ) {
-            throw new Error("No account found for this auth request");
-          }
-
-          if (
-            selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT
-          ) {
-            const destination = importedAccounts.find((importedAccount) => {
-              return (
-                importedAccount.identifier?.toLowerCase() ===
-                selectedAuthRequestEligibility?.selectedAuth?.selectedUserId?.toLowerCase()
-              );
-            });
-
-            if (!destination)
-              throw new Error(
-                "No eligible account found for this auth request"
-              );
-
-            if (destination) {
-              _generateProofInputs = {
-                ..._generateProofInputs,
-                destination,
-              };
-            }
-          }
-
-          const snarkProof = await this.prover.generateProof(
-            _generateProofInputs
+            vaultSecret,
+            extraData
           );
-
-          const authResponse = {
-            authType: selectedAuthRequestEligibility?.auth?.authType,
-            userId:
-              selectedAuthRequestEligibility?.auth?.authType === AuthType.VAULT
-                ? ethers.utils.hexlify(BigNumber.from(snarkProof.input[10])) // VAULT USER ID
-                : selectedAuthRequestEligibility?.selectedAuth?.selectedUserId,
-            extraData: selectedAuthRequestEligibility?.auth?.extraData,
-            isSelectableByUser:
-              selectedAuthRequestEligibility?.auth?.isSelectableByUser,
-          } as Auth;
-
-          return {
-            auths: [authResponse],
-            proofData: snarkProof.toBytes(),
-            extraData: "",
-            provingScheme: ProvingScheme.HYDRA_S2,
-          };
         }
       );
     }
@@ -430,20 +451,85 @@ export class SismoConnectProverV1 {
     return response;
   }
 
-  private _generateClaimProof = async (
-    selectedClaimRequestEligibility,
-    importedAccounts,
-    appId,
-    namespace,
-    vaultSecret,
-    extraData
+  private _generateAuthProof = async (
+    selectedAuthRequestEligibility: SelectedAuthRequestEligibility,
+    importedAccounts: ImportedAccount[],
+    appId: string,
+    namespace: string,
+    vaultSecret: string,
+    extraData: string
   ): Promise<SismoConnectProof> => {
-    const source = importedAccounts.find(
-      (importedAccount) =>
-        importedAccount?.identifier?.toLowerCase() ===
-        selectedClaimRequestEligibility?.accountData?.identifier?.toLowerCase()
+    let _generateProofInputs = {
+      appId,
+      namespace,
+      vaultSecret, // VAULT SECRET MUST BE ADDED TO THE PROOF FOR THE CIRCUIT
+      extraData,
+    } as ProofRequest;
+
+    if (
+      selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT &&
+      !selectedAuthRequestEligibility?.selectedAuth?.selectedUserId
+    ) {
+      throw new Error("No account selected for this auth request");
+    }
+
+    if (
+      selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT &&
+      !selectedAuthRequestEligibility?.isEligible
+    ) {
+      throw new Error("No account found for this auth request");
+    }
+
+    if (selectedAuthRequestEligibility?.auth?.authType !== AuthType.VAULT) {
+      const destination = importedAccounts.find((importedAccount) => {
+        return (
+          importedAccount.identifier?.toLowerCase() ===
+          selectedAuthRequestEligibility?.selectedAuth?.selectedUserId?.toLowerCase()
+        );
+      });
+
+      if (!destination)
+        throw new Error("No eligible account found for this auth request");
+
+      if (destination) {
+        _generateProofInputs = {
+          ..._generateProofInputs,
+          destination,
+        };
+      }
+    }
+
+    const snarkProof = await this.hydraProver.generateProof(
+      _generateProofInputs
     );
 
+    const authResponse = {
+      authType: selectedAuthRequestEligibility?.auth?.authType,
+      userId:
+        selectedAuthRequestEligibility?.auth?.authType === AuthType.VAULT
+          ? ethers.utils.hexlify(BigNumber.from(snarkProof.input[10])) // VAULT USER ID
+          : selectedAuthRequestEligibility?.selectedAuth?.selectedUserId,
+      extraData: selectedAuthRequestEligibility?.auth?.extraData,
+      isSelectableByUser:
+        selectedAuthRequestEligibility?.auth?.isSelectableByUser,
+    } as Auth;
+
+    return {
+      auths: [authResponse],
+      proofData: snarkProof.toBytes(),
+      extraData: "",
+      provingScheme: this.hydraProver.getVersion(),
+    };
+  };
+
+  private _generateClaimProof = async (
+    selectedClaimRequestEligibility: SelectedClaimRequestEligibility,
+    source: DataSource,
+    appId: string,
+    namespace: string,
+    vaultSecret: string,
+    extraData: string
+  ): Promise<SismoConnectProof> => {
     if (!source)
       throw new Error("No eligible account found for this claim request");
 
@@ -461,7 +547,9 @@ export class SismoConnectProverV1 {
       claimType: selectedClaimRequestEligibility?.claim?.claimType,
     } as ProofRequest;
 
-    const snarkProof = await this.prover.generateProof(_generateProofInputs);
+    const snarkProof = await this.hydraProver.generateProof(
+      _generateProofInputs
+    );
 
     const claimResponse = {
       claimType: selectedClaimRequestEligibility?.claim?.claimType,
@@ -479,7 +567,7 @@ export class SismoConnectProverV1 {
       claims: [claimResponse],
       proofData: snarkProof.toBytes(),
       extraData: "",
-      provingScheme: ProvingScheme.HYDRA_S2,
+      provingScheme: this.hydraProver.getVersion(),
     };
   };
 }

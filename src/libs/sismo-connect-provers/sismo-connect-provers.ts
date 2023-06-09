@@ -4,6 +4,7 @@ import {
   SismoConnectRequest,
   SismoConnectResponse,
   SelectedSismoConnectRequest,
+  RequestGroupMetadata,
 } from "./sismo-connect-prover-v1";
 import { Cache } from "../cache-service";
 import { ImportedAccount } from "../vault-client";
@@ -13,6 +14,8 @@ import {
 } from "../../pages/Connect/utils/validate-sismo-connect-request";
 import { CommitmentMapper } from "../commitment-mapper";
 import { SismoConnectProverV1 } from "./sismo-connect-prover-v1/sismo-connect-prover-v1";
+import { HydraS2Prover } from "../hydra-provers";
+import { HydraS3Prover } from "../hydra-provers/hydra-s3-prover";
 
 export class SismoConnectProvers {
   private sismoConnectProvers: {
@@ -35,14 +38,22 @@ export class SismoConnectProvers {
       this.getAuthRequestEligibilities.bind(this);
     this.generateResponse = this.generateResponse.bind(this);
 
+    const hydraS2Prover = new HydraS2Prover({
+      cache,
+      commitmentMapperService,
+    });
+
+    const hydraS3Prover = new HydraS3Prover({
+      cache,
+      commitmentMapperService,
+    });
+
     this.sismoConnectProvers = {
       "sismo-connect-v1": new SismoConnectProverV1({
-        cache: cache,
-        commitmentMapperService,
+        hydraProver: hydraS2Prover,
       }),
       "sismo-connect-v1.1": new SismoConnectProverV1({
-        cache: cache,
-        commitmentMapperService,
+        hydraProver: hydraS3Prover,
       }),
     };
   }
@@ -107,14 +118,18 @@ export class SismoConnectProvers {
 
   public async generateResponse(
     sismoConnectRequest: SelectedSismoConnectRequest,
+    requestGroupsMetadata: RequestGroupMetadata[],
     importedAccounts: ImportedAccount[],
     vaultSecret: string
   ): Promise<SismoConnectResponse> {
     this._validateRequest(sismoConnectRequest);
-    const sismoConnectProver =
-      this.sismoConnectProvers[sismoConnectRequest.version];
+    const sismoConnectProver = this.sismoConnectProvers[
+      sismoConnectRequest.version
+    ] as SismoConnectProverV1;
+
     return sismoConnectProver.generateResponse(
       sismoConnectRequest,
+      requestGroupsMetadata,
       importedAccounts,
       vaultSecret
     );

@@ -185,6 +185,7 @@ export default function ConnectFlow({
       console.time("generateResponse");
       const _sismoConnectResponse = await generateResponse(
         selectedSismoConnectRequest,
+        requestGroupsMetadata,
         vault.importedAccounts,
         vaultSecret
       );
@@ -283,10 +284,11 @@ export default function ConnectFlow({
           selectedSismoConnectRequest={selectedSismoConnectRequest}
           proofLoading={loadingProof}
           onSelectedSismoRequest={(selectedSismoRequest) => {
-            console.log("selectedSismoRequest", selectedSismoRequest);
             setSelectedSismoConnectRequest(selectedSismoRequest);
           }}
-          onEligible={(_isEligible) => setIsEligible(_isEligible)}
+          onEligible={(_isEligible) => {
+            setIsEligible(_isEligible);
+          }}
         />
 
         {selectedSismoConnectRequest?.signature?.message?.length > 0 && (

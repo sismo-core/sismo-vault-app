@@ -67,7 +67,7 @@ export const getSismoConnectResponseBytes = (
             claims: [],
             provingScheme: ethers.utils.hexZeroPad(
               ethers.utils.formatBytes32String(
-                proof?.provingScheme ?? "hydra-s2.1"
+                proof?.provingScheme ?? "hydra-s3.1"
               ),
               32
             ),

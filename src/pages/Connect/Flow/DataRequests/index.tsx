@@ -16,10 +16,7 @@ import * as Sentry from "@sentry/react";
 import { ImportedAccount } from "../../../../libs/vault-client";
 import { getIsEligible } from "../../utils/getIsEligible";
 import { DataClaimRequest } from "./components/DataClaimRequest";
-import { getPoseidon } from "../../../../libs/poseidon";
-import { BigNumber, ethers } from "ethers";
-import { keccak256 } from "ethers/lib/utils";
-import { SNARK_FIELD } from "@sismo-core/crypto";
+import { getAllVaultIdentifiers } from "../../../../utils/getAllVaultIdentifiers";
 
 const Container = styled.div`
   border: 1px solid ${(props) => props.theme.colors.blue7};
@@ -222,52 +219,15 @@ export default function DataRequests({
           setAuthRequestEligibilities(authRequestEligibilities);
         }
         if (claims?.length) {
-          // List of all accountTypes of all claims
-          const accountTypes: string[] = [];
-          for (let requestGroupMetadata of requestGroupsMetadata) {
-            for (let accountType of requestGroupMetadata.groupMetadata
-              .accountTypes) {
-              if (!accountTypes.find((el) => el === accountType))
-                accountTypes.push(accountType);
-            }
-          }
-
-          // List of all appId used to generate vaultId in groups of claims
-          const appIds: string[] = [];
-          for (let accountType of accountTypes) {
-            const match = accountType.match(
-              /sismo-connect-app\(appid=(0x[a-fA-F0-9]+)\)/i
-            );
-            if (match) {
-              const appId = match[1];
-              if (!appIds.find((el) => el === appId)) appIds.push(appId);
-            }
-          }
-
-          // List of all owned identifiers
-          let identifiers: string[] = [];
-          for (let importedAccount of vault?.importedAccounts) {
-            identifiers.push(importedAccount.identifier);
-          }
-          if (appIds?.length) {
-            const vaultSecret = await vault.getVaultSecret();
-            const poseidon = await getPoseidon();
-            for (let appId of appIds) {
-              const namespace = BigNumber.from(
-                keccak256(
-                  ethers.utils.solidityPack(
-                    ["uint128", "uint128"],
-                    [appId, BigNumber.from(0)]
-                  )
-                )
-              )
-                .mod(SNARK_FIELD)
-                .toHexString();
-              const userId = poseidon([vaultSecret, namespace]).toHexString();
-              identifiers.push(userId);
-            }
-          }
-
+          const vaultSecret = await vault.getVaultSecret();
+          const groupsMetadata = requestGroupsMetadata.map(
+            (el) => el.groupMetadata
+          );
+          const identifiers = await getAllVaultIdentifiers(
+            groupsMetadata,
+            vaultSecret,
+            vault.importedAccounts
+          );
           const claimRequestEligibilities = await getClaimRequestEligibilities(
             sismoConnectRequest,
             identifiers
@@ -348,6 +308,10 @@ export default function DataRequests({
   }
 
   useEffect(() => {
+    if (loadingEligible) {
+      onEligible(false);
+      return;
+    }
     if (!claimRequestEligibilities && !authRequestEligibilities) return;
     let isSismoConnectRequestEligible: boolean = getIsEligible(
       claimRequestEligibilities,
@@ -355,6 +319,7 @@ export default function DataRequests({
     );
     onEligible(isSismoConnectRequestEligible);
   }, [
+    loadingEligible,
     claimRequestEligibilities,
     authRequestEligibilities,
     sismoConnectRequest,

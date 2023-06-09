@@ -1,8 +1,7 @@
 import { BigNumberish } from "@ethersproject/bignumber";
-import { AccountData } from "../hydra-provers/types";
+import { AccountData } from "../../hydra-provers/types";
 import { GroupMetadata } from "../../sismo-client/providers";
 import { ImportedAccount } from "../../vault-client";
-import { CommitmentReceipt } from "../../sismo-client";
 
 // import Claim from the packages
 
@@ -15,20 +14,6 @@ import { CommitmentReceipt } from "../../sismo-client";
 //   authRequestEligibility: AuthRequestEligibility;
 //   messageSignatureRequest?: any;
 // };
-
-export type SismoConnectAppDataSource = {
-  identifier: string;
-  secret: string;
-  namespace: string;
-};
-
-export type ExternalDataSource = {
-  identifier: string;
-  secret: string;
-  commitmentReceipt: CommitmentReceipt;
-};
-
-export type DataSource = SismoConnectAppDataSource | ExternalDataSource;
 
 export type RequestGroupMetadata = {
   claim: ClaimRequest;
@@ -149,6 +134,7 @@ export type DevAddresses = string[] | Record<string, Number | BigNumberish>;
 
 export enum ProvingScheme {
   HYDRA_S2 = "hydra-s2.1",
+  HYDRA_S3 = "hydra-s3.1",
 }
 
 export enum ClaimType {
