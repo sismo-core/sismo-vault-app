@@ -1,6 +1,9 @@
 name: Deploy Prod Beta environment
 on:
   workflow_dispatch: {}
+  push:
+    tags:
+      - prod*
 
 
 jobs:

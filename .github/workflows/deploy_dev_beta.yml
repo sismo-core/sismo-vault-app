@@ -1,6 +1,9 @@
 name: Deploy Dev Beta environment
 on:
   workflow_dispatch: {}
+  push:
+    tags:
+      - dev*
 
 
 jobs:
