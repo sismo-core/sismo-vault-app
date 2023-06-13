@@ -296,8 +296,6 @@ export function DataRequest({
 
       if (selectedAuth.authType === AuthType.VAULT) {
         const appId = selectedSismoConnectRequest.appId;
-        console.log("appId", appId);
-
         const vaultId = await vault.getVaultId({ appId });
         _initialAccount = {
           identifier: vaultId,

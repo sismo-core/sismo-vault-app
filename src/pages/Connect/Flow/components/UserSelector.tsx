@@ -8,6 +8,7 @@ import colors from "../../../../theme/colors";
 import {
   EthRounded,
   GithubRounded,
+  SismoRounded,
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
 import { ImportedAccount } from "../../../../libs/vault-client";
@@ -259,6 +260,8 @@ export default function UserSelector({
               <TwitterRounded size={14} color={color} />
             ) : authType === AuthType.GITHUB ? (
               <GithubRounded size={14} color={color} />
+            ) : authType === AuthType.VAULT ? (
+              <SismoRounded size={14} color={color} />
             ) : (
               <EthRounded size={14} color={color} />
             )}
@@ -303,7 +306,7 @@ export default function UserSelector({
                     ) : authType === AuthType.GITHUB ? (
                       <GithubRounded size={14} color={color} />
                     ) : authType === AuthType.VAULT ? (
-                      <EthRounded size={14} color={color} />
+                      <SismoRounded size={14} color={color} />
                     ) : (
                       <EthRounded size={14} color={color} />
                     )}
