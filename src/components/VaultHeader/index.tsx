@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useVault } from "../../libs/vault";
+import { useVault } from "../../hooks/vault";
 import Ziki from "../Ziki";
 
 const Container = styled.div`

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { CaretLeft, Gear, Copy } from "phosphor-react";
 import { useEffect, useRef } from "react";
-import { useVault } from "../../../libs/vault";
+import { useVault } from "../../../hooks/vault";
 import Avatar from "../../../components/Avatar";
 import { getMainMinified } from "../../../utils/getMain";
 import Loader from "../../../components/Loader";

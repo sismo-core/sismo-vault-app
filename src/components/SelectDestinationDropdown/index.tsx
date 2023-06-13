@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { CaretDown, Check, Plus } from "phosphor-react";
 import Button from "../Button";
-import { useVault } from "../../libs/vault";
+import { useVault } from "../../hooks/vault";
 import { useImportAccount } from "../../pages/Modals/ImportAccount/provider";
 import { getMainMinified } from "../../utils/getMain";
 import Loader from "../Loader";

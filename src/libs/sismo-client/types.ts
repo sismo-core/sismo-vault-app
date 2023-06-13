@@ -1,4 +1,4 @@
-export type AccountType = "ethereum" | "github" | "twitter";
+export type AccountType = string;
 export type Network = "goerli" | "polygon" | "mumbai" | "gnosis";
 
 export type Account = {

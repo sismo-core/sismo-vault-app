@@ -7,7 +7,7 @@ import Ziki from "../../../../../components/Ziki";
 import colors from "../../../../../theme/colors";
 import { useNotifications } from "../../../../../components/Notifications/provider";
 import * as Sentry from "@sentry/react";
-import { useVault } from "../../../../../libs/vault";
+import { useVault } from "../../../../../hooks/vault";
 
 const Container = styled.div`
   background-color: ${colors.blue10};

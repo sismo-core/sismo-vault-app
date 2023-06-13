@@ -3,7 +3,7 @@ import styled from "styled-components";
 import colors from "../../../../../theme/colors";
 import YesNoModal from "../../../../../components/YesNoModal";
 import Icon from "../../../../../components/Icon";
-import { useVault } from "../../../../../libs/vault";
+import { useVault } from "../../../../../hooks/vault";
 import { RecoveryKey } from "../../../../../libs/vault-client";
 
 const Container = styled.div`

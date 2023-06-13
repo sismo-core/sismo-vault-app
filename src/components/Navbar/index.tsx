@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import VaultMenu from "./components/VaultMenu";
-import { useVault } from "../../libs/vault";
+import { useVault } from "../../hooks/vault";
 import env from "../../environment";
 import LinksMenu from "./components/LinksMenu";
 import SignInButton from "../SignInButton";

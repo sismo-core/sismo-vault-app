@@ -1,4 +1,4 @@
-import { AuthType } from "../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+import { AuthType } from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 
 export function getHumanReadableAuthType(authType: AuthType) {
   const humanReadableType =

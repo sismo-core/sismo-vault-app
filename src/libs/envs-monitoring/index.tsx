@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/react";
 import axios from "axios";
 import React, { useEffect } from "react";
 import env from "../../environment";
-import { useVault } from "../vault";
+import { useVault } from "../../hooks/vault";
 import packageJson from "../../../package.json";
 import { getMainMinified } from "../../utils/getMain";
 

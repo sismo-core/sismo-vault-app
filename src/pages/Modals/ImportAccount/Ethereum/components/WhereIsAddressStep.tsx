@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useWallet } from "../../../../../libs/wallet";
+import { useWallet } from "../../../../../hooks/wallet";
 import Button from "../../../../../components/Button";
 import { getMinimalIdentifier } from "../../../../../utils/getMinimalIdentifier";
 

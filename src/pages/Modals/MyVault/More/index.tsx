@@ -4,7 +4,7 @@ import Button from "../../../../components/Button";
 import { useNotifications } from "../../../../components/Notifications/provider";
 import YesNoModal from "../../../../components/YesNoModal";
 import colors from "../../../../theme/colors";
-import { useVault } from "../../../../libs/vault";
+import { useVault } from "../../../../hooks/vault";
 import { useMyVault } from "../Provider";
 import * as Sentry from "@sentry/react";
 //import env from "../../../../environment";

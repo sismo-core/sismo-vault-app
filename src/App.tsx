@@ -5,16 +5,14 @@ import NotificationsProvider from "./components/Notifications/provider";
 import { useEffect } from "react";
 import * as Sentry from "@sentry/react";
 import env from "./environment";
-import WalletProvider from "./libs/wallet";
-import SismoVaultProvider from "./libs/vault";
-import SismoProvider from "./libs/sismo";
+import WalletProvider from "./hooks/wallet";
+import SismoVaultProvider from "./hooks/vault";
+import SismoProvider from "./hooks/sismo";
 import MyVaultModalProvider from "./pages/Modals/MyVault/Provider";
 import ImportAccountModalProvider from "./pages/Modals/ImportAccount/provider";
 import GenerateRecoveryKeyModalProvider from "./pages/Modals/GenerateRecoveryKey/provider";
 import MainScrollManagerProvider from "./libs/main-scroll-manager";
 import EnvsMonitoring from "./libs/envs-monitoring";
-import { SismoClient } from "./libs/sismo-client";
-import { IndexDbCache } from "./libs/cache-service/indexdb-cache";
 import { ServicesFactory } from "./libs/services-factory";
 
 const FONTS_LIST = [
@@ -34,11 +32,6 @@ const services = ServicesFactory.init({
 // TODO REFACTOR THIS TO AVOID THIS GLOBAL VARIABLE AND USE A CONTEXT INSTEAD WITH HOOKS TO ACCESS SERVICES
 const isImpersonated =
   services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
-
-const sismoClient = new SismoClient({
-  cache: new IndexDbCache(),
-  services,
-});
 
 const removeHexadecimalNumbers = (event: Sentry.Event) => {
   const reg = /0x[a-fA-F0-9]+/g;
@@ -129,7 +122,7 @@ function App() {
             services={services}
             isImpersonated={isImpersonated}
           >
-            <SismoProvider client={sismoClient}>
+            <SismoProvider services={services}>
               <GenerateRecoveryKeyModalProvider>
                 <MyVaultModalProvider>
                   <ImportAccountModalProvider>

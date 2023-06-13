@@ -3,7 +3,7 @@ import Button from "../../../../../components/Button";
 import CheckBox from "../../../../../components/CheckBox";
 import Loader from "../../../../../components/Loader";
 import colors from "../../../../../theme/colors";
-import { useVault } from "../../../../../libs/vault";
+import { useVault } from "../../../../../hooks/vault";
 import OwnerLine from "./OwnerLine";
 import { useImportAccount } from "../../../ImportAccount/provider";
 

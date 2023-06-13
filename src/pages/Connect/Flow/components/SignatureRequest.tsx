@@ -1,10 +1,10 @@
 import styled from "styled-components";
-import { SelectedSismoConnectRequest } from "../../../../libs/sismo-client/sismo-connect-prover/sismo-connect-v1";
+import { SelectedSismoConnectRequest } from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import { PencilSimple } from "phosphor-react";
 import colors from "../../../../theme/colors";
 import { useEffect, useState } from "react";
 import Button from "./ImportButton";
-import { useVault } from "../../../../libs/vault";
+import { useVault } from "../../../../hooks/vault";
 
 const Container = styled.div`
   display: flex;
@@ -63,7 +63,7 @@ const ButtonsWrapper = styled.div`
 type Props = {
   selectedSismoConnectRequest: SelectedSismoConnectRequest;
   proofLoading: boolean;
-  onUserInput: (
+  onSelectedSismoRequest: (
     selectedSismoConnectRequest: SelectedSismoConnectRequest
   ) => void;
 };
@@ -71,7 +71,7 @@ type Props = {
 export function SignatureRequest({
   selectedSismoConnectRequest,
   proofLoading,
-  onUserInput,
+  onSelectedSismoRequest,
 }: Props): JSX.Element {
   const vault = useVault();
 
@@ -97,7 +97,7 @@ export function SignatureRequest({
   const onSave = () => {
     setIsEditing(false);
     setSavedValue(liveValue);
-    onUserInput({
+    onSelectedSismoRequest({
       ...selectedSismoConnectRequest,
       selectedSignature: {
         ...selectedSismoConnectRequest.selectedSignature,
