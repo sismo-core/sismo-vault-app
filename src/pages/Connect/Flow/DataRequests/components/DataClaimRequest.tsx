@@ -112,9 +112,14 @@ export function DataClaimRequest({
   const vault = useVault();
 
   const isOptional = claim?.isOptional;
+
   const isEligible = claimRequestEligibility?.isEligible && vault?.isConnected;
   const isSelectableByUser = !proofLoading && claim?.isSelectableByUser;
-  const isLoading = importAccount?.importing ? true : false || loadingEligible;
+  const isLoading = importAccount?.importing
+    ? true
+    : false ||
+      loadingEligible ||
+      typeof claimRequestEligibility === "undefined";
 
   function onOptInChange(isOptIn: boolean) {
     const newSelectedSismoConnectRequest = {

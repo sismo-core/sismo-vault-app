@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import colors from "../../../../theme/colors";
 import {
   ClaimRequest,
@@ -35,6 +35,34 @@ const Container = styled.div<{ color: string; isSelectorOpenable: boolean }>`
   flex-shrink: 0;
   flex-grow: 1;
   cursor: ${(props) => (props.isSelectorOpenable ? "pointer" : "default")};
+`;
+
+export const SkeletonLoading = keyframes`
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: -200%;
+  }
+`;
+
+const Skeleton = styled(Container)`
+  background: linear-gradient(
+    90deg,
+    rgba(42, 53, 87, 0.4) 5%,
+    rgba(42, 53, 87, 1) 20%,
+    rgba(42, 53, 87, 1) 30%,
+    rgba(42, 53, 87, 0.4) 50%
+  );
+  background-size: 200% 100%;
+  animation: ${SkeletonLoading};
+  animation-duration: 1.5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  box-sizing: border-box;
+  height: 24px;
+  box-sizing: border-box;
+  cursor: default;
 `;
 
 const Left = styled.div`
@@ -197,6 +225,22 @@ export default function ShardTag({
   ) {
     setSelectedValue(value);
     onClaimChange(claimRequestEligibility, value);
+  }
+
+  if (!groupMetadata) {
+    return (
+      <OuterContainer>
+        <Skeleton
+          isSelectorOpenable={false}
+          color={color}
+          ref={null}
+          onClick={() => {}}
+        ></Skeleton>
+        <InfoWrapper onClick={() => {}}>
+          <Info size={18} color={color} />
+        </InfoWrapper>
+      </OuterContainer>
+    );
   }
 
   return (

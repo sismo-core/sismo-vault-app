@@ -94,6 +94,7 @@ export class VaultClient {
     appId,
     derivationKey = "0x00",
   }: VaultNamespaceInputs): Promise<string> {
+    const poseidon = await getPoseidon();
     const vaultSecret = await this.getVaultSecret();
     const vaultNamespace = BigNumber.from(
       keccak256(
@@ -106,7 +107,6 @@ export class VaultClient {
       .mod(SNARK_FIELD)
       .toHexString();
 
-    const poseidon = await getPoseidon();
     const vaultId = await poseidon([vaultSecret, vaultNamespace]);
     return vaultId.toHexString();
   }

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { CheckCircle } from "phosphor-react";
+import { CheckCircle, Info } from "phosphor-react";
 import {
   AuthRequest,
   AuthRequestEligibility,
@@ -22,6 +22,7 @@ import { ImportedAccount } from "../../../../../libs/vault-client";
 import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../../Modals/ImportAccount/provider";
 import { AccountType } from "../../../../../libs/sismo-client";
+import HoverTooltip from "../../../../../components/HoverTooltip";
 
 const Container = styled.div`
   display: flex;
@@ -92,8 +93,17 @@ const CheckCircleIcon = styled(CheckCircle)`
   flex-shrink: 0;
 `;
 
+const InfoWrapper = styled.div`
+  width: 18px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 type Props = {
   auth: AuthRequest;
+  appId: string;
   authRequestEligibility?: AuthRequestEligibility;
   selectedSismoConnectRequest: SelectedSismoConnectRequest;
   isInitialOptin: boolean;
@@ -106,6 +116,7 @@ type Props = {
 
 export function DataSourceRequest({
   auth,
+  appId,
   authRequestEligibility,
   selectedSismoConnectRequest,
   isInitialOptin,
@@ -123,7 +134,9 @@ export function DataSourceRequest({
   const isEligible = authRequestEligibility?.isEligible && vault?.isConnected;
   const isSelectableByUser = !proofLoading && auth?.isSelectableByUser;
   const humanReadableAuthType = getHumanReadableAuthType(auth?.authType);
-  const isLoading = importAccount?.importing ? true : false || loadingEligible;
+  const isLoading = importAccount?.importing
+    ? true
+    : false || loadingEligible || typeof authRequestEligibility === "undefined";
 
   function onOptInChange(isOptIn: boolean) {
     const newSelectedSismoConnectRequest = {
@@ -182,21 +195,39 @@ export function DataSourceRequest({
     if (!isEligible) return;
     if (!vault.importedAccounts) return;
     if (initialAccount) return;
+    async function getInitialAccount() {
+      let _initialAccount: ImportedAccount = null;
+      if (auth.authType === AuthType.VAULT) {
+        const vaultId = await vault.getVaultId({ appId });
+        _initialAccount = {
+          identifier: vaultId,
+        } as ImportedAccount;
+        setInitialAccount(_initialAccount);
+        return;
+      }
 
-    const _initialAccount = vault.importedAccounts.find(
-      (account) =>
-        account.identifier?.toLowerCase() ===
-        selectedSismoConnectRequest?.selectedAuths
-          ?.find((selectedAuth) => selectedAuth.uuid === auth?.uuid)
-          ?.selectedUserId?.toLowerCase()
-    );
-    setInitialAccount(_initialAccount);
+      if (!authRequestEligibility?.auth?.uuid) return;
+      if (!selectedSismoConnectRequest) return;
+      const selectedAuth = selectedSismoConnectRequest?.selectedAuths?.find(
+        (auth) => auth.uuid === authRequestEligibility?.auth?.uuid
+      );
+      _initialAccount = vault.importedAccounts.find(
+        (account) =>
+          account.identifier?.toLowerCase() ===
+          selectedAuth?.selectedUserId?.toLowerCase()
+      );
+      setInitialAccount(_initialAccount);
+    }
+    getInitialAccount();
   }, [
-    auth?.uuid,
+    appId,
+    auth?.authType,
+    authRequestEligibility?.auth?.uuid,
     initialAccount,
     isEligible,
-    selectedSismoConnectRequest?.selectedAuths,
-    vault.importedAccounts,
+    selectedSismoConnectRequest,
+    vault,
+    vault?.importedAccounts,
   ]);
 
   return (
@@ -219,33 +250,59 @@ export function DataSourceRequest({
           />
         )}
         <TextWrapper isOptIn={isOptional && isEligible ? isOptIn : true}>
-          {auth?.authType !== AuthType.VAULT
-            ? isEligible
-              ? "Prove ownership"
-              : "Prove ownership of"
-            : "Share"}
-          {isEligible && auth?.authType !== AuthType.VAULT && (
-            <UserSelector
-              authRequestEligibility={authRequestEligibility}
-              isSelectableByUser={isSelectableByUser}
-              onAuthChange={onValueChange}
-              optIn={true}
-              initialAccount={initialAccount}
-            />
-          )}
+          {auth?.authType === AuthType.VAULT
+            ? "Share"
+            : isEligible
+            ? "Prove ownership"
+            : "Prove ownership of"}
 
-          {(!isEligible || auth?.authType === AuthType.VAULT) && (
+          {isEligible &&
+            authRequestEligibility?.auth?.authType !== AuthType.VAULT && (
+              <UserSelector
+                authRequestEligibility={authRequestEligibility}
+                isSelectableByUser={isSelectableByUser}
+                onAuthChange={onValueChange}
+                optIn={true}
+                initialAccount={initialAccount}
+              />
+            )}
+
+          {isEligible &&
+            authRequestEligibility?.auth?.authType === AuthType.VAULT && (
+              <>
+                <Bold>{humanReadableAuthType} </Bold>
+                <UserSelector
+                  authRequestEligibility={authRequestEligibility}
+                  isSelectableByUser={false}
+                  onAuthChange={() => {}}
+                  optIn={true}
+                  initialAccount={initialAccount}
+                />
+              </>
+            )}
+
+          {!isEligible && (
             <span>
               <Bold>{humanReadableAuthType} </Bold>
               {auth?.authType !== AuthType.VAULT && "account"}
             </span>
+          )}
+          {!isEligible && auth?.authType === AuthType.VAULT && (
+            <HoverTooltip
+              text="The User Id is an anonymous identifier that indicates a unique user on a specific app. Sharing your User ID only reveals that you are a unique user and authenticates that you own a Data Vault."
+              width={280}
+            >
+              <InfoWrapper>
+                <Info size={16} color={colors.blue0} />
+              </InfoWrapper>
+            </HoverTooltip>
           )}
         </TextWrapper>
       </Left>
       <Right>
         {vault?.importedAccounts && (
           <>
-            {!isEligible && (
+            {!isEligible && auth?.authType !== AuthType.VAULT && (
               <StyledButton
                 primary
                 verySmall
