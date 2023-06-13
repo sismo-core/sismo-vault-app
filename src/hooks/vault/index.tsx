@@ -16,6 +16,7 @@ import {
   Owner,
   RecoveryKey,
   Vault,
+  VaultNamespaceInputs,
   WalletPurpose,
 } from "../../libs/vault-client";
 import { useVaultState } from "./useVaultState";
@@ -41,6 +42,10 @@ type ReactVault = {
   commitmentMapper: CommitmentMapper;
   synchronizing: boolean;
   getVaultSecret: () => Promise<string>;
+  getVaultId: ({
+    appId,
+    derivationKey,
+  }: VaultNamespaceInputs) => Promise<string>;
   disconnect: () => void;
   connect: (owner: Owner) => Promise<boolean>;
   isVaultExist: (owner: Owner) => Promise<boolean>;
@@ -215,6 +220,13 @@ export default function SismoVaultProvider({
     return await vaultClient.getVaultSecret();
   };
 
+  const getVaultId = async ({
+    appId,
+    derivationKey,
+  }: VaultNamespaceInputs): Promise<string> => {
+    return await vaultClient.getVaultId({ appId, derivationKey });
+  };
+
   const getNextSeed = async (
     purpose: WalletPurpose
   ): Promise<{ seed: string; mnemonic: string; accountNumber: number }> => {
@@ -335,6 +347,7 @@ export default function SismoVaultProvider({
         recoveryKeys: vaultState.recoveryKeys,
         synchronizing,
         getVaultSecret,
+        getVaultId,
         disableRecoveryKey,
         generateRecoveryKey,
         disconnect,

@@ -9,7 +9,7 @@ export function getHumanReadableAuthType(authType: AuthType) {
       : authType === AuthType.TWITTER
       ? "Twitter"
       : authType === AuthType.VAULT
-      ? "Vault id"
+      ? "User Id"
       : null;
 
   return humanReadableType;

@@ -11,10 +11,11 @@ import {
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
 import { ImportedAccount } from "../../../../libs/vault-client";
-import { CaretDown } from "phosphor-react";
+import { CaretDown, Info } from "phosphor-react";
 import useOnClickOutside from "../../../../utils/useClickOutside";
 import { getMinimalIdentifier } from "../../../../utils/getMinimalIdentifier";
 import { getLargeIdentifier } from "../../../../utils/getLargeIdentifier";
+import HoverTooltip from "../../../../components/HoverTooltip";
 
 const OuterContainer = styled.div`
   position: relative;
@@ -90,9 +91,7 @@ const SelectorContainer = styled.div`
   border-radius: 4px;
   z-index: 2;
   padding: 4px 2px;
-
   width: 280px;
-
   box-sizing: border-box;
 `;
 
@@ -103,12 +102,10 @@ const ItemContainer = styled.div<{ isSelected?: boolean; order: number }>`
   gap: 8px;
   height: 38px;
   order: ${(props) => props.order};
-
   font-size: 14px;
   line-height: 20px;
   font-family: ${(props) => props.theme.fonts.medium};
   color: ${(props) => props.theme.colors.blue0};
-
   border-radius: 2px;
   cursor: pointer;
 
@@ -153,6 +150,19 @@ const DefaultTag = styled.div`
   box-sizing: border-box;
 `;
 
+const InfoWrapper = styled.div`
+  width: 18px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const HoverTooltipStyled = styled(HoverTooltip)`
+  position: absolute;
+  right: -22px;
+`;
+
 type Props = {
   optIn?: boolean;
   isSelectableByUser?: boolean;
@@ -191,7 +201,6 @@ export default function UserSelector({
 
   useEffect(() => {
     if (!initialAccount) return;
-
     setValueSelected(initialAccount);
   }, [initialAccount]);
 
@@ -293,6 +302,8 @@ export default function UserSelector({
                       <TwitterRounded size={14} color={color} />
                     ) : authType === AuthType.GITHUB ? (
                       <GithubRounded size={14} color={color} />
+                    ) : authType === AuthType.VAULT ? (
+                      <EthRounded size={14} color={color} />
                     ) : (
                       <EthRounded size={14} color={color} />
                     )}
@@ -304,6 +315,16 @@ export default function UserSelector({
             );
           })}
         </SelectorContainer>
+      )}
+      {authType === AuthType.VAULT && (
+        <HoverTooltipStyled
+          text="The User Id is an anonymous identifier that indicates a unique user on a specific app. Sharing your User ID only reveals that you are a unique user and authenticates that you own a Data Vault."
+          width={280}
+        >
+          <InfoWrapper>
+            <Info size={18} color={color} />
+          </InfoWrapper>
+        </HoverTooltipStyled>
       )}
     </OuterContainer>
   );

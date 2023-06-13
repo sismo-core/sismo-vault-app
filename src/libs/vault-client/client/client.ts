@@ -5,10 +5,12 @@ import { ImportedAccount } from "..";
 import { VaultProvider } from "../provider/provider";
 import { BaseStore } from "../../vault-store/base-store";
 import { SismoWallet, WalletPurpose } from "../wallet";
-import { RecoveryKey, Vault } from "./client.types";
+import { RecoveryKey, Vault, VaultNamespaceInputs } from "./client.types";
 import SHA3 from "sha3";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
+import { keccak256 } from "ethers/lib/utils";
+import { getPoseidon } from "../../poseidon";
 
 export class VaultClient {
   private _provider: VaultProvider;
@@ -86,6 +88,27 @@ export class VaultClient {
       .mod(SNARK_FIELD)
       .toHexString();
     return vaultSecret;
+  }
+
+  public async getVaultId({
+    appId,
+    derivationKey = "0x00",
+  }: VaultNamespaceInputs): Promise<string> {
+    const vaultSecret = await this.getVaultSecret();
+    const vaultNamespace = BigNumber.from(
+      keccak256(
+        ethers.utils.solidityPack(
+          ["uint128", "uint128"],
+          [appId, BigNumber.from(derivationKey)]
+        )
+      )
+    )
+      .mod(SNARK_FIELD)
+      .toHexString();
+
+    const poseidon = await getPoseidon();
+    const vaultId = await poseidon([vaultSecret, vaultNamespace]);
+    return vaultId.toHexString();
   }
 
   /*****************************************************************/
