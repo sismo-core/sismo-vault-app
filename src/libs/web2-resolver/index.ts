@@ -68,6 +68,7 @@ export class Web2Resolver {
     const parsedProfileHandle = this._parseHandleFromWeb2(identifier);
 
     let account: Account;
+
     switch (identifierType) {
       case Web2IdentifierType.GITHUB:
         let profile = await this._githubResolver.getProfile(
@@ -97,6 +98,29 @@ export class Web2Resolver {
             identifierType,
           }),
           type: "twitter",
+          profile: {
+            login: parsedProfileHandle,
+            id: parseInt(parsedProfileId),
+            name: parsedProfileHandle,
+            avatar: "",
+          },
+        };
+        break;
+      case Web2IdentifierType.TELEGRAM:
+        if (!parsedProfileId) {
+          throw new Error(
+            `Invalid identifier: ${identifier} - Please use the following format: ${this.fromWeb2IdTypeToHumanReadable(
+              identifierType
+            )}:{handle}:{id}`
+          );
+        }
+
+        account = {
+          identifier: this._toSismoIdentifier({
+            identifier: parsedProfileId,
+            identifierType,
+          }),
+          type: "telegram",
           profile: {
             login: parsedProfileHandle,
             id: parseInt(parsedProfileId),

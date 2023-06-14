@@ -23,6 +23,9 @@ export const toSismoIdentifier = (identifier: string, authType: AuthType) => {
   if (authType === AuthType.TWITTER) {
     prefix = "0x1002";
   }
+  if (authType === AuthType.TELEGRAM) {
+    prefix = "0x1003";
+  }
   identifier = "0".repeat(36 - identifier.length) + identifier;
   identifier = prefix + identifier;
   return identifier;

@@ -10,6 +10,8 @@ export function getHumanReadableAuthType(authType: AuthType) {
       ? "Twitter"
       : authType === AuthType.VAULT
       ? "User Id"
+      : authType === AuthType.TELEGRAM
+      ? "Telegram"
       : null;
 
   return humanReadableType;

@@ -10,4 +10,5 @@ export { GemProof } from "./GemProof";
 export { LogoV2 } from "./LogoV2";
 export { EthRounded } from "./EthRounded";
 export { TwitterRounded } from "./TwitterRounded";
+export { TelegramRounded } from "./TelegramRounded";
 export { SismoRounded } from "./SismoRounded";
