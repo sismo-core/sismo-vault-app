@@ -2,13 +2,14 @@ import {
   EddsaPublicKey,
   HydraS2Prover as HydraS2ProverPS,
   SnarkProof,
-  UserParams,
 } from "@sismo-core/hydra-s2";
 import { Cache } from "../cache-service";
 import { BigNumber } from "ethers";
 import { CommitmentMapper } from "../sismo-client";
 import { HydraProver } from "./hydra-prover";
 import { ProvingScheme } from "../sismo-connect-provers";
+import { UserParams as UserParamsS2 } from "@sismo-core/hydra-s2";
+import { UserParams } from "@sismo-core/hydra-s3";
 
 export class HydraS2Prover extends HydraProver {
   private _commitmentMapperService: CommitmentMapper;
@@ -43,6 +44,15 @@ export class HydraS2Prover extends HydraProver {
       zkeyPath: "/hydra/s2/hydra-s2.zkey",
     });
 
-    return await prover.generateSnarkProof(userParams);
+    const userParamsS2 = {
+      vault: userParams.vault,
+      source: userParams.source,
+      destination: userParams.destination,
+      statement: userParams.claim,
+      requestIdentifier: userParams.requestIdentifier,
+      extraData: userParams.extraData,
+    } as UserParamsS2;
+
+    return await prover.generateSnarkProof(userParamsS2);
   }
 }
