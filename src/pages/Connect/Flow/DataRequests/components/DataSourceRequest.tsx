@@ -76,12 +76,18 @@ const Right = styled.div`
   align-items: center;
   width: 96px;
   flex-shrink: 0;
+  @media (max-width: 768px) {
+    padding-left: 16px;
+  }
 `;
 
 const StyledButton = styled(ImportButton)`
   height: 28px;
   width: 96px;
   font-size: 12px;
+  @media (max-width: 656px) {
+    margin-top: 16px;
+  }
 `;
 
 const InnerButton = styled.div`
