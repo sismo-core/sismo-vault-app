@@ -83,7 +83,7 @@ export class Web2Resolver {
         };
 
         break;
-      case Web2IdentifierType.TWITTER || Web2IdentifierType.TELEGRAM:
+      case Web2IdentifierType.TWITTER:
         if (!parsedProfileId) {
           throw new Error(
             `Invalid identifier: ${identifier} - Please use the following format: ${this.fromWeb2IdTypeToHumanReadable(
@@ -91,7 +91,6 @@ export class Web2Resolver {
             )}:{handle}:{id}`
           );
         }
-
         account = {
           identifier: this._toSismoIdentifier({
             identifier: parsedProfileId,
@@ -99,9 +98,9 @@ export class Web2Resolver {
           }),
           type: "twitter",
           profile: {
-            login: parsedProfileId,
+            login: parsedProfileHandle,
             id: parseInt(parsedProfileId),
-            name: parsedProfileId,
+            name: parsedProfileHandle,
             avatar: "",
           },
         };

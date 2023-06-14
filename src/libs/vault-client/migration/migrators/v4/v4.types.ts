@@ -48,6 +48,10 @@ export type RecoveryKey = {
 };
 
 export type AccountType = string;
+export type VaultNamespaceInputs = {
+  appId: string;
+  derivationKey?: string;
+};
 
 export type VaultV4 = {
   mnemonics: string[];

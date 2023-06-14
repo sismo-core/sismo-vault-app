@@ -1,5 +1,10 @@
 import { VaultClient } from "./client";
-import { ImportedAccount, Owner, Vault } from "./client.types";
+import {
+  ImportedAccount,
+  Owner,
+  Vault,
+  VaultNamespaceInputs,
+} from "./client.types";
 import { demoVault } from "./demo-client.mock";
 import {
   commitmentMapperPubKeyDemo,
@@ -17,6 +22,12 @@ export class DemoVaultClient extends VaultClient {
 
   public async getVaultSecret(): Promise<string> {
     return "0x000";
+  }
+
+  public async getVaultId(
+    vaultNamespaceInputs: VaultNamespaceInputs
+  ): Promise<string> {
+    return "0x123";
   }
 
   /*****************************************************************/

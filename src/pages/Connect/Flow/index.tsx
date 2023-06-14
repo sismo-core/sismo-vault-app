@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { useVault } from "../../../hooks/vault";
 import { useSismo } from "../../../hooks/sismo";
@@ -231,6 +231,12 @@ export default function ConnectFlow({
     }
   };
 
+  const onSelectedSismoConnectRequest = useCallback(
+    (selectedSismoRequest) =>
+      setSelectedSismoConnectRequest(selectedSismoRequest),
+    []
+  );
+
   return (
     <>
       <ProofModal
@@ -283,19 +289,16 @@ export default function ConnectFlow({
           requestGroupsMetadata={requestGroupsMetadata}
           selectedSismoConnectRequest={selectedSismoConnectRequest}
           proofLoading={loadingProof}
-          onSelectedSismoRequest={(selectedSismoRequest) => {
-            setSelectedSismoConnectRequest(selectedSismoRequest);
-          }}
+          onSelectedSismoRequest={onSelectedSismoConnectRequest}
           onEligible={(_isEligible) => {
             setIsEligible(_isEligible);
           }}
         />
 
-        {selectedSismoConnectRequest?.signature?.message?.length > 0 && (
+        {sismoConnectRequest?.signature?.message?.length > 0 && (
           <SignatureRequest
-            onSelectedSismoRequest={(selectedSismoRequest) =>
-              setSelectedSismoConnectRequest(selectedSismoRequest)
-            }
+            onSelectedSismoRequest={onSelectedSismoConnectRequest}
+            sismoConnectRequest={sismoConnectRequest}
             selectedSismoConnectRequest={selectedSismoConnectRequest}
             proofLoading={loadingProof}
           />

@@ -1,5 +1,8 @@
 import styled from "styled-components";
-import { SelectedSismoConnectRequest } from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+import {
+  SelectedSismoConnectRequest,
+  SismoConnectRequest,
+} from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import { PencilSimple } from "phosphor-react";
 import colors from "../../../../theme/colors";
 import { useEffect, useState } from "react";
@@ -62,6 +65,7 @@ const ButtonsWrapper = styled.div`
 
 type Props = {
   selectedSismoConnectRequest: SelectedSismoConnectRequest;
+  sismoConnectRequest: SismoConnectRequest;
   proofLoading: boolean;
   onSelectedSismoRequest: (
     selectedSismoConnectRequest: SelectedSismoConnectRequest
@@ -70,6 +74,7 @@ type Props = {
 
 export function SignatureRequest({
   selectedSismoConnectRequest,
+  sismoConnectRequest,
   proofLoading,
   onSelectedSismoRequest,
 }: Props): JSX.Element {
@@ -79,10 +84,10 @@ export function SignatureRequest({
 
   const [isEditing, setIsEditing] = useState(false);
   const [liveValue, setLiveValue] = useState(
-    selectedSismoConnectRequest?.selectedSignature?.selectedMessage
+    sismoConnectRequest?.signature?.message
   );
   const [savedValue, setSavedValue] = useState(
-    selectedSismoConnectRequest?.selectedSignature?.selectedMessage
+    sismoConnectRequest?.signature?.message
   );
 
   const isEditable =

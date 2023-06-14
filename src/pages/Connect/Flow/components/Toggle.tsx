@@ -1,6 +1,7 @@
 import { Check } from "phosphor-react";
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
+import HoverTooltip from "../../../../components/HoverTooltip";
 
 const Container = styled.div<{ isDisabled: boolean }>`
   display: flex;
@@ -61,7 +62,7 @@ export default function Toggle({
   value,
   isDisabled,
 }: ToggleProps): JSX.Element {
-  return (
+  const toggler = (
     <Container
       onClick={() => !isDisabled && onChange(!value)}
       isDisabled={isDisabled}
@@ -73,4 +74,16 @@ export default function Toggle({
       </ToggleContainer>
     </Container>
   );
+
+  if (isDisabled)
+    return (
+      <HoverTooltip
+        text="To share this data you need to connect an eligible account first."
+        width={280}
+      >
+        {toggler}
+      </HoverTooltip>
+    );
+
+  return toggler;
 }
