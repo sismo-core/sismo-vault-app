@@ -99,7 +99,7 @@ export default function DataRequests({
   const [loadingEligible, setLoadingEligible] = useState(true);
   const { getClaimRequestEligibilities, getAuthRequestEligibilities } =
     useSismo();
-  const vault = useVault();
+  const { importedAccounts, getVaultSecret } = useVault();
 
   /* ************************************************************* */
   /* ********************* SET DEFAULT VALUE ********************* */
@@ -203,7 +203,7 @@ export default function DataRequests({
       return;
     }
 
-    if (!vault) return;
+    if (!importedAccounts || !getVaultSecret) return;
     if (claims && !requestGroupsMetadata) return;
 
     const getEligibilities = async () => {
@@ -214,7 +214,7 @@ export default function DataRequests({
         if (auths?.length) {
           const _authRequestEligibilities = await getAuthRequestEligibilities(
             sismoConnectRequest,
-            vault?.importedAccounts || []
+            importedAccounts || []
           );
           setAuthRequestEligibilities(_authRequestEligibilities);
           _selectedSismoConnectRequest = getSelectedSismoConnectRequest({
@@ -224,14 +224,14 @@ export default function DataRequests({
           onSelectedSismoRequest(_selectedSismoConnectRequest);
         }
         if (claims?.length) {
-          const vaultSecret = await vault.getVaultSecret();
+          const vaultSecret = await getVaultSecret();
           const groupsMetadata = requestGroupsMetadata.map(
             (el) => el.groupMetadata
           );
           const identifiers = await getAllVaultIdentifiers(
             groupsMetadata,
             vaultSecret,
-            vault.importedAccounts
+            importedAccounts
           );
           const _claimRequestEligibilities = await getClaimRequestEligibilities(
             sismoConnectRequest,
@@ -253,7 +253,8 @@ export default function DataRequests({
     };
     getEligibilities();
   }, [
-    vault,
+    importedAccounts,
+    getVaultSecret,
     getClaimRequestEligibilities,
     getAuthRequestEligibilities,
     requestGroupsMetadata,
