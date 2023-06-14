@@ -214,19 +214,23 @@ export default function Skeleton({ sismoConnectRequest }: Props) {
   const isImpersonated = sismoConnectRequest?.vault?.impersonate?.length > 0;
   const isSignature = sismoConnectRequest?.signature?.message?.length > 0;
 
-  for (const claim of sismoConnectRequest?.claims) {
-    if (!claim?.isOptional) {
-      requiredRequests.push(claim);
-    } else {
-      optionalRequests.push(claim);
+  if (sismoConnectRequest?.claims) {
+    for (const claim of sismoConnectRequest?.claims) {
+      if (!claim?.isOptional) {
+        requiredRequests.push(claim);
+      } else {
+        optionalRequests.push(claim);
+      }
     }
   }
 
-  for (const auth of sismoConnectRequest?.auths) {
-    if (!auth?.isOptional) {
-      requiredRequests.push(auth);
-    } else {
-      optionalRequests.push(auth);
+  if (sismoConnectRequest?.auths) {
+    for (const auth of sismoConnectRequest?.auths) {
+      if (!auth?.isOptional) {
+        requiredRequests.push(auth);
+      } else {
+        optionalRequests.push(auth);
+      }
     }
   }
 
