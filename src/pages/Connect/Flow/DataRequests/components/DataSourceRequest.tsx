@@ -105,6 +105,7 @@ const InfoWrapper = styled.div`
 type Props = {
   auth: AuthRequest;
   appId: string;
+  isImpersonating: boolean;
   authRequestEligibility?: AuthRequestEligibility;
   selectedSismoConnectRequest: SelectedSismoConnectRequest;
   isInitialOptin: boolean;
@@ -118,6 +119,7 @@ type Props = {
 export function DataSourceRequest({
   auth,
   appId,
+  isImpersonating,
   authRequestEligibility,
   selectedSismoConnectRequest,
   isInitialOptin,
@@ -138,6 +140,11 @@ export function DataSourceRequest({
   const isLoading = importAccount?.importing
     ? true
     : false || loadingEligible || typeof authRequestEligibility === "undefined";
+  const isWeb2Impersonating =
+    isImpersonating &&
+    (auth?.authType === AuthType.TELEGRAM ||
+      auth?.authType === AuthType.TWITTER ||
+      auth?.authType === AuthType.GITHUB);
 
   function onOptInChange(isOptIn: boolean) {
     const newSelectedSismoConnectRequest = {
@@ -303,63 +310,65 @@ export function DataSourceRequest({
       <Right>
         {vault?.importedAccounts && (
           <>
-            {!isEligible && auth?.authType !== AuthType.VAULT && (
-              <StyledButton
-                primary
-                verySmall
-                isMedium
-                loading={isLoading}
-                onClick={() => {
-                  const accountTypes: AccountType[] =
-                    auth?.authType === AuthType.TWITTER
-                      ? ["twitter"]
-                      : auth?.authType === AuthType.GITHUB
-                      ? ["github"]
-                      : auth?.authType === AuthType.EVM_ACCOUNT
-                      ? ["ethereum"]
-                      : auth?.authType === AuthType.TELEGRAM
-                      ? ["telegram"]
-                      : ["twitter", "github", "ethereum", "telegram"];
-                  importAccount.open({
-                    importType: "account",
-                    accountTypes,
-                  });
-                }}
-              >
-                <InnerButton>
-                  {!isLoading && (
-                    <>
-                      {auth?.authType === AuthType.TWITTER ? (
-                        <TwitterRounded size={14} color={colors.blue11} />
-                      ) : auth?.authType === AuthType.GITHUB ? (
-                        <GithubRounded size={14} color={colors.blue11} />
-                      ) : auth?.authType === AuthType.EVM_ACCOUNT ? (
-                        <EthRounded size={14} color={colors.blue11} />
-                      ) : auth?.authType === AuthType.TELEGRAM ? (
-                        <TelegramRounded size={14} color={colors.blue11} />
-                      ) : (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 14 14"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <circle
-                            cx="7"
-                            cy="7"
-                            r="5.5"
-                            stroke="#13203D"
-                            strokeWidth="3"
-                          />
-                        </svg>
-                      )}
-                      <span>Connect</span>
-                    </>
-                  )}
-                </InnerButton>
-              </StyledButton>
-            )}
+            {!isEligible &&
+              auth?.authType !== AuthType.VAULT &&
+              !isWeb2Impersonating && (
+                <StyledButton
+                  primary
+                  verySmall
+                  isMedium
+                  loading={isLoading}
+                  onClick={() => {
+                    const accountTypes: AccountType[] =
+                      auth?.authType === AuthType.TWITTER
+                        ? ["twitter"]
+                        : auth?.authType === AuthType.GITHUB
+                        ? ["github"]
+                        : auth?.authType === AuthType.EVM_ACCOUNT
+                        ? ["ethereum"]
+                        : auth?.authType === AuthType.TELEGRAM
+                        ? ["telegram"]
+                        : ["twitter", "github", "ethereum", "telegram"];
+                    importAccount.open({
+                      importType: "account",
+                      accountTypes,
+                    });
+                  }}
+                >
+                  <InnerButton>
+                    {!isLoading && (
+                      <>
+                        {auth?.authType === AuthType.TWITTER ? (
+                          <TwitterRounded size={14} color={colors.blue11} />
+                        ) : auth?.authType === AuthType.GITHUB ? (
+                          <GithubRounded size={14} color={colors.blue11} />
+                        ) : auth?.authType === AuthType.EVM_ACCOUNT ? (
+                          <EthRounded size={14} color={colors.blue11} />
+                        ) : auth?.authType === AuthType.TELEGRAM ? (
+                          <TelegramRounded size={14} color={colors.blue11} />
+                        ) : (
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <circle
+                              cx="7"
+                              cy="7"
+                              r="5.5"
+                              stroke="#13203D"
+                              strokeWidth="3"
+                            />
+                          </svg>
+                        )}
+                        <span>Connect</span>
+                      </>
+                    )}
+                  </InnerButton>
+                </StyledButton>
+              )}
           </>
         )}
       </Right>
