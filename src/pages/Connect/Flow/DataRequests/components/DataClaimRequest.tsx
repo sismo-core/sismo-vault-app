@@ -218,6 +218,7 @@ export function DataClaimRequest({
           />
         )}
         <TextWrapper isOptIn={isOptional && isEligible ? isOptIn : true}>
+          Share
           <ShardTag
             groupMetadata={groupMetadata}
             claim={claim}

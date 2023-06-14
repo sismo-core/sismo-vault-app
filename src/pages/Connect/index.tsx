@@ -400,9 +400,9 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
 
   return (
     <Container>
-      {loading && !isWrongUrl?.status && (
+      {loading && !isWrongUrl?.status && sismoConnectRequest && (
         <ContentContainer>
-          <Skeleton />
+          <Skeleton sismoConnectRequest={sismoConnectRequest} />
         </ContentContainer>
       )}
       {isWrongUrl?.status && (
