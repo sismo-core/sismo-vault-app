@@ -21,6 +21,7 @@ import DataRequests from "./DataRequests";
 import ProofModal from "./components/ProofModal";
 import { SignatureRequest } from "./components/SignatureRequest";
 import SignInButton from "../../../components/SignInButton";
+import { useImportAccount } from "../../Modals/ImportAccount/provider";
 
 const Container = styled.div`
   position: relative;
@@ -169,6 +170,7 @@ export default function ConnectFlow({
   const [isEligible, setIsEligible] = useState(false);
   const [selectedSismoConnectRequest, setSelectedSismoConnectRequest] =
     useState<SelectedSismoConnectRequest | null>(null);
+  const importAccount = useImportAccount();
 
   const { getRegistryTreeRoot, generateResponse } = useSismo();
   const vault = useVault();
@@ -319,7 +321,7 @@ export default function ConnectFlow({
               style={{ width: 252 }}
               onClick={() => generate()}
               loading={loadingProof}
-              disabled={!isEligible}
+              disabled={!isEligible || Boolean(importAccount.importing)}
             >
               Generate ZK proof
             </Button>

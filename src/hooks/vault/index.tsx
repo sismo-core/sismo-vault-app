@@ -188,7 +188,6 @@ export default function SismoVaultProvider({
       console.log("No vault synchronizer");
       return;
     }
-    console.log("Sync vaults");
     vaultSynchronizer
       .sync(vaultState.connectedOwner, vaultState.connectedOwner)
       .then(async (res) => {
@@ -216,9 +215,9 @@ export default function SismoVaultProvider({
     return await vaultClient.create();
   };
 
-  const getVaultSecret = async (): Promise<string> => {
+  const getVaultSecret = useCallback(async (): Promise<string> => {
     return await vaultClient.getVaultSecret();
-  };
+  }, [vaultClient]);
 
   const getVaultId = async ({
     appId,
