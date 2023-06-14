@@ -36,6 +36,7 @@ export type IconProps = {
     | "logoGnosis-fill-white"
     | "logoTelegram-fill-white"
     | "logoTelegram-fill-blue0"
+    | "logoTelegram-rounded-blue0"
     | "logoTwitter-fill-white"
     | "logoTwitter-fill-blue0"
     | "logoTwitter-rounded-blue0"

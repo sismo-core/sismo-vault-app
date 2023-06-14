@@ -49,7 +49,7 @@ export default function ConnectTelegram(): JSX.Element {
         in your Vault
       </Text>
       <TelegramButton onClick={() => goToTelegramAuth()}>
-        <Icon name="logoTelegram-fill-white" style={{ marginRight: 10 }} />
+        <Icon name="logoTelegram-fill-white" />
         Continue with Telegram
       </TelegramButton>
     </Content>

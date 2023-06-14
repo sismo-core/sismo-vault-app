@@ -15,6 +15,7 @@ import ImportButton from "../../components/ImportButton";
 import {
   EthRounded,
   GithubRounded,
+  TelegramRounded,
   TwitterRounded,
 } from "../../../../../components/SismoReactIcon";
 import UserSelector from "../../components/UserSelector";
@@ -316,8 +317,9 @@ export function DataSourceRequest({
                       ? ["github"]
                       : auth?.authType === AuthType.EVM_ACCOUNT
                       ? ["ethereum"]
-                      : ["twitter", "github", "ethereum"];
-
+                      : auth?.authType === AuthType.TELEGRAM
+                      ? ["telegram"]
+                      : ["twitter", "github", "ethereum", "telegram"];
                   importAccount.open({
                     importType: "account",
                     accountTypes,
@@ -333,6 +335,8 @@ export function DataSourceRequest({
                         <GithubRounded size={14} color={colors.blue11} />
                       ) : auth?.authType === AuthType.EVM_ACCOUNT ? (
                         <EthRounded size={14} color={colors.blue11} />
+                      ) : auth?.authType === AuthType.TELEGRAM ? (
+                        <TelegramRounded size={14} color={colors.blue11} />
                       ) : (
                         <svg
                           width="14"

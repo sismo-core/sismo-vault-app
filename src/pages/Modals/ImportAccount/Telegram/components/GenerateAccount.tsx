@@ -75,10 +75,7 @@ export default function GenerateAccount({ payload }: Props): JSX.Element {
   return (
     <Content>
       <Header style={{ marginBottom: 10 }}>
-        <Icon
-          name="logoTelegram-fill-white"
-          style={{ width: 33, marginRight: 10 }}
-        />
+        <Icon name="logoTelegram-fill-white" style={{ width: 50 }} />
         <img
           src="/assets/import-in-vault.svg"
           alt="Importing account in the vault"

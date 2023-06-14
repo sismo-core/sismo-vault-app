@@ -122,6 +122,21 @@ export class SismoConnectProverV1 {
       );
     }
 
+    if (auth?.authType === AuthType.TELEGRAM && auth?.isSelectableByUser) {
+      accounts = importedAccounts?.filter(
+        (importedAccount) => importedAccount?.type === "telegram"
+      );
+    }
+
+    if (auth?.authType === AuthType.TELEGRAM && !auth?.isSelectableByUser) {
+      accounts = importedAccounts?.filter(
+        (importedAccount) =>
+          importedAccount?.type === "telegram" &&
+          importedAccount?.identifier?.toLowerCase() ===
+            auth?.userId?.toLowerCase()
+      );
+    }
+
     if (auth?.authType === AuthType.EVM_ACCOUNT && auth?.isSelectableByUser) {
       accounts = importedAccounts?.filter(
         (importedAccount) => importedAccount?.type === "ethereum"

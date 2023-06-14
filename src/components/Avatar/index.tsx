@@ -76,7 +76,7 @@ export default function Avatar({
       )}
       {(account as ImportedAccount)?.type === "telegram" && (
         <Icon
-          name="logoTelegram-fill-blue0"
+          name="logoTelegram-rounded-blue0"
           style={{ width: "100%", height: "100%" }}
         />
       )}
