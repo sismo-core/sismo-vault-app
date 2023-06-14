@@ -352,6 +352,9 @@ export default function DataRequests({
                 authRequestEligibility={authRequestEligibilities?.find(
                   (el) => el.auth.uuid === auth.uuid
                 )}
+                isImpersonating={Boolean(
+                  sismoConnectRequest?.vault?.impersonate?.length > 0
+                )}
                 selectedSismoConnectRequest={selectedSismoConnectRequest}
                 isInitialOptin={getInitialOptinFromAuth(
                   authRequestEligibilities?.find(
@@ -415,6 +418,9 @@ export default function DataRequests({
                     <DataSourceRequest
                       auth={auth}
                       appId={sismoConnectRequest.appId}
+                      isImpersonating={Boolean(
+                        sismoConnectRequest?.vault?.impersonate?.length > 0
+                      )}
                       authRequestEligibility={authRequestEligibilities?.find(
                         (el) => el.auth.uuid === auth.uuid
                       )}
