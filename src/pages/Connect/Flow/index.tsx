@@ -307,10 +307,7 @@ export default function ConnectFlow({
         )}
 
         <CallToAction>
-          <LinkWrapper
-            href="https://docs.sismo.io/sismo-docs/discover-sismo-connect"
-            target="_blank"
-          >
+          <LinkWrapper href="https://docs.sismo.io/" target="_blank">
             What is Sismo Connect
             <ArrowSquareOut size={12} color={colors.blue4} weight="bold" />
           </LinkWrapper>
