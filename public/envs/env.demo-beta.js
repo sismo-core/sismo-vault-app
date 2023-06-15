@@ -3,7 +3,7 @@ window.env = {
   name: "DEMO",
   disabledSentry: false,
   featureFlags: {
-    telegram: false,
+    telegram: true,
     twitterV2: true,
   },
   mintingAppUrl: null,
