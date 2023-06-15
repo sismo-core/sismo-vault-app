@@ -3,7 +3,7 @@ window.env = {
   name: "PROD_BETA",
   disabledSentry: false,
   featureFlags: {
-    telegram: false,
+    telegram: true,
     twitterV2: true,
   },
   mintingAppUrl: "https://app.sismo.io",
