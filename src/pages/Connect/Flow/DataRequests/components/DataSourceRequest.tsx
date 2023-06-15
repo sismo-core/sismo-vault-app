@@ -9,7 +9,7 @@ import {
 } from "../../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import colors from "../../../../../theme/colors";
 import { getHumanReadableAuthType } from "../../../utils/getHumanReadableAuthType";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import Toggle from "../../components/Toggle";
 import ImportButton from "../../components/ImportButton";
 import {
@@ -136,7 +136,7 @@ export function DataSourceRequest({
   const [isOptIn, setIsOptIn] = useState(isInitialOptin);
   const [initialAccount, setInitialAccount] = useState<ImportedAccount>(null);
   const importAccount = useImportAccount();
-
+  const firstLoad = useRef(false);
   const vault = useVault();
 
   const isOptional = auth?.isOptional;
@@ -151,6 +151,13 @@ export function DataSourceRequest({
     (auth?.authType === AuthType.TELEGRAM ||
       auth?.authType === AuthType.TWITTER ||
       auth?.authType === AuthType.GITHUB);
+
+  useEffect(() => {
+    if (firstLoad?.current) return;
+    if (!vault?.isConnected) return;
+    if (isLoading) return;
+    firstLoad.current = true;
+  }, [isEligible, isLoading, vault?.isConnected]);
 
   function onOptInChange(isOptIn: boolean) {
     const newSelectedSismoConnectRequest = {
@@ -318,7 +325,8 @@ export function DataSourceRequest({
           <>
             {!isEligible &&
               auth?.authType !== AuthType.VAULT &&
-              !isWeb2Impersonating && (
+              !isWeb2Impersonating &&
+              firstLoad?.current && (
                 <StyledButton
                   primary
                   verySmall

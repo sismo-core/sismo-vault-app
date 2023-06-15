@@ -9,7 +9,7 @@ import {
 import colors from "../../../../../theme/colors";
 import ShardTag from "../../components/ShardTag";
 import EligibilityModal from "../../components/EligibilityModal";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import Toggle from "../../components/Toggle";
 import ImportButton from "../../components/ImportButton";
 import { useVault } from "../../../../../hooks/vault";
@@ -114,11 +114,11 @@ export function DataClaimRequest({
   const [isOptIn, setIsOptIn] = useState(isInitialOptin);
   const [initialValue, setInitialValue] = useState<number>(null);
   const importAccount = useImportAccount();
+  const firstLoad = useRef(false);
 
   const vault = useVault();
 
   const isOptional = claim?.isOptional;
-
   const isEligible = claimRequestEligibility?.isEligible && vault?.isConnected;
   const isSelectableByUser = !proofLoading && claim?.isSelectableByUser;
   const isLoading = importAccount?.importing
@@ -126,6 +126,13 @@ export function DataClaimRequest({
     : false ||
       loadingEligible ||
       typeof claimRequestEligibility === "undefined";
+
+  useEffect(() => {
+    if (firstLoad?.current) return;
+    if (!vault?.isConnected) return;
+    if (isLoading) return;
+    firstLoad.current = true;
+  }, [isEligible, isLoading, vault?.isConnected]);
 
   function onOptInChange(isOptIn: boolean) {
     const newSelectedSismoConnectRequest = {
@@ -241,7 +248,7 @@ export function DataClaimRequest({
       <Right>
         {vault?.importedAccounts && (
           <>
-            {!isEligible && (
+            {!isEligible && firstLoad?.current && (
               <StyledButton
                 primary
                 verySmall
