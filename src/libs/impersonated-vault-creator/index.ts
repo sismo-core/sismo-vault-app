@@ -47,7 +47,7 @@ export class ImpersonatedVaultCreator {
       try {
         if (account.startsWith("0x")) {
           isValidEthAddress(account)
-            ? validAccounts.push(account)
+            ? validAccounts.push(account?.toLowerCase())
             : impersonationErrors.push(
                 `Invalid impersonated Ethereum address: ${account}`
               );
