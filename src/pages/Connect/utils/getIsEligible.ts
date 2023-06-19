@@ -9,26 +9,24 @@ export function getIsEligible(
   authRequestEligibilities: AuthRequestEligibility[],
   sismoConnectRequest: SismoConnectRequest
 ) {
-  if (sismoConnectRequest?.claims?.length) {
-    if (claimRequestEligibilities?.length) {
-      for (const claimRequestEligibility of claimRequestEligibilities) {
-        return claimRequestEligibility?.claim?.isOptional === false
-          ? claimRequestEligibility?.isEligible
-          : true;
-      }
-    }
-    return false;
+  if (sismoConnectRequest?.auths?.length) {
+    const isEligible = authRequestEligibilities?.every(
+      (authRequestEligibility) =>
+        authRequestEligibility?.auth?.isOptional
+          ? true
+          : authRequestEligibility?.isEligible
+    );
+    if (!isEligible) return false;
   }
 
-  if (sismoConnectRequest?.auths?.length) {
-    if (authRequestEligibilities?.length) {
-      for (const authRequestEligibility of authRequestEligibilities) {
-        return authRequestEligibility?.auth?.isOptional === false
-          ? authRequestEligibility?.isEligible
-          : true;
-      }
-    }
-    return false;
+  if (sismoConnectRequest?.claims?.length) {
+    const isEligible = claimRequestEligibilities?.every(
+      (claimRequestEligibility) =>
+        claimRequestEligibility?.claim?.isOptional
+          ? true
+          : claimRequestEligibility?.isEligible
+    );
+    if (!isEligible) return false;
   }
 
   return true;
