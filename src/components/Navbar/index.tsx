@@ -213,7 +213,7 @@ export default function Navbar({
               {logoLoaded && (
                 <Tag>
                   {isImpersonated
-                    ? "Impersonated"
+                    ? "Impersonation"
                     : env.name === "STAGING_BETA"
                     ? `
                       Staging

@@ -273,7 +273,7 @@ export default function ConnectFlow({
               <Warning size={28} color={colors.orange5} />
             </WarningWrapper>
             <ImpersonatedDescription>
-              <ImpersonatedTitle>Impersonated mode</ImpersonatedTitle>
+              <ImpersonatedTitle>Impersonation mode</ImpersonatedTitle>
               <ImpersonatedText>
                 The generated proof is based on impersonated accounts. It should
                 not be used in production.
