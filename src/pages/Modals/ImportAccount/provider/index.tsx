@@ -88,7 +88,7 @@ export default function ImportAccountModalProvider({
   const triggerError = (e) => {
     Sentry.withScope(function (scope) {
       scope.setLevel("fatal");
-      Sentry.captureException(e);
+      Sentry.captureException(e.response.data);
     });
     console.error(e);
     notificationAdded({
@@ -159,7 +159,7 @@ export default function ImportAccountModalProvider({
         } catch (e) {
           Sentry.withScope(function (scope) {
             scope.setLevel("fatal");
-            Sentry.captureException(e);
+            Sentry.captureException(e.response.data);
           });
           console.error(e);
           notificationAdded({
@@ -243,7 +243,7 @@ export default function ImportAccountModalProvider({
         console.error(e);
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
-          Sentry.captureException(e);
+          Sentry.captureException(e.response.data);
         });
         notificationAdded({
           text: "Telegram account already imported in this vault or in another one",
@@ -304,7 +304,7 @@ export default function ImportAccountModalProvider({
         console.error(e);
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
-          Sentry.captureException(e);
+          Sentry.captureException(e.response.data);
         });
         notificationAdded({
           text: "Github account already imported in this vault or in another one",
@@ -367,7 +367,7 @@ export default function ImportAccountModalProvider({
         console.error(e);
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
-          Sentry.captureException(e);
+          Sentry.captureException(e.response.data);
         });
         notificationAdded({
           text: "Twitter account already imported in this vault or in another one",
@@ -429,7 +429,7 @@ export default function ImportAccountModalProvider({
         console.error(e);
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
-          Sentry.captureException(e);
+          Sentry.captureException(e.response.data);
         });
         notificationAdded({
           text: "Twitter account already imported in this vault or in another one",
