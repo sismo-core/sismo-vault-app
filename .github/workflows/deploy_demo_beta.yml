@@ -23,3 +23,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
           static-bucket-name: demo.vault-beta.sismo.io
           env: demo-beta
+          sentry-env: DEMO_BETA
+          sentry-auth-token: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          sentry-org: ${{ secrets.SENTRY_ORG }}
+          sentry-project: ${{ secrets.SENTRY_PROJECT }}

@@ -198,6 +198,10 @@ export function DataClaimRequest({
     vault.importedAccounts,
   ]);
 
+  const isOnlySismoConnectApps = !Boolean(
+    groupMetadata.accountTypes.find((el) => !el.startsWith("sismo-connect-app"))
+  );
+
   return (
     <Container>
       <Left>
@@ -241,7 +245,7 @@ export function DataClaimRequest({
       <Right>
         {vault?.importedAccounts && (
           <>
-            {!isEligible && (
+            {!isEligible && !isOnlySismoConnectApps && (
               <StyledButton
                 primary
                 verySmall
