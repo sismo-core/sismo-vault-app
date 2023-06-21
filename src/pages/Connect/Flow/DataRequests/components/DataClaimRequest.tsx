@@ -199,7 +199,9 @@ export function DataClaimRequest({
   ]);
 
   const isOnlySismoConnectApps = !Boolean(
-    groupMetadata.accountTypes.find((el) => !el.startsWith("sismo-connect-app"))
+    groupMetadata?.accountTypes?.find(
+      (el) => !el.startsWith("sismo-connect-app")
+    )
   );
 
   return (
