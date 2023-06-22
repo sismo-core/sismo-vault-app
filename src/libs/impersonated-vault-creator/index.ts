@@ -4,26 +4,26 @@ import {
   ImpersonatedCommitmentMapper,
 } from "../commitment-mapper";
 import { ImportedAccount, Owner, VaultClient, VaultV4 } from "../vault-client";
-import { Web2IdentifierType, Web2Resolver } from "../web2-resolver";
-import { isValidEthAddress } from "../../utils/regex";
+import { AccountResolver } from "../account-resolver";
+import { isValidEns, isValidEthAddress } from "../../utils/regex";
 
 type Configuration = {
   vaultClient: VaultClient;
   commitmentMapper: ImpersonatedCommitmentMapper;
-  web2Resolver: Web2Resolver;
+  accountResolver: AccountResolver;
   impersonatedAccounts: string[];
 };
 
 export class ImpersonatedVaultCreator {
   private _vaultClient: VaultClient;
   private _commitmentMapper: ImpersonatedCommitmentMapper;
-  private _web2Resolver: Web2Resolver;
+  private _accountResolver: AccountResolver;
   private _impersonatedAccounts: string[];
 
   constructor(configuration: Configuration) {
     this._vaultClient = configuration.vaultClient;
     this._commitmentMapper = configuration.commitmentMapper;
-    this._web2Resolver = configuration.web2Resolver;
+    this._accountResolver = configuration.accountResolver;
     this._impersonatedAccounts = configuration.impersonatedAccounts;
   }
 
@@ -45,7 +45,7 @@ export class ImpersonatedVaultCreator {
 
     for (const account of this._impersonatedAccounts) {
       try {
-        if (account.startsWith("0x")) {
+        if (isValidEthAddress(account)) {
           isValidEthAddress(account)
             ? validAccounts.push(account?.toLowerCase())
             : impersonationErrors.push(
@@ -54,36 +54,10 @@ export class ImpersonatedVaultCreator {
           continue;
         }
 
-        const identifierType = this._web2Resolver.getIdentifierType(account);
-
-        if (identifierType && identifierType !== Web2IdentifierType.GITHUB) {
-          const parsedProfileHandle = account.split(":")[1];
-          const parsedProfileId = account.split(":")[2];
-
-          if (!parsedProfileId) {
-            impersonationErrors.push(
-              `Invalid impersonated identifier: ${account} - please use the following format ${this._web2Resolver.fromWeb2IdTypeToHumanReadable(
-                identifierType
-              )}:${parsedProfileHandle}:{id}`
-            );
-            continue;
-          }
-
+        const identifierType = this._accountResolver.getIdentifierType(account);
+        if (identifierType) {
           try {
-            await this._web2Resolver.resolve(account);
-            validAccounts.push(account);
-            continue;
-          } catch (e) {
-            impersonationErrors.push(
-              `Invalid impersonated identifier: ${account} - ${e}`
-            );
-            continue;
-          }
-        }
-
-        if (identifierType === Web2IdentifierType.GITHUB) {
-          try {
-            await this._web2Resolver.resolve(account);
+            await this._accountResolver.resolve(account);
             validAccounts.push(account);
             continue;
           } catch (e) {
@@ -95,7 +69,7 @@ export class ImpersonatedVaultCreator {
         }
       } catch (e) {
         impersonationErrors.push(
-          `Invalid impersonated identifier: ${account} - please use the following format 0x{ethereumAddress} or {web2}:{handle}:{id}`
+          `Invalid impersonated identifier: ${account} - please use the following format: ENS, 0x{ethereumAddress} or {web2}:{handle}`
         );
       }
     }
@@ -116,7 +90,7 @@ export class ImpersonatedVaultCreator {
     for (const account of validAccounts) {
       try {
         // if account is an ethereum address
-        if (account.startsWith("0x")) {
+        if (isValidEthAddress(account)) {
           const seed = sha256(account);
           vault = await this._importAccountFromEthereum({
             account,
@@ -126,9 +100,21 @@ export class ImpersonatedVaultCreator {
           continue;
         }
 
+        if (isValidEns(account)) {
+          const ethAccount = await this._accountResolver.resolve(account);
+          const seed = sha256(ethAccount.identifier);
+          vault = await this._importAccountFromEthereum({
+            account: ethAccount.identifier,
+            seed,
+            vaultSecret,
+            ens: account,
+          });
+          continue;
+        }
+
         // if account is a web2 identifier
-        if (this._web2Resolver.getIdentifierType(account)) {
-          const resolvedAccount = await this._web2Resolver.resolve(account);
+        if (this._accountResolver.getIdentifierType(account)) {
+          const resolvedAccount = await this._accountResolver.resolve(account);
           const seed = sha256(resolvedAccount.identifier);
           const accountNumber = this._getAccountNumber(vault);
 
@@ -208,10 +194,12 @@ export class ImpersonatedVaultCreator {
     account,
     seed,
     vaultSecret,
+    ens,
   }: {
     account: string;
     seed: string;
     vaultSecret: string;
+    ens?: string;
   }): Promise<VaultV4> {
     const commitmentMapperSecret =
       CommitmentMapper.generateCommitmentMapperSecret(seed);
@@ -232,6 +220,10 @@ export class ImpersonatedVaultCreator {
       type: "ethereum",
       timestamp: Date.now(),
     };
+
+    if (ens) {
+      importedAccount.ens = { name: ens };
+    }
 
     return await this._vaultClient.importAccount(importedAccount);
   }

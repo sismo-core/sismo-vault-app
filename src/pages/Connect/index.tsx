@@ -18,7 +18,6 @@ import { getSismoConnectResponseBytes } from "../../libs/sismo-connect-provers/s
 import Skeleton from "./components/Skeleton";
 import Flow from "./Flow";
 import VaultSlider from "./components/VaultSlider";
-import Logo from "./components/Logo";
 import Redirection from "./components/Redirection";
 import { gzip } from "pako";
 import { fromUint8Array } from "js-base64";
@@ -431,8 +430,6 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
           <Redirection />
         </ContentContainer>
       )}
-
-      <Logo />
     </Container>
   );
 }
