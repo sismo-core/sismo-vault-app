@@ -8,3 +8,8 @@ export const isValidEmail = (email) => {
 export const isValidEthAddress = (address) => {
   return String(address).match(/^0x[a-fA-F0-9]{40}$/);
 };
+
+export const isValidEns = (input: string) => {
+  const regex = new RegExp(/^([a-z0-9]+(-[a-z0-9]+)*\.)+eth$/);
+  return regex.test(input);
+};

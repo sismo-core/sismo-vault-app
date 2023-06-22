@@ -10,7 +10,7 @@ import { AWSStore } from "../vault-store/aws-store";
 import { MemoryStore } from "../vault-store/memory-store";
 import { VaultsSynchronizer } from "../vaults-synchronizer";
 import { ImpersonatedVaultCreator } from "../impersonated-vault-creator";
-import { Web2Resolver } from "../web2-resolver";
+import { AccountResolver } from "../account-resolver";
 import { VaultConfigParser } from "../vault-config-parser";
 import { SismoConnectProvers } from "../sismo-connect-provers";
 import { IndexDbCache } from "../cache-service/indexdb-cache";
@@ -24,7 +24,7 @@ type Configuration = {
   commitmentMapperV1: CommitmentMapper;
   commitmentMapper: CommitmentMapper;
   impersonatedVaultCreator: ImpersonatedVaultCreator;
-  web2Resolver: Web2Resolver;
+  accountResolver: AccountResolver;
   sismoConnectProvers: SismoConnectProvers;
 };
 
@@ -54,7 +54,7 @@ export class ServicesFactory {
         commitmentMapperV1: null,
         commitmentMapper,
         impersonatedVaultCreator: null,
-        web2Resolver: new Web2Resolver(),
+        accountResolver: new AccountResolver(),
         sismoConnectProvers: new SismoConnectProvers({
           cache: cache,
           commitmentMapperService: commitmentMapper,
@@ -66,7 +66,7 @@ export class ServicesFactory {
     if (isImpersonated) {
       const vaultClient = new VaultClient(new MemoryStore());
       const commitmentMapper = new ImpersonatedCommitmentMapper();
-      const web2Resolver = new Web2Resolver();
+      const accountResolver = new AccountResolver();
 
       const configuration = {
         vaultConfigParser: vaultConfigParser,
@@ -78,10 +78,10 @@ export class ServicesFactory {
         impersonatedVaultCreator: new ImpersonatedVaultCreator({
           vaultClient: vaultClient,
           commitmentMapper: commitmentMapper,
-          web2Resolver: web2Resolver,
+          accountResolver: accountResolver,
           impersonatedAccounts: impersonatedAccounts,
         }),
-        web2Resolver: web2Resolver,
+        accountResolver: accountResolver,
         sismoConnectProvers: new SismoConnectProvers({
           cache: cache,
           commitmentMapperService: commitmentMapper,
@@ -118,7 +118,7 @@ export class ServicesFactory {
       commitmentMapperV1,
       commitmentMapper,
       impersonatedVaultCreator: null,
-      web2Resolver: new Web2Resolver(),
+      accountResolver: new AccountResolver(),
       sismoConnectProvers: new SismoConnectProvers({
         cache: cache,
         commitmentMapperService: commitmentMapper,
@@ -160,7 +160,7 @@ export class ServicesFactory {
     return this._configuration.impersonatedVaultCreator;
   }
 
-  public getWeb2Resolver() {
-    return this._configuration.web2Resolver;
+  public getAccountResolver() {
+    return this._configuration.accountResolver;
   }
 }
