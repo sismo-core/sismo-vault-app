@@ -13,13 +13,13 @@ export class HubApiResolver extends SismoIdentifierApiResolver {
   }
 
   protected async _getSismoIdentifier(identifier: string): Promise<string> {
-    const cachedProfile = await this._cache.get(`${identifier}`);
+    const cachedProfile = await this._cache.get(`hub-v1:${identifier}`);
     if (cachedProfile) {
       return cachedProfile;
     }
     const res = await axios.post(`${this._apiUrl}/resolver`, [identifier]);
     const sismoIdentifier = res.data[0] as string;
-    await this._cache.set(`${identifier}`, sismoIdentifier);
+    await this._cache.set(`hub-v1:${identifier}`, sismoIdentifier);
     return sismoIdentifier;
   }
 }
