@@ -17,6 +17,7 @@ import { ImportedAccount } from "../../../../libs/vault-client";
 import { getIsEligible } from "../../utils/getIsEligible";
 import { DataClaimRequest } from "./components/DataClaimRequest";
 import { getAllVaultIdentifiers } from "../../../../utils/getAllVaultIdentifiers";
+import { BigNumber } from "ethers";
 
 const Container = styled.div`
   border: 1px solid ${(props) => props.theme.colors.blue7};
@@ -178,13 +179,16 @@ export default function DataRequests({
                 isOptIn: claimRequestEligibility.claim.isOptional
                   ? claimRequestEligibility.isEligible
                   : true,
-                selectedValue: claimRequestEligibility?.claim?.value,
+                selectedValue:
+                  // claimRequestEligibility?.accountData?.value
+                  //   ? BigNumber.from(claimRequestEligibility?.accountData?.value).toNumber()
+                  //   :
+                  BigNumber.from(claimRequestEligibility?.claim?.value),
               };
             }
           ),
         };
       }
-
       return defaultSelectedSismoConnectRequest;
     },
     [sismoConnectRequest?.signature]

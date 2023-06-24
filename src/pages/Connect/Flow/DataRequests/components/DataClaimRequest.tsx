@@ -15,6 +15,7 @@ import ImportButton from "../../components/ImportButton";
 import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../../Modals/ImportAccount/provider";
 import { AccountType, GroupMetadata } from "../../../../../libs/sismo-client";
+import { BigNumber } from "ethers";
 
 const Container = styled.div`
   display: flex;
@@ -112,7 +113,7 @@ export function DataClaimRequest({
 }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOptIn, setIsOptIn] = useState(isInitialOptin);
-  const [initialValue, setInitialValue] = useState<number>(null);
+  const [initialValue, setInitialValue] = useState<BigNumber>(null);
   const importAccount = useImportAccount();
 
   const vault = useVault();
@@ -147,7 +148,7 @@ export function DataClaimRequest({
   }
 
   const onValueChange = useCallback(
-    (request: ClaimRequestEligibility, selectedValue: number | string) => {
+    (request: ClaimRequestEligibility, selectedValue: BigNumber) => {
       let newSelectedSismoConnectRequest;
 
       newSelectedSismoConnectRequest = {
@@ -188,7 +189,6 @@ export function DataClaimRequest({
     const initialClaimValue = selectedSismoConnectRequest?.selectedClaims?.find(
       (selectedClaim) => selectedClaim?.uuid === claim?.uuid
     )?.selectedValue;
-
     setInitialValue(initialClaimValue);
   }, [
     claim?.uuid,

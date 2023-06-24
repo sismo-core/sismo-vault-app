@@ -2,6 +2,7 @@ import { BigNumberish } from "@ethersproject/bignumber";
 import { AccountData } from "../../hydra-provers/types";
 import { GroupMetadata } from "../../sismo-client/providers";
 import { ImportedAccount } from "../../vault-client";
+import { BigNumber } from "ethers";
 
 // import Claim from the packages
 
@@ -51,7 +52,7 @@ export type SelectedAuthRequestEligibility = AuthRequestEligibility & {
 };
 
 export type SelectedClaimRequest = Omit<ClaimRequest, "value"> & {
-  selectedValue?: number;
+  selectedValue?: BigNumber;
   isOptIn: boolean;
 };
 

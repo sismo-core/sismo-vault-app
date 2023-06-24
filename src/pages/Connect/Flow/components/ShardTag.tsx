@@ -5,11 +5,14 @@ import {
   ClaimRequestEligibility,
   ClaimType,
 } from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
-import { CaretDown, Info } from "phosphor-react";
+import { CaretDown, Info, PencilSimple } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import useOnClickOutside from "../../../../utils/useClickOutside";
 import { BigNumber } from "ethers";
 import { GroupMetadata } from "../../../../libs/sismo-client";
+import Modal from "../../../../components/Modal";
+import ValueSelectorModal from "./ValueSelectorModal";
+import { displayBigNumber } from "../../utils/displayBigNumber";
 
 const OuterContainer = styled.div`
   display: flex;
@@ -150,18 +153,27 @@ const SelectorItem = styled.div<{ isSelected: boolean }>`
   transition: background 0.15s ease-in-out;
 `;
 
+function* bigNumberRange(
+  start: BigNumber,
+  end: BigNumber
+): Generator<BigNumber> {
+  for (let current = start; current.lte(end); current = current.add(1)) {
+    yield current;
+  }
+}
+
 type Props = {
   groupMetadata: GroupMetadata;
   claim: ClaimRequest;
   claimRequestEligibility: ClaimRequestEligibility;
   isSelectableByUser: boolean;
-  initialValue: number;
+  initialValue: BigNumber;
   optIn?: boolean;
   isOptional: boolean;
 
   onClaimChange: (
     claimRequestEligibility: ClaimRequestEligibility,
-    selectedValue: number
+    selectedValue: BigNumber
   ) => void;
   onModal?: (id: string) => void;
 };
@@ -177,38 +189,36 @@ export default function ShardTag({
   onClaimChange,
   onModal,
 }: Props) {
+  const MAX_DISPLAYED_VALUE = 8;
+  const [modalKey, setModalKey] = useState(0);
   const [selectedValue, setSelectedValue] = useState(initialValue || null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
   const ref = useRef(null);
-
   useOnClickOutside(ref, () => setIsSelectorOpen(false));
-
   const color = !optIn ? colors.blue3 : colors.blue0;
 
-  const requestedValue = claim?.value;
+  const requestedValue = BigNumber.from(claim?.value);
   const claimType = claim?.claimType;
+  const minValue = BigNumber.from(claim?.value);
+  let maxValue = BigNumber.from(0);
+  let selectableValues: BigNumber[] = [];
 
-  const minValue = claim?.value;
-
-  let maxValue = 0;
-  let selectableValues = [];
   try {
-    maxValue = BigNumber.from(
-      claimRequestEligibility?.accountData?.value || 0
-    ).toNumber();
-    selectableValues =
-      claimRequestEligibility?.claim?.claimType === ClaimType.GTE
-        ? Array.from(
-            { length: maxValue - minValue + 1 },
-            (_, i) => i + minValue
-          )
-        : [minValue];
+    maxValue = BigNumber.from(claimRequestEligibility?.accountData?.value || 0);
+    if (maxValue.lt(MAX_DISPLAYED_VALUE)) {
+      for (let value of bigNumberRange(minValue, maxValue)) {
+        selectableValues.push(value);
+      }
+    }
   } catch (e) {
     console.log("e", e);
   }
+  const decimals = maxValue.gte(BigNumber.from(10).pow(18)) ? 18 : 0;
 
-  const isSelectorOpenable = selectableValues?.length > 1 && isSelectableByUser;
-
+  const isSelectorOpenable =
+    !maxValue.sub(minValue).eq(BigNumber.from(0)) && isSelectableByUser;
+  const isBigNumber = maxValue?.gt(BigNumber.from(MAX_DISPLAYED_VALUE));
   const humanReadableGroupName = groupMetadata?.name
     ?.replace(/-/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
@@ -221,7 +231,7 @@ export default function ShardTag({
 
   function onValueChange(
     claimRequestEligibility: ClaimRequestEligibility,
-    value: number
+    value: BigNumber
   ) {
     setSelectedValue(value);
     onClaimChange(claimRequestEligibility, value);
@@ -244,80 +254,119 @@ export default function ShardTag({
   }
 
   return (
-    <OuterContainer>
-      <Container
-        isSelectorOpenable={isSelectorOpenable}
-        color={color}
-        ref={ref}
-        onClick={() => isSelectorOpenable && setIsSelectorOpen(!isSelectorOpen)}
-      >
-        <Left>
-          <svg
-            width="14"
-            height="15"
-            viewBox="0 0 14 15"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M7.00083 0.594749L13.334 5.53932L7.00083 13.2671L0.666871 5.53933L7.00083 0.594749Z"
-              fill="#C08AFF"
-              stroke="#C08AFF"
-              strokeWidth="0.937557"
-            />
-          </svg>
-          <GroupName isOptional={isOptional}>
-            {humanReadableGroupName}
-          </GroupName>
+    <>
+      {selectedValue && (
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setModalKey(modalKey + 1);
+          }}
+        >
+          <ValueSelectorModal
+            key={modalKey} // set the key prop
+            minValue={minValue}
+            maxValue={maxValue}
+            onClose={() => setIsModalOpen(false)}
+            onCancel={() => {
+              setIsModalOpen(false);
+              setTimeout(() => {
+                setModalKey(modalKey + 1);
+              }, 100);
+            }}
+            selectedValue={selectedValue}
+            onChange={(value: BigNumber) => {
+              onValueChange(claimRequestEligibility, value);
+            }}
+          />
+        </Modal>
+      )}
+      <OuterContainer>
+        <Container
+          isSelectorOpenable={isSelectorOpenable}
+          color={color}
+          ref={ref}
+          onClick={() => {
+            if (isSelectorOpenable) {
+              isBigNumber
+                ? setIsModalOpen(true)
+                : setIsSelectorOpen(!isSelectorOpen);
+            }
+          }}
+        >
+          <Left>
+            <svg
+              width="14"
+              height="15"
+              viewBox="0 0 14 15"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M7.00083 0.594749L13.334 5.53932L7.00083 13.2671L0.666871 5.53933L7.00083 0.594749Z"
+                fill="#C08AFF"
+                stroke="#C08AFF"
+                strokeWidth="0.937557"
+              />
+            </svg>
+            <GroupName isOptional={isOptional}>
+              {humanReadableGroupName}
+            </GroupName>
 
-          {claimType === ClaimType.GTE ? (
             <ValueComparator>
-              {">="} {requestedValue}
+              {!selectedValue
+                ? claimType === ClaimType.GTE
+                  ? ">="
+                  : claimType === ClaimType.GT
+                  ? ">"
+                  : claimType === ClaimType.EQ
+                  ? "="
+                  : claimType === ClaimType.LT
+                  ? "<"
+                  : claimType === ClaimType.LTE
+                  ? "<="
+                  : null
+                : null}
+              {selectedValue
+                ? displayBigNumber(selectedValue, decimals)
+                : requestedValue.toString()}
             </ValueComparator>
-          ) : claimType === ClaimType.GT ? (
-            <ValueComparator>
-              {">"} {requestedValue}
-            </ValueComparator>
-          ) : claimType === ClaimType.EQ ? (
-            <ValueComparator>{requestedValue}</ValueComparator>
-          ) : claimType === ClaimType.LT ? (
-            <ValueComparator>
-              {"<"} {requestedValue}
-            </ValueComparator>
-          ) : claimType === ClaimType.LTE ? (
-            <ValueComparator>
-              {"<="} {requestedValue}
-            </ValueComparator>
-          ) : null}
-        </Left>
-        {isSelectorOpenable && (
-          <ChevronWrapper isSelectorOpen={isSelectorOpen}>
-            <CaretDown size={16} color={color} />
-          </ChevronWrapper>
-        )}
-        {isSelectorOpen && (
-          <SelectorContainer>
-            {selectableValues?.map((value) => {
-              const isSelected = value === selectedValue;
-              return (
-                <SelectorItem
-                  key={value}
-                  isSelected={isSelected}
-                  onClick={() => {
-                    setIsSelectorOpen(false);
-                    onValueChange(claimRequestEligibility, value);
-                  }}
-                >
-                  {value}
-                </SelectorItem>
-              );
-            })}
-          </SelectorContainer>
-        )}
-      </Container>
-      <InfoWrapper onClick={() => onModal(groupMetadata.id)}>
-        <Info size={18} color={color} />
-      </InfoWrapper>
-    </OuterContainer>
+          </Left>
+          {maxValue.lte(BigNumber.from(MAX_DISPLAYED_VALUE)) && (
+            <>
+              {isSelectorOpenable && (
+                <ChevronWrapper isSelectorOpen={isSelectorOpen}>
+                  <CaretDown size={16} color={color} />
+                </ChevronWrapper>
+              )}
+              {isSelectorOpen && (
+                <SelectorContainer>
+                  {selectableValues?.length > 0 &&
+                    selectableValues?.map((value) => {
+                      const isSelected = value.eq(selectedValue);
+                      return (
+                        <SelectorItem
+                          key={value.toString() + "/selector" + claim.uuid}
+                          isSelected={isSelected}
+                          onClick={() => {
+                            setIsSelectorOpen(false);
+                            onValueChange(claimRequestEligibility, value);
+                          }}
+                        >
+                          {value.toString()}
+                        </SelectorItem>
+                      );
+                    })}
+                </SelectorContainer>
+              )}
+            </>
+          )}
+          {isBigNumber && <PencilSimple size={16} color={color} />}
+        </Container>
+        <InfoWrapper onClick={() => onModal(groupMetadata.id)}>
+          <Info size={18} color={color} />
+        </InfoWrapper>
+      </OuterContainer>
+    </>
   );
 }
