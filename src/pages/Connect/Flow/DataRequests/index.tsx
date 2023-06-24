@@ -196,9 +196,11 @@ export default function DataRequests({
 
   useEffect(() => {
     const claims =
-      sismoConnectRequest.claims.length > 0 ? sismoConnectRequest.claims : null;
+      sismoConnectRequest.claims?.length > 0
+        ? sismoConnectRequest.claims
+        : null;
     const auths =
-      sismoConnectRequest.auths.length > 0 ? sismoConnectRequest.auths : null;
+      sismoConnectRequest.auths?.length > 0 ? sismoConnectRequest.auths : null;
 
     if (!claims && !auths) {
       setLoadingEligible(false);
