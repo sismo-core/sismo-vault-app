@@ -13,6 +13,9 @@ import { GroupMetadata } from "../../../../libs/sismo-client";
 import Modal from "../../../../components/Modal";
 import ValueSelectorModal from "./ValueSelectorModal";
 import { displayBigNumber } from "../../utils/displayBigNumber";
+import { textShorten } from "../../../../utils/textShorten";
+import HoverTooltip from "../../../../components/HoverTooltip";
+import { formatEther } from "ethers/lib/utils";
 
 const OuterContainer = styled.div`
   display: flex;
@@ -22,7 +25,11 @@ const OuterContainer = styled.div`
   margin-left: 4px;
 `;
 
-const Container = styled.div<{ color: string; isSelectorOpenable: boolean }>`
+const Container = styled.div<{
+  color: string;
+  isSelectorOpenable: boolean;
+  isOptional: boolean;
+}>`
   position: relative;
   font-family: ${(props) => props.theme.fonts.medium};
   font-size: 14px;
@@ -37,7 +44,9 @@ const Container = styled.div<{ color: string; isSelectorOpenable: boolean }>`
   gap: 4px;
   flex-shrink: 0;
   flex-grow: 1;
+  width: ${(props) => (props.isOptional ? "255px" : "272px")};
   cursor: ${(props) => (props.isSelectorOpenable ? "pointer" : "default")};
+  box-sizing: border-box;
 `;
 
 export const SkeletonLoading = keyframes`
@@ -74,11 +83,9 @@ const Left = styled.div`
   gap: 4px;
 `;
 
-const GroupName = styled.div<{ isOptional: boolean }>`
-  max-width: ${(props) => (props.isOptional ? "155px" : "170px")};
+const GroupName = styled.div`
   flex-grow: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  ${textShorten(1)}
 
   @media (max-width: 768px) {
     max-width: 100px;
@@ -111,6 +118,10 @@ const ChevronWrapper = styled.div<{ isSelectorOpen: boolean }>`
     !props.isSelectorOpen ? "rotateX(0deg)" : "rotateX(180deg)"};
 
   /* transition: transform 0.15s ease-in-out; */
+`;
+
+const StyledSvg = styled.svg`
+  flex-shrink: 0;
 `;
 
 const SelectorContainer = styled.div`
@@ -214,10 +225,12 @@ export default function ShardTag({
   } catch (e) {
     console.log("e", e);
   }
-  const decimals = maxValue.gte(BigNumber.from(10).pow(18)) ? 18 : 0;
+  const isWei = maxValue.gte(BigNumber.from(10).pow(18)) ? 18 : 0;
 
   const isSelectorOpenable =
-    !maxValue.sub(minValue).eq(BigNumber.from(0)) && isSelectableByUser;
+    !maxValue.sub(minValue).eq(BigNumber.from(0)) &&
+    isSelectableByUser &&
+    Boolean(selectedValue);
   const isBigNumber = maxValue?.gt(BigNumber.from(MAX_DISPLAYED_VALUE));
   const humanReadableGroupName = groupMetadata?.name
     ?.replace(/-/g, " ")
@@ -245,6 +258,7 @@ export default function ShardTag({
           color={color}
           ref={null}
           onClick={() => {}}
+          isOptional={isOptional}
         ></Skeleton>
         <InfoWrapper onClick={() => {}}>
           <Info size={18} color={color} />
@@ -264,7 +278,7 @@ export default function ShardTag({
           }}
         >
           <ValueSelectorModal
-            key={modalKey} // set the key prop
+            key={claim.uuid + "/" + modalKey} // set the key prop
             minValue={minValue}
             maxValue={maxValue}
             onClose={() => setIsModalOpen(false)}
@@ -286,6 +300,7 @@ export default function ShardTag({
           isSelectorOpenable={isSelectorOpenable}
           color={color}
           ref={ref}
+          isOptional={isOptional}
           onClick={() => {
             if (isSelectorOpenable) {
               isBigNumber
@@ -295,7 +310,7 @@ export default function ShardTag({
           }}
         >
           <Left>
-            <svg
+            <StyledSvg
               width="14"
               height="15"
               viewBox="0 0 14 15"
@@ -308,10 +323,8 @@ export default function ShardTag({
                 stroke="#C08AFF"
                 strokeWidth="0.937557"
               />
-            </svg>
-            <GroupName isOptional={isOptional}>
-              {humanReadableGroupName}
-            </GroupName>
+            </StyledSvg>
+            <GroupName>{humanReadableGroupName}</GroupName>
 
             <ValueComparator>
               {!selectedValue
@@ -327,9 +340,20 @@ export default function ShardTag({
                   ? "<="
                   : null
                 : null}
-              {selectedValue
-                ? displayBigNumber(selectedValue, decimals)
-                : requestedValue.toString()}
+              {!selectedValue && requestedValue ? (
+                requestedValue.toString()
+              ) : isWei ? (
+                <HoverTooltip text={formatEther?.(selectedValue) || ""}>
+                  {displayBigNumber({
+                    input: selectedValue,
+                    isWei,
+                    nbDecimals: 2,
+                    isCropped: true,
+                  })}
+                </HoverTooltip>
+              ) : (
+                selectedValue.toString()
+              )}
             </ValueComparator>
           </Left>
           {maxValue.lte(BigNumber.from(MAX_DISPLAYED_VALUE)) && (
@@ -361,7 +385,9 @@ export default function ShardTag({
               )}
             </>
           )}
-          {isBigNumber && <PencilSimple size={16} color={color} />}
+          {isBigNumber && (
+            <PencilSimple size={16} color={color} style={{ flexShrink: "0" }} />
+          )}
         </Container>
         <InfoWrapper onClick={() => onModal(groupMetadata.id)}>
           <Info size={18} color={color} />

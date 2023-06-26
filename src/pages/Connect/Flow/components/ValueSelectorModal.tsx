@@ -31,11 +31,12 @@ const Title = styled.div`
   line-height: 24px;
 `;
 
-const SelectorWrapper = styled.div`
+const SelectorWrapper = styled.div<{ isColumn: boolean }>`
   width: 100%;
   display: flex;
   align-items: center;
   gap: 24px;
+  flex-direction: ${(props) => (props.isColumn ? "column" : "row")};
 `;
 
 const SliderWrapper = styled.div`
@@ -45,8 +46,8 @@ const SliderWrapper = styled.div`
   gap: 2px;
 `;
 
-const Input = styled.input<{ width: number }>`
-  width: ${(props) => props.width}px;
+const Input = styled.input<{ width: number; isColumn: Boolean }>`
+  width: ${(props) => (props.isColumn ? "100%" : `${props.width}px`)};
   padding: 12px 15px;
   border: 1px solid ${(props) => props.theme.colors.blue2};
   font-size: 16px;
@@ -107,23 +108,39 @@ type Props = {
   onCancel: () => void;
 };
 
+function isStrictFloat(input: string): boolean {
+  return /^\d*\.?\d*$/.test(input);
+}
+
+function isFloat(input: string): boolean {
+  return /^\d*\.?\d*$/.test(input) || /^\d+\.$/.test(input);
+}
+function isInt(input: string): boolean {
+  return /^\d*$/.test(input);
+}
+
 export default function ValueSelectorModal({
   selectedValue,
   minValue,
-  //maxValue,
+  maxValue,
   onChange,
   onClose,
   onCancel,
 }: Props): JSX.Element {
-  const maxValue = BigNumber.from("43242342342342534423");
   const [value, setValue] = useState<BigNumber | null>(selectedValue);
-  const [inputText, setInputText] = useState<string>();
-  const isDisabled = value?.gt(maxValue) || value?.lt(minValue);
-  const decimals = maxValue.gte(BigNumber.from(10).pow(18)) ? 18 : 0;
+  const [inputText, setInputText] = useState<string>("");
+  const isDisabled =
+    value?.gt(maxValue) ||
+    value?.lt(minValue) ||
+    !isStrictFloat(inputText) ||
+    inputText.endsWith(".");
+  const isWei = maxValue.gt(BigNumber.from(10).pow(18)) ? 18 : 0;
 
-  const maxValueCharLength = !decimals
+  const maxValueCharLength = !isWei
     ? maxValue.toString().length
     : maxValue.div(BigNumber.from(10).pow(18)).toString().length;
+
+  const isColumn = Boolean(isWei) || maxValueCharLength > 4;
 
   function onSliderChange(value: BigNumber) {
     if (!value) return setValue(minValue);
@@ -131,30 +148,35 @@ export default function ValueSelectorModal({
     if (value.gt(maxValue)) return setValue(maxValue);
     setValue(value);
   }
-  function isFloat(input: string): boolean {
-    return /^\d*\.?\d*$/.test(input) || /^\d+\.$/.test(input);
-  }
-  function isInt(input: string): boolean {
-    return /^\d*$/.test(input);
-  }
 
   useEffect(() => {
-    if (!value) return setInputText(undefined);
-    if (!decimals) return setInputText(value.toString());
-    setInputText(formatToEther(value));
-  }, [decimals, value]);
+    try {
+      if (!value) return setInputText(undefined);
+      if (!isWei) return setInputText(value.toString());
+      if (inputText && value.eq(BigNumber.from(parseEther(inputText)))) return;
+      setInputText(formatToEther({ valueInWei: value }));
+    } catch (e) {
+      console.log(e);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWei, value]);
 
   function onInputBlur(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.value) {
-      decimals
-        ? setInputText(formatToEther(minValue))
-        : setInputText(minValue.toString());
-      setValue(minValue);
+    try {
+      if (!e.target.value) {
+        isWei
+          ? setInputText(formatToEther({ valueInWei: minValue }))
+          : setInputText(minValue.toString());
+        setValue(minValue);
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 
   function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    decimals ? onWeiInputChange(e) : onIntInputChange(e);
+    isWei ? onWeiInputChange(e) : onIntInputChange(e);
   }
 
   function onIntInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -171,9 +193,10 @@ export default function ValueSelectorModal({
   function onWeiInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     try {
       if (!e.target.value) return setInputText("");
+      if (e.target.value.split(".")[1]?.length > 18) return;
       setInputText(e.target.value);
       if (!isFloat(e.target.value)) return;
-      !e.target.value.endsWith(".") && setValue(parseEther(e.target.value));
+      setValue(parseEther(e.target.value));
     } catch (e) {
       console.log(e);
     }
@@ -187,7 +210,7 @@ export default function ValueSelectorModal({
   return (
     <Container>
       <Title>Set value you want to share</Title>
-      <SelectorWrapper>
+      <SelectorWrapper isColumn={isColumn}>
         <SliderWrapper>
           <BigIntSlider
             selectedValue={value}
@@ -196,11 +219,14 @@ export default function ValueSelectorModal({
             maxValue={maxValue}
           />
           <SliderLabel>
-            <div>{displayBigNumber(minValue, decimals)}</div>
-            <div>{displayBigNumber(maxValue, decimals)}</div>
+            <div>{displayBigNumber({ input: minValue, isWei })}</div>
+            <div>
+              {displayBigNumber({ input: maxValue, isWei, nbDecimals: 2 })}
+            </div>
           </SliderLabel>
         </SliderWrapper>
         <Input
+          isColumn={isColumn}
           type="text"
           value={inputText}
           onChange={onInputChange}

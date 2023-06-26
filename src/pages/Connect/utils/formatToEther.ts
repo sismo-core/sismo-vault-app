@@ -1,13 +1,22 @@
 import { BigNumber } from "ethers";
 import { formatEther } from "ethers/lib/utils";
 
-export function formatToEther(valueInWei: BigNumber) {
+export function formatToEther({
+  valueInWei,
+  nbDecimals,
+}: {
+  valueInWei: BigNumber;
+  nbDecimals?: number;
+}): string {
   try {
     const valueInEther = formatEther(valueInWei);
-    const valueAsFloat = parseFloat(valueInEther);
-    const formattedValue = valueAsFloat;
-    const result = Number(formattedValue).toString();
-    return result;
+    let formattedValue = valueInEther;
+    if (typeof nbDecimals === "number") {
+      const valueAsFloat = parseFloat(valueInEther);
+      formattedValue = valueAsFloat.toFixed(nbDecimals);
+      return Number(formattedValue).toString();
+    }
+    return formattedValue.toString();
   } catch (error) {
     console.log(error);
   }

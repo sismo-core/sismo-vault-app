@@ -108,9 +108,7 @@ export default function BigIntSlider({
   const sliderRef = useRef<HTMLDivElement>(null);
   const [, setSliderArrayValues] = useState<number[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-
-  const [cachedSelectedValue, setCachedSelectedValue] =
-    useState<BigNumber>(selectedValue);
+  const cachedSelectedValue = useRef<BigNumber>(selectedValue);
 
   const [sliderValue, setSliderValue] = useState(() => {
     if (!maxValue || !minValue || !selectedValue) {
@@ -147,7 +145,7 @@ export default function BigIntSlider({
           .div(GRAIN)
           .add(minValue);
         setSliderValue(_value);
-        setCachedSelectedValue(_selectedValue);
+        cachedSelectedValue.current = _selectedValue;
         onChange(_selectedValue);
       }
     },
@@ -157,8 +155,7 @@ export default function BigIntSlider({
   useEffect(() => {
     if (isDragging) return;
     if (!maxValue || !minValue || !selectedValue) return;
-    if (cachedSelectedValue.eq(selectedValue)) return;
-
+    if (cachedSelectedValue.current.eq(selectedValue)) return;
     const _selectedValue = selectedValue.lt(minValue)
       ? minValue
       : selectedValue.gt(maxValue)
@@ -213,34 +210,6 @@ export default function BigIntSlider({
   const handlePointerUp = useCallback(() => {
     setIsDragging(false);
   }, []);
-
-  // const handleKeyDown = useCallback(
-  //   (e) => {
-  //     const closestValue = findClosestValue(sliderArrayValues, sliderValue);
-  //     const currentIndex = sliderArrayValues.indexOf(closestValue);
-  //     let _newValue: number;
-  //     console.log(closestValue, currentIndex)
-
-  //     if (e.key === "ArrowLeft") {
-  //       _newValue = sliderArrayValues[currentIndex - 1];
-  //   //    setSliderValue(_newValue);
-  //     }
-
-  //     if (e.key === "ArrowRight") {
-  //       _newValue = sliderArrayValues[currentIndex + 1];
-  //   //    setSliderValue(_newValue);
-  //     }
-
-  //     const range = maxValue.sub(minValue);
-  //     // let _selectedValue = BigNumber.from(_newValue)
-  //     //   .mul(range)
-  //     //   .div(GRAIN)
-  //     //   .add(minValue);
-  //     // setCachedSelectedValue(_selectedValue);
-  //     // onChange(_selectedValue);
-  //   },
-  //   [maxValue, minValue, onChange, sliderArrayValues, sliderValue]
-  // );
 
   useEffect(() => {
     if (!sliderRef?.current) return;
