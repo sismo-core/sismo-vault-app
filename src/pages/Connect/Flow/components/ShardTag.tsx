@@ -385,7 +385,7 @@ export default function ShardTag({
               )}
             </>
           )}
-          {isBigNumber && (
+          {isBigNumber && isSelectorOpenable && (
             <PencilSimple size={16} color={color} style={{ flexShrink: "0" }} />
           )}
         </Container>
