@@ -29,58 +29,31 @@ const InactiveBar = styled.div`
   border-radius: 20px;
   cursor: pointer;
 `;
-
-const Cursor = (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <g clipPath="url(#clip0_6532_145675)">
-      <rect width="24" height="24" rx="12" fill="#E9ECFF" />
-      <rect
-        x="0.5"
-        y="0.5"
-        width="23"
-        height="23"
-        rx="11.5"
-        fill="#E9ECFF"
-        stroke="#B1BCF1"
-      />
-      <rect
-        x="5.05264"
-        y="5.05267"
-        width="13.8947"
-        height="13.8947"
-        rx="6.94737"
-        fill="url(#paint0_linear_6532_145675)"
-      />
-    </g>
-    <defs>
-      <linearGradient
-        id="paint0_linear_6532_145675"
-        x1="12"
-        y1="5.05267"
-        x2="12"
-        y2="18.9474"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop stopColor="#CDD3EC" />
-        <stop offset="1" stopColor="#DDE1F3" stopOpacity="0" />
-      </linearGradient>
-      <clipPath id="clip0_6532_145675">
-        <rect width="24" height="24" rx="12" fill="white" />
-      </clipPath>
-    </defs>
-  </svg>
-);
+const ThumbInner = styled.div`
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(180deg, #dde1f3 0%, rgba(221, 225, 243, 0) 100%);
+  border-radius: 50%;
+`;
 
 const StyledCursor = styled.div`
   cursor: pointer;
   position: absolute;
   top: 0;
+
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: ${(props) => props.theme.colors.blue0};
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid ${(props) => props.theme.colors.blue2};
+  cursor: pointer;
+
+  box-sizing: border-box;
 `;
 
 type Props = {
@@ -103,7 +76,7 @@ export default function BigIntSlider({
   maxValue,
   onChange,
 }: Props): JSX.Element {
-  const GRAIN = 100;
+  const GRAIN = 1000;
 
   const sliderRef = useRef<HTMLDivElement>(null);
   const [, setSliderArrayValues] = useState<number[]>([]);
@@ -124,6 +97,7 @@ export default function BigIntSlider({
       if (slider) {
         const rect = slider.getBoundingClientRect();
         let x = clientX - rect.left;
+        console.log(x, rect.width);
         let _value = Math.round(
           Math.max(0, Math.min((x / rect.width) * GRAIN, GRAIN))
         );
@@ -243,9 +217,9 @@ export default function BigIntSlider({
   return (
     <Container ref={sliderRef}>
       <InactiveBar />
-      <ActiveBar style={{ width: `calc(${sliderValue}%` }} />
-      <StyledCursor style={{ left: `calc(${sliderValue}% - 12px)` }}>
-        {Cursor}
+      <ActiveBar style={{ width: `${sliderValue / 10}%` }} />
+      <StyledCursor style={{ left: `calc(${sliderValue / 10}% - 12px)` }}>
+        <ThumbInner />
       </StyledCursor>
     </Container>
   );
