@@ -14,6 +14,7 @@ import GenerateRecoveryKeyModalProvider from "./pages/Modals/GenerateRecoveryKey
 import MainScrollManagerProvider from "./libs/main-scroll-manager";
 import EnvsMonitoring from "./libs/envs-monitoring";
 import { ServicesFactory } from "./libs/services-factory";
+import AnalyticsProvider from "./libs/analytics/Provider";
 
 const FONTS_LIST = [
   "BebasNeuePro-Regular",
@@ -115,30 +116,32 @@ function App() {
   // services from the factoryService to SismoProvider and vaultProvider
 
   return (
-    <MainScrollManagerProvider>
-      <WalletProvider>
-        <NotificationsProvider>
-          <SismoVaultProvider
-            services={services}
-            isImpersonated={isImpersonated}
-          >
-            <SismoProvider services={services}>
-              <GenerateRecoveryKeyModalProvider>
-                <MyVaultModalProvider>
-                  <ImportAccountModalProvider>
-                    <EnvsMonitoring isImpersonated={isImpersonated}>
-                      <Theme>
-                        <Pages isImpersonated={isImpersonated} />
-                      </Theme>
-                    </EnvsMonitoring>
-                  </ImportAccountModalProvider>
-                </MyVaultModalProvider>
-              </GenerateRecoveryKeyModalProvider>
-            </SismoProvider>
-          </SismoVaultProvider>
-        </NotificationsProvider>
-      </WalletProvider>
-    </MainScrollManagerProvider>
+    <AnalyticsProvider>
+      <MainScrollManagerProvider>
+        <WalletProvider>
+          <NotificationsProvider>
+            <SismoVaultProvider
+              services={services}
+              isImpersonated={isImpersonated}
+            >
+              <SismoProvider services={services}>
+                <GenerateRecoveryKeyModalProvider>
+                  <MyVaultModalProvider>
+                    <ImportAccountModalProvider>
+                      <EnvsMonitoring isImpersonated={isImpersonated}>
+                        <Theme>
+                          <Pages isImpersonated={isImpersonated} />
+                        </Theme>
+                      </EnvsMonitoring>
+                    </ImportAccountModalProvider>
+                  </MyVaultModalProvider>
+                </GenerateRecoveryKeyModalProvider>
+              </SismoProvider>
+            </SismoVaultProvider>
+          </NotificationsProvider>
+        </WalletProvider>
+      </MainScrollManagerProvider>
+    </AnalyticsProvider>
   );
 }
 

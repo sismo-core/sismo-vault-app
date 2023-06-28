@@ -6,6 +6,7 @@ window.env = {
     telegram: true,
     twitterV2: true,
   },
+  plausibleDomain: "vault-beta.sismo.io",
   mintingAppUrl: "https://app.sismo.io",
   vaultV2URL: "https://vault-beta-api.sismo.io",
   vaultV1URL: "https://vault-api.sismo.io",
