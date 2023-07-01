@@ -58,4 +58,5 @@
   --onboard-close-button-background: none;
   --onboard-close-button-color: #13203d;
   --onboard-modal-z-index: 10000;
+  --wcm-z-index: 10001 !important;
 }

@@ -13,8 +13,21 @@ import { SupportedChainId } from "../../../libs/sismo-client";
 import { getMinimalEns } from "../../../utils/getMinimalEns";
 import { getMinimalIdentifier } from "../../../utils/getMinimalIdentifier";
 import { ethers } from "ethers";
+import env from "../../../environment";
 
-const walletConnect = walletConnectModule();
+const wcV2InitOptions = {
+  /**
+   * Project ID associated with [WalletConnect account](https://cloud.walletconnect.com)
+   */
+  projectId: env.walletConnectProjectId,
+  /**
+   * Chains required to be supported by all wallets connecting to your DApp
+   */
+  requiredChains: [1],
+  optionalChains: [5, 137],
+};
+
+const walletConnect = walletConnectModule(wcV2InitOptions);
 
 const injected = injectedModule();
 
@@ -37,7 +50,7 @@ const web3Onboard = Onboard({
       id: "0x89",
       token: "MATIC",
       label: "Polygon Mainnet",
-      rpcUrl: " https://polygon-rpc.com",
+      rpcUrl: "https://polygon-rpc.com",
     },
   ],
   appMetadata: {

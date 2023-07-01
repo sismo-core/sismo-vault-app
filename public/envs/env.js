@@ -29,4 +29,5 @@ window.env = {
       "0x0173e6aa4b3226659d00b710f29ff0c087bb374b63d813f373d0bf93f39f13eb"    
     ],
   },
+  walletConnectProjectId: "75f232fcfe4874121b3285c080d79993"
 };

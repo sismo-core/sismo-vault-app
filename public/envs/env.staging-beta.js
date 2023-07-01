@@ -28,5 +28,6 @@ window.env = {
       "0x24cfee70f84056f2d314f53c80369f512a130bea06c89a926f6f73456a473a04",
       "0x05f9c1765a0771cae354874d53ba951ade82040278f5d58f09e9dea00a24f3b2",
     ],
-  }
+  },
+  walletConnectProjectId: "75f232fcfe4874121b3285c080d79993"
 }
