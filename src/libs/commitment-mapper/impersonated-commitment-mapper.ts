@@ -34,12 +34,11 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     const poseidon = await getPoseidon();
     const commitment = poseidon([vaultSecret, accountSecret]).toHexString();
 
-    const { commitmentMapperPubKey, commitmentReceipt } =
-      await this._commitEthereumEddsa({
-        ethAddress: account.identifier,
-        ethSignature: "",
-        commitment,
-      });
+    const { commitmentMapperPubKey, commitmentReceipt } = await this._commitEthereumEddsa({
+      ethAddress: account.identifier,
+      ethSignature: "",
+      commitment,
+    });
 
     return {
       identifier: account.identifier,
@@ -63,8 +62,10 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     ethSignature: string;
     commitment: string;
   }): Promise<CommitmentReceiptResult> {
-    const { commitmentMapperPubKey, commitmentReceipt } =
-      await this._getCommitmentReceipt(ethAddress, commitment);
+    const { commitmentMapperPubKey, commitmentReceipt } = await this._getCommitmentReceipt(
+      ethAddress,
+      commitment
+    );
 
     return {
       commitmentMapperPubKey,
@@ -189,10 +190,7 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     }
 
     // if not in cache, construct the commitmentReceipt
-    const commitmentReceipt = await this._constructCommitmentReceipt(
-      ethAddress,
-      commitment
-    );
+    const commitmentReceipt = await this._constructCommitmentReceipt(ethAddress, commitment);
 
     // store the commitmentReceipt in the cache
     await this._cache.set(cacheKey, commitmentReceipt);
@@ -200,16 +198,21 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     return commitmentReceipt;
   }
 
-  private async _getPubKeyFromSeed(): Promise<[string, string]> {
-    const eddsaAccount = await EddsaAccount.generateFromSeed(
-      BigNumber.from(this._privateSeed)
-    );
+  private _getPubKeyFromSeed(): [string, string] {
+    // the impersonated commitment mapper pubKey can't be changed without
+    // changing the deployed contract as the pubKey is a data anchor.
+    // It was generated and freeze using the following code:
+    // const privateSeed = BigNumber.from(1543534646453).toHexString();
+    // const eddsaAccount = await EddsaAccount.generateFromSeed(BigNumber.from(privateSeed));
+    // const pubKeyHex = eddsaAccount.getPubKey().map((pubKey: BigNumber) => pubKey.toHexString()) as [
+    //   string,
+    //   string
+    // ];
 
-    const pubKeyHex = eddsaAccount
-      .getPubKey()
-      .map((pubKey: BigNumber) => pubKey.toHexString()) as [string, string];
-
-    return pubKeyHex;
+    return [
+      "0x1801b584700a740f9576cc7e83745895452edc518a9ce60b430e1272fc4eb93b",
+      "0x057cf80de4f8dd3e4c56f948f40c28c3acbeca71ef9f825597bf8cc059f1238b",
+    ];
   }
 
   private async _constructCommitmentReceipt(
@@ -219,15 +222,11 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     // instantiate the eddsaAccount of this commitmentMapper implementation
     // this will be used to sign the receipt
 
-    const eddsaAccount = await EddsaAccount.generateFromSeed(
-      BigNumber.from(this._privateSeed)
-    );
+    const eddsaAccount = await EddsaAccount.generateFromSeed(BigNumber.from(this._privateSeed));
 
     // construct the receipt
     const poseidon = await buildPoseidon();
-    const ethAddressBigNumber = BigNumber.from(ethAddress.toLowerCase()).mod(
-      SNARK_FIELD
-    );
+    const ethAddressBigNumber = BigNumber.from(ethAddress.toLowerCase()).mod(SNARK_FIELD);
 
     const msg = poseidon([ethAddressBigNumber, commitment]);
     // sign the receipt => this is the commitmentReceipt
@@ -237,9 +236,7 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     const commitmentReceiptHex = commitmentReceipt.map((receipt: BigNumber) =>
       receipt.toHexString()
     );
-    const pubKeyHex = eddsaAccount
-      .getPubKey()
-      .map((coord: BigNumber) => coord.toHexString());
+    const pubKeyHex = eddsaAccount.getPubKey().map((coord: BigNumber) => coord.toHexString());
 
     return {
       commitmentMapperPubKey: pubKeyHex as [string, string],
@@ -247,7 +244,7 @@ export class ImpersonatedCommitmentMapper extends CommitmentMapper {
     };
   }
 
-  public async getPubKey(): Promise<[string, string]> {
-    return await this._getPubKeyFromSeed();
+  public getPubKey(): [string, string] {
+    return this._getPubKeyFromSeed();
   }
 }

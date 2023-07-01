@@ -5,7 +5,7 @@ import {
   ImpersonatedCommitmentMapper,
 } from "../commitment-mapper";
 import { VaultClient as VaultClientV1 } from "../vault-client-v1";
-import { VaultClient, DemoVaultClient } from "../vault-client";
+import { VaultClient } from "../vault-client";
 import { AWSStore } from "../vault-store/aws-store";
 import { MemoryStore } from "../vault-store/memory-store";
 import { VaultsSynchronizer } from "../vaults-synchronizer";
@@ -42,73 +42,46 @@ export class ServicesFactory {
 
     const cache = new IndexDbCache();
 
-    if (env.name === "DEMO") {
-      const commitmentMapper = new AWSCommitmentMapper({
-        url: env.commitmentMapperUrlV2,
-      });
-      const configuration = {
-        vaultConfigParser: vaultConfigParser,
-        vaultsSynchronizer: null,
-        vaultClientV1: null,
-        vaultClient: new DemoVaultClient(new MemoryStore()),
-        commitmentMapperV1: null,
-        commitmentMapper,
-        impersonatedVaultCreator: null,
-        accountResolver: new AccountResolver(),
-        sismoConnectProvers: new SismoConnectProvers({
-          cache: cache,
-          commitmentMapperService: commitmentMapper,
-        }),
-      };
-      return new ServicesFactory(configuration);
-    }
-
-    if (isImpersonated) {
-      const vaultClient = new VaultClient(new MemoryStore());
-      const commitmentMapper = new ImpersonatedCommitmentMapper();
-      const accountResolver = new AccountResolver();
-
-      const configuration = {
-        vaultConfigParser: vaultConfigParser,
-        vaultsSynchronizer: null,
-        vaultClientV1: null,
-        vaultClient: vaultClient,
-        commitmentMapperV1: null,
-        commitmentMapper: new ImpersonatedCommitmentMapper(),
-        impersonatedVaultCreator: new ImpersonatedVaultCreator({
-          vaultClient: vaultClient,
-          commitmentMapper: commitmentMapper,
-          accountResolver: accountResolver,
-          impersonatedAccounts: impersonatedAccounts,
-        }),
-        accountResolver: accountResolver,
-        sismoConnectProvers: new SismoConnectProvers({
-          cache: cache,
-          commitmentMapperService: commitmentMapper,
-        }),
-      };
-      return new ServicesFactory(configuration);
-    }
-
-    const vaultClientV1 = new VaultClientV1(
-      new AWSStore({ vaultUrl: env.vaultV1URL })
-    );
+    const impersonatedCommitmentMapper = new ImpersonatedCommitmentMapper();
+    const commitmentMapper: CommitmentMapper = isImpersonated
+      ? impersonatedCommitmentMapper
+      : new AWSCommitmentMapper({
+          url: env.commitmentMapperUrlV2,
+        });
     const vaultClient = new VaultClient(
-      new AWSStore({ vaultUrl: env.vaultV2URL })
+      isImpersonated ? new MemoryStore() : new AWSStore({ vaultUrl: env.vaultV2URL })
     );
+
     const commitmentMapperV1 = new AWSCommitmentMapper({
       url: env.commitmentMapperUrlV1,
     });
-    const commitmentMapper = new AWSCommitmentMapper({
-      url: env.commitmentMapperUrlV2,
+    const vaultClientV1 = new VaultClientV1(new AWSStore({ vaultUrl: env.vaultV1URL }));
+
+    const accountResolver = new AccountResolver();
+
+    const sismoConnectProvers = new SismoConnectProvers({
+      cache: cache,
+      commitmentMapperService: commitmentMapper,
     });
 
-    const vaultsSynchronizer = new VaultsSynchronizer({
-      commitmentMapperV1,
-      commitmentMapperV2: commitmentMapper,
-      vaultClientV1,
-      vaultClientV2: vaultClient,
-    });
+    const impersonatedVaultCreator = isImpersonated
+      ? new ImpersonatedVaultCreator({
+          vaultClient: vaultClient,
+          commitmentMapper: impersonatedCommitmentMapper,
+          accountResolver: accountResolver,
+          impersonatedAccounts: impersonatedAccounts,
+        })
+      : null;
+
+    const vaultsSynchronizer =
+      env.name === "DEMO" || isImpersonated
+        ? null
+        : new VaultsSynchronizer({
+            commitmentMapperV1,
+            commitmentMapperV2: commitmentMapper,
+            vaultClientV1,
+            vaultClientV2: vaultClient,
+          });
 
     const configuration = {
       vaultConfigParser: vaultConfigParser,
@@ -117,12 +90,9 @@ export class ServicesFactory {
       vaultClient,
       commitmentMapperV1,
       commitmentMapper,
-      impersonatedVaultCreator: null,
-      accountResolver: new AccountResolver(),
-      sismoConnectProvers: new SismoConnectProvers({
-        cache: cache,
-        commitmentMapperService: commitmentMapper,
-      }),
+      impersonatedVaultCreator: impersonatedVaultCreator,
+      accountResolver: accountResolver,
+      sismoConnectProvers: sismoConnectProvers,
     };
 
     return new ServicesFactory(configuration);

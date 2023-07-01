@@ -32,10 +32,8 @@ export class SismoConnectProvers {
   }) {
     this.initDevConfig = this.initDevConfig.bind(this);
     this.getRegistryTreeRoot = this.getRegistryTreeRoot.bind(this);
-    this.getClaimRequestEligibilities =
-      this.getClaimRequestEligibilities.bind(this);
-    this.getAuthRequestEligibilities =
-      this.getAuthRequestEligibilities.bind(this);
+    this.getClaimRequestEligibilities = this.getClaimRequestEligibilities.bind(this);
+    this.getAuthRequestEligibilities = this.getAuthRequestEligibilities.bind(this);
     this.generateResponse = this.generateResponse.bind(this);
 
     const hydraS2Prover = new HydraS2Prover({
@@ -43,10 +41,9 @@ export class SismoConnectProvers {
       commitmentMapperService,
     });
 
-    const hydraS3Prover = new HydraS3Prover({
-      cache,
-      commitmentMapperService,
-    });
+    const commitmentMapperPubKey = commitmentMapperService.getPubKey();
+
+    const hydraS3Prover = HydraS3Prover.build(cache, commitmentMapperPubKey);
 
     this.sismoConnectProvers = {
       "sismo-connect-v1": new SismoConnectProverV1({
@@ -75,9 +72,7 @@ export class SismoConnectProvers {
       await sismoConnectProver.initDevConfig(sismoConnectRequest?.devConfig);
   }
 
-  public async getRegistryTreeRoot(
-    sismoConnectRequest: SismoConnectRequest
-  ): Promise<string> {
+  public async getRegistryTreeRoot(sismoConnectRequest: SismoConnectRequest): Promise<string> {
     this._validateRequest(sismoConnectRequest);
     const sismoConnectProver = this.sismoConnectProvers[
       sismoConnectRequest.version
@@ -95,10 +90,7 @@ export class SismoConnectProvers {
       sismoConnectRequest.version
     ] as SismoConnectProverV1;
 
-    return await sismoConnectProver.getClaimRequestEligibilities(
-      sismoConnectRequest,
-      identifiers
-    );
+    return await sismoConnectProver.getClaimRequestEligibilities(sismoConnectRequest, identifiers);
   }
 
   public async getAuthRequestEligibilities(
