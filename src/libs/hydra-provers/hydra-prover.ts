@@ -17,12 +17,7 @@ import {
 } from "../sismo-connect-provers/sismo-connect-prover-v1";
 import { RegistryTreeReader } from "../registry-tree-readers/registry-tree-reader";
 import { RegistryTreeReaderBase } from "../registry-tree-readers/types";
-import {
-  HydraS3Account,
-  SnarkProof,
-  UserParams,
-  VaultInput,
-} from "@sismo-core/hydra-s3";
+import { HydraS3Account, SnarkProof, UserParams, VaultInput } from "@sismo-core/hydra-s3";
 import { EddsaSignature, SNARK_FIELD } from "@sismo-core/crypto";
 import { CommitmentMapper } from "../commitment-mapper";
 import { ImportedAccount } from "../vault-client";
@@ -37,9 +32,7 @@ export abstract class HydraProver {
   }
 
   public abstract getVersion(): ProvingScheme;
-  protected abstract _generateSnarkProof(
-    userParams: UserParams
-  ): Promise<SnarkProof>;
+  protected abstract _generateSnarkProof(userParams: UserParams): Promise<SnarkProof>;
 
   public async getRegistryTreeRoot(): Promise<string> {
     const registryTree = await this._registryTreeReader.getRegistryTree();
@@ -48,8 +41,7 @@ export abstract class HydraProver {
 
   public async initDevConfig(devConfig?: DevConfig) {
     if (devConfig && devConfig?.enabled !== false) {
-      if (devConfig?.devGroups?.length === 0)
-        throw new Error("devGroups is required in devConfig");
+      if (devConfig?.devGroups?.length === 0) throw new Error("devGroups is required in devConfig");
 
       console.log("///////////// DEVMODE /////////////");
       this._registryTreeReader = new DevRegistryTreeReader({
@@ -63,9 +55,9 @@ export abstract class HydraProver {
     return await this._generateSnarkProof(userParams);
   }
 
-  private async _prepareSnarkProofRequest(
-    proofRequest: ProofRequest
-  ): Promise<UserParams> {
+  public async fetchZkey(): Promise<void> {}
+
+  private async _prepareSnarkProofRequest(proofRequest: ProofRequest): Promise<UserParams> {
     let {
       appId,
       source,
@@ -82,12 +74,7 @@ export abstract class HydraProver {
     const vaultInput: VaultInput = {
       secret: BigNumber.from(vaultSecret),
       namespace: BigNumber.from(
-        keccak256(
-          ethers.utils.solidityPack(
-            ["uint128", "uint128"],
-            [appId, BigNumber.from(0)]
-          )
-        )
+        keccak256(ethers.utils.solidityPack(["uint128", "uint128"], [appId, BigNumber.from(0)]))
       )
         .mod(SNARK_FIELD)
         .toHexString(),
@@ -149,12 +136,7 @@ export abstract class HydraProver {
         // HydraS2 typing
         userParams["statement"] = {
           value: BigNumber.from(claimedValue),
-          comparator:
-            claimType === ClaimType.GTE
-              ? 0
-              : claimType === ClaimType.EQ
-              ? 1
-              : null,
+          comparator: claimType === ClaimType.GTE ? 0 : claimType === ClaimType.EQ ? 1 : null,
           registryTree: await this._registryTreeReader.getRegistryTree(),
           accountsTree: await this._registryTreeReader.getAccountsTree({
             groupId,
@@ -165,12 +147,7 @@ export abstract class HydraProver {
         // HydraS3 typing
         userParams["claim"] = {
           value: BigNumber.from(claimedValue),
-          comparator:
-            claimType === ClaimType.GTE
-              ? 0
-              : claimType === ClaimType.EQ
-              ? 1
-              : null,
+          comparator: claimType === ClaimType.GTE ? 0 : claimType === ClaimType.EQ ? 1 : null,
           registryTree: await this._registryTreeReader.getRegistryTree(),
           accountsTree: await this._registryTreeReader.getAccountsTree({
             groupId,
@@ -189,9 +166,7 @@ export abstract class HydraProver {
   }
 
   private _getHydraAccount = (account: ImportedAccount): HydraS3Account => {
-    const secret = CommitmentMapper.generateCommitmentMapperSecret(
-      account.seed
-    );
+    const secret = CommitmentMapper.generateCommitmentMapperSecret(account.seed);
     const commitmentReceipt = [
       BigNumber.from(account.commitmentReceipt[0]),
       BigNumber.from(account.commitmentReceipt[1]),
@@ -224,17 +199,11 @@ export abstract class HydraProver {
       ethers.utils.keccak256(ethers.utils.toUtf8Bytes(namespace))
     ).shr(128);
 
-    const serviceId = ethers.utils.solidityPack(
-      ["uint128", "uint128"],
-      [appId, hashedServiceName]
-    );
+    const serviceId = ethers.utils.solidityPack(["uint128", "uint128"], [appId, hashedServiceName]);
 
     const requestIdentifier = BigNumber.from(
       ethers.utils.keccak256(
-        ethers.utils.defaultAbiCoder.encode(
-          ["bytes32", "bytes32"],
-          [serviceId, groupSnapshotId]
-        )
+        ethers.utils.defaultAbiCoder.encode(["bytes32", "bytes32"], [serviceId, groupSnapshotId])
       )
     )
       .mod(SNARK_FIELD)
@@ -249,12 +218,11 @@ export abstract class HydraProver {
     requestedValue,
     claimType,
   }: GetEligibilityInputs): Promise<AccountData> {
-    const eligibleAccountsTreeData =
-      await this._registryTreeReader.getAccountsTreeEligibility({
-        accounts,
-        groupId,
-        timestamp: groupTimestamp,
-      });
+    const eligibleAccountsTreeData = await this._registryTreeReader.getAccountsTreeEligibility({
+      accounts,
+      groupId,
+      timestamp: groupTimestamp,
+    });
 
     if (eligibleAccountsTreeData === null) {
       return null;
@@ -262,9 +230,7 @@ export abstract class HydraProver {
 
     switch (claimType) {
       case ClaimType.EQ:
-        for (const [identifier, value] of Object.entries(
-          eligibleAccountsTreeData
-        )) {
+        for (const [identifier, value] of Object.entries(eligibleAccountsTreeData)) {
           if (BigNumber.from(value).eq(requestedValue)) {
             return {
               identifier,
@@ -276,22 +242,14 @@ export abstract class HydraProver {
       case ClaimType.GTE:
         let maxAccountData: AccountData = null;
 
-        for (const [identifier, value] of Object.entries(
-          eligibleAccountsTreeData
-        )) {
-          if (
-            maxAccountData === null &&
-            BigNumber.from(value).gte(requestedValue)
-          ) {
+        for (const [identifier, value] of Object.entries(eligibleAccountsTreeData)) {
+          if (maxAccountData === null && BigNumber.from(value).gte(requestedValue)) {
             maxAccountData = {
               identifier,
               value: value,
             };
           }
-          if (
-            maxAccountData &&
-            BigNumber.from(value).gt(maxAccountData?.value)
-          ) {
+          if (maxAccountData && BigNumber.from(value).gt(maxAccountData?.value)) {
             maxAccountData = {
               identifier,
               value: value,

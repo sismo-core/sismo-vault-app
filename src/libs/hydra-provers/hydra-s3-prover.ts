@@ -8,6 +8,10 @@ import { Cache } from "../cache-service";
 import { HydraProver } from "./hydra-prover";
 import { ProvingScheme } from "../sismo-connect-provers";
 import { BigNumber } from "ethers";
+import axios from "axios";
+
+const WASM_PATH = "/hydra/s3/hydra-s3.06-14-2023.wasm";
+const ZKEY_PATH = "/hydra/s3/hydra-s3.06-14-2023.zkey";
 
 export class HydraS3Prover extends HydraProver {
   private _hydraS3ProverPS: HydraS3ProverPS;
@@ -24,8 +28,8 @@ export class HydraS3Prover extends HydraProver {
     return new HydraS3Prover({
       cache,
       hydraS3ProverPS: new HydraS3ProverPS(eddsaPublicKey, {
-        wasmPath: "/hydra/s3/hydra-s3.wasm",
-        zkeyPath: "/hydra/s3/hydra-s3.zkey",
+        wasmPath: WASM_PATH,
+        zkeyPath: ZKEY_PATH,
       }),
     });
   }
@@ -36,5 +40,9 @@ export class HydraS3Prover extends HydraProver {
 
   public async _generateSnarkProof(userParams: UserParams): Promise<SnarkProof> {
     return await this._hydraS3ProverPS.generateSnarkProof(userParams);
+  }
+
+  public async fetchZkey(): Promise<void> {
+    await axios.get(ZKEY_PATH);
   }
 }

@@ -96,11 +96,9 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [factoryApp, setFactoryApp] = useState<FactoryApp>(null);
 
-  const [sismoConnectRequest, setSismoConnectRequest] =
-    useState<SismoConnectRequest>(null);
+  const [sismoConnectRequest, setSismoConnectRequest] = useState<SismoConnectRequest>(null);
 
-  const [requestGroupsMetadata, setRequestGroupsMetadata] =
-    useState<RequestGroupMetadata[]>(null);
+  const [requestGroupsMetadata, setRequestGroupsMetadata] = useState<RequestGroupMetadata[]>(null);
 
   const [hostName, setHostname] = useState<string>(null);
   const [callbackUrl, setCallbackUrl] = useState(null);
@@ -183,24 +181,19 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
         ? referrer.split(".")[referrer.split(".")?.length - 2]
         : referrer.split("/")[2];
 
-    const isAuthorized = factoryApp?.authorizedDomains?.some(
-      (domain: string) => {
-        if (env.name === "DEV_BETA" && _referrerName.includes("localhost")) {
-          return true;
-        }
-        if (
-          domain.includes("localhost") &&
-          _referrerName.includes("localhost")
-        ) {
-          return true;
-        }
-        const domainName = domain.split(".")[domain.split(".").length - 2];
-        const TLD = domain.split(".")[domain.split(".").length - 1];
-        if (domainName === "*") return true;
-        if (domainName === _referrerName && TLD === _TLD) return true;
-        return false;
+    const isAuthorized = factoryApp?.authorizedDomains?.some((domain: string) => {
+      if (env.name === "DEV_BETA" && _referrerName.includes("localhost")) {
+        return true;
       }
-    );
+      if (domain.includes("localhost") && _referrerName.includes("localhost")) {
+        return true;
+      }
+      const domainName = domain.split(".")[domain.split(".").length - 2];
+      const TLD = domain.split(".")[domain.split(".").length - 1];
+      if (domainName === "*") return true;
+      if (domainName === _referrerName && TLD === _TLD) return true;
+      return false;
+    });
 
     if (!isAuthorized) {
       if (isWrongUrl?.status) return;
@@ -268,10 +261,7 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
             referrerUrl.hostname +
             (referrerUrl.port ? `:${referrerUrl.port}` : "");
 
-          _hostname =
-            referrer.split("//").length > 1
-              ? referrer.split("//")[1].split("/")[0]
-              : "";
+          _hostname = referrer.split("//").length > 1 ? referrer.split("//")[1].split("/")[0] : "";
         }
 
         setReferrer(referrer);
@@ -284,9 +274,7 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
             sismoConnectRequest.callbackPath.includes("chrome-extension://")
               ? sismoConnectRequest.callbackPath
               : _referrerHostname +
-                (sismoConnectRequest.callbackPath
-                  ? sismoConnectRequest.callbackPath
-                  : "");
+                (sismoConnectRequest.callbackPath ? sismoConnectRequest.callbackPath : "");
           setCallbackUrlQueryParam(callbackUrl);
           setCallbackUrl(callbackUrl);
         }
@@ -319,21 +307,16 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
         const _claimRequests = sismoConnectRequest?.claims;
         const res = await Promise.all(
           _claimRequests.map((_claimRequest) => {
-            return getGroupMetadata(
-              _claimRequest?.groupId,
-              _claimRequest?.groupTimestamp
-            );
+            return getGroupMetadata(_claimRequest?.groupId, _claimRequest?.groupTimestamp);
           })
         );
 
-        const requestGroupsMetadata = _claimRequests.map(
-          (_claimRequest, index) => {
-            return {
-              claim: _claimRequest,
-              groupMetadata: res[index],
-            };
-          }
-        );
+        const requestGroupsMetadata = _claimRequests.map((_claimRequest, index) => {
+          return {
+            claim: _claimRequest,
+            groupMetadata: res[index],
+          };
+        });
 
         setRequestGroupsMetadata(requestGroupsMetadata);
       } catch (e) {
@@ -361,27 +344,23 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
     setIsRedirecting(true);
     let url = callbackUrl;
     if (sismoConnectRequest?.compressed) {
-      url += `?sismoConnectResponseCompressed=${zipurl(
-        JSON.stringify(response)
-      )}`;
+      url += `?sismoConnectResponseCompressed=${zipurl(JSON.stringify(response))}`;
     }
 
     if (!sismoConnectRequest?.compressed) {
       url += `?sismoConnectResponse=${JSON.stringify(response)}`;
       if (env.name !== "DEMO") {
-        url += `&sismoConnectResponseBytes=${getSismoConnectResponseBytes(
-          response
-        )}`;
+        url += `&sismoConnectResponseBytes=${getSismoConnectResponseBytes(response)}`;
       }
     }
 
+    const waitingTimeBeforeRedirection = 1000;
     setTimeout(() => {
       window.location.href = url;
-    }, 2000);
+    }, waitingTimeBeforeRedirection);
   };
 
-  const loading =
-    (vault.synchronizing ? true : vault.loadingActiveSession) || !imgLoaded;
+  const loading = (vault.synchronizing ? true : vault.loadingActiveSession) || !imgLoaded;
 
   /* *********************************************************** */
   /* ***************** LOADING MEASUREMENTS ******************** */
@@ -404,9 +383,7 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
           <Skeleton sismoConnectRequest={sismoConnectRequest} />
         </ContentContainer>
       )}
-      {isWrongUrl?.status && (
-        <WrongUrlScreen callbackUrl={callbackUrl} isWrongUrl={isWrongUrl} />
-      )}
+      {isWrongUrl?.status && <WrongUrlScreen callbackUrl={callbackUrl} isWrongUrl={isWrongUrl} />}
       {!loading && !isRedirecting && !isWrongUrl?.status && (
         <ContentContainer>
           <VaultSlider

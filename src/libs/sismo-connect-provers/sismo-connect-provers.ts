@@ -44,6 +44,8 @@ export class SismoConnectProvers {
     const commitmentMapperPubKey = commitmentMapperService.getPubKey();
 
     const hydraS3Prover = HydraS3Prover.build(cache, commitmentMapperPubKey);
+    // fetch without waiting the promise here
+    hydraS3Prover.fetchZkey();
 
     this.sismoConnectProvers = {
       "sismo-connect-v1": new SismoConnectProverV1({
