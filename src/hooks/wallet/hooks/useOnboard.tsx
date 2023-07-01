@@ -24,6 +24,7 @@ const wcV2InitOptions = {
    * Chains required to be supported by all wallets connecting to your DApp
    */
   requiredChains: [1],
+  optionalChains: [5, 137],
 };
 
 const walletConnect = walletConnectModule(wcV2InitOptions);
@@ -49,7 +50,7 @@ const web3Onboard = Onboard({
       id: "0x89",
       token: "MATIC",
       label: "Polygon Mainnet",
-      rpcUrl: " https://polygon-rpc.com",
+      rpcUrl: "https://polygon-rpc.com",
     },
   ],
   appMetadata: {
