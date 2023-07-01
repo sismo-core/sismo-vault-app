@@ -24,6 +24,7 @@ export type Environment = {
     commitmentMapperPubKey: [string, string];
     commitmentReceipt: [string, string, string];
   };
+  walletConnectProjectId: string;
 };
 
 if ((window as any).env) {
