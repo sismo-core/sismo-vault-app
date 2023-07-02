@@ -1,8 +1,4 @@
-import {
-  KVMerkleTree,
-  MerkleTreeData,
-  SNARK_FIELD,
-} from "@sismo-core/hydra-s2";
+import { KVMerkleTree, MerkleTreeData, SNARK_FIELD } from "@sismo-core/hydra-s3";
 
 import { ethers, BigNumber } from "ethers";
 import { DevGroup } from "../sismo-connect-provers/sismo-connect-prover-v1";
@@ -23,13 +19,9 @@ export class DevRegistryTreeReader extends RegistryTreeReaderBase {
     this._devGroups = devGroups;
   }
 
-  public async getAccountsTree({
-    groupId,
-  }: OffchainGetAccountsTreeInputs): Promise<KVMerkleTree> {
+  public async getAccountsTree({ groupId }: OffchainGetAccountsTreeInputs): Promise<KVMerkleTree> {
     const poseidon = await getPoseidon();
-    const devGroup = this._devGroups.find(
-      (devGroup) => devGroup.groupId === groupId
-    );
+    const devGroup = this._devGroups.find((devGroup) => devGroup.groupId === groupId);
 
     let groupData = await this.getAccountsTreeData(devGroup);
     let accountTree = new KVMerkleTree(groupData, poseidon, 20);
@@ -70,9 +62,7 @@ export class DevRegistryTreeReader extends RegistryTreeReaderBase {
     groupId,
     accounts,
   }: OffchainGetAccountsTreeEligibilityInputs): Promise<MerkleTreeData> {
-    const devGroup = this._devGroups.find(
-      (devGroup) => devGroup.groupId === groupId
-    );
+    const devGroup = this._devGroups.find((devGroup) => devGroup.groupId === groupId);
 
     const merkleTreesData = await this.getAccountsTreeData(devGroup);
 
@@ -80,28 +70,19 @@ export class DevRegistryTreeReader extends RegistryTreeReaderBase {
       return {};
     }
 
-    const filteredMerkleTreesData = Object.keys(merkleTreesData).reduce(
-      (acc, key) => {
-        for (let i = 0; i < accounts?.length; i++) {
-          if (
-            accounts[i]?.toString()?.toLowerCase() ===
-            key?.toString()?.toLowerCase()
-          ) {
-            acc[key] = merkleTreesData[key];
-          }
+    const filteredMerkleTreesData = Object.keys(merkleTreesData).reduce((acc, key) => {
+      for (let i = 0; i < accounts?.length; i++) {
+        if (accounts[i]?.toString()?.toLowerCase() === key?.toString()?.toLowerCase()) {
+          acc[key] = merkleTreesData[key];
         }
-        return acc;
-      },
-      {}
-    );
+      }
+      return acc;
+    }, {});
 
     return filteredMerkleTreesData;
   }
 
-  protected encodeAccountsTreeValue = (
-    groupId: string,
-    timestamp: number | "latest"
-  ): string => {
+  protected encodeAccountsTreeValue = (groupId: string, timestamp: number | "latest"): string => {
     const encodedTimestamp =
       timestamp === "latest"
         ? BigNumber.from(ethers.utils.formatBytes32String("latest")).shr(128)
@@ -112,15 +93,11 @@ export class DevRegistryTreeReader extends RegistryTreeReaderBase {
       [groupId, encodedTimestamp]
     );
 
-    const accountsTreeValue = BigNumber.from(groupSnapshotId)
-      .mod(SNARK_FIELD)
-      .toHexString();
+    const accountsTreeValue = BigNumber.from(groupSnapshotId).mod(SNARK_FIELD).toHexString();
     return accountsTreeValue;
   };
 
-  protected async getAccountsTreeData(
-    devGroup: DevGroup
-  ): Promise<MerkleTreeData> {
+  protected async getAccountsTreeData(devGroup: DevGroup): Promise<MerkleTreeData> {
     let groupData: MerkleTreeData = {};
 
     const devAddresses = devGroup?.data;

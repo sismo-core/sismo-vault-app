@@ -4,6 +4,7 @@ import { ChainIdToName } from "../../sismo-client";
 import env from "../../../environment";
 import { OffchainAvailableGroups } from "../types";
 import { AvailableData, AvailableGroups } from "./types";
+import pako from "pako";
 
 const promiseAvailableDataCache = new Map();
 const EXPIRATION_DURATION = 1000 * 60 * 10;
@@ -32,9 +33,7 @@ export const fetchAvailableGroups = async (
 
 const getAvailableGroups = async (chainId, attesterName) => {
   let url = `${env.hubApiUrl}/available-data/${ChainIdToName[chainId]}/${attesterName}?latest=true&isOnChain=true`;
-  const availableData: AvailableData = await axios
-    .get(url)
-    .then((res) => res.data.items[0]);
+  const availableData: AvailableData = await axios.get(url).then((res) => res.data.items[0]);
 
   if (!availableData) {
     return {
@@ -58,31 +57,31 @@ const getAvailableGroups = async (chainId, attesterName) => {
 };
 
 //TODO persist on indexDB
-const promiseJsonTreeCache = new Map();
+const promiseCompressedTreeV1Cache = new Map();
 export const fetchJsonTree = async (treeUrl): Promise<JsonMerkleTree> => {
-  if (!promiseJsonTreeCache.has(treeUrl)) {
-    promiseJsonTreeCache.set(
+  if (!promiseCompressedTreeV1Cache.has(treeUrl)) {
+    promiseCompressedTreeV1Cache.set(
       treeUrl,
-      axios.get(
-        treeUrl.startsWith("http") ? treeUrl : `${env.hubApiUrl}${treeUrl}`
-      )
+      axios.get(treeUrl.startsWith("http") ? treeUrl : `${env.hubApiUrl}${treeUrl}`)
     );
   }
-  const { data } = await promiseJsonTreeCache.get(treeUrl);
+  const { data } = await promiseCompressedTreeV1Cache.get(treeUrl);
   return data;
+};
+
+export const fetchCompressedTreeV1 = async (treeUrl): Promise<string[][]> => {
+  const res = await fetch(treeUrl.startsWith("http") ? treeUrl : `${env.hubApiUrl}${treeUrl}`);
+  let rawCompressedData = await res.arrayBuffer();
+  return JSON.parse(pako.inflate(rawCompressedData, { to: "string" }));
 };
 
 //TODO persist on indexDB
 const promiseDataCache = new Map();
-export const fetchDataTree = async (
-  dataUrl: string
-): Promise<MerkleTreeData> => {
+export const fetchDataTree = async (dataUrl: string): Promise<MerkleTreeData> => {
   if (!promiseDataCache.has(dataUrl)) {
     promiseDataCache.set(
       dataUrl,
-      axios.get(
-        dataUrl.startsWith("http") ? dataUrl : `${env.hubApiUrl}${dataUrl}`
-      )
+      axios.get(dataUrl.startsWith("http") ? dataUrl : `${env.hubApiUrl}${dataUrl}`)
     );
   }
   const { data } = await promiseDataCache.get(dataUrl);

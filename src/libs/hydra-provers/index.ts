@@ -1,1 +1,1 @@
-export * from "./hydra-s2-prover";
+export * from "./hydra-s3-prover";

@@ -14,12 +14,10 @@ import {
 } from "../../pages/Connect/utils/validate-sismo-connect-request";
 import { CommitmentMapper } from "../commitment-mapper";
 import { SismoConnectProverV1 } from "./sismo-connect-prover-v1/sismo-connect-prover-v1";
-import { HydraS2Prover } from "../hydra-provers";
-import { HydraS3Prover } from "../hydra-provers/hydra-s3-prover";
+import { HydraS3Prover } from "../hydra-provers";
 
 export class SismoConnectProvers {
   private sismoConnectProvers: {
-    "sismo-connect-v1": SismoConnectProverV1;
     "sismo-connect-v1.1": SismoConnectProverV1;
   };
 
@@ -36,11 +34,6 @@ export class SismoConnectProvers {
     this.getAuthRequestEligibilities = this.getAuthRequestEligibilities.bind(this);
     this.generateResponse = this.generateResponse.bind(this);
 
-    const hydraS2Prover = new HydraS2Prover({
-      cache,
-      commitmentMapperService,
-    });
-
     const commitmentMapperPubKey = commitmentMapperService.getPubKey();
 
     const hydraS3Prover = HydraS3Prover.build(cache, commitmentMapperPubKey);
@@ -48,9 +41,6 @@ export class SismoConnectProvers {
     hydraS3Prover.fetchZkey();
 
     this.sismoConnectProvers = {
-      "sismo-connect-v1": new SismoConnectProverV1({
-        hydraProver: hydraS2Prover,
-      }),
       "sismo-connect-v1.1": new SismoConnectProverV1({
         hydraProver: hydraS3Prover,
       }),

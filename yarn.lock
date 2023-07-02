@@ -3292,13 +3292,13 @@
     "@sismo-core/kv-merkle-tree" "^1.0.4"
     snarkjs "^0.6.8"
 
-"@sismo-core/hydra-s3@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@sismo-core/hydra-s3/-/hydra-s3-0.0.5.tgz#5525f54a42380eff69e35bc1bec6c58a7a77c7c1"
-  integrity sha512-fUMqzJKJEZBcnqVPXc7t/Fs7SIhIdXHQpA/ka0vmP8nMlEApKNbl945ybZi5sNUrqiJb4+7PUVD424GjaVb3WQ==
+"@sismo-core/hydra-s3@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@sismo-core/hydra-s3/-/hydra-s3-1.0.1.tgz#6eb2d7b62fb1e30308e9098e83f3345ed199458d"
+  integrity sha512-98Gq5SEXPXlTA+shHXIJr89OYOqaY2o24/mi5Ac6e/Ob4hJX4NRJzt5FPHSbgQqjGbB9Hyx9QC9u1PIbSON8fg==
   dependencies:
     "@sismo-core/crypto" "^1.1.4"
-    "@sismo-core/kv-merkle-tree" "^1.0.4"
+    "@sismo-core/kv-merkle-tree" "^1.1.0"
     snarkjs "^0.7.0"
 
 "@sismo-core/kv-merkle-tree@^1.0.4":
@@ -3308,6 +3308,16 @@
   dependencies:
     "@sismo-core/crypto" "^1.0.1"
     ethers "^5.6.1"
+    tslib "^2.4.0"
+
+"@sismo-core/kv-merkle-tree@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@sismo-core/kv-merkle-tree/-/kv-merkle-tree-1.1.0.tgz#135e4f79c235d5551acdb5664a5dccc057ae6af4"
+  integrity sha512-YsoysN9c/iSsA0mhheYWPF/VEhB6GrZCB3fTFy2m7G+gfPD+xAY8Ffyf1pJ0kf5zc4ENkE1YPS8JqlWaLVWTvA==
+  dependencies:
+    "@sismo-core/crypto" "^1.0.1"
+    ethers "^5.6.1"
+    pako "^2.1.0"
     tslib "^2.4.0"
 
 "@sismo-core/pythia-1@^1.0.6":
@@ -10240,7 +10250,7 @@ p-try@^2.0.0:
 
 pako@^2.1.0:
   version "2.1.0"
-  resolved "https://registry.yarnpkg.com/pako/-/pako-2.1.0.tgz#266cc37f98c7d883545d11335c00fbd4062c9a86"
+  resolved "https://registry.npmjs.org/pako/-/pako-2.1.0.tgz#266cc37f98c7d883545d11335c00fbd4062c9a86"
   integrity sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==
 
 param-case@^3.0.4:

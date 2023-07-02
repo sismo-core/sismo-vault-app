@@ -1,4 +1,4 @@
-import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s2";
+import { KVMerkleTree, MerkleTreeData } from "@sismo-core/hydra-s3";
 import {
   OffchainGetAccountsTreeInputs,
   OffchainGetAccountsTreeEligibilityInputs,
@@ -9,7 +9,7 @@ import {
 import { Cache } from "../cache-service";
 import env from "../../environment";
 import { ChunkedGroups } from "./chunked-groups";
-import { fetchJsonTree } from "./services/available-data";
+import { fetchCompressedTreeV1, fetchJsonTree } from "./services/available-data";
 import { fetchAvailableGroups } from "./services/available-data";
 import { ChainNameToId } from "../sismo-client/contracts/commons";
 import { OffchainAvailableGroups } from "./types";
@@ -37,16 +37,22 @@ export class RegistryTreeReader extends RegistryTreeReaderBase {
       account,
     });
 
-    const registryTreeJson = await fetchJsonTree(accountsTreeChunk.treeUrl);
-    const accountsTree = KVMerkleTree.fromJson(registryTreeJson);
-    return accountsTree;
+    if (accountsTreeChunk.treeCompressedV1Url) {
+      const accountsTreeCompressed = await fetchCompressedTreeV1(
+        accountsTreeChunk.treeCompressedV1Url
+      );
+      const accountsTree = KVMerkleTree.fromTreeOptimizedFormatV1(accountsTreeCompressed);
+      return accountsTree;
+    } else {
+      const registryTreeJson = await fetchJsonTree(accountsTreeChunk.treeUrl);
+      const accountsTree = KVMerkleTree.fromJson(registryTreeJson);
+      return accountsTree;
+    }
   }
 
   public async getRegistryTree(): Promise<KVMerkleTree> {
     const availableGroups = await this.getAvailableGroups();
-    const registryTreeJson = await fetchJsonTree(
-      availableGroups.registryTree.treeUrl
-    );
+    const registryTreeJson = await fetchJsonTree(availableGroups.registryTree.treeUrl);
 
     const registryTree = KVMerkleTree.fromJson(registryTreeJson);
     return registryTree;
@@ -69,9 +75,7 @@ export class RegistryTreeReader extends RegistryTreeReaderBase {
           return {};
         }
 
-        const merkleTreeData = await this._chunkedGroups.get(
-          accountsTreeChunk.dataUrl
-        );
+        const merkleTreeData = await this._chunkedGroups.get(accountsTreeChunk.dataUrl);
 
         for (const key in merkleTreeData) {
           if (key.toLowerCase() === account.toLowerCase()) {
@@ -104,9 +108,7 @@ export class RegistryTreeReader extends RegistryTreeReaderBase {
     //Filter the chunk with the identifier
     const accountsTreesChunk = groupAccountsTrees.filter((accountTree) => {
       if (accountTree.chunk.max && accountTree.chunk.min) {
-        return (
-          account <= accountTree.chunk.max && account >= accountTree.chunk.min
-        );
+        return account <= accountTree.chunk.max && account >= accountTree.chunk.min;
       } else {
         return true;
       }
