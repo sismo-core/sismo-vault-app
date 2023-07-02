@@ -67,4 +67,4 @@ runs:
     - name: Sync s3 static for cached resources # (cache-control: max-age=31536000)
       shell: bash
       run: |
-        aws s3 cp ./build s3://${{ inputs.static-bucket-name }} --exclude "*" --include "*.zkey" --recursive --metadata-directive REPLACE --cache-control max-age=31536000
+        aws s3 cp ./build s3://${{ inputs.static-bucket-name }} --exclude "*" --include "*.zkey" --include "*.wasm" --recursive --metadata-directive REPLACE --cache-control max-age=31536000
