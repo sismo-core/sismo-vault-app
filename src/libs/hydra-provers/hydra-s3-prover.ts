@@ -10,8 +10,8 @@ import { ProvingScheme } from "../sismo-connect-provers";
 import { BigNumber } from "ethers";
 import axios from "axios";
 
-const WASM_PATH = "/hydra/s3/hydra-s3.06-14-2023.wasm";
-const ZKEY_PATH = "/hydra/s3/hydra-s3.06-14-2023.zkey";
+const WASM_PATH = "/hydra/s3/hydra-s3.06-15-2023.wasm";
+const ZKEY_PATH = "/hydra/s3/hydra-s3.06-15-2023.zkey";
 
 export class HydraS3Prover extends HydraProver {
   private _hydraS3ProverPS: HydraS3ProverPS;
