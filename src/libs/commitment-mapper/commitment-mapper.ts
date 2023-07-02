@@ -102,7 +102,7 @@ export abstract class CommitmentMapper {
     commitment: string;
   }): Promise<CommitmentReceiptTwitterResult>;
 
-  public async getPubKey(): Promise<[string, string]> {
+  public getPubKey(): [string, string] {
     return env.sismoDestination.commitmentMapperPubKey;
   }
 
@@ -204,9 +204,7 @@ export abstract class CommitmentMapper {
 
   static generateCommitmentMapperSecret = (seed: string) => {
     const hash = new SHA3(256);
-    return BigNumber.from(
-      "0x" + hash.update(seed + "/commitmentMapperSecret").digest("hex")
-    )
+    return BigNumber.from("0x" + hash.update(seed + "/commitmentMapperSecret").digest("hex"))
       .mod(SNARK_FIELD)
       .toHexString();
   };

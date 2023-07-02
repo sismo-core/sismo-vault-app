@@ -200,9 +200,7 @@ export default function ConnectFlow({
         selectedSismoConnectRequest?.devConfig?.displayRawResponse ||
         selectedSismoConnectRequest?.displayRawResponse
       ) {
-        const registryTreeRoot = await getRegistryTreeRoot(
-          selectedSismoConnectRequest
-        );
+        const registryTreeRoot = await getRegistryTreeRoot(selectedSismoConnectRequest);
         setRegistryTreeRoot(registryTreeRoot);
         setProofModalOpen(true);
         return;
@@ -234,8 +232,7 @@ export default function ConnectFlow({
   };
 
   const onSelectedSismoConnectRequest = useCallback(
-    (selectedSismoRequest) =>
-      setSelectedSismoConnectRequest(selectedSismoRequest),
+    (selectedSismoRequest) => setSelectedSismoConnectRequest(selectedSismoRequest),
     []
   );
 
@@ -275,16 +272,14 @@ export default function ConnectFlow({
             <ImpersonatedDescription>
               <ImpersonatedTitle>Impersonation mode</ImpersonatedTitle>
               <ImpersonatedText>
-                The generated proof is based on impersonated accounts. It should
-                not be used in production.
+                The generated proof is based on impersonated accounts. It should not be used in
+                production.
               </ImpersonatedText>
             </ImpersonatedDescription>
           </ImpersonatedBanner>
         )}
 
-        <Title style={{ marginBottom: 8 }}>
-          {factoryApp?.name} wants you to:
-        </Title>
+        <Title style={{ marginBottom: 8 }}>{factoryApp?.name} wants you to:</Title>
 
         <DataRequests
           sismoConnectRequest={sismoConnectRequest}
