@@ -36,7 +36,15 @@
     <meta name="twitter:creator" content="@Sismo_eth"/>
 
     <meta property="fb:image" content="https://i.imgur.com/ejGRXen.png"/>
-
+    <script>
+      if (window.env.plausibleDomain)
+        document.write('<script defer data-domain="' + window.env.plausibleDomain + '" src="https://plausible.io/js/script.tagged-events.js"><\/script>');
+    </script>
+    <script>
+      window.plausible = window.plausible || function () {
+        (window.plausible.q = window.plausible.q || []).push(arguments)
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
