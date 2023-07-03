@@ -94,7 +94,8 @@ export type IconProps = {
     | "lock-outline-white"
     | "arrowRight-outline-lightBlue"
     | "more-outline-blue2"
-    | "key-outline-blue";
+    | "key-outline-blue"
+    | "worldcoin-outline-white";
 };
 
 const IconExtention = {};
@@ -102,11 +103,5 @@ const IconExtention = {};
 //[description camelCase] - [outline|fill] - [color]
 
 export default function Icon({ style, name }: IconProps): JSX.Element {
-  return (
-    <img
-      src={`/icons/${name}.${IconExtention[name] || "svg"}`}
-      style={style}
-      alt={name}
-    />
-  );
+  return <img src={`/icons/${name}.${IconExtention[name] || "svg"}`} style={style} alt={name} />;
 }

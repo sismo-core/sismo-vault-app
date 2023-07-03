@@ -15,6 +15,8 @@ import ImportButton from "../../components/ImportButton";
 import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../../Modals/ImportAccount/provider";
 import { AccountType, GroupMetadata } from "../../../../../libs/sismo-client";
+import env from "../../../../../environment";
+import { getAccountTypeAppId } from "../../../../../utils/getAccountTypeAppId";
 
 const Container = styled.div`
   display: flex;
@@ -50,8 +52,7 @@ const TextWrapper = styled.div<{ isOptIn: boolean }>`
   white-space: nowrap;
   flex-grow: 1;
   gap: 4px;
-  color: ${(props) =>
-    props.isOptIn ? props.theme.colors.blue0 : props.theme.colors.blue3};
+  color: ${(props) => (props.isOptIn ? props.theme.colors.blue0 : props.theme.colors.blue3)};
 
   @media (max-width: 768px) {
     flex-wrap: wrap;
@@ -95,9 +96,7 @@ type Props = {
   isInitialOptin: boolean;
   loadingEligible: boolean;
   proofLoading: boolean;
-  onUserInput: (
-    selectedSismoConnectRequest: SelectedSismoConnectRequest
-  ) => void;
+  onUserInput: (selectedSismoConnectRequest: SelectedSismoConnectRequest) => void;
 };
 
 export function DataClaimRequest({
@@ -123,25 +122,21 @@ export function DataClaimRequest({
   const isSelectableByUser = !proofLoading && claim?.isSelectableByUser;
   const isLoading = importAccount?.importing
     ? true
-    : false ||
-      loadingEligible ||
-      typeof claimRequestEligibility === "undefined";
+    : false || loadingEligible || typeof claimRequestEligibility === "undefined";
 
   function onOptInChange(isOptIn: boolean) {
     const newSelectedSismoConnectRequest = {
       ...selectedSismoConnectRequest,
-      selectedClaims: selectedSismoConnectRequest.selectedClaims.map(
-        (selectedClaim) => {
-          if (selectedClaim.uuid === claim.uuid) {
-            return {
-              ...selectedClaim,
-              isOptIn,
-            };
-          } else {
-            return selectedClaim;
-          }
+      selectedClaims: selectedSismoConnectRequest.selectedClaims.map((selectedClaim) => {
+        if (selectedClaim.uuid === claim.uuid) {
+          return {
+            ...selectedClaim,
+            isOptIn,
+          };
+        } else {
+          return selectedClaim;
         }
-      ),
+      }),
     };
     onUserInput(newSelectedSismoConnectRequest);
   }
@@ -152,20 +147,16 @@ export function DataClaimRequest({
 
       newSelectedSismoConnectRequest = {
         ...selectedSismoConnectRequest,
-        selectedClaims: selectedSismoConnectRequest.selectedClaims.map(
-          (claim) => {
-            if (
-              claim.uuid === (request as ClaimRequestEligibility)?.claim?.uuid
-            ) {
-              return {
-                ...claim,
-                selectedValue,
-              };
-            } else {
-              return claim;
-            }
+        selectedClaims: selectedSismoConnectRequest.selectedClaims.map((claim) => {
+          if (claim.uuid === (request as ClaimRequestEligibility)?.claim?.uuid) {
+            return {
+              ...claim,
+              selectedValue,
+            };
+          } else {
+            return claim;
           }
-        ),
+        }),
       };
       onUserInput(newSelectedSismoConnectRequest);
     },
@@ -199,9 +190,17 @@ export function DataClaimRequest({
   ]);
 
   const isOnlySismoConnectApps = !Boolean(
-    groupMetadata?.accountTypes?.find(
-      (el) => !el.startsWith("sismo-connect-app")
-    )
+    groupMetadata?.accountTypes?.find((el) => !el.startsWith("sismo-connect-app"))
+  );
+
+  const isSismoConnectDataSource = Boolean(
+    groupMetadata?.accountTypes
+      ?.map((accountType) => {
+        const appId = getAccountTypeAppId(accountType);
+        if (!appId) return null;
+        return env.sismoConnectDataSources.find((dataSource) => dataSource.appId === appId);
+      })
+      .filter(Boolean)?.length > 0
   );
 
   return (
@@ -214,10 +213,7 @@ export function DataClaimRequest({
         />
 
         {!isOptional && (
-          <CheckCircleIcon
-            size={24}
-            color={isEligible ? colors.green1 : colors.blue6}
-          />
+          <CheckCircleIcon size={24} color={isEligible ? colors.green1 : colors.blue6} />
         )}
         {isOptional && (
           <Toggle
@@ -247,15 +243,14 @@ export function DataClaimRequest({
       <Right>
         {vault?.importedAccounts && (
           <>
-            {!isEligible && !isOnlySismoConnectApps && (
+            {!isEligible && (!isOnlySismoConnectApps || isSismoConnectDataSource) && (
               <StyledButton
                 primary
                 verySmall
                 isMedium
                 loading={isLoading}
                 onClick={() => {
-                  const accountTypes: AccountType[] =
-                    groupMetadata.accountTypes;
+                  const accountTypes: AccountType[] = groupMetadata.accountTypes;
                   importAccount.open({
                     importType: "account",
                     accountTypes,
@@ -272,13 +267,7 @@ export function DataClaimRequest({
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        <circle
-                          cx="7"
-                          cy="7"
-                          r="5.5"
-                          stroke="#13203D"
-                          strokeWidth="3"
-                        />
+                        <circle cx="7" cy="7" r="5.5" stroke="#13203D" strokeWidth="3" />
                       </svg>
                       <span>Connect</span>
                     </>

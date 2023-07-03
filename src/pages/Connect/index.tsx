@@ -342,21 +342,24 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
     if (!response) return;
 
     setIsRedirecting(true);
-    let url = callbackUrl;
+    let url = new URL(callbackUrl);
     if (sismoConnectRequest?.compressed) {
-      url += `?sismoConnectResponseCompressed=${zipurl(JSON.stringify(response))}`;
+      url.searchParams.append("sismoConnectResponseCompressed", zipurl(JSON.stringify(response)));
     }
 
     if (!sismoConnectRequest?.compressed) {
-      url += `?sismoConnectResponse=${JSON.stringify(response)}`;
+      url.searchParams.append("sismoConnectResponse", JSON.stringify(response));
       if (env.name !== "DEMO") {
-        url += `&sismoConnectResponseBytes=${getSismoConnectResponseBytes(response)}`;
+        url.searchParams.append(
+          "sismoConnectResponseBytes",
+          getSismoConnectResponseBytes(response)
+        );
       }
     }
 
     const waitingTimeBeforeRedirection = 1000;
     setTimeout(() => {
-      window.location.href = url;
+      window.location.href = url.toString();
     }, waitingTimeBeforeRedirection);
   };
 

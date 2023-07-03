@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import colors from "../../../theme/colors";
 import Modal from "../../../components/Modal";
@@ -10,12 +10,14 @@ import { useWallet } from "../../../hooks/wallet";
 import { useImportAccount } from "./provider";
 import ImportTelegram from "./Telegram";
 import ImportTwitter from "./Twitter";
-import env from "../../../environment";
+import env, { SismoConnectDataSource } from "../../../environment";
 import { useVault } from "../../../hooks/vault";
 import { featureFlagProvider } from "../../../utils/featureFlags";
 import { clearQueryParams } from "../../../utils/clearQueryParams";
 import { clearLocationHash } from "../../../utils/clearLocationHash";
 import { getTwitterCallbackURL } from "../../../utils/navigateOAuth";
+import { SismoConnect, SismoConnectConfig } from "@sismo-core/sismo-connect-client";
+import { getAccountTypeAppId } from "../../../utils/getAccountTypeAppId";
 
 const Content = styled.div`
   display: flex;
@@ -58,7 +60,7 @@ export default function ImportAccountModal({
   const [outsideClosable, setOutsideClosable] = useState(true);
   const wallet = useWallet();
   const [display, setDisplay] = useState<
-    "choice" | "ethereum" | "github" | "twitter" | "telegram"
+    "choice" | "ethereum" | "github" | "twitter" | "telegram" | "worldcoin"
   >(null);
   const { isOpen, importType, accountTypes, close, open } = useImportAccount();
   const [githubCode, setGithubCode] = useState(null);
@@ -66,6 +68,15 @@ export default function ImportAccountModal({
   const [twitterOauth, setTwitterOauth] = useState(null);
   const [twitterV2Oauth, setTwitterV2Oauth] = useState(null);
   const vault = useVault();
+  const sismoConnectDataSources = useMemo(() => {
+    if (!accountTypes) return env.sismoConnectDataSources;
+    return accountTypes
+      .map((accountType) => {
+        const appId = getAccountTypeAppId(accountType);
+        return env.sismoConnectDataSources.find((dataSource) => dataSource.appId === appId);
+      })
+      .filter(Boolean);
+  }, [accountTypes]);
 
   //Select the right flow to display
   useEffect(() => {
@@ -81,42 +92,51 @@ export default function ImportAccountModal({
 
     if (
       importType === "owner" ||
-      (accountTypes &&
-        accountTypes.length === 1 &&
-        accountTypes[0] === "ethereum")
+      (accountTypes && accountTypes.length === 1 && accountTypes[0] === "ethereum")
     ) {
       setDisplay("ethereum");
       return;
     }
 
-    if (
-      accountTypes &&
-      accountTypes.length === 1 &&
-      accountTypes[0] === "github"
-    ) {
+    if (accountTypes && accountTypes.length === 1 && accountTypes[0] === "github") {
       setDisplay("github");
       return;
     }
 
-    if (
-      accountTypes &&
-      accountTypes.length === 1 &&
-      accountTypes[0] === "twitter"
-    ) {
+    if (accountTypes && accountTypes.length === 1 && accountTypes[0] === "twitter") {
       setDisplay("twitter");
       return;
     }
 
-    if (
-      accountTypes &&
-      accountTypes.length === 1 &&
-      accountTypes[0] === "telegram"
-    ) {
+    if (accountTypes && accountTypes.length === 1 && accountTypes[0] === "telegram") {
       setDisplay("telegram");
       return;
     }
+
     setDisplay("choice");
   }, [accountTypes, importType, isOpen, isImpersonated]);
+
+  const goToSismoConnectAppCreationFlow = (sismoConnectDataSource: SismoConnectDataSource) => {
+    let vaultAppBaseUrl = window.location.protocol + "//" + window.location.host;
+    const config: SismoConnectConfig = {
+      appId: sismoConnectDataSource.appId,
+      vaultAppBaseUrl,
+    };
+    const sismoConnect = SismoConnect({ config });
+    const request = {
+      ...sismoConnectDataSource.request,
+    };
+    const currentUrl = window.location.href;
+    const url = new URL(request.callbackUrl);
+    url.searchParams.append("redirect", encodeURIComponent(currentUrl));
+    request.callbackUrl = url.toString();
+
+    const requestLink = sismoConnect.getRequestLink(request);
+    const requestURL = new URL(requestLink);
+    requestURL.searchParams.append("no-migration", "true");
+    console.log("requestURL.toString()", requestURL.toString());
+    window.location.href = requestURL.toString();
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -129,15 +149,7 @@ export default function ImportAccountModal({
       }
     };
     connectWallet();
-  }, [
-    wallet.isConnected,
-    accountTypes,
-    importType,
-    wallet,
-    display,
-    close,
-    isOpen,
-  ]);
+  }, [wallet.isConnected, accountTypes, importType, wallet, display, close, isOpen]);
 
   /*********************************************************/
   /*********************  WEB2 ACCOUNTS ********************/
@@ -212,8 +224,7 @@ export default function ImportAccountModal({
     if (!vault.isConnected) return;
     if (featureFlagProvider.isTwitterV2Enabled()) return;
     const urlParams = new URLSearchParams(window.location.search);
-    const isTwitterV1Callback =
-      urlParams.get("callback_source") === "twitter-v1";
+    const isTwitterV1Callback = urlParams.get("callback_source") === "twitter-v1";
     if (!isTwitterV1Callback) return;
 
     const oauthToken = urlParams.get("oauth_token");
@@ -249,8 +260,7 @@ export default function ImportAccountModal({
     if (!vault.isConnected) return;
     if (!featureFlagProvider.isTwitterV2Enabled()) return;
     const urlParams = new URLSearchParams(window.location.search);
-    const isTwitterV2Redirect =
-      urlParams.get("callback_source") === "twitter-v2";
+    const isTwitterV2Redirect = urlParams.get("callback_source") === "twitter-v2";
     if (!isTwitterV2Redirect) return;
 
     const code = urlParams.get("code");
@@ -294,15 +304,11 @@ export default function ImportAccountModal({
       {display === "ethereum" && (
         <ImportEthereum
           onBackgroundBlur={(_blur) => setBlur(_blur)}
-          onOutsideClickable={(_outsideCLosable) =>
-            setOutsideClosable(_outsideCLosable)
-          }
+          onOutsideClickable={(_outsideCLosable) => setOutsideClosable(_outsideCLosable)}
         />
       )}
       {display === "github" && <ImportGithub code={githubCode} />}
-      {display === "twitter" && (
-        <ImportTwitter oauth={twitterOauth} oauthV2={twitterV2Oauth} />
-      )}
+      {display === "twitter" && <ImportTwitter oauth={twitterOauth} oauthV2={twitterV2Oauth} />}
       {display === "telegram" && <ImportTelegram payload={telegramPayload} />}
 
       {display === "choice" && (
@@ -312,48 +318,46 @@ export default function ImportAccountModal({
             {accountTypes ? (
               <>
                 {accountTypes.includes("ethereum") && (
-                  <Account
-                    type={"ethereum"}
-                    onClick={() => setDisplay("ethereum")}
-                  />
+                  <Account type={"ethereum"} onClick={() => setDisplay("ethereum")} />
                 )}
                 {accountTypes.includes("github") && (
-                  <Account
-                    type={"github"}
-                    onClick={() => setDisplay("github")}
-                  />
+                  <Account type={"github"} onClick={() => setDisplay("github")} />
                 )}
                 {accountTypes.includes("twitter") && (
-                  <Account
-                    type={"twitter"}
-                    onClick={() => setDisplay("twitter")}
-                  />
+                  <Account type={"twitter"} onClick={() => setDisplay("twitter")} />
                 )}
-                {featureFlagProvider.isTelegramEnabled() &&
-                  accountTypes.includes("telegram") && (
-                    <Account
-                      type={"telegram"}
-                      onClick={() => setDisplay("telegram")}
-                    />
-                  )}
+                {sismoConnectDataSources?.map((sismoConnectDataSource) => {
+                  return (
+                    <div key={"choice" + sismoConnectDataSource.type}>
+                      <Account
+                        type={sismoConnectDataSource.type}
+                        onClick={() => goToSismoConnectAppCreationFlow(sismoConnectDataSource)}
+                      />
+                    </div>
+                  );
+                })}
+                {featureFlagProvider.isTelegramEnabled() && accountTypes.includes("telegram") && (
+                  <Account type={"telegram"} onClick={() => setDisplay("telegram")} />
+                )}
               </>
             ) : (
               <>
-                <Account
-                  type={"ethereum"}
-                  onClick={() => setDisplay("ethereum")}
-                />
+                <Account type={"ethereum"} onClick={() => setDisplay("ethereum")} />
                 <Account type={"github"} onClick={() => setDisplay("github")} />
-                <Account
-                  type={"twitter"}
-                  onClick={() => setDisplay("twitter")}
-                />
+                <Account type={"twitter"} onClick={() => setDisplay("twitter")} />
                 {featureFlagProvider.isTelegramEnabled() && (
-                  <Account
-                    type={"telegram"}
-                    onClick={() => setDisplay("telegram")}
-                  />
+                  <Account type={"telegram"} onClick={() => setDisplay("telegram")} />
                 )}
+                {sismoConnectDataSources?.map((sismoConnectDataSource) => {
+                  return (
+                    <div key={sismoConnectDataSource.type}>
+                      <Account
+                        type={sismoConnectDataSource.type}
+                        onClick={() => goToSismoConnectAppCreationFlow(sismoConnectDataSource)}
+                      />
+                    </div>
+                  );
+                })}
               </>
             )}
           </Accounts>

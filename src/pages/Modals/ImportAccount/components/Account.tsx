@@ -49,17 +49,13 @@ export default function Account({ type, onClick }: Props): JSX.Element {
           <Icon name="logoEthereum-fill-bluem05" style={{ height: "100%" }} />
         )}
         {type === "twitter" && (
-          <Icon
-            name="logoTwitter-fill-bluem05"
-            style={{ height: "85%", marginTop: "5px" }}
-          />
+          <Icon name="logoTwitter-fill-bluem05" style={{ height: "85%", marginTop: "5px" }} />
         )}
-        {type === "github" && (
-          <Icon name="logoGithub-fill-bluem05" style={{ height: "100%" }} />
-        )}
+        {type === "github" && <Icon name="logoGithub-fill-bluem05" style={{ height: "100%" }} />}
         {type === "telegram" && (
           <Icon name="logoTelegram-fill-bluem05" style={{ height: "100%" }} />
         )}
+        {type === "worldcoin" && <Icon name="worldcoin-outline-white" style={{ height: "100%" }} />}
       </AccountLogo>
       <AccountText>
         {type === "ethereum" && (
@@ -83,6 +79,12 @@ export default function Account({ type, onClick }: Props): JSX.Element {
         {type === "telegram" && (
           <>
             Telegram <br />
+            account
+          </>
+        )}
+        {type === "worldcoin" && (
+          <>
+            Worldcoin <br />
             account
           </>
         )}

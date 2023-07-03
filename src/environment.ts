@@ -1,3 +1,5 @@
+import { RequestParams } from "@sismo-core/sismo-connect-client";
+
 type FeatureFlags = {
   twitterV2?: boolean;
   telegram: boolean;
@@ -25,6 +27,13 @@ export type Environment = {
     commitmentReceipt: [string, string, string];
   };
   walletConnectProjectId: string;
+  sismoConnectDataSources: SismoConnectDataSource[];
+};
+
+export type SismoConnectDataSource = {
+  appId: string;
+  type: string;
+  request: RequestParams;
 };
 
 if ((window as any).env) {
