@@ -5,7 +5,7 @@ import { ImportedAccount } from "..";
 import { VaultProvider } from "../provider/provider";
 import { BaseStore } from "../../vault-store/base-store";
 import { SismoWallet, WalletPurpose } from "../wallet";
-import { RecoveryKey, Vault, VaultNamespaceInputs } from "./client.types";
+import { RecoveryKey, SismoConnectDataSource, Vault, VaultNamespaceInputs } from "./client.types";
 import SHA3 from "sha3";
 import { BigNumber, ethers } from "ethers";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
@@ -82,9 +82,7 @@ export class VaultClient {
     const currentVault = await this._getCurrentVault();
     const mnemonic = currentVault.mnemonics[0];
     const hash = new SHA3(256);
-    const vaultSecret = BigNumber.from(
-      "0x" + hash.update(mnemonic + "/vaultSecret").digest("hex")
-    )
+    const vaultSecret = BigNumber.from("0x" + hash.update(mnemonic + "/vaultSecret").digest("hex"))
       .mod(SNARK_FIELD)
       .toHexString();
     return vaultSecret;
@@ -98,10 +96,7 @@ export class VaultClient {
     const vaultSecret = await this.getVaultSecret();
     const vaultNamespace = BigNumber.from(
       keccak256(
-        ethers.utils.solidityPack(
-          ["uint128", "uint128"],
-          [appId, BigNumber.from(derivationKey)]
-        )
+        ethers.utils.solidityPack(["uint128", "uint128"], [appId, BigNumber.from(derivationKey)])
       )
     )
       .mod(SNARK_FIELD)
@@ -176,11 +171,7 @@ export class VaultClient {
   public async addRecoveryKey(recoveryKeyAdded: RecoveryKey): Promise<Vault> {
     const currentVault = await this._getCurrentVault();
 
-    if (
-      currentVault.recoveryKeys.find(
-        (recoveryKey) => recoveryKey.key === recoveryKeyAdded.key
-      )
-    ) {
+    if (currentVault.recoveryKeys.find((recoveryKey) => recoveryKey.key === recoveryKeyAdded.key)) {
       throw new Error("RecoveryKey already imported");
     }
 
@@ -213,6 +204,49 @@ export class VaultClient {
     const updatedVault: Vault = {
       ...currentVault,
       recoveryKeys: recoveryKeys,
+    };
+
+    await this._post(updatedVault);
+    return updatedVault;
+  }
+
+  /*****************************************************************/
+  /******************** SismoConnectDataSource *********************/
+  /*****************************************************************/
+
+  public async createSismoConnectDataSource({
+    vaultId,
+    appId,
+  }: {
+    vaultId: string;
+    appId: string;
+  }): Promise<Vault> {
+    const currentVault = await this._getCurrentVault();
+
+    const sismoConnectDataSources = currentVault.sismoConnectDataSources
+      ? [...currentVault.sismoConnectDataSources]
+      : [];
+
+    const vaultIdAlreadyExist = sismoConnectDataSources.find(
+      (dataSource) => dataSource.vaultId === vaultId
+    );
+    if (vaultIdAlreadyExist)
+      throw new Error("VaultId of Sismo Data Source already added in the Vault");
+
+    const appIdAlreadyExist = sismoConnectDataSources.find(
+      (dataSource) => dataSource.appId === appId
+    );
+    if (appIdAlreadyExist) throw new Error("AppId of Sismo Data Source already added in the Vault");
+
+    const sismoConnectDataSource: SismoConnectDataSource = {
+      vaultId: vaultId,
+      appId: appId,
+      createdAt: Date.now(),
+    };
+
+    const updatedVault: Vault = {
+      ...currentVault,
+      sismoConnectDataSources: [...sismoConnectDataSources, sismoConnectDataSource],
     };
 
     await this._post(updatedVault);
@@ -256,10 +290,8 @@ export class VaultClient {
     const currentVault = await this._getCurrentVault();
 
     if (account.type !== "ethereum") {
-      if (!account.wallet)
-        throw new Error("Web 2 accounts must be imported with a wallet");
-      if (!account.profile)
-        throw new Error("Web 2 accounts must be imported with a profile");
+      if (!account.wallet) throw new Error("Web 2 accounts must be imported with a wallet");
+      if (!account.profile) throw new Error("Web 2 accounts must be imported with a profile");
 
       if (currentVault.mnemonics[0] !== account.wallet.mnemonic)
         throw new Error("Can't import web2 account with invalid phrase");
@@ -271,11 +303,7 @@ export class VaultClient {
         throw new Error("Can't import web2 account with invalid accountNumber");
     }
 
-    if (
-      currentVault.importedAccounts.find(
-        (el) => el.identifier === account.identifier
-      )
-    ) {
+    if (currentVault.importedAccounts.find((el) => el.identifier === account.identifier)) {
       throw new Error("Account already imported");
     }
 
@@ -288,9 +316,7 @@ export class VaultClient {
     return updatedVault;
   }
 
-  public async deleteImportedAccount(
-    accountDeleted: ImportedAccount
-  ): Promise<Vault> {
+  public async deleteImportedAccount(accountDeleted: ImportedAccount): Promise<Vault> {
     const currentVault = await this._getCurrentVault();
 
     const accounts = currentVault.importedAccounts.filter((account) => {
@@ -317,11 +343,7 @@ export class VaultClient {
   public async addOwner(ownerAdded: Owner): Promise<Vault> {
     const currentVault = await this._getCurrentVault();
 
-    if (
-      currentVault.owners.find(
-        (owner) => owner.identifier === ownerAdded.identifier
-      )
-    ) {
+    if (currentVault.owners.find((owner) => owner.identifier === ownerAdded.identifier)) {
       throw new Error("Owner already imported");
     }
 
@@ -344,11 +366,7 @@ export class VaultClient {
     const ownersAdded = [];
 
     for (let owner of owners) {
-      if (
-        !currentVault.owners.find(
-          (_owner) => _owner.identifier === owner.identifier
-        )
-      ) {
+      if (!currentVault.owners.find((_owner) => _owner.identifier === owner.identifier)) {
         const addedOwnerVault = await this._get(owner.seed);
         if (!addedOwnerVault) {
           ownersAdded.push(owner);
@@ -369,9 +387,7 @@ export class VaultClient {
     const currentVault = await this._getCurrentVault();
 
     const owners = currentVault.owners.filter((owner) => {
-      return !ownersDeleted.find(
-        (ownerDeleted) => ownerDeleted.identifier === owner.identifier
-      );
+      return !ownersDeleted.find((ownerDeleted) => ownerDeleted.identifier === owner.identifier);
     });
 
     if (owners.length === currentVault.owners.length) {
@@ -478,9 +494,7 @@ export class VaultClient {
     const text = forceText ?? JSON.stringify(vault);
 
     await Promise.all([
-      ...vault.owners.map((owner) =>
-        this._provider.post(owner.seed, text, vault.version)
-      ),
+      ...vault.owners.map((owner) => this._provider.post(owner.seed, text, vault.version)),
       ...vault.recoveryKeys
         .filter((backup) => backup.valid)
         .map((backup) => this._provider.post(backup.key, text, vault.version)),

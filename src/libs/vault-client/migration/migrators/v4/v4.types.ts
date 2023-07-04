@@ -1,7 +1,4 @@
-import {
-  CommitmentMapperPubKey,
-  CommitmentReceipt,
-} from "../../../../sismo-client";
+import { CommitmentMapperPubKey, CommitmentReceipt } from "../../../../sismo-client";
 
 export type Owner = {
   identifier: string;
@@ -57,6 +54,7 @@ export type VaultV4 = {
   mnemonics: string[];
   recoveryKeys: RecoveryKey[];
   owners: Owner[];
+  sismoConnectDataSources?: SismoConnectDataSource[];
   importedAccounts: ImportedAccount[];
   settings: {
     name: string;
@@ -65,4 +63,10 @@ export type VaultV4 = {
   };
   timestamp: number;
   version: 4;
+};
+
+export type SismoConnectDataSource = {
+  vaultId: string;
+  appId: string;
+  createdAt: number;
 };

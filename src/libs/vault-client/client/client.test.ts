@@ -278,6 +278,60 @@ describe("Vault client V1", () => {
   });
 
   /*****************************************************************/
+  /********************* SISMO CONNECT DATA SOURCE *****************/
+  /*****************************************************************/
+
+  it("Should create a Sismo Connect data source", async () => {
+    await vaultClient.unlock(owner1.seed);
+    const vault = await vaultClient.createSismoConnectDataSource({
+      vaultId: "0x1",
+      appId: "0x2",
+    });
+    expect(JSON.stringify(vault)).toEqual(
+      JSON.stringify({
+        mnemonics: [mnemonic1],
+        importedAccounts: [],
+        recoveryKeys: [recoveryKey1, recoveryKeyAdded, recoveryKey2],
+        owners: [owner1],
+        settings: {
+          autoImportOwners: false,
+          name: "My Sismo Vault",
+          keepConnected: true,
+        },
+        timestamp: vault.timestamp,
+        version: 4,
+        sismoConnectDataSources: [
+          {
+            vaultId: "0x1",
+            appId: "0x2",
+            createdAt: vault.sismoConnectDataSources[0].createdAt,
+          },
+        ],
+      })
+    );
+  });
+
+  it("Should throw with VaultId already added", async () => {
+    await vaultClient.unlock(owner1.seed);
+    await expect(async () => {
+      await vaultClient.createSismoConnectDataSource({
+        vaultId: "0x1",
+        appId: "0x3",
+      });
+    }).rejects.toThrow("VaultId of Sismo Data Source already added in the Vault");
+  });
+
+  it("Should throw with AppId already added", async () => {
+    await vaultClient.unlock(owner1.seed);
+    await expect(async () => {
+      await vaultClient.createSismoConnectDataSource({
+        vaultId: "0x3",
+        appId: "0x2",
+      });
+    }).rejects.toThrow("AppId of Sismo Data Source already added in the Vault");
+  });
+
+  /*****************************************************************/
   /************************* IMPORTED ACCOUNTS *********************/
   /*****************************************************************/
 
@@ -297,6 +351,13 @@ describe("Vault client V1", () => {
         },
         timestamp: vault.timestamp,
         version: 4,
+        sismoConnectDataSources: [
+          {
+            vaultId: "0x1",
+            appId: "0x2",
+            createdAt: vault.sismoConnectDataSources[0].createdAt,
+          },
+        ],
       })
     );
   });
@@ -317,6 +378,13 @@ describe("Vault client V1", () => {
         },
         timestamp: vault.timestamp,
         version: 4,
+        sismoConnectDataSources: [
+          {
+            vaultId: "0x1",
+            appId: "0x2",
+            createdAt: vault.sismoConnectDataSources[0].createdAt,
+          },
+        ],
       })
     );
   });
@@ -344,6 +412,13 @@ describe("Vault client V1", () => {
         },
         timestamp: vault.timestamp,
         version: 4,
+        sismoConnectDataSources: [
+          {
+            vaultId: "0x1",
+            appId: "0x2",
+            createdAt: vault.sismoConnectDataSources[0].createdAt,
+          },
+        ],
       })
     );
   });
@@ -450,6 +525,13 @@ describe("Vault client V1", () => {
         },
         timestamp: vault.timestamp,
         version: 4,
+        sismoConnectDataSources: [
+          {
+            vaultId: "0x1",
+            appId: "0x2",
+            createdAt: vault.sismoConnectDataSources[0].createdAt,
+          },
+        ],
       })
     );
   });
@@ -474,6 +556,13 @@ describe("Vault client V1", () => {
         },
         timestamp: vault.timestamp,
         version: 4,
+        sismoConnectDataSources: [
+          {
+            vaultId: "0x1",
+            appId: "0x2",
+            createdAt: vault.sismoConnectDataSources[0].createdAt,
+          },
+        ],
       })
     );
   });
@@ -494,6 +583,13 @@ describe("Vault client V1", () => {
         },
         timestamp: vault.timestamp,
         version: 4,
+        sismoConnectDataSources: [
+          {
+            vaultId: "0x1",
+            appId: "0x2",
+            createdAt: vault.sismoConnectDataSources[0].createdAt,
+          },
+        ],
       })
     );
   });
@@ -527,6 +623,13 @@ describe("Vault client V1", () => {
         },
         timestamp: vault.timestamp,
         version: 4,
+        sismoConnectDataSources: [
+          {
+            vaultId: "0x1",
+            appId: "0x2",
+            createdAt: vault.sismoConnectDataSources[0].createdAt,
+          },
+        ],
       })
     );
   });
@@ -554,6 +657,13 @@ describe("Vault client V1", () => {
         },
         timestamp: vault.timestamp,
         version: 4,
+        sismoConnectDataSources: [
+          {
+            vaultId: "0x1",
+            appId: "0x2",
+            createdAt: vault.sismoConnectDataSources[0].createdAt,
+          },
+        ],
       })
     );
   });

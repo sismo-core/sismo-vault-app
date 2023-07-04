@@ -9,6 +9,7 @@ import { useSismo } from "../../hooks/sismo";
 import { getSismoConnectRequest } from "./utils/getSismoConnectRequest";
 import { getReferrer } from "./utils/getReferrer";
 import {
+  AuthType,
   RequestGroupMetadata,
   SismoConnectRequest,
   SismoConnectResponse,
@@ -338,7 +339,7 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
 
   const zipurl = (data) => fromUint8Array(gzip(data), true);
 
-  const onResponse = (response: SismoConnectResponse) => {
+  const onResponse = async (response: SismoConnectResponse) => {
     if (!response) return;
 
     setIsRedirecting(true);
@@ -355,6 +356,29 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
           getSismoConnectResponseBytes(response)
         );
       }
+    }
+
+    try {
+      const getVaultId = () => {
+        for (let proof of response.proofs) {
+          if (proof.auths && proof.auths.length > 0) {
+            for (let auth of proof.auths) {
+              if (auth.authType === AuthType.VAULT) {
+                return auth.userId;
+              }
+            }
+          }
+        }
+        return null;
+      };
+      let vaultId = getVaultId();
+      if (vaultId) {
+        const appId = response.appId;
+        await vault.createSismoConnectDataSource({ vaultId, appId });
+      }
+    } catch (e) {
+      Sentry.captureException(e);
+      console.error(e);
     }
 
     const waitingTimeBeforeRedirection = 1000;

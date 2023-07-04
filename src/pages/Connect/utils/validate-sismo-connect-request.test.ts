@@ -11,12 +11,8 @@ describe("Request validation tests", () => {
     devConfig: { enabled: true },
     callbackUrl: "http://localhost:3001/level-1-register-user",
     version: "sismo-connect-v1.1",
-    claims: [
-      {
-        groupId: "0x1",
-      },
-    ],
     compressed: true,
+    claims: [{ groupId: "0x1" }],
   };
 
   it("Should return a status success when the version is valid", async () => {

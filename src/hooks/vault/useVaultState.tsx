@@ -3,6 +3,7 @@ import {
   ImportedAccount,
   Owner,
   RecoveryKey,
+  SismoConnectDataSource,
   Vault,
 } from "../../libs/vault-client";
 import { useWallet } from "../wallet";
@@ -16,6 +17,7 @@ export type VaultState = {
   connectedOwner: Owner;
   recoveryKeys: RecoveryKey[];
   deletable: boolean;
+  sismoConnectDataSources: SismoConnectDataSource[];
   updateVaultState: (vault: Vault) => Promise<void>;
   updateConnectedOwner: (owner: Owner) => Promise<void>;
   reset: () => void;
@@ -25,9 +27,10 @@ export const useVaultState = (): VaultState => {
   const wallet = useWallet();
   const [vaultName, setVaultName] = useState(null);
   const [autoImportOwners, setAutoImportOwners] = useState<boolean>(null);
+  const [sismoConnectDataSources, setSismoConnectDataSources] =
+    useState<SismoConnectDataSource[]>(null);
   const [keepConnected, setKeepConnected] = useState<boolean>(null);
-  const [importedAccounts, setImportedAccounts] =
-    useState<ImportedAccount[]>(null);
+  const [importedAccounts, setImportedAccounts] = useState<ImportedAccount[]>(null);
   const [recoveryKeys, setRecoveryKeys] = useState<RecoveryKey[]>(null);
   const [owners, setOwners] = useState<Owner[]>(null);
   const [connectedOwner, setConnectedOwner] = useState<Owner>(null);
@@ -95,13 +98,23 @@ export const useVaultState = (): VaultState => {
     }
   };
 
+  const updateSismoConnectDataSources = async (vault: Vault): Promise<void> => {
+    if (
+      sismoConnectDataSources === null ||
+      vault.sismoConnectDataSources.length !== sismoConnectDataSources.length ||
+      !vault.sismoConnectDataSources.every(
+        (val, index) => val.vaultId === sismoConnectDataSources[index].vaultId
+      )
+    ) {
+      setSismoConnectDataSources(vault.sismoConnectDataSources);
+    }
+  };
+
   const updateOwnersState = async (vault: Vault): Promise<void> => {
     if (
       owners === null ||
       vault.owners.length !== owners.length ||
-      !vault.owners.every((source) =>
-        owners.find((el) => el.identifier === source.identifier)
-      )
+      !vault.owners.every((source) => owners.find((el) => el.identifier === source.identifier))
     ) {
       const _owners = await addEns(vault.owners);
       setOwners(_owners);
@@ -118,6 +131,7 @@ export const useVaultState = (): VaultState => {
       updateAutoImportOwners(vault),
       updateRecoveryKeys(vault),
       updateKeepConnected(vault),
+      updateSismoConnectDataSources(vault),
     ]);
   };
 
@@ -150,6 +164,7 @@ export const useVaultState = (): VaultState => {
     deletable,
     recoveryKeys,
     keepConnected,
+    sismoConnectDataSources,
     updateVaultState,
     updateConnectedOwner,
     reset,
