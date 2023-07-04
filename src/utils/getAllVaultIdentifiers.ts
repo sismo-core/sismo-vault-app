@@ -4,7 +4,7 @@ import { ImportedAccount } from "../libs/vault-client";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { keccak256 } from "ethers/lib/utils";
 import { GroupMetadata } from "../libs/sismo-client";
-import { getAccountTypeAppId } from "../libs/sismo-connect-data-source/utils/getAccountTypeAppId";
+import { getAccountTypeAppId } from "../libs/sismo-connect-data-source-config-provider/utils/getAccountTypeAppId";
 
 export const getAllVaultIdentifiers = async (
   groupsMetadata: GroupMetadata[],

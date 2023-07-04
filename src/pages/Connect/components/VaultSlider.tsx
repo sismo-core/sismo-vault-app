@@ -284,7 +284,7 @@ export default function VaultSlider({
 
   const accountNumber =
     (vault?.importedAccounts ? vault?.importedAccounts?.length : 0) +
-    (vault?.sismoConnectDataSources ? vault?.sismoConnectDataSources?.length : 0);
+    (vault?.sismoConnectDataSourcesStates ? vault?.sismoConnectDataSourcesStates?.length : 0);
 
   return (
     <Container ref={ref} vaultSliderOpen={vaultSliderOpen}>

@@ -6,7 +6,6 @@ import {
   SelectedSismoConnectRequest,
   RequestGroupMetadata,
 } from "./sismo-connect-prover-v1";
-import { Cache } from "../cache-service";
 import { ImportedAccount } from "../vault-client";
 import {
   RequestValidationStatus,
@@ -15,6 +14,7 @@ import {
 import { CommitmentMapper } from "../commitment-mapper";
 import { SismoConnectProverV1 } from "./sismo-connect-prover-v1/sismo-connect-prover-v1";
 import { HydraS3Prover } from "../hydra-provers";
+import { RegistryTreeReaderBase } from "../registry-tree-readers/types";
 
 export class SismoConnectProvers {
   private sismoConnectProvers: {
@@ -22,10 +22,10 @@ export class SismoConnectProvers {
   };
 
   constructor({
-    cache,
+    registryTreeReader,
     commitmentMapperService,
   }: {
-    cache: Cache;
+    registryTreeReader: RegistryTreeReaderBase;
     commitmentMapperService: CommitmentMapper;
   }) {
     this.initDevConfig = this.initDevConfig.bind(this);
@@ -36,7 +36,7 @@ export class SismoConnectProvers {
 
     const commitmentMapperPubKey = commitmentMapperService.getPubKey();
 
-    const hydraS3Prover = HydraS3Prover.build(cache, commitmentMapperPubKey);
+    const hydraS3Prover = HydraS3Prover.build(registryTreeReader, commitmentMapperPubKey);
     // fetch without waiting the promise here
     hydraS3Prover.fetchZkey();
 

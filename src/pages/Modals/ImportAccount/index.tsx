@@ -17,7 +17,7 @@ import { clearQueryParams } from "../../../utils/clearQueryParams";
 import { clearLocationHash } from "../../../utils/clearLocationHash";
 import { getTwitterCallbackURL } from "../../../utils/navigateOAuth";
 import { SismoConnect, SismoConnectConfig } from "@sismo-core/sismo-connect-client";
-import { getAccountTypeAppId } from "../../../libs/sismo-connect-data-source/utils/getAccountTypeAppId";
+import { getAccountTypeAppId } from "../../../libs/sismo-connect-data-source-config-provider/utils/getAccountTypeAppId";
 
 const Content = styled.div`
   display: flex;

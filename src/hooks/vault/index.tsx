@@ -17,6 +17,7 @@ import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
 import { CommitmentMapper } from "../../libs/commitment-mapper";
 import { ServicesFactory } from "../../libs/services-factory";
 import { useNotifications } from "../../components/Notifications/provider";
+import { SismoConnectDataSourceConfigProvider } from "../../libs/sismo-connect-data-source-config-provider/sismo-connect-data-source-config-provider";
 
 export type SismoConnectDataSourceState = SismoConnectDataSource & {
   state: "eligible" | "not-eligible";
@@ -36,8 +37,8 @@ type ReactVault = {
   recoveryKeys: RecoveryKey[];
   commitmentMapper: CommitmentMapper;
   synchronizing: boolean;
-  sismoConnectDataSources: SismoConnectDataSource[];
   sismoConnectDataSourcesStates: SismoConnectDataSourceState[];
+  sismoConnectDataSourceConfigProvider: SismoConnectDataSourceConfigProvider;
   getVaultSecret: () => Promise<string>;
   getVaultId: ({ appId, derivationKey }: VaultNamespaceInputs) => Promise<string>;
   disconnect: () => void;
@@ -88,10 +89,14 @@ export default function SismoVaultProvider({
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
   const [synchronizing, setSynchronizing] = useState(false);
   const [impersonationErrors, setImpersonationErrors] = useState<string[]>([]);
+  const [sismoConnectDataSourcesStates, setSismoConnectDataSourcesStates] =
+    useState<SismoConnectDataSourceState[]>();
 
   const vaultClient = services.getVaultClient();
   const vaultClientV1 = services.getVaultClientV1();
   const vaultSynchronizer = services.getVaultsSynchronizer();
+  const hydraEligibilityResolver = services.getHydraEligibilityResolver();
+  const sismoConnectDataSourceConfigProvider = services.getSismoConnectDataSourceConfigProvider();
 
   useEffect(() => {
     if (impersonationErrors.length === 0) return;
@@ -328,6 +333,50 @@ export default function SismoVaultProvider({
     return services.getCommitmentMapper();
   }, [services]);
 
+  useEffect(() => {
+    if (!Boolean(vaultState.connectedOwner)) return;
+    const updateSismoConnectDataSources = async (
+      sismoConnectDataSources: SismoConnectDataSource[]
+    ): Promise<void> => {
+      if (!sismoConnectDataSources) return;
+
+      const _sismoConnectDataSourcesStates = sismoConnectDataSources
+        .map((sismoConnectDataSource) => {
+          if (
+            !sismoConnectDataSourceConfigProvider.isAccountPartOfTheConfig(sismoConnectDataSource)
+          )
+            return null;
+          return {
+            ...sismoConnectDataSource,
+            state: "not-eligible" as "not-eligible" | "eligible",
+          };
+        })
+        .filter(Boolean);
+
+      setSismoConnectDataSourcesStates(_sismoConnectDataSourcesStates);
+
+      for (let sismoConnectDataSourcesState of _sismoConnectDataSourcesStates) {
+        const identifier = sismoConnectDataSourcesState.vaultId;
+        const groupId = sismoConnectDataSourceConfigProvider.getSismoConnectDataSourceGroupId(
+          sismoConnectDataSourcesState
+        );
+        const value = await hydraEligibilityResolver.getEligibleValue({ identifier, groupId });
+
+        if (value) {
+          sismoConnectDataSourcesState.state = "eligible";
+        }
+      }
+
+      setSismoConnectDataSourcesStates(_sismoConnectDataSourcesStates);
+    };
+    updateSismoConnectDataSources(vaultState.sismoConnectDataSources);
+  }, [
+    vaultState.sismoConnectDataSources,
+    vaultState.connectedOwner,
+    hydraEligibilityResolver,
+    sismoConnectDataSourceConfigProvider,
+  ]);
+
   return (
     <SismoVaultContext.Provider
       value={{
@@ -342,9 +391,9 @@ export default function SismoVaultProvider({
         isConnected: Boolean(vaultState.connectedOwner),
         deletable: vaultState.deletable,
         recoveryKeys: vaultState.recoveryKeys,
-        sismoConnectDataSources: vaultState.sismoConnectDataSources,
-        sismoConnectDataSourcesStates: vaultState.sismoConnectDataSourcesStates,
+        sismoConnectDataSourcesStates: sismoConnectDataSourcesStates,
         synchronizing,
+        sismoConnectDataSourceConfigProvider,
         getVaultSecret,
         getVaultId,
         disableRecoveryKey,

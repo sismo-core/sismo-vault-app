@@ -16,7 +16,7 @@ import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../../Modals/ImportAccount/provider";
 import { AccountType, GroupMetadata } from "../../../../../libs/sismo-client";
 import env from "../../../../../environment";
-import { getAccountTypeAppId } from "../../../../../libs/sismo-connect-data-source/utils/getAccountTypeAppId";
+import { getAccountTypeAppId } from "../../../../../libs/sismo-connect-data-source-config-provider/utils/getAccountTypeAppId";
 
 const Container = styled.div`
   display: flex;

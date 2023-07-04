@@ -1,5 +1,4 @@
 import { DevRegistryTreeReader } from "../registry-tree-readers/dev-registry-tree-reader";
-import { Cache } from "../cache-service";
 import { BigNumber, ethers } from "ethers";
 import {
   ProofRequest,
@@ -15,7 +14,6 @@ import {
   DevConfig,
   ProvingScheme,
 } from "../sismo-connect-provers/sismo-connect-prover-v1";
-import { RegistryTreeReader } from "../registry-tree-readers/registry-tree-reader";
 import { RegistryTreeReaderBase } from "../registry-tree-readers/types";
 import { HydraS3Account, SnarkProof, UserParams, VaultInput } from "@sismo-core/hydra-s3";
 import { EddsaSignature, SNARK_FIELD } from "@sismo-core/crypto";
@@ -27,8 +25,8 @@ import { keccak256 } from "ethers/lib/utils";
 export abstract class HydraProver {
   protected _registryTreeReader: RegistryTreeReaderBase;
 
-  constructor({ cache }: { cache?: Cache }) {
-    this._registryTreeReader = new RegistryTreeReader({ cache });
+  constructor({ registryTreeReader }: { registryTreeReader: RegistryTreeReaderBase }) {
+    this._registryTreeReader = registryTreeReader;
   }
 
   public abstract getVersion(): ProvingScheme;

@@ -3,7 +3,7 @@ import Blockies from "react-blockies";
 import { ImportedAccount, Owner, SismoConnectDataSource } from "../../libs/vault-client";
 import Icon from "../Icon";
 import { Account } from "../../libs/sismo-client";
-import { getSismoConnectDataSourceIcon } from "../../libs/sismo-connect-data-source/utils/getSismoConnectDataSourceIcon";
+import { useVault } from "../../hooks/vault";
 
 const Container = styled.div<{ width: number }>`
   min-height: ${(props) => props.width}px;
@@ -32,6 +32,8 @@ type Props = {
 };
 
 export default function Avatar({ account, style, width, isOwner }: Props): JSX.Element {
+  const { sismoConnectDataSourceConfigProvider } = useVault();
+
   const scale =
     width === 16
       ? 2
@@ -52,7 +54,9 @@ export default function Avatar({ account, style, width, isOwner }: Props): JSX.E
       : 3;
 
   if ((account as SismoConnectDataSource).vaultId) {
-    const iconName = getSismoConnectDataSourceIcon(account as SismoConnectDataSource);
+    const iconName = sismoConnectDataSourceConfigProvider.getSismoConnectDataSourceIcon(
+      account as SismoConnectDataSource
+    );
     if (!iconName) return <></>;
     return (
       <Container style={style} width={width ? width : 24}>

@@ -513,7 +513,6 @@ export class VaultClient {
     const vaultString = await this._provider.get(seed);
     if (vaultString === "deleted") return null;
     let vault = JSON.parse(vaultString);
-    console.log("vault", vault);
     return migration(vault);
   }
 }

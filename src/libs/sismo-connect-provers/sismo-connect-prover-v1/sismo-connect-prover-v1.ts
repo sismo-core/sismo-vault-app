@@ -31,7 +31,7 @@ import { HydraProver } from "../../hydra-provers/hydra-prover";
 import { CommitmentMapper } from "../../commitment-mapper";
 import { keccak256 } from "ethers/lib/utils";
 import { getPoseidon } from "../../poseidon";
-import { getAccountTypeAppId } from "../../sismo-connect-data-source/utils/getAccountTypeAppId";
+import { getAccountTypeAppId } from "../../sismo-connect-data-source-config-provider/utils/getAccountTypeAppId";
 
 export class SismoConnectProverV1 {
   private hydraProver: HydraProver;

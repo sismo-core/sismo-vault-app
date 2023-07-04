@@ -14,6 +14,9 @@ import { AccountResolver } from "../account-resolver";
 import { VaultConfigParser } from "../vault-config-parser";
 import { SismoConnectProvers } from "../sismo-connect-provers";
 import { IndexDbCache } from "../cache-service/indexdb-cache";
+import { RegistryTreeReader } from "../registry-tree-readers/registry-tree-reader";
+import { HydraEligibilityResolver } from "../hydra-eligibility-resolver/hydra-eligibility-resolver";
+import { SismoConnectDataSourceConfigProvider } from "../sismo-connect-data-source-config-provider/sismo-connect-data-source-config-provider";
 
 // factory service
 type Configuration = {
@@ -26,6 +29,8 @@ type Configuration = {
   impersonatedVaultCreator: ImpersonatedVaultCreator;
   accountResolver: AccountResolver;
   sismoConnectProvers: SismoConnectProvers;
+  hydraEligibilityResolver: HydraEligibilityResolver;
+  sismoConnectDataSourceConfigProvider: SismoConnectDataSourceConfigProvider;
 };
 
 export class ServicesFactory {
@@ -59,8 +64,10 @@ export class ServicesFactory {
 
     const accountResolver = new AccountResolver();
 
+    const registryTreeReader = new RegistryTreeReader({ cache });
+
     const sismoConnectProvers = new SismoConnectProvers({
-      cache: cache,
+      registryTreeReader: registryTreeReader,
       commitmentMapperService: commitmentMapper,
     });
 
@@ -83,19 +90,37 @@ export class ServicesFactory {
             vaultClientV2: vaultClient,
           });
 
+    const hydraEligibilityResolver = new HydraEligibilityResolver({
+      registryTreeReader,
+    });
+
+    const sismoConnectDataSourceConfigProvider = new SismoConnectDataSourceConfigProvider({
+      sismoConnectDataSourcesConfig: env.sismoConnectDataSourcesConfig,
+    });
+
     const configuration = {
-      vaultConfigParser: vaultConfigParser,
+      vaultConfigParser,
       vaultsSynchronizer,
       vaultClientV1,
       vaultClient,
       commitmentMapperV1,
       commitmentMapper,
-      impersonatedVaultCreator: impersonatedVaultCreator,
-      accountResolver: accountResolver,
-      sismoConnectProvers: sismoConnectProvers,
+      impersonatedVaultCreator,
+      accountResolver,
+      sismoConnectProvers,
+      hydraEligibilityResolver,
+      sismoConnectDataSourceConfigProvider,
     };
 
     return new ServicesFactory(configuration);
+  }
+
+  public getSismoConnectDataSourceConfigProvider() {
+    return this._configuration.sismoConnectDataSourceConfigProvider;
+  }
+
+  public getHydraEligibilityResolver() {
+    return this._configuration.hydraEligibilityResolver;
   }
 
   public getSismoConnectProvers() {

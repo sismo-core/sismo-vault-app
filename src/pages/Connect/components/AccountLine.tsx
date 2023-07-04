@@ -80,6 +80,7 @@ export default function AccountLine({ source, dataSource }: Props) {
         <AccountName>
           {source && getMainMinified(source)}
           {dataSource && getMinimalIdentifier(dataSource.vaultId)}
+          {dataSource && dataSource.state}
         </AccountName>
       </AvatarName>
 

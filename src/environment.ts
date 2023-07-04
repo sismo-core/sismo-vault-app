@@ -34,6 +34,7 @@ export type SismoConnectDataSourceConfig = {
   appId: string;
   type: string;
   request: RequestParams;
+  groupId: string;
 };
 
 if ((window as any).env) {
