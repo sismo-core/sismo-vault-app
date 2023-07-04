@@ -99,7 +99,6 @@ export default function BigIntSlider({
       if (slider) {
         const rect = slider.getBoundingClientRect();
         let x = clientX - rect.left;
-        console.log(x, rect.width);
         let _value = Math.round(Math.max(0, Math.min((x / rect.width) * GRAIN, GRAIN)));
         const range = maxValue.sub(minValue);
 

@@ -192,9 +192,9 @@ const InfoWrapper = styled.div`
   line-height: 18px;
 `;
 
-const HoverTooltipStyled = styled(HoverTooltip)`
+const HoverTooltipStyled = styled(HoverTooltip)<{ $isConnected: boolean }>`
   position: absolute;
-  right: -63px;
+  right: ${(props) => (props.$isConnected ? "-63px" : "-20px")};
 
   @media (max-width: 768px) {
     top: 20px;
@@ -288,6 +288,7 @@ export default function UserSelector({
           <HoverTooltipStyled
             text="The vaultId is an anonymous identifier of your vault for this specific app. Sharing your vaultId only reveals that you are a unique user and authenticates that you own a Data Vault."
             width={280}
+            $isConnected={true}
           >
             <InfoWrapper>
               vaultId
@@ -387,11 +388,12 @@ export default function UserSelector({
       )}
       {authType === AuthType.VAULT && (
         <HoverTooltipStyled
+          $isConnected={vault?.isConnected}
           text="The vaultId is an anonymous identifier of your vault for this specific app. Sharing your vaultId only reveals that you are a unique user and authenticates that you own a Data Vault."
           width={280}
         >
           <InfoWrapper>
-            vaultId
+            {vault?.isConnected ? "vaultId" : null}
             <Info size={16} color={color} />
           </InfoWrapper>
         </HoverTooltipStyled>
