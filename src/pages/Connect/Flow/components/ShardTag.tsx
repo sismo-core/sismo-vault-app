@@ -44,9 +44,13 @@ const Container = styled.div<{
   gap: 4px;
   flex-shrink: 0;
   flex-grow: 1;
-  width: ${(props) => (props.isOptional ? "255px" : "272px")};
+  width: ${(props) => (props.isOptional ? "165px" : "182px")};
   cursor: ${(props) => (props.isSelectorOpenable ? "pointer" : "default")};
   box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    width: calc(100% - 15px);
+  }
 `;
 
 export const SkeletonLoading = keyframes`
@@ -86,7 +90,6 @@ const Left = styled.div`
 const GroupName = styled.div`
   flex-grow: 1;
   ${textShorten(1)}
-
   @media (max-width: 768px) {
     max-width: 100px;
   }
@@ -106,7 +109,11 @@ const InfoWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   cursor: pointer;
+  font-size: 12px;
+  font-family: ${(props) => props.theme.fonts.regular};
+  line-height: 18px;
 `;
 
 const ChevronWrapper = styled.div<{ isSelectorOpen: boolean }>`
@@ -114,8 +121,7 @@ const ChevronWrapper = styled.div<{ isSelectorOpen: boolean }>`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transform: ${(props) =>
-    !props.isSelectorOpen ? "rotateX(0deg)" : "rotateX(180deg)"};
+  transform: ${(props) => (!props.isSelectorOpen ? "rotateX(0deg)" : "rotateX(180deg)")};
 
   /* transition: transform 0.15s ease-in-out; */
 `;
@@ -147,8 +153,7 @@ const SelectorItem = styled.div<{ isSelected: boolean }>`
   justify-content: center;
   font-size: 14px;
   line-height: 20px;
-  color: ${(props) =>
-    props.isSelected ? props.theme.colors.green1 : props.theme.colors.blue0};
+  color: ${(props) => (props.isSelected ? props.theme.colors.green1 : props.theme.colors.blue0)};
   font-family: ${(props) => props.theme.fonts.medium};
   border-radius: 2px;
   background: transparent;
@@ -164,10 +169,7 @@ const SelectorItem = styled.div<{ isSelected: boolean }>`
   transition: background 0.15s ease-in-out;
 `;
 
-function* bigNumberRange(
-  start: BigNumber,
-  end: BigNumber
-): Generator<BigNumber> {
+function* bigNumberRange(start: BigNumber, end: BigNumber): Generator<BigNumber> {
   for (let current = start; current.lte(end); current = current.add(1)) {
     yield current;
   }
@@ -178,14 +180,11 @@ type Props = {
   claim: ClaimRequest;
   claimRequestEligibility: ClaimRequestEligibility;
   isSelectableByUser: boolean;
-  initialValue: BigNumber;
+  initialValue: number;
   optIn?: boolean;
   isOptional: boolean;
 
-  onClaimChange: (
-    claimRequestEligibility: ClaimRequestEligibility,
-    selectedValue: BigNumber
-  ) => void;
+  onClaimChange: (claimRequestEligibility: ClaimRequestEligibility, selectedValue: number) => void;
   onModal?: (id: string) => void;
 };
 
@@ -202,7 +201,7 @@ export default function ShardTag({
 }: Props) {
   const MAX_DISPLAYED_VALUE = 8;
   const [modalKey, setModalKey] = useState(0);
-  const [selectedValue, setSelectedValue] = useState(initialValue || null);
+  const [selectedValue, setSelectedValue] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
   const ref = useRef(null);
@@ -228,26 +227,26 @@ export default function ShardTag({
   const isWei = maxValue.gte(BigNumber.from(10).pow(18)) ? 18 : 0;
 
   const isSelectorOpenable =
-    !maxValue.sub(minValue).eq(BigNumber.from(0)) &&
-    isSelectableByUser &&
-    Boolean(selectedValue);
-  const isBigNumber = maxValue?.gt(BigNumber.from(MAX_DISPLAYED_VALUE));
+    !maxValue.sub(minValue).eq(BigNumber.from(0)) && isSelectableByUser && Boolean(selectedValue);
+
+  const isModalSelector = maxValue?.gt(BigNumber.from(MAX_DISPLAYED_VALUE));
   const humanReadableGroupName = groupMetadata?.name
     ?.replace(/-/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
 
   useEffect(() => {
     if (initialValue) {
-      setSelectedValue(initialValue);
+      setSelectedValue(BigNumber.from(initialValue));
     }
   }, [initialValue]);
 
-  function onValueChange(
-    claimRequestEligibility: ClaimRequestEligibility,
-    value: BigNumber
-  ) {
-    setSelectedValue(value);
-    onClaimChange(claimRequestEligibility, value);
+  function onValueChange(claimRequestEligibility: ClaimRequestEligibility, value: BigNumber) {
+    try {
+      setSelectedValue(value);
+      onClaimChange(claimRequestEligibility, value.toNumber());
+    } catch (e) {
+      console.log("e", e);
+    }
   }
 
   if (!groupMetadata) {
@@ -302,10 +301,8 @@ export default function ShardTag({
           ref={ref}
           isOptional={isOptional}
           onClick={() => {
-            if (isSelectorOpenable) {
-              isBigNumber
-                ? setIsModalOpen(true)
-                : setIsSelectorOpen(!isSelectorOpen);
+            if (isSelectorOpenable && !isWei) {
+              isModalSelector ? setIsModalOpen(true) : setIsSelectorOpen(!isSelectorOpen);
             }
           }}
         >
@@ -385,12 +382,12 @@ export default function ShardTag({
               )}
             </>
           )}
-          {isBigNumber && isSelectorOpenable && (
+          {isModalSelector && isSelectorOpenable && !isWei && (
             <PencilSimple size={16} color={color} style={{ flexShrink: "0" }} />
           )}
         </Container>
         <InfoWrapper onClick={() => onModal(groupMetadata.id)}>
-          <Info size={18} color={color} />
+          <Info size={16} color={color} />
         </InfoWrapper>
       </OuterContainer>
     </>

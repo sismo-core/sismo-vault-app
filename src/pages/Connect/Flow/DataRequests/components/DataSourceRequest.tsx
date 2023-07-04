@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { CheckCircle, Info } from "phosphor-react";
+import { CheckCircle } from "phosphor-react";
 import {
   AuthRequest,
   AuthRequestEligibility,
@@ -8,7 +8,6 @@ import {
   SelectedSismoConnectRequest,
 } from "../../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import colors from "../../../../../theme/colors";
-import { getHumanReadableAuthType } from "../../../utils/getHumanReadableAuthType";
 import { useCallback, useEffect, useState } from "react";
 import Toggle from "../../components/Toggle";
 import ImportButton from "../../components/ImportButton";
@@ -23,15 +22,14 @@ import { ImportedAccount } from "../../../../../libs/vault-client";
 import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../../Modals/ImportAccount/provider";
 import { AccountType } from "../../../../../libs/sismo-client";
-import HoverTooltip from "../../../../../components/HoverTooltip";
 
 const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 56px;
-  gap: 38px;
-  width: 510px;
+  gap: 19px;
+  //width: 469px;
 
   @media (max-width: 768px) {
     flex-wrap: wrap;
@@ -48,29 +46,22 @@ const Left = styled.div`
   align-items: center;
   gap: 12px;
   flex-grow: 1;
-  width: 402.2px;
   font-size: 14px;
   line-height: 20px;
   font-family: ${(props) => props.theme.fonts.regular};
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const TextWrapper = styled.div<{ isOptIn: boolean }>`
   display: flex;
   align-items: center;
-
+  flex-wrap: nowrap;
   white-space: nowrap;
   flex-grow: 1;
   gap: 4px;
-  color: ${(props) =>
-    props.isOptIn ? props.theme.colors.blue0 : props.theme.colors.blue3};
-
-  @media (max-width: 768px) {
-    flex-wrap: wrap;
-  }
-`;
-
-const Bold = styled.span`
-  font-family: ${(props) => props.theme.fonts.bold};
+  color: ${(props) => (props.isOptIn ? props.theme.colors.blue0 : props.theme.colors.blue3)};
 `;
 
 const Right = styled.div`
@@ -87,8 +78,8 @@ const StyledButton = styled(ImportButton)`
   height: 28px;
   width: 96px;
   font-size: 12px;
-  @media (max-width: 656px) {
-    margin-top: 16px;
+  @media (max-width: 768px) {
+    margin-top: 12px;
   }
 `;
 
@@ -102,14 +93,6 @@ const CheckCircleIcon = styled(CheckCircle)`
   flex-shrink: 0;
 `;
 
-const InfoWrapper = styled.div`
-  width: 18px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 type Props = {
   auth: AuthRequest;
   appId: string;
@@ -119,9 +102,7 @@ type Props = {
   isInitialOptin: boolean;
   loadingEligible: boolean;
   proofLoading: boolean;
-  onUserInput: (
-    selectedSismoConnectRequest: SelectedSismoConnectRequest
-  ) => void;
+  onUserInput: (selectedSismoConnectRequest: SelectedSismoConnectRequest) => void;
 };
 
 export function DataSourceRequest({
@@ -144,10 +125,10 @@ export function DataSourceRequest({
   const isOptional = auth?.isOptional;
   const isEligible = authRequestEligibility?.isEligible && vault?.isConnected;
   const isSelectableByUser = !proofLoading && auth?.isSelectableByUser;
-  const humanReadableAuthType = getHumanReadableAuthType(auth?.authType);
   const isLoading = importAccount?.importing
     ? true
     : false || loadingEligible || typeof authRequestEligibility === "undefined";
+
   const isWeb2Impersonating =
     isImpersonating &&
     (auth?.authType === AuthType.TELEGRAM ||
@@ -157,18 +138,16 @@ export function DataSourceRequest({
   function onOptInChange(isOptIn: boolean) {
     const newSelectedSismoConnectRequest = {
       ...selectedSismoConnectRequest,
-      selectedAuths: selectedSismoConnectRequest.selectedAuths.map(
-        (selectedAuth) => {
-          if (selectedAuth.uuid === auth.uuid) {
-            return {
-              ...selectedAuth,
-              isOptIn,
-            };
-          } else {
-            return selectedAuth;
-          }
+      selectedAuths: selectedSismoConnectRequest.selectedAuths.map((selectedAuth) => {
+        if (selectedAuth.uuid === auth.uuid) {
+          return {
+            ...selectedAuth,
+            isOptIn,
+          };
+        } else {
+          return selectedAuth;
         }
-      ),
+      }),
     };
     onUserInput(newSelectedSismoConnectRequest);
   }
@@ -179,20 +158,16 @@ export function DataSourceRequest({
 
       newSelectedSismoConnectRequest = {
         ...selectedSismoConnectRequest,
-        selectedAuths: selectedSismoConnectRequest?.selectedAuths?.map(
-          (auth) => {
-            if (
-              auth?.uuid === (request as AuthRequestEligibility)?.auth?.uuid
-            ) {
-              return {
-                ...auth,
-                selectedUserId: selectedValue,
-              };
-            } else {
-              return auth;
-            }
+        selectedAuths: selectedSismoConnectRequest?.selectedAuths?.map((auth) => {
+          if (auth?.uuid === (request as AuthRequestEligibility)?.auth?.uuid) {
+            return {
+              ...auth,
+              selectedUserId: selectedValue,
+            };
+          } else {
+            return auth;
           }
-        ),
+        }),
       };
       onUserInput(newSelectedSismoConnectRequest);
     },
@@ -229,8 +204,7 @@ export function DataSourceRequest({
       );
       _initialAccount = vault.importedAccounts.find(
         (account) =>
-          account.identifier?.toLowerCase() ===
-          selectedAuth?.selectedUserId?.toLowerCase()
+          account.identifier?.toLowerCase() === selectedAuth?.selectedUserId?.toLowerCase()
       );
       setInitialAccount(_initialAccount);
     }
@@ -250,10 +224,7 @@ export function DataSourceRequest({
     <Container>
       <Left>
         {!isOptional && (
-          <CheckCircleIcon
-            size={24}
-            color={isEligible ? colors.green1 : colors.blue6}
-          />
+          <CheckCircleIcon size={24} color={isEligible ? colors.green1 : colors.blue6} />
         )}
         {isOptional && (
           <Toggle
@@ -266,117 +237,73 @@ export function DataSourceRequest({
           />
         )}
         <TextWrapper isOptIn={isOptional && isEligible ? isOptIn : true}>
-          {auth?.authType === AuthType.VAULT
-            ? "Share"
-            : isEligible
-            ? "Prove ownership"
-            : "Prove ownership of"}
-
-          {isEligible &&
-            authRequestEligibility?.auth?.authType !== AuthType.VAULT && (
-              <UserSelector
-                authRequestEligibility={authRequestEligibility}
-                isSelectableByUser={isSelectableByUser}
-                onAuthChange={onValueChange}
-                optIn={true}
-                initialAccount={initialAccount}
-              />
-            )}
-
-          {isEligible &&
-            authRequestEligibility?.auth?.authType === AuthType.VAULT && (
-              <>
-                <Bold>{humanReadableAuthType} </Bold>
-                <UserSelector
-                  authRequestEligibility={authRequestEligibility}
-                  isSelectableByUser={false}
-                  onAuthChange={() => {}}
-                  optIn={true}
-                  initialAccount={initialAccount}
-                />
-              </>
-            )}
-
-          {!isEligible && (
-            <span>
-              <Bold>{humanReadableAuthType} </Bold>
-              {auth?.authType !== AuthType.VAULT && "account"}
-            </span>
-          )}
-          {!isEligible && auth?.authType === AuthType.VAULT && (
-            <HoverTooltip
-              text="The User Id is an anonymous identifier that indicates a unique user on a specific app. Sharing your User ID only reveals that you are a unique user and authenticates that you own a Data Vault."
-              width={280}
-            >
-              <InfoWrapper>
-                <Info size={16} color={colors.blue0} />
-              </InfoWrapper>
-            </HoverTooltip>
-          )}
+          Ownership
+          <UserSelector
+            auth={auth}
+            authRequestEligibility={authRequestEligibility}
+            isSelectableByUser={isSelectableByUser}
+            onAuthChange={onValueChange}
+            optIn={true}
+            initialAccount={initialAccount}
+            isLoading={vault.isConnected && isLoading}
+            isEligible={isEligible}
+          />
         </TextWrapper>
       </Left>
       <Right>
         {vault?.importedAccounts && (
           <>
-            {!isEligible &&
-              auth?.authType !== AuthType.VAULT &&
-              !isWeb2Impersonating && (
-                <StyledButton
-                  primary
-                  verySmall
-                  isMedium
-                  loading={isLoading}
-                  onClick={() => {
-                    const accountTypes: AccountType[] =
-                      auth?.authType === AuthType.TWITTER
-                        ? ["twitter"]
-                        : auth?.authType === AuthType.GITHUB
-                        ? ["github"]
-                        : auth?.authType === AuthType.EVM_ACCOUNT
-                        ? ["ethereum"]
-                        : auth?.authType === AuthType.TELEGRAM
-                        ? ["telegram"]
-                        : ["twitter", "github", "ethereum", "telegram"];
-                    importAccount.open({
-                      importType: "account",
-                      accountTypes,
-                    });
-                  }}
-                >
-                  <InnerButton>
-                    {!isLoading && (
-                      <>
-                        {auth?.authType === AuthType.TWITTER ? (
-                          <TwitterRounded size={14} color={colors.blue11} />
-                        ) : auth?.authType === AuthType.GITHUB ? (
-                          <GithubRounded size={14} color={colors.blue11} />
-                        ) : auth?.authType === AuthType.EVM_ACCOUNT ? (
-                          <EthRounded size={14} color={colors.blue11} />
-                        ) : auth?.authType === AuthType.TELEGRAM ? (
-                          <TelegramRounded size={14} color={colors.blue11} />
-                        ) : (
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 14 14"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <circle
-                              cx="7"
-                              cy="7"
-                              r="5.5"
-                              stroke="#13203D"
-                              strokeWidth="3"
-                            />
-                          </svg>
-                        )}
-                        <span>Connect</span>
-                      </>
-                    )}
-                  </InnerButton>
-                </StyledButton>
-              )}
+            {!isEligible && auth?.authType !== AuthType.VAULT && !isWeb2Impersonating && (
+              <StyledButton
+                primary
+                verySmall
+                isMedium
+                loading={isLoading}
+                onClick={() => {
+                  const accountTypes: AccountType[] =
+                    auth?.authType === AuthType.TWITTER
+                      ? ["twitter"]
+                      : auth?.authType === AuthType.GITHUB
+                      ? ["github"]
+                      : auth?.authType === AuthType.EVM_ACCOUNT
+                      ? ["ethereum"]
+                      : auth?.authType === AuthType.TELEGRAM
+                      ? ["telegram"]
+                      : ["twitter", "github", "ethereum", "telegram"];
+                  importAccount.open({
+                    importType: "account",
+                    accountTypes,
+                  });
+                }}
+              >
+                <InnerButton>
+                  {!isLoading && (
+                    <>
+                      {auth?.authType === AuthType.TWITTER ? (
+                        <TwitterRounded size={14} color={colors.blue11} />
+                      ) : auth?.authType === AuthType.GITHUB ? (
+                        <GithubRounded size={14} color={colors.blue11} />
+                      ) : auth?.authType === AuthType.EVM_ACCOUNT ? (
+                        <EthRounded size={14} color={colors.blue11} />
+                      ) : auth?.authType === AuthType.TELEGRAM ? (
+                        <TelegramRounded size={14} color={colors.blue11} />
+                      ) : (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 14 14"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle cx="7" cy="7" r="5.5" stroke="#13203D" strokeWidth="3" />
+                        </svg>
+                      )}
+                      <span>Connect</span>
+                    </>
+                  )}
+                </InnerButton>
+              </StyledButton>
+            )}
           </>
         )}
       </Right>

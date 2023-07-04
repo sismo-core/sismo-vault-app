@@ -87,7 +87,9 @@ export default function BigIntSlider({
     if (!maxValue || !minValue || !selectedValue) {
       return null;
     }
-    const range = maxValue.sub(minValue);
+    const range = maxValue.sub(minValue).lte(BigNumber.from(1))
+      ? BigNumber.from(1)
+      : maxValue.sub(minValue);
     return selectedValue.sub(minValue).mul(GRAIN).div(range).toNumber();
   });
 
@@ -98,9 +100,7 @@ export default function BigIntSlider({
         const rect = slider.getBoundingClientRect();
         let x = clientX - rect.left;
         console.log(x, rect.width);
-        let _value = Math.round(
-          Math.max(0, Math.min((x / rect.width) * GRAIN, GRAIN))
-        );
+        let _value = Math.round(Math.max(0, Math.min((x / rect.width) * GRAIN, GRAIN)));
         const range = maxValue.sub(minValue);
 
         // Adding crenelation for values between 0 and 100
@@ -114,10 +114,7 @@ export default function BigIntSlider({
           setSliderArrayValues(valuesArray);
         }
 
-        let _selectedValue = BigNumber.from(_value)
-          .mul(range)
-          .div(GRAIN)
-          .add(minValue);
+        let _selectedValue = BigNumber.from(_value).mul(range).div(GRAIN).add(minValue);
         setSliderValue(_value);
         cachedSelectedValue.current = _selectedValue;
         onChange(_selectedValue);
@@ -136,24 +133,15 @@ export default function BigIntSlider({
       ? maxValue
       : selectedValue;
 
-    const range = maxValue.sub(minValue);
-    const newSliderValue = _selectedValue
-      .sub(minValue)
-      .mul(GRAIN)
-      .div(range)
-      .toNumber();
+    const range = maxValue.sub(minValue).lte(BigNumber.from(1))
+      ? BigNumber.from(1)
+      : maxValue.sub(minValue);
+    const newSliderValue = _selectedValue.sub(minValue).mul(GRAIN).div(range).toNumber();
 
     if (newSliderValue !== sliderValue) {
       setSliderValue(newSliderValue);
     }
-  }, [
-    maxValue,
-    minValue,
-    selectedValue,
-    isDragging,
-    cachedSelectedValue,
-    sliderValue,
-  ]);
+  }, [maxValue, minValue, selectedValue, isDragging, cachedSelectedValue, sliderValue]);
 
   const handlePointerDown = useCallback(
     (e: MouseEvent | TouchEvent) => {

@@ -17,7 +17,6 @@ import { ImportedAccount } from "../../../../libs/vault-client";
 import { getIsEligible } from "../../utils/getIsEligible";
 import { DataClaimRequest } from "./components/DataClaimRequest";
 import { getAllVaultIdentifiers } from "../../../../utils/getAllVaultIdentifiers";
-import { BigNumber } from "ethers";
 
 const Container = styled.div`
   border: 1px solid ${(props) => props.theme.colors.blue7};
@@ -75,9 +74,7 @@ const CaretWrapper = styled.div<{ folded: boolean }>`
 `;
 
 type Props = {
-  onSelectedSismoRequest: (
-    selectedSismoRequest: SelectedSismoConnectRequest
-  ) => void;
+  onSelectedSismoRequest: (selectedSismoRequest: SelectedSismoConnectRequest) => void;
   selectedSismoConnectRequest: SelectedSismoConnectRequest;
   sismoConnectRequest: SismoConnectRequest;
   requestGroupsMetadata: RequestGroupMetadata[];
@@ -98,8 +95,7 @@ export default function DataRequests({
   const [claimRequestEligibilities, setClaimRequestEligibilities] =
     useState<ClaimRequestEligibility[]>(null);
   const [loadingEligible, setLoadingEligible] = useState(true);
-  const { getClaimRequestEligibilities, getAuthRequestEligibilities } =
-    useSismo();
+  const { getClaimRequestEligibilities, getAuthRequestEligibilities } = useSismo();
   const { importedAccounts, getVaultSecret } = useVault();
 
   /* ************************************************************* */
@@ -125,8 +121,7 @@ export default function DataRequests({
           ...defaultSelectedSismoConnectRequest,
           selectedSignature: {
             selectedMessage: sismoConnectRequest.signature.message,
-            isSelectableByUser:
-              sismoConnectRequest.signature.isSelectableByUser,
+            isSelectableByUser: sismoConnectRequest.signature.isSelectableByUser,
             extraData: sismoConnectRequest.signature.extraData,
           },
         };
@@ -135,58 +130,50 @@ export default function DataRequests({
       if (authRequestEligibilities?.length > 0) {
         defaultSelectedSismoConnectRequest = {
           ...defaultSelectedSismoConnectRequest,
-          selectedAuths: authRequestEligibilities?.map(
-            (authRequestEligibility) => {
-              let userAccount: ImportedAccount;
+          selectedAuths: authRequestEligibilities?.map((authRequestEligibility) => {
+            let userAccount: ImportedAccount;
 
-              if (authRequestEligibility?.auth?.userId === "0") {
+            if (authRequestEligibility?.auth?.userId === "0") {
+              userAccount = authRequestEligibility?.accounts[0];
+            }
+
+            if (authRequestEligibility?.auth?.userId !== "0") {
+              const defaultAccount = authRequestEligibility?.accounts.find(
+                (account) =>
+                  account.identifier?.toLowerCase() ===
+                  authRequestEligibility?.auth?.userId?.toLowerCase()
+              );
+
+              if (defaultAccount) {
+                userAccount = defaultAccount;
+              } else {
                 userAccount = authRequestEligibility?.accounts[0];
               }
-
-              if (authRequestEligibility?.auth?.userId !== "0") {
-                const defaultAccount = authRequestEligibility?.accounts.find(
-                  (account) =>
-                    account.identifier?.toLowerCase() ===
-                    authRequestEligibility?.auth?.userId?.toLowerCase()
-                );
-
-                if (defaultAccount) {
-                  userAccount = defaultAccount;
-                } else {
-                  userAccount = authRequestEligibility?.accounts[0];
-                }
-              }
-
-              return {
-                ...authRequestEligibility.auth,
-                selectedUserId: userAccount?.identifier,
-                isOptIn: authRequestEligibility.auth?.isOptional
-                  ? authRequestEligibility.isEligible
-                  : true,
-              };
             }
-          ),
+
+            return {
+              ...authRequestEligibility.auth,
+              selectedUserId: userAccount?.identifier,
+              isOptIn: authRequestEligibility.auth?.isOptional
+                ? authRequestEligibility.isEligible
+                : true,
+            };
+          }),
         };
       }
 
       if (claimRequestEligibilities?.length > 0) {
         defaultSelectedSismoConnectRequest = {
           ...defaultSelectedSismoConnectRequest,
-          selectedClaims: claimRequestEligibilities.map(
-            (claimRequestEligibility) => {
-              return {
-                ...claimRequestEligibility.claim,
-                isOptIn: claimRequestEligibility.claim.isOptional
-                  ? claimRequestEligibility.isEligible
-                  : true,
-                selectedValue:
-                  // claimRequestEligibility?.accountData?.value
-                  //   ? BigNumber.from(claimRequestEligibility?.accountData?.value).toNumber()
-                  //   :
-                  BigNumber.from(claimRequestEligibility?.claim?.value),
-              };
-            }
-          ),
+          selectedClaims: claimRequestEligibilities.map((claimRequestEligibility) => {
+            return {
+              ...claimRequestEligibility.claim,
+              isOptIn: claimRequestEligibility.claim.isOptional
+                ? claimRequestEligibility.isEligible
+                : true,
+              selectedValue: claimRequestEligibility?.claim?.value,
+            };
+          }),
         };
       }
       return defaultSelectedSismoConnectRequest;
@@ -199,12 +186,8 @@ export default function DataRequests({
   /* ************************************************************* */
 
   useEffect(() => {
-    const claims =
-      sismoConnectRequest.claims?.length > 0
-        ? sismoConnectRequest.claims
-        : null;
-    const auths =
-      sismoConnectRequest.auths?.length > 0 ? sismoConnectRequest.auths : null;
+    const claims = sismoConnectRequest.claims?.length > 0 ? sismoConnectRequest.claims : null;
+    const auths = sismoConnectRequest.auths?.length > 0 ? sismoConnectRequest.auths : null;
 
     if (!claims && !auths) {
       setLoadingEligible(false);
@@ -215,8 +198,7 @@ export default function DataRequests({
     if (claims && !requestGroupsMetadata) return;
 
     const getEligibilities = async () => {
-      let _selectedSismoConnectRequest: SelectedSismoConnectRequest =
-        sismoConnectRequest;
+      let _selectedSismoConnectRequest: SelectedSismoConnectRequest = sismoConnectRequest;
       try {
         setLoadingEligible(true);
         if (auths?.length) {
@@ -233,9 +215,7 @@ export default function DataRequests({
         }
         if (claims?.length) {
           const vaultSecret = await getVaultSecret();
-          const groupsMetadata = requestGroupsMetadata.map(
-            (el) => el.groupMetadata
-          );
+          const groupsMetadata = requestGroupsMetadata.map((el) => el.groupMetadata);
           const identifiers = await getAllVaultIdentifiers(
             groupsMetadata,
             vaultSecret,
@@ -303,9 +283,7 @@ export default function DataRequests({
     }
   }
 
-  function getInitialOptinFromAuth(
-    authRequestEligibility: AuthRequestEligibility
-  ) {
+  function getInitialOptinFromAuth(authRequestEligibility: AuthRequestEligibility) {
     if (!authRequestEligibility?.isEligible) return false;
     const selectedAuth = selectedSismoConnectRequest?.selectedAuths?.find(
       (auth) => auth.uuid === authRequestEligibility.auth.uuid
@@ -316,9 +294,7 @@ export default function DataRequests({
       : authRequestEligibility.isEligible;
   }
 
-  function getInitialOptinFromClaim(
-    claimRequestEligibility: ClaimRequestEligibility
-  ) {
+  function getInitialOptinFromClaim(claimRequestEligibility: ClaimRequestEligibility) {
     if (!claimRequestEligibility?.isEligible) return false;
     const selectedClaim = selectedSismoConnectRequest?.selectedClaims?.find(
       (claim) => claim.uuid === claimRequestEligibility.claim.uuid
@@ -361,14 +337,10 @@ export default function DataRequests({
                 authRequestEligibility={authRequestEligibilities?.find(
                   (el) => el.auth.uuid === auth.uuid
                 )}
-                isImpersonating={Boolean(
-                  sismoConnectRequest?.vault?.impersonate?.length > 0
-                )}
+                isImpersonating={Boolean(sismoConnectRequest?.vault?.impersonate?.length > 0)}
                 selectedSismoConnectRequest={selectedSismoConnectRequest}
                 isInitialOptin={getInitialOptinFromAuth(
-                  authRequestEligibilities?.find(
-                    (el) => el.auth.uuid === auth.uuid
-                  )
+                  authRequestEligibilities?.find((el) => el.auth.uuid === auth.uuid)
                 )}
                 onUserInput={onSelectedSismoRequest}
                 loadingEligible={loadingEligible}
@@ -383,17 +355,14 @@ export default function DataRequests({
               <DataClaimRequest
                 claim={claim}
                 groupMetadata={
-                  requestGroupsMetadata?.find(
-                    (metadata) => metadata.claim.uuid === claim.uuid
-                  )?.groupMetadata
+                  requestGroupsMetadata?.find((metadata) => metadata.claim.uuid === claim.uuid)
+                    ?.groupMetadata
                 }
                 claimRequestEligibility={claimRequestEligibilities?.find(
                   (el) => el.claim.uuid === claim.uuid
                 )}
                 isInitialOptin={getInitialOptinFromClaim(
-                  claimRequestEligibilities?.find(
-                    (el) => el.claim.uuid === claim.uuid
-                  )
+                  claimRequestEligibilities?.find((el) => el.claim.uuid === claim.uuid)
                 )}
                 selectedSismoConnectRequest={selectedSismoConnectRequest}
                 onUserInput={onSelectedSismoRequest}
@@ -427,16 +396,12 @@ export default function DataRequests({
                     <DataSourceRequest
                       auth={auth}
                       appId={sismoConnectRequest.appId}
-                      isImpersonating={Boolean(
-                        sismoConnectRequest?.vault?.impersonate?.length > 0
-                      )}
+                      isImpersonating={Boolean(sismoConnectRequest?.vault?.impersonate?.length > 0)}
                       authRequestEligibility={authRequestEligibilities?.find(
                         (el) => el.auth.uuid === auth.uuid
                       )}
                       isInitialOptin={getInitialOptinFromAuth(
-                        authRequestEligibilities?.find(
-                          (el) => el.auth.uuid === auth.uuid
-                        )
+                        authRequestEligibilities?.find((el) => el.auth.uuid === auth.uuid)
                       )}
                       selectedSismoConnectRequest={selectedSismoConnectRequest}
                       onUserInput={onSelectedSismoRequest}
@@ -448,9 +413,7 @@ export default function DataRequests({
               {optionalClaims?.length > 0 &&
                 optionalClaims?.map((claim, index) => (
                   <Fragment key={claim.uuid}>
-                    {(index !== 0 || optionalAuths?.length > 0) && (
-                      <ItemSeparator />
-                    )}
+                    {(index !== 0 || optionalAuths?.length > 0) && <ItemSeparator />}
                     <DataClaimRequest
                       claim={claim}
                       groupMetadata={
@@ -462,9 +425,7 @@ export default function DataRequests({
                         (el) => el.claim.uuid === claim.uuid
                       )}
                       isInitialOptin={getInitialOptinFromClaim(
-                        claimRequestEligibilities?.find(
-                          (el) => el.claim.uuid === claim.uuid
-                        )
+                        claimRequestEligibilities?.find((el) => el.claim.uuid === claim.uuid)
                       )}
                       selectedSismoConnectRequest={selectedSismoConnectRequest}
                       onUserInput={onSelectedSismoRequest}
