@@ -30,7 +30,7 @@ window.env = {
     ],
   },
   walletConnectProjectId: "75f232fcfe4874121b3285c080d79993",
-  sismoConnectDataSources: [
+  sismoConnectDataSourcesConfig: [
     {
       appId: "0x3bcdab2ad3caddb11b90b02bde258f6b",
       type: "worldcoin",

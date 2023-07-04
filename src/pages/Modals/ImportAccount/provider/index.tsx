@@ -1,11 +1,7 @@
 import env from "../../../../environment";
 import React, { useContext, useState } from "react";
 import { CommitmentMapper, Seed } from "../../../../libs/sismo-client";
-import {
-  AccountType,
-  ImportedAccount,
-  WalletPurpose,
-} from "../../../../libs/vault-client";
+import { AccountType, ImportedAccount, WalletPurpose } from "../../../../libs/vault-client";
 import { useVault } from "../../../../hooks/vault";
 import * as Sentry from "@sentry/react";
 import { useNotifications } from "../../../../components/Notifications/provider";
@@ -29,14 +25,8 @@ type ImportAccountHook = {
   ) => void;
   importGithub: (githubCode: string) => void;
   importTelegram: (telegramPayload: string) => void;
-  importTwitter: (twitterOauth: {
-    oauthToken: string;
-    oauthVerifier: string;
-  }) => void;
-  importTwitterV2: (twitterOauth: {
-    callback: string;
-    twitterCode: string;
-  }) => void;
+  importTwitter: (twitterOauth: { oauthToken: string; oauthVerifier: string }) => void;
+  importTwitterV2: (twitterOauth: { callback: string; twitterCode: string }) => void;
   isOpen: boolean;
   importType: "account" | "owner";
 };
@@ -86,6 +76,7 @@ export default function ImportAccountModalProvider({
   };
 
   const triggerError = (e) => {
+    console.log("e", e);
     Sentry.withScope(function (scope) {
       scope.setLevel("fatal");
       Sentry.captureException(e?.response?.data);
@@ -107,12 +98,8 @@ export default function ImportAccountModalProvider({
     setImporting(_importType);
     setLastImportedAccount(null);
 
-    const alreadyOwner = vault.owners.find(
-      (el) => el.identifier === identifier
-    );
-    const alreadyImported = vault.importedAccounts.find(
-      (el) => el.identifier === identifier
-    );
+    const alreadyOwner = vault.owners.find((el) => el.identifier === identifier);
+    const alreadyImported = vault.importedAccounts.find((el) => el.identifier === identifier);
 
     let seed;
     if (alreadyImported || alreadyOwner) {
@@ -140,8 +127,7 @@ export default function ImportAccountModalProvider({
         commitmentMapperPubKey = alreadyImported.commitmentMapperPubKey;
       } else {
         try {
-          const commitmentMapperSecret =
-            CommitmentMapper.generateCommitmentMapperSecret(seed);
+          const commitmentMapperSecret = CommitmentMapper.generateCommitmentMapperSecret(seed);
           const vaultSecret = await vault.getVaultSecret();
 
           const {
@@ -201,13 +187,10 @@ export default function ImportAccountModalProvider({
     setImporting("account");
     setLastImportedAccount(null);
 
-    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
-      WalletPurpose.IMPORTED_ACCOUNT
-    );
+    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(WalletPurpose.IMPORTED_ACCOUNT);
 
     try {
-      const commitmentMapperSecret =
-        CommitmentMapper.generateCommitmentMapperSecret(seed);
+      const commitmentMapperSecret = CommitmentMapper.generateCommitmentMapperSecret(seed);
       const vaultSecret = await vault.getVaultSecret();
 
       const { commitmentReceipt, commitmentMapperPubKey, account } =
@@ -237,9 +220,7 @@ export default function ImportAccountModalProvider({
       });
     } catch (e) {
       //Check if the account is already in the vault
-      if (
-        e?.response?.data?.error === "Address is already used for a commitment!"
-      ) {
+      if (e?.response?.data?.error === "Address is already used for a commitment!") {
         console.error(e);
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
@@ -263,12 +244,9 @@ export default function ImportAccountModalProvider({
     setImporting("account");
     setLastImportedAccount(null);
 
-    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
-      WalletPurpose.IMPORTED_ACCOUNT
-    );
+    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(WalletPurpose.IMPORTED_ACCOUNT);
     try {
-      const commitmentMapperSecret =
-        CommitmentMapper.generateCommitmentMapperSecret(seed);
+      const commitmentMapperSecret = CommitmentMapper.generateCommitmentMapperSecret(seed);
       const vaultSecret = await vault.getVaultSecret();
 
       const { commitmentReceipt, commitmentMapperPubKey, account } =
@@ -298,9 +276,7 @@ export default function ImportAccountModalProvider({
       });
     } catch (e) {
       //Check if the account is already in the vault
-      if (
-        e?.response?.data?.error === "Address is already used for a commitment!"
-      ) {
+      if (e?.response?.data?.error === "Address is already used for a commitment!") {
         console.error(e);
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
@@ -320,18 +296,12 @@ export default function ImportAccountModalProvider({
     }
   };
 
-  const importTwitter = async (oauth: {
-    oauthToken: string;
-    oauthVerifier: string;
-  }) => {
+  const importTwitter = async (oauth: { oauthToken: string; oauthVerifier: string }) => {
     setImporting("account");
     setLastImportedAccount(null);
-    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
-      WalletPurpose.IMPORTED_ACCOUNT
-    );
+    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(WalletPurpose.IMPORTED_ACCOUNT);
     try {
-      const commitmentMapperSecret =
-        CommitmentMapper.generateCommitmentMapperSecret(seed);
+      const commitmentMapperSecret = CommitmentMapper.generateCommitmentMapperSecret(seed);
       const vaultSecret = await vault.getVaultSecret();
 
       const { commitmentReceipt, commitmentMapperPubKey, account } =
@@ -361,9 +331,7 @@ export default function ImportAccountModalProvider({
         timestamp: Date.now(),
       });
     } catch (e) {
-      if (
-        e?.response?.data?.error === "Address is already used for a commitment!"
-      ) {
+      if (e?.response?.data?.error === "Address is already used for a commitment!") {
         console.error(e);
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
@@ -383,18 +351,12 @@ export default function ImportAccountModalProvider({
     }
   };
 
-  const importTwitterV2 = async (oauth: {
-    callback: string;
-    twitterCode: string;
-  }) => {
+  const importTwitterV2 = async (oauth: { callback: string; twitterCode: string }) => {
     setImporting("account");
     setLastImportedAccount(null);
-    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(
-      WalletPurpose.IMPORTED_ACCOUNT
-    );
+    let { seed, accountNumber, mnemonic } = await vault.getNextSeed(WalletPurpose.IMPORTED_ACCOUNT);
     try {
-      const commitmentMapperSecret =
-        CommitmentMapper.generateCommitmentMapperSecret(seed);
+      const commitmentMapperSecret = CommitmentMapper.generateCommitmentMapperSecret(seed);
       const vaultSecret = await vault.getVaultSecret();
       const { commitmentReceipt, commitmentMapperPubKey, account } =
         await vault.commitmentMapper.getTwitterV2CommitmentReceipt(
@@ -423,9 +385,7 @@ export default function ImportAccountModalProvider({
         timestamp: Date.now(),
       });
     } catch (e) {
-      if (
-        e?.response?.data?.error === "Address is already used for a commitment!"
-      ) {
+      if (e?.response?.data?.error === "Address is already used for a commitment!") {
         console.error(e);
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");

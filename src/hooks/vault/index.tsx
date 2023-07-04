@@ -5,6 +5,7 @@ import {
   ImportedAccount,
   Owner,
   RecoveryKey,
+  SismoConnectDataSource,
   Vault,
   VaultNamespaceInputs,
   WalletPurpose,
@@ -16,6 +17,10 @@ import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
 import { CommitmentMapper } from "../../libs/commitment-mapper";
 import { ServicesFactory } from "../../libs/services-factory";
 import { useNotifications } from "../../components/Notifications/provider";
+
+export type SismoConnectDataSourceState = SismoConnectDataSource & {
+  state: "eligible" | "not-eligible";
+};
 
 type ReactVault = {
   mnemonics: string[];
@@ -31,6 +36,8 @@ type ReactVault = {
   recoveryKeys: RecoveryKey[];
   commitmentMapper: CommitmentMapper;
   synchronizing: boolean;
+  sismoConnectDataSources: SismoConnectDataSource[];
+  sismoConnectDataSourcesStates: SismoConnectDataSourceState[];
   getVaultSecret: () => Promise<string>;
   getVaultId: ({ appId, derivationKey }: VaultNamespaceInputs) => Promise<string>;
   disconnect: () => void;
@@ -335,6 +342,8 @@ export default function SismoVaultProvider({
         isConnected: Boolean(vaultState.connectedOwner),
         deletable: vaultState.deletable,
         recoveryKeys: vaultState.recoveryKeys,
+        sismoConnectDataSources: vaultState.sismoConnectDataSources,
+        sismoConnectDataSourcesStates: vaultState.sismoConnectDataSourcesStates,
         synchronizing,
         getVaultSecret,
         getVaultId,

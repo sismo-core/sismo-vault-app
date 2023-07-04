@@ -6,7 +6,7 @@ import { getMainMinified } from "../../../../../utils/getMain";
 import Icon from "../../../../../components/Icon";
 import { useNotifications } from "../../../../../components/Notifications/provider";
 import { getMinimalIdentifier } from "../../../../../utils/getMinimalIdentifier";
-import { useVault } from "../../../../../hooks/vault";
+import { SismoConnectDataSourceState, useVault } from "../../../../../hooks/vault";
 import Avatar from "../../../../../components/Avatar";
 import { ImportedAccount } from "../../../../../libs/vault-client";
 import * as Sentry from "@sentry/react";
@@ -58,19 +58,17 @@ const Action = styled.div`
 `;
 
 type Props = {
-  account: ImportedAccount;
+  account?: ImportedAccount;
+  dataSource?: SismoConnectDataSourceState;
   isSelected: boolean;
   onSelectAccount: () => void;
 };
 
-export default function AccountLine({
-  account,
-  isSelected,
-  onSelectAccount,
-}: Props) {
+export default function AccountLine({ account, dataSource, isSelected, onSelectAccount }: Props) {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const { notificationAdded } = useNotifications();
   const vault = useVault();
+  const id = account ? account.identifier : dataSource.vaultId;
 
   const deleteAccount = async () => {
     try {
@@ -81,11 +79,9 @@ export default function AccountLine({
   };
 
   const copy = () => {
-    navigator.clipboard.writeText(account.identifier);
+    navigator.clipboard.writeText(id);
     notificationAdded({
-      text: `${getMinimalIdentifier(
-        account.identifier
-      )} copied in your clipboard!`,
+      text: `${getMinimalIdentifier(id)} copied in your clipboard!`,
       type: "success",
     });
   };
@@ -102,14 +98,11 @@ export default function AccountLine({
         onNo={() => setConfirmDeleteOpen(false)}
         text={`Are you sure you want to delete ${getMainMinified(account)}?`}
       />
-      <Container
-        selected={isSelected}
-        onClick={() => onSelectAccount()}
-        key={"sources_" + account.identifier}
-      >
+      <Container selected={isSelected} onClick={() => onSelectAccount()} key={"sources_" + id}>
         <Infos>
-          <Avatar account={account} style={{ marginRight: 15 }} />
-          {getMainMinified(account)}
+          <Avatar account={account || dataSource} style={{ marginRight: 15 }} />
+          {account && getMainMinified(account)}
+          {dataSource && getMinimalIdentifier(dataSource.vaultId)}
         </Infos>
         <Actions>
           <Action

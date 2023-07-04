@@ -27,10 +27,10 @@ export type Environment = {
     commitmentReceipt: [string, string, string];
   };
   walletConnectProjectId: string;
-  sismoConnectDataSources: SismoConnectDataSource[];
+  sismoConnectDataSourcesConfig: SismoConnectDataSourceConfig[];
 };
 
-export type SismoConnectDataSource = {
+export type SismoConnectDataSourceConfig = {
   appId: string;
   type: string;
   request: RequestParams;

@@ -16,7 +16,7 @@ import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../../Modals/ImportAccount/provider";
 import { AccountType, GroupMetadata } from "../../../../../libs/sismo-client";
 import env from "../../../../../environment";
-import { getAccountTypeAppId } from "../../../../../utils/getAccountTypeAppId";
+import { getAccountTypeAppId } from "../../../../../libs/sismo-connect-data-source/utils/getAccountTypeAppId";
 
 const Container = styled.div`
   display: flex;
@@ -198,7 +198,7 @@ export function DataClaimRequest({
       ?.map((accountType) => {
         const appId = getAccountTypeAppId(accountType);
         if (!appId) return null;
-        return env.sismoConnectDataSources.find((dataSource) => dataSource.appId === appId);
+        return env.sismoConnectDataSourcesConfig.find((config) => config.appId === appId);
       })
       .filter(Boolean)?.length > 0
   );

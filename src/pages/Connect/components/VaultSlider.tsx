@@ -1,17 +1,14 @@
 import styled from "styled-components";
-import { CaretLeft, Gear, Copy } from "phosphor-react";
+import { CaretLeft, Gear } from "phosphor-react";
 import { useEffect, useRef } from "react";
 import { useVault } from "../../../hooks/vault";
-import Avatar from "../../../components/Avatar";
-import { getMainMinified } from "../../../utils/getMain";
 import Loader from "../../../components/Loader";
 import { useImportAccount } from "../../Modals/ImportAccount/provider";
 import colors from "../../../theme/colors";
 import { useMyVault } from "../../Modals/MyVault/Provider";
-import { useNotifications } from "../../../components/Notifications/provider";
-import { getMinimalIdentifier } from "../../../utils/getMinimalIdentifier";
 import ThreeDotsLoader from "../../../components/ThreeDotsLoader";
 import env from "../../../environment";
+import AccountLine from "./AccountLine";
 
 const Container = styled.div<{ vaultSliderOpen: boolean }>`
   position: absolute;
@@ -44,15 +41,11 @@ const VaultButton = styled.div<{ vaultSliderOpen: boolean }>`
   border-bottom-left-radius: 0px;
   background-color: ${(props) => props.theme.colors.blue11};
   cursor: pointer;
-  transform: translateX(
-    ${(props) => (props.vaultSliderOpen ? "-8px" : "-296px")}
-  );
+  transform: translateX(${(props) => (props.vaultSliderOpen ? "-8px" : "-296px")});
   transition: transform 0.1s ease-in-out;
 
   @media (max-width: 1180px) {
-    transform: translateX(
-      ${(props) => (props.vaultSliderOpen ? "-8px" : "-196px")}
-    );
+    transform: translateX(${(props) => (props.vaultSliderOpen ? "-8px" : "-196px")});
   }
 `;
 
@@ -114,9 +107,7 @@ const VaultContent = styled.div<{
   white-space: nowrap;
 
   width: 288px;
-  transform: translateX(
-    ${(props) => (props.vaultSliderOpen ? "0px" : "-288px")}
-  );
+  transform: translateX(${(props) => (props.vaultSliderOpen ? "0px" : "-288px")});
 
   border-radius: 5px;
   border-top-left-radius: 0px;
@@ -195,16 +186,6 @@ const VaultList = styled.div<{ vaultSliderOpen: boolean }>`
   }
 `;
 
-const AccountLine = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 10px 5px 10px 10px;
-  gap: 10px;
-  box-sizing: border-box;
-`;
-
 const AccountLineImporting = styled.div`
   display: flex;
   align-items: center;
@@ -215,32 +196,6 @@ const AccountLineImporting = styled.div`
   box-sizing: border-box;
 `;
 
-const AvatarName = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-`;
-
-const CopyWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-`;
-
-const AvatarWrapper = styled.div<{
-  vaultSliderOpen: boolean;
-}>`
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 21px;
-  height: 21px;
-`;
-
 const LoaderWrapper = styled.div<{ vaultSliderOpen: boolean }>`
   position: relative;
   display: flex;
@@ -249,13 +204,6 @@ const LoaderWrapper = styled.div<{ vaultSliderOpen: boolean }>`
 
   width: 21px;
   height: 21px;
-`;
-
-const AccountName = styled.div<{ vaultSliderOpen: boolean }>`
-  font-family: ${(props) => props.theme.fonts.medium};
-  font-size: 14px;
-  line-height: 20px;
-  color: ${(props) => props.theme.colors.blue0};
 `;
 
 const AccountImporting = styled.div`
@@ -313,24 +261,9 @@ export default function VaultSlider({
   setVaultSliderOpen,
 }: Props): JSX.Element {
   const ref = useRef(null);
-
   const vault = useVault();
   const importAccount = useImportAccount();
   const myVault = useMyVault();
-
-  // useOnClickOutside(ref, () => {
-  //   setVaultSliderOpen(false);
-  // });
-
-  const { notificationAdded } = useNotifications();
-
-  const copy = (identifier: string) => {
-    navigator.clipboard.writeText(identifier);
-    notificationAdded({
-      text: `${getMinimalIdentifier(identifier)} copied in your clipboard!`,
-      type: "success",
-    });
-  };
 
   useEffect(() => {
     if (!vault.isConnected) return;
@@ -349,72 +282,61 @@ export default function VaultSlider({
     }
   }, [setVaultSliderOpen, vault?.isConnected, importAccount?.importing]);
 
+  const accountNumber =
+    (vault?.importedAccounts ? vault?.importedAccounts?.length : 0) +
+    (vault?.sismoConnectDataSources ? vault?.sismoConnectDataSources?.length : 0);
+
   return (
     <Container ref={ref} vaultSliderOpen={vaultSliderOpen}>
-      <VaultContent
-        isConnected={vault?.isConnected}
-        vaultSliderOpen={vaultSliderOpen}
-      >
+      <VaultContent isConnected={vault?.isConnected} vaultSliderOpen={vaultSliderOpen}>
         <VaultTitle vaultSliderOpen={vaultSliderOpen}>
           {vault.vaultName ? vault.vaultName : "Your Sismo vault"}
-          <GearWrapper
-            onClick={() => vault?.isConnected && myVault?.open("accounts")}
-          >
+          <GearWrapper onClick={() => vault?.isConnected && myVault?.open("accounts")}>
             <Gear size={20} color={colors.blue0} />
           </GearWrapper>
         </VaultTitle>
+
         {!vault?.isConnected && (
           <VaultNotConnected vaultSliderOpen={vaultSliderOpen}>
             you are not connected
           </VaultNotConnected>
         )}
-        {vault?.isConnected &&
-          vault?.importedAccounts?.length === 0 &&
-          importAccount.importing !== "account" && (
-            <VaultNotConnected vaultSliderOpen={vaultSliderOpen}>
-              no imported accounts
-            </VaultNotConnected>
-          )}
 
-        {vault?.isConnected &&
-          (vault?.importedAccounts?.length > 0 ||
-            importAccount.importing === "account") && (
-            <VaultList vaultSliderOpen={vaultSliderOpen}>
-              {vault?.importedAccounts?.map((source, index) => (
-                <AccountLine key={source.identifier + index}>
-                  <AvatarName>
-                    <AvatarWrapper vaultSliderOpen={vaultSliderOpen}>
-                      <Avatar
-                        account={source}
-                        style={{ width: "100%", height: "100%" }}
-                        width={21}
-                      />
-                    </AvatarWrapper>
+        {vault?.isConnected && (
+          <>
+            {vault?.importedAccounts?.length === 0 &&
+            (vault?.sismoConnectDataSourcesStates
+              ? vault?.sismoConnectDataSourcesStates?.length === 0
+              : true) &&
+            importAccount.importing !== "account" ? (
+              <VaultNotConnected vaultSliderOpen={vaultSliderOpen}>
+                no imported accounts
+              </VaultNotConnected>
+            ) : (
+              <VaultList vaultSliderOpen={vaultSliderOpen}>
+                {vault?.importedAccounts?.map((source, index) => (
+                  <div key={source.identifier + index}>
+                    <AccountLine source={source} />
+                  </div>
+                ))}
+                {vault?.sismoConnectDataSourcesStates?.map((dataSource, index) => (
+                  <div key={dataSource.vaultId + index}>
+                    <AccountLine dataSource={dataSource} />
+                  </div>
+                ))}
+                {importAccount.importing === "account" && (
+                  <AccountLineImporting>
+                    <LoaderWrapper vaultSliderOpen={vaultSliderOpen}>
+                      <Loader size={16} color={colors.white} />
+                    </LoaderWrapper>
+                    <AccountImporting>ImportingAccount...</AccountImporting>
+                  </AccountLineImporting>
+                )}
+              </VaultList>
+            )}
+          </>
+        )}
 
-                    <AccountName vaultSliderOpen={vaultSliderOpen}>
-                      {getMainMinified(source)}
-                    </AccountName>
-                  </AvatarName>
-
-                  <CopyWrapper>
-                    <Copy
-                      size={12}
-                      color={colors.blue0}
-                      onClick={() => copy(source.identifier)}
-                    />
-                  </CopyWrapper>
-                </AccountLine>
-              ))}
-              {importAccount.importing === "account" && (
-                <AccountLineImporting>
-                  <LoaderWrapper vaultSliderOpen={vaultSliderOpen}>
-                    <Loader size={16} color={colors.white} />
-                  </LoaderWrapper>
-                  <AccountImporting>ImportingAccount...</AccountImporting>
-                </AccountLineImporting>
-              )}
-            </VaultList>
-          )}
         {proofLoading && (
           <ProofLoaderWrapper>
             <ThreeDotsLoader />
@@ -431,9 +353,7 @@ export default function VaultSlider({
           <VaultIcon src="/assets/sismo-vault.svg" alt="vault" />
 
           <AccountsNumber isTwoDigits={vault?.importedAccounts?.length > 9}>
-            {vault?.importedAccounts?.length
-              ? vault?.importedAccounts?.length
-              : 0}
+            {accountNumber}
           </AccountsNumber>
         </VaultIconWrapper>
 

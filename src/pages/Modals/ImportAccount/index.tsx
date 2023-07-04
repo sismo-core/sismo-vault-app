@@ -10,14 +10,14 @@ import { useWallet } from "../../../hooks/wallet";
 import { useImportAccount } from "./provider";
 import ImportTelegram from "./Telegram";
 import ImportTwitter from "./Twitter";
-import env, { SismoConnectDataSource } from "../../../environment";
+import env, { SismoConnectDataSourceConfig } from "../../../environment";
 import { useVault } from "../../../hooks/vault";
 import { featureFlagProvider } from "../../../utils/featureFlags";
 import { clearQueryParams } from "../../../utils/clearQueryParams";
 import { clearLocationHash } from "../../../utils/clearLocationHash";
 import { getTwitterCallbackURL } from "../../../utils/navigateOAuth";
 import { SismoConnect, SismoConnectConfig } from "@sismo-core/sismo-connect-client";
-import { getAccountTypeAppId } from "../../../utils/getAccountTypeAppId";
+import { getAccountTypeAppId } from "../../../libs/sismo-connect-data-source/utils/getAccountTypeAppId";
 
 const Content = styled.div`
   display: flex;
@@ -68,12 +68,12 @@ export default function ImportAccountModal({
   const [twitterOauth, setTwitterOauth] = useState(null);
   const [twitterV2Oauth, setTwitterV2Oauth] = useState(null);
   const vault = useVault();
-  const sismoConnectDataSources = useMemo(() => {
-    if (!accountTypes) return env.sismoConnectDataSources;
+  const sismoConnectDataSourcesConfig = useMemo(() => {
+    if (!accountTypes) return env.sismoConnectDataSourcesConfig;
     return accountTypes
       .map((accountType) => {
         const appId = getAccountTypeAppId(accountType);
-        return env.sismoConnectDataSources.find((dataSource) => dataSource.appId === appId);
+        return env.sismoConnectDataSourcesConfig.find((dataSource) => dataSource.appId === appId);
       })
       .filter(Boolean);
   }, [accountTypes]);
@@ -116,15 +116,17 @@ export default function ImportAccountModal({
     setDisplay("choice");
   }, [accountTypes, importType, isOpen, isImpersonated]);
 
-  const goToSismoConnectAppCreationFlow = (sismoConnectDataSource: SismoConnectDataSource) => {
+  const goToSismoConnectAppCreationFlow = (
+    sismoConnectDataSourceConfig: SismoConnectDataSourceConfig
+  ) => {
     let vaultAppBaseUrl = window.location.protocol + "//" + window.location.host;
     const config: SismoConnectConfig = {
-      appId: sismoConnectDataSource.appId,
+      appId: sismoConnectDataSourceConfig.appId,
       vaultAppBaseUrl,
     };
     const sismoConnect = SismoConnect({ config });
     const request = {
-      ...sismoConnectDataSource.request,
+      ...sismoConnectDataSourceConfig.request,
     };
     const currentUrl = window.location.href;
     const url = new URL(request.callbackUrl);
@@ -134,7 +136,6 @@ export default function ImportAccountModal({
     const requestLink = sismoConnect.getRequestLink(request);
     const requestURL = new URL(requestLink);
     requestURL.searchParams.append("no-migration", "true");
-    console.log("requestURL.toString()", requestURL.toString());
     window.location.href = requestURL.toString();
   };
 
@@ -326,12 +327,12 @@ export default function ImportAccountModal({
                 {accountTypes.includes("twitter") && (
                   <Account type={"twitter"} onClick={() => setDisplay("twitter")} />
                 )}
-                {sismoConnectDataSources?.map((sismoConnectDataSource) => {
+                {sismoConnectDataSourcesConfig?.map((config) => {
                   return (
-                    <div key={"choice" + sismoConnectDataSource.type}>
+                    <div key={"choice" + config.type}>
                       <Account
-                        type={sismoConnectDataSource.type}
-                        onClick={() => goToSismoConnectAppCreationFlow(sismoConnectDataSource)}
+                        type={config.type}
+                        onClick={() => goToSismoConnectAppCreationFlow(config)}
                       />
                     </div>
                   );
@@ -348,12 +349,12 @@ export default function ImportAccountModal({
                 {featureFlagProvider.isTelegramEnabled() && (
                   <Account type={"telegram"} onClick={() => setDisplay("telegram")} />
                 )}
-                {sismoConnectDataSources?.map((sismoConnectDataSource) => {
+                {sismoConnectDataSourcesConfig?.map((config) => {
                   return (
-                    <div key={sismoConnectDataSource.type}>
+                    <div key={config.type}>
                       <Account
-                        type={sismoConnectDataSource.type}
-                        onClick={() => goToSismoConnectAppCreationFlow(sismoConnectDataSource)}
+                        type={config.type}
+                        onClick={() => goToSismoConnectAppCreationFlow(config)}
                       />
                     </div>
                   );

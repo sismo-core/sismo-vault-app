@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import Blockies from "react-blockies";
-import { ImportedAccount, Owner } from "../../libs/vault-client";
+import { ImportedAccount, Owner, SismoConnectDataSource } from "../../libs/vault-client";
 import Icon from "../Icon";
 import { Account } from "../../libs/sismo-client";
+import { getSismoConnectDataSourceIcon } from "../../libs/sismo-connect-data-source/utils/getSismoConnectDataSourceIcon";
 
 const Container = styled.div<{ width: number }>`
   min-height: ${(props) => props.width}px;
@@ -24,18 +25,13 @@ const OwnerKey = styled.div`
 `;
 
 type Props = {
-  account?: ImportedAccount | Owner | Account;
+  account?: ImportedAccount | Owner | Account | SismoConnectDataSource;
   style?: React.CSSProperties;
   width?: 16 | 21 | 22 | 22.8 | 24 | 26 | 27 | 32;
   isOwner?: boolean;
 };
 
-export default function Avatar({
-  account,
-  style,
-  width,
-  isOwner,
-}: Props): JSX.Element {
+export default function Avatar({ account, style, width, isOwner }: Props): JSX.Element {
   const scale =
     width === 16
       ? 2
@@ -55,30 +51,31 @@ export default function Avatar({
       ? 4
       : 3;
 
+  if ((account as SismoConnectDataSource).vaultId) {
+    const iconName = getSismoConnectDataSourceIcon(account as SismoConnectDataSource);
+    if (!iconName) return <></>;
+    return (
+      <Container style={style} width={width ? width : 24}>
+        <Icon name={iconName} style={{ width: "100%", height: "100%" }} />
+      </Container>
+    );
+  }
+
+  account = account as ImportedAccount | Owner | Account;
+
   return (
     <Container style={style} width={width ? width : 24}>
-      {(account as ImportedAccount)?.type === "ethereum" &&
-        account &&
-        account.identifier && (
-          <Blockies seed={account.identifier} size={8} scale={scale} />
-        )}
+      {(account as ImportedAccount)?.type === "ethereum" && account && account.identifier && (
+        <Blockies seed={account.identifier} size={8} scale={scale} />
+      )}
       {(account as ImportedAccount)?.type === "github" && (
-        <Icon
-          name="logoGithub-fill-blue0"
-          style={{ width: "100%", height: "100%" }}
-        />
+        <Icon name="logoGithub-fill-blue0" style={{ width: "100%", height: "100%" }} />
       )}
       {(account as ImportedAccount)?.type === "twitter" && (
-        <Icon
-          name="logoTwitter-rounded-blue0"
-          style={{ width: "100%", height: "100%" }}
-        />
+        <Icon name="logoTwitter-rounded-blue0" style={{ width: "100%", height: "100%" }} />
       )}
       {(account as ImportedAccount)?.type === "telegram" && (
-        <Icon
-          name="logoTelegram-rounded-blue0"
-          style={{ width: "100%", height: "100%" }}
-        />
+        <Icon name="logoTelegram-rounded-blue0" style={{ width: "100%", height: "100%" }} />
       )}
       {!(account as ImportedAccount)?.type && account && account.identifier && (
         <Blockies seed={account.identifier} size={8} scale={scale} />

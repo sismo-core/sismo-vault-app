@@ -3,9 +3,10 @@ import Button from "../../../../../components/Button";
 import Loader from "../../../../../components/Loader";
 import colors from "../../../../../theme/colors";
 import { ImportedAccount } from "../../../../../libs/vault-client";
-import { useVault } from "../../../../../hooks/vault";
+import { SismoConnectDataSourceState, useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../ImportAccount/provider";
 import AccountLine from "./AccountLine";
+import { useState } from "react";
 
 const Container = styled.div`
   background-color: ${colors.blue10};
@@ -100,15 +101,9 @@ const AccountsScroll = styled.div`
   }
 `;
 
-type Props = {
-  selectedAccount: ImportedAccount;
-  onSelectAccount: (account: ImportedAccount) => void;
-};
-
-export default function ImportedAccounts({
-  selectedAccount,
-  onSelectAccount,
-}: Props) {
+export default function ImportedAccounts() {
+  const [selectedAccount, setSelectedAccount] = useState<ImportedAccount>(null);
+  const [selectedDataSource, setSelectedDataSource] = useState<SismoConnectDataSourceState>(null);
   const importAccount = useImportAccount();
   const vault = useVault();
 
@@ -116,8 +111,11 @@ export default function ImportedAccounts({
     <Container>
       {vault?.importedAccounts && vault?.importedAccounts?.length > 0 && (
         <AllAccounts
-          selected={selectedAccount === null}
-          onClick={() => onSelectAccount(null)}
+          selected={selectedAccount === null && selectedDataSource === null}
+          onClick={() => {
+            setSelectedDataSource(null);
+            setSelectedAccount(null);
+          }}
         >
           All
         </AllAccounts>
@@ -128,12 +126,25 @@ export default function ImportedAccounts({
           vault?.importedAccounts?.map((account) => (
             <AccountLine
               account={account}
-              isSelected={
-                selectedAccount &&
-                selectedAccount.identifier === account.identifier
-              }
-              onSelectAccount={() => onSelectAccount(account)}
+              isSelected={selectedAccount && selectedAccount.identifier === account.identifier}
+              onSelectAccount={() => {
+                setSelectedDataSource(null);
+                setSelectedAccount(account);
+              }}
               key={"account" + account.identifier}
+            />
+          ))}
+        {vault?.sismoConnectDataSourcesStates &&
+          vault?.sismoConnectDataSourcesStates?.length > 0 &&
+          vault?.sismoConnectDataSourcesStates?.map((dataSource) => (
+            <AccountLine
+              dataSource={dataSource}
+              isSelected={selectedDataSource && selectedDataSource.vaultId === dataSource.vaultId}
+              onSelectAccount={() => {
+                setSelectedDataSource(dataSource);
+                setSelectedAccount(null);
+              }}
+              key={"account" + dataSource.vaultId}
             />
           ))}
       </AccountsScroll>

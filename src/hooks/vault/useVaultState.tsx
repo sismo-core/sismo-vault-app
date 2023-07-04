@@ -7,6 +7,8 @@ import {
   Vault,
 } from "../../libs/vault-client";
 import { useWallet } from "../wallet";
+import { SismoConnectDataSourceState } from ".";
+import { isAccountPartOfTheConfig } from "../../libs/sismo-connect-data-source/utils/isAccountPartOfTheConfig";
 
 export type VaultState = {
   vaultName: string;
@@ -18,6 +20,7 @@ export type VaultState = {
   recoveryKeys: RecoveryKey[];
   deletable: boolean;
   sismoConnectDataSources: SismoConnectDataSource[];
+  sismoConnectDataSourcesStates: SismoConnectDataSourceState[];
   updateVaultState: (vault: Vault) => Promise<void>;
   updateConnectedOwner: (owner: Owner) => Promise<void>;
   reset: () => void;
@@ -27,14 +30,16 @@ export const useVaultState = (): VaultState => {
   const wallet = useWallet();
   const [vaultName, setVaultName] = useState(null);
   const [autoImportOwners, setAutoImportOwners] = useState<boolean>(null);
-  const [sismoConnectDataSources, setSismoConnectDataSources] =
-    useState<SismoConnectDataSource[]>(null);
   const [keepConnected, setKeepConnected] = useState<boolean>(null);
   const [importedAccounts, setImportedAccounts] = useState<ImportedAccount[]>(null);
   const [recoveryKeys, setRecoveryKeys] = useState<RecoveryKey[]>(null);
   const [owners, setOwners] = useState<Owner[]>(null);
   const [connectedOwner, setConnectedOwner] = useState<Owner>(null);
   const [deletable, setDeletable] = useState(false);
+  const [sismoConnectDataSources, setSismoConnectDataSources] =
+    useState<SismoConnectDataSource[]>(null);
+  const [sismoConnectDataSourcesStates, setSismoConnectDataSourcesStates] =
+    useState<SismoConnectDataSourceState[]>(null);
 
   const updateVaultName = async (vault: Vault): Promise<void> => {
     if (vault.settings.name !== vaultName) {
@@ -99,6 +104,7 @@ export const useVaultState = (): VaultState => {
   };
 
   const updateSismoConnectDataSources = async (vault: Vault): Promise<void> => {
+    if (!vault.sismoConnectDataSources) return;
     if (
       sismoConnectDataSources === null ||
       vault.sismoConnectDataSources.length !== sismoConnectDataSources.length ||
@@ -107,6 +113,18 @@ export const useVaultState = (): VaultState => {
       )
     ) {
       setSismoConnectDataSources(vault.sismoConnectDataSources);
+
+      const _sismoConnectDataSourcesStates = vault.sismoConnectDataSources
+        .map((sismoConnectDataSource) => {
+          if (!isAccountPartOfTheConfig(sismoConnectDataSource)) return null;
+          return {
+            ...sismoConnectDataSource,
+            state: "not-eligible" as "not-eligible" | "eligible",
+          };
+        })
+        .filter(Boolean);
+
+      setSismoConnectDataSourcesStates(_sismoConnectDataSourcesStates);
     }
   };
 
@@ -165,6 +183,7 @@ export const useVaultState = (): VaultState => {
     recoveryKeys,
     keepConnected,
     sismoConnectDataSources,
+    sismoConnectDataSourcesStates,
     updateVaultState,
     updateConnectedOwner,
     reset,
