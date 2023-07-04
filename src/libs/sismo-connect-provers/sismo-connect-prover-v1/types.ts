@@ -153,10 +153,7 @@ export enum AuthType {
   TELEGRAM,
 }
 
-export type SismoConnectResponse = Pick<
-  SismoConnectRequest,
-  "appId" | "namespace" | "version"
-> & {
+export type SismoConnectResponse = Pick<SismoConnectRequest, "appId" | "namespace" | "version"> & {
   signedMessage?: string;
   proofs: SismoConnectProof[];
 };
@@ -220,18 +217,13 @@ export class SismoConnectVerifiedResult {
   }
 
   public getUserId(authType: AuthType): string | undefined {
-    const userId = this.auths.find(
-      (verifiedAuth) => verifiedAuth.authType === authType
-    )?.userId;
+    const userId = this.auths.find((verifiedAuth) => verifiedAuth.authType === authType)?.userId;
     return resolveSismoIdentifier(userId, authType);
   }
 
   public getUserIds(authType: AuthType): string[] {
     return this.auths
-      .filter(
-        (verifiedAuth) =>
-          verifiedAuth.authType === authType && verifiedAuth.userId
-      )
+      .filter((verifiedAuth) => verifiedAuth.authType === authType && verifiedAuth.userId)
       .map((auth) => resolveSismoIdentifier(auth.userId, authType)) as string[];
   }
 
@@ -245,12 +237,8 @@ const startsWithHexadecimal = (str) => {
   return hexRegex.test(str);
 };
 
-export const resolveSismoIdentifier = (
-  sismoIdentifier: string,
-  authType: AuthType
-) => {
-  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT)
-    return sismoIdentifier;
+export const resolveSismoIdentifier = (sismoIdentifier: string, authType: AuthType) => {
+  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT) return sismoIdentifier;
   if (!startsWithHexadecimal(sismoIdentifier)) return sismoIdentifier;
 
   const removeLeadingZeros = (str) => {
@@ -266,8 +254,7 @@ export const resolveSismoIdentifier = (
 };
 
 export const toSismoIdentifier = (identifier: string, authType: AuthType) => {
-  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT)
-    return identifier;
+  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT) return identifier;
   if (startsWithHexadecimal(identifier)) return identifier;
 
   let prefix = null;
@@ -308,10 +295,7 @@ export class RequestBuilder {
       authRequest.extraData = authRequest.extraData ?? "";
 
       if (authRequest.userId !== "0") {
-        authRequest.userId = toSismoIdentifier(
-          authRequest.userId,
-          authRequest.authType
-        );
+        authRequest.userId = toSismoIdentifier(authRequest.userId, authRequest.authType);
       }
     }
 

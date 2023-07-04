@@ -5,11 +5,17 @@ import {
   ClaimRequestEligibility,
   ClaimType,
 } from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
-import { CaretDown, Info } from "phosphor-react";
+import { CaretDown, Info, PencilSimple } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import useOnClickOutside from "../../../../utils/useClickOutside";
 import { BigNumber } from "ethers";
 import { GroupMetadata } from "../../../../libs/sismo-client";
+import Modal from "../../../../components/Modal";
+import ValueSelectorModal from "./ValueSelectorModal";
+import { displayBigNumber } from "../../utils/displayBigNumber";
+import { textShorten } from "../../../../utils/textShorten";
+import HoverTooltip from "../../../../components/HoverTooltip";
+import { formatEther } from "ethers/lib/utils";
 
 const OuterContainer = styled.div`
   display: flex;
@@ -19,7 +25,11 @@ const OuterContainer = styled.div`
   margin-left: 4px;
 `;
 
-const Container = styled.div<{ color: string; isSelectorOpenable: boolean }>`
+const Container = styled.div<{
+  color: string;
+  isSelectorOpenable: boolean;
+  isOptional: boolean;
+}>`
   position: relative;
   font-family: ${(props) => props.theme.fonts.medium};
   font-size: 14px;
@@ -34,7 +44,13 @@ const Container = styled.div<{ color: string; isSelectorOpenable: boolean }>`
   gap: 4px;
   flex-shrink: 0;
   flex-grow: 1;
+  width: ${(props) => (props.isOptional ? "165px" : "182px")};
   cursor: ${(props) => (props.isSelectorOpenable ? "pointer" : "default")};
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    width: calc(100% - 15px);
+  }
 `;
 
 export const SkeletonLoading = keyframes`
@@ -71,12 +87,9 @@ const Left = styled.div`
   gap: 4px;
 `;
 
-const GroupName = styled.div<{ isOptional: boolean }>`
-  max-width: ${(props) => (props.isOptional ? "155px" : "170px")};
+const GroupName = styled.div`
   flex-grow: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
+  ${textShorten(1)}
   @media (max-width: 768px) {
     max-width: 100px;
   }
@@ -96,7 +109,11 @@ const InfoWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   cursor: pointer;
+  font-size: 12px;
+  font-family: ${(props) => props.theme.fonts.regular};
+  line-height: 18px;
 `;
 
 const ChevronWrapper = styled.div<{ isSelectorOpen: boolean }>`
@@ -104,10 +121,13 @@ const ChevronWrapper = styled.div<{ isSelectorOpen: boolean }>`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transform: ${(props) =>
-    !props.isSelectorOpen ? "rotateX(0deg)" : "rotateX(180deg)"};
+  transform: ${(props) => (!props.isSelectorOpen ? "rotateX(0deg)" : "rotateX(180deg)")};
 
   /* transition: transform 0.15s ease-in-out; */
+`;
+
+const StyledSvg = styled.svg`
+  flex-shrink: 0;
 `;
 
 const SelectorContainer = styled.div`
@@ -133,8 +153,7 @@ const SelectorItem = styled.div<{ isSelected: boolean }>`
   justify-content: center;
   font-size: 14px;
   line-height: 20px;
-  color: ${(props) =>
-    props.isSelected ? props.theme.colors.green1 : props.theme.colors.blue0};
+  color: ${(props) => (props.isSelected ? props.theme.colors.green1 : props.theme.colors.blue0)};
   font-family: ${(props) => props.theme.fonts.medium};
   border-radius: 2px;
   background: transparent;
@@ -150,6 +169,12 @@ const SelectorItem = styled.div<{ isSelected: boolean }>`
   transition: background 0.15s ease-in-out;
 `;
 
+function* bigNumberRange(start: BigNumber, end: BigNumber): Generator<BigNumber> {
+  for (let current = start; current.lte(end); current = current.add(1)) {
+    yield current;
+  }
+}
+
 type Props = {
   groupMetadata: GroupMetadata;
   claim: ClaimRequest;
@@ -159,10 +184,7 @@ type Props = {
   optIn?: boolean;
   isOptional: boolean;
 
-  onClaimChange: (
-    claimRequestEligibility: ClaimRequestEligibility,
-    selectedValue: number
-  ) => void;
+  onClaimChange: (claimRequestEligibility: ClaimRequestEligibility, selectedValue: number) => void;
   onModal?: (id: string) => void;
 };
 
@@ -177,54 +199,54 @@ export default function ShardTag({
   onClaimChange,
   onModal,
 }: Props) {
-  const [selectedValue, setSelectedValue] = useState(initialValue || null);
+  const MAX_DISPLAYED_VALUE = 8;
+  const [modalKey, setModalKey] = useState(0);
+  const [selectedValue, setSelectedValue] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
   const ref = useRef(null);
-
   useOnClickOutside(ref, () => setIsSelectorOpen(false));
-
   const color = !optIn ? colors.blue3 : colors.blue0;
 
-  const requestedValue = claim?.value;
+  const requestedValue = BigNumber.from(claim?.value);
   const claimType = claim?.claimType;
+  const minValue = BigNumber.from(claim?.value);
+  let maxValue = BigNumber.from(0);
+  let selectableValues: BigNumber[] = [];
 
-  const minValue = claim?.value;
-
-  let maxValue = 0;
-  let selectableValues = [];
   try {
-    maxValue = BigNumber.from(
-      claimRequestEligibility?.accountData?.value || 0
-    ).toNumber();
-    selectableValues =
-      claimRequestEligibility?.claim?.claimType === ClaimType.GTE
-        ? Array.from(
-            { length: maxValue - minValue + 1 },
-            (_, i) => i + minValue
-          )
-        : [minValue];
+    maxValue = BigNumber.from(claimRequestEligibility?.accountData?.value || 0);
+    if (maxValue.lt(MAX_DISPLAYED_VALUE)) {
+      for (let value of bigNumberRange(minValue, maxValue)) {
+        selectableValues.push(value);
+      }
+    }
   } catch (e) {
     console.log("e", e);
   }
+  const isWei = maxValue.gte(BigNumber.from(10).pow(18)) ? 18 : 0;
 
-  const isSelectorOpenable = selectableValues?.length > 1 && isSelectableByUser;
+  const isSelectorOpenable =
+    !maxValue.sub(minValue).eq(BigNumber.from(0)) && isSelectableByUser && Boolean(selectedValue);
 
+  const isModalSelector = maxValue?.gt(BigNumber.from(MAX_DISPLAYED_VALUE));
   const humanReadableGroupName = groupMetadata?.name
     ?.replace(/-/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
 
   useEffect(() => {
     if (initialValue) {
-      setSelectedValue(initialValue);
+      setSelectedValue(BigNumber.from(initialValue));
     }
   }, [initialValue]);
 
-  function onValueChange(
-    claimRequestEligibility: ClaimRequestEligibility,
-    value: number
-  ) {
-    setSelectedValue(value);
-    onClaimChange(claimRequestEligibility, value);
+  function onValueChange(claimRequestEligibility: ClaimRequestEligibility, value: BigNumber) {
+    try {
+      setSelectedValue(value);
+      onClaimChange(claimRequestEligibility, value.toNumber());
+    } catch (e) {
+      console.log("e", e);
+    }
   }
 
   if (!groupMetadata) {
@@ -235,6 +257,7 @@ export default function ShardTag({
           color={color}
           ref={null}
           onClick={() => {}}
+          isOptional={isOptional}
         ></Skeleton>
         <InfoWrapper onClick={() => {}}>
           <Info size={18} color={color} />
@@ -244,80 +267,129 @@ export default function ShardTag({
   }
 
   return (
-    <OuterContainer>
-      <Container
-        isSelectorOpenable={isSelectorOpenable}
-        color={color}
-        ref={ref}
-        onClick={() => isSelectorOpenable && setIsSelectorOpen(!isSelectorOpen)}
-      >
-        <Left>
-          <svg
-            width="14"
-            height="15"
-            viewBox="0 0 14 15"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M7.00083 0.594749L13.334 5.53932L7.00083 13.2671L0.666871 5.53933L7.00083 0.594749Z"
-              fill="#C08AFF"
-              stroke="#C08AFF"
-              strokeWidth="0.937557"
-            />
-          </svg>
-          <GroupName isOptional={isOptional}>
-            {humanReadableGroupName}
-          </GroupName>
+    <>
+      {selectedValue && (
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setModalKey(modalKey + 1);
+          }}
+        >
+          <ValueSelectorModal
+            key={claim.uuid + "/" + modalKey} // set the key prop
+            minValue={minValue}
+            maxValue={maxValue}
+            onClose={() => setIsModalOpen(false)}
+            onCancel={() => {
+              setIsModalOpen(false);
+              setTimeout(() => {
+                setModalKey(modalKey + 1);
+              }, 100);
+            }}
+            selectedValue={selectedValue}
+            onChange={(value: BigNumber) => {
+              onValueChange(claimRequestEligibility, value);
+            }}
+          />
+        </Modal>
+      )}
+      <OuterContainer>
+        <Container
+          isSelectorOpenable={isSelectorOpenable}
+          color={color}
+          ref={ref}
+          isOptional={isOptional}
+          onClick={() => {
+            if (isSelectorOpenable && !isWei) {
+              isModalSelector ? setIsModalOpen(true) : setIsSelectorOpen(!isSelectorOpen);
+            }
+          }}
+        >
+          <Left>
+            <StyledSvg
+              width="14"
+              height="15"
+              viewBox="0 0 14 15"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M7.00083 0.594749L13.334 5.53932L7.00083 13.2671L0.666871 5.53933L7.00083 0.594749Z"
+                fill="#C08AFF"
+                stroke="#C08AFF"
+                strokeWidth="0.937557"
+              />
+            </StyledSvg>
+            <GroupName>{humanReadableGroupName}</GroupName>
 
-          {claimType === ClaimType.GTE ? (
             <ValueComparator>
-              {">="} {requestedValue}
+              {!selectedValue
+                ? claimType === ClaimType.GTE
+                  ? ">="
+                  : claimType === ClaimType.GT
+                  ? ">"
+                  : claimType === ClaimType.EQ
+                  ? "="
+                  : claimType === ClaimType.LT
+                  ? "<"
+                  : claimType === ClaimType.LTE
+                  ? "<="
+                  : null
+                : null}
+              {!selectedValue && requestedValue ? (
+                requestedValue.toString()
+              ) : isWei ? (
+                <HoverTooltip text={formatEther?.(selectedValue) || ""}>
+                  {displayBigNumber({
+                    input: selectedValue,
+                    isWei,
+                    nbDecimals: 2,
+                    isCropped: true,
+                  })}
+                </HoverTooltip>
+              ) : (
+                selectedValue.toString()
+              )}
             </ValueComparator>
-          ) : claimType === ClaimType.GT ? (
-            <ValueComparator>
-              {">"} {requestedValue}
-            </ValueComparator>
-          ) : claimType === ClaimType.EQ ? (
-            <ValueComparator>{requestedValue}</ValueComparator>
-          ) : claimType === ClaimType.LT ? (
-            <ValueComparator>
-              {"<"} {requestedValue}
-            </ValueComparator>
-          ) : claimType === ClaimType.LTE ? (
-            <ValueComparator>
-              {"<="} {requestedValue}
-            </ValueComparator>
-          ) : null}
-        </Left>
-        {isSelectorOpenable && (
-          <ChevronWrapper isSelectorOpen={isSelectorOpen}>
-            <CaretDown size={16} color={color} />
-          </ChevronWrapper>
-        )}
-        {isSelectorOpen && (
-          <SelectorContainer>
-            {selectableValues?.map((value) => {
-              const isSelected = value === selectedValue;
-              return (
-                <SelectorItem
-                  key={value}
-                  isSelected={isSelected}
-                  onClick={() => {
-                    setIsSelectorOpen(false);
-                    onValueChange(claimRequestEligibility, value);
-                  }}
-                >
-                  {value}
-                </SelectorItem>
-              );
-            })}
-          </SelectorContainer>
-        )}
-      </Container>
-      <InfoWrapper onClick={() => onModal(groupMetadata.id)}>
-        <Info size={18} color={color} />
-      </InfoWrapper>
-    </OuterContainer>
+          </Left>
+          {maxValue.lte(BigNumber.from(MAX_DISPLAYED_VALUE)) && (
+            <>
+              {isSelectorOpenable && (
+                <ChevronWrapper isSelectorOpen={isSelectorOpen}>
+                  <CaretDown size={16} color={color} />
+                </ChevronWrapper>
+              )}
+              {isSelectorOpen && (
+                <SelectorContainer>
+                  {selectableValues?.length > 0 &&
+                    selectableValues?.map((value) => {
+                      const isSelected = value.eq(selectedValue);
+                      return (
+                        <SelectorItem
+                          key={value.toString() + "/selector" + claim.uuid}
+                          isSelected={isSelected}
+                          onClick={() => {
+                            setIsSelectorOpen(false);
+                            onValueChange(claimRequestEligibility, value);
+                          }}
+                        >
+                          {value.toString()}
+                        </SelectorItem>
+                      );
+                    })}
+                </SelectorContainer>
+              )}
+            </>
+          )}
+          {isModalSelector && isSelectorOpenable && !isWei && (
+            <PencilSimple size={16} color={color} style={{ flexShrink: "0" }} />
+          )}
+        </Container>
+        <InfoWrapper onClick={() => onModal(groupMetadata.id)}>
+          <Info size={16} color={color} />
+        </InfoWrapper>
+      </OuterContainer>
+    </>
   );
 }

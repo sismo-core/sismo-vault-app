@@ -16,16 +16,13 @@ const TipContent = styled.div<{ width?: number }>`
   position: relative;
   padding: 10px;
   border-radius: 5px;
-
   width: ${(props) => (props.width ? props.width + "px" : "fit-content")};
   white-space: ${(props) => (props.width ? "normal" : "nowrap")};
-
   background-color: ${colors.blue9};
   font-size: 12px;
   line-height: 150%;
   color: ${(props) => props.theme.colors.blue0};
   z-index: 30;
-
   box-sizing: border-box;
 `;
 
