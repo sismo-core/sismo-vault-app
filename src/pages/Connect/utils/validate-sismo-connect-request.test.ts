@@ -10,7 +10,12 @@ describe("Request validation tests", () => {
     namespace: "main",
     devConfig: { enabled: true },
     callbackUrl: "http://localhost:3001/level-1-register-user",
-    version: "sismo-connect-v1",
+    version: "sismo-connect-v1.1",
+    claims: [
+      {
+        groupId: "0x1",
+      },
+    ],
     compressed: true,
   };
 
@@ -25,8 +30,6 @@ describe("Request validation tests", () => {
       version: "sismo-connect-v20",
     });
     expect(requestValidation.status).toEqual(RequestValidationStatus.Error);
-    expect(requestValidation.message).toEqual(
-      `Invalid version query parameter: sismo-connect-v20 `
-    );
+    expect(requestValidation.message).toEqual(`Invalid version query parameter: sismo-connect-v20`);
   });
 });
