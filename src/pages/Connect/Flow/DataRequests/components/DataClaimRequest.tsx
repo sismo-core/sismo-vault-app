@@ -22,7 +22,7 @@ const Container = styled.div`
   justify-content: space-between;
   min-height: 56px;
   gap: 19px;
-  width: 510px;
+  width: 100%;
 
   @media (max-width: 768px) {
     flex-wrap: wrap;
@@ -30,7 +30,6 @@ const Container = styled.div`
     padding: 16px 0;
     justify-content: flex-end;
     min-height: 0px;
-    width: 100%;
   }
 `;
 
