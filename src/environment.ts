@@ -33,6 +33,7 @@ export type Environment = {
 export type SismoConnectDataSourceConfig = {
   appId: string;
   type: string;
+  name: string;
   request: RequestParams;
   groupId: string;
 };

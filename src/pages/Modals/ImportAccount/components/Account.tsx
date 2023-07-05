@@ -84,7 +84,7 @@ export default function Account({ type, onClick }: Props): JSX.Element {
         )}
         {type === "worldcoin" && (
           <>
-            Worldcoin <br />
+            World ID <br />
             account
           </>
         )}

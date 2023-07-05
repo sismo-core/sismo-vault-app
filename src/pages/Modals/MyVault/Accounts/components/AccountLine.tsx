@@ -6,9 +6,9 @@ import { getMainMinified } from "../../../../../utils/getMain";
 import Icon from "../../../../../components/Icon";
 import { useNotifications } from "../../../../../components/Notifications/provider";
 import { getMinimalIdentifier } from "../../../../../utils/getMinimalIdentifier";
-import { SismoConnectDataSourceState, useVault } from "../../../../../hooks/vault";
+import { useVault } from "../../../../../hooks/vault";
 import Avatar from "../../../../../components/Avatar";
-import { ImportedAccount } from "../../../../../libs/vault-client";
+import { ImportedAccount, SismoConnectDataSource } from "../../../../../libs/vault-client";
 import * as Sentry from "@sentry/react";
 
 const Container = styled.div<{ selected: boolean }>`
@@ -59,7 +59,7 @@ const Action = styled.div`
 
 type Props = {
   account?: ImportedAccount;
-  dataSource?: SismoConnectDataSourceState;
+  dataSource?: SismoConnectDataSource;
   isSelected: boolean;
   onSelectAccount: () => void;
 };

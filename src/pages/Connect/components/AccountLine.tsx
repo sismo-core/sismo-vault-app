@@ -5,8 +5,7 @@ import { Copy } from "phosphor-react";
 import colors from "../../../theme/colors";
 import { useNotifications } from "../../../components/Notifications/provider";
 import { getMinimalIdentifier } from "../../../utils/getMinimalIdentifier";
-import { ImportedAccount } from "../../../libs/vault-client";
-import { SismoConnectDataSourceState } from "../../../hooks/vault";
+import { ImportedAccount, SismoConnectDataSource } from "../../../libs/vault-client";
 
 const Container = styled.div`
   display: flex;
@@ -51,7 +50,7 @@ const AccountName = styled.div`
 
 type Props = {
   source?: ImportedAccount;
-  dataSource?: SismoConnectDataSourceState;
+  dataSource?: SismoConnectDataSource;
 };
 
 export default function AccountLine({ source, dataSource }: Props) {
@@ -80,7 +79,6 @@ export default function AccountLine({ source, dataSource }: Props) {
         <AccountName>
           {source && getMainMinified(source)}
           {dataSource && getMinimalIdentifier(dataSource.vaultId)}
-          {dataSource && dataSource.state}
         </AccountName>
       </AvatarName>
 

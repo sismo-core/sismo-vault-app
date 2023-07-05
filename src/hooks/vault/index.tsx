@@ -37,7 +37,7 @@ type ReactVault = {
   recoveryKeys: RecoveryKey[];
   commitmentMapper: CommitmentMapper;
   synchronizing: boolean;
-  sismoConnectDataSourcesStates: SismoConnectDataSourceState[];
+  sismoConnectDataSources: SismoConnectDataSource[];
   sismoConnectDataSourceConfigProvider: SismoConnectDataSourceConfigProvider;
   getVaultSecret: () => Promise<string>;
   getVaultId: ({ appId, derivationKey }: VaultNamespaceInputs) => Promise<string>;
@@ -89,13 +89,11 @@ export default function SismoVaultProvider({
   const [loadingActiveSession, setLoadingActiveSession] = useState(true);
   const [synchronizing, setSynchronizing] = useState(false);
   const [impersonationErrors, setImpersonationErrors] = useState<string[]>([]);
-  const [sismoConnectDataSourcesStates, setSismoConnectDataSourcesStates] =
-    useState<SismoConnectDataSourceState[]>();
 
   const vaultClient = services.getVaultClient();
   const vaultClientV1 = services.getVaultClientV1();
   const vaultSynchronizer = services.getVaultsSynchronizer();
-  const hydraEligibilityResolver = services.getHydraEligibilityResolver();
+  //const hydraEligibilityResolver = services.getHydraEligibilityResolver();
   const sismoConnectDataSourceConfigProvider = services.getSismoConnectDataSourceConfigProvider();
 
   useEffect(() => {
@@ -333,49 +331,50 @@ export default function SismoVaultProvider({
     return services.getCommitmentMapper();
   }, [services]);
 
-  useEffect(() => {
-    if (!Boolean(vaultState.connectedOwner)) return;
-    const updateSismoConnectDataSources = async (
-      sismoConnectDataSources: SismoConnectDataSource[]
-    ): Promise<void> => {
-      if (!sismoConnectDataSources) return;
+  // Add the state eligible on the sismoDataSources
+  // useEffect(() => {
+  //   if (!Boolean(vaultState.connectedOwner)) return;
+  //   const updateSismoConnectDataSources = async (
+  //     sismoConnectDataSources: SismoConnectDataSource[]
+  //   ): Promise<void> => {
+  //     if (!sismoConnectDataSources) return;
 
-      const _sismoConnectDataSourcesStates = sismoConnectDataSources
-        .map((sismoConnectDataSource) => {
-          if (
-            !sismoConnectDataSourceConfigProvider.isAccountPartOfTheConfig(sismoConnectDataSource)
-          )
-            return null;
-          return {
-            ...sismoConnectDataSource,
-            state: "not-eligible" as "not-eligible" | "eligible",
-          };
-        })
-        .filter(Boolean);
+  //     const _sismoConnectDataSourcesStates = sismoConnectDataSources
+  //       .map((sismoConnectDataSource) => {
+  //         if (
+  //           !sismoConnectDataSourceConfigProvider.isDataSourcePartOfTheConfig(sismoConnectDataSource)
+  //         )
+  //           return null;
+  //         return {
+  //           ...sismoConnectDataSource,
+  //           state: "not-eligible" as "not-eligible" | "eligible",
+  //         };
+  //       })
+  //       .filter(Boolean);
 
-      setSismoConnectDataSourcesStates(_sismoConnectDataSourcesStates);
+  //     setSismoConnectDataSourcesStates(_sismoConnectDataSourcesStates);
 
-      for (let sismoConnectDataSourcesState of _sismoConnectDataSourcesStates) {
-        const identifier = sismoConnectDataSourcesState.vaultId;
-        const groupId = sismoConnectDataSourceConfigProvider.getSismoConnectDataSourceGroupId(
-          sismoConnectDataSourcesState
-        );
-        const value = await hydraEligibilityResolver.getEligibleValue({ identifier, groupId });
+  //     for (let sismoConnectDataSourcesState of _sismoConnectDataSourcesStates) {
+  //       const identifier = sismoConnectDataSourcesState.vaultId;
+  //       const groupId = sismoConnectDataSourceConfigProvider.getSismoConnectDataSourceGroupId(
+  //         sismoConnectDataSourcesState
+  //       );
+  //       const value = await hydraEligibilityResolver.getEligibleValue({ identifier, groupId });
 
-        if (value) {
-          sismoConnectDataSourcesState.state = "eligible";
-        }
-      }
+  //       if (value) {
+  //         sismoConnectDataSourcesState.state = "eligible";
+  //       }
+  //     }
 
-      setSismoConnectDataSourcesStates(_sismoConnectDataSourcesStates);
-    };
-    updateSismoConnectDataSources(vaultState.sismoConnectDataSources);
-  }, [
-    vaultState.sismoConnectDataSources,
-    vaultState.connectedOwner,
-    hydraEligibilityResolver,
-    sismoConnectDataSourceConfigProvider,
-  ]);
+  //     setSismoConnectDataSourcesStates(_sismoConnectDataSourcesStates);
+  //   };
+  //   updateSismoConnectDataSources(vaultState.sismoConnectDataSources);
+  // }, [
+  //   vaultState.sismoConnectDataSources,
+  //   vaultState.connectedOwner,
+  //   hydraEligibilityResolver,
+  //   sismoConnectDataSourceConfigProvider,
+  // ]);
 
   return (
     <SismoVaultContext.Provider
@@ -391,7 +390,7 @@ export default function SismoVaultProvider({
         isConnected: Boolean(vaultState.connectedOwner),
         deletable: vaultState.deletable,
         recoveryKeys: vaultState.recoveryKeys,
-        sismoConnectDataSourcesStates: sismoConnectDataSourcesStates,
+        sismoConnectDataSources: vaultState.sismoConnectDataSources,
         synchronizing,
         sismoConnectDataSourceConfigProvider,
         getVaultSecret,

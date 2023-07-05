@@ -12,6 +12,7 @@ describe("SismoConnectDataSourceConfigProvider", () => {
       {
         appId: "123",
         type: "worldcoin",
+        name: "World ID",
         request: {
           auths: [
             {
@@ -31,6 +32,10 @@ describe("SismoConnectDataSourceConfigProvider", () => {
     sismoConnectDataSourceConfigProvider = new SismoConnectDataSourceConfigProvider({
       sismoConnectDataSourcesConfig,
     });
+  });
+
+  it("should return the config", () => {
+    expect(sismoConnectDataSourceConfigProvider.getConfigs()).toBe(sismoConnectDataSourcesConfig);
   });
 
   it("should return correct groupId", () => {
@@ -75,14 +80,14 @@ describe("SismoConnectDataSourceConfigProvider", () => {
   it("should return true if account is part of the config", () => {
     sismoConnectDataSource.appId = "123";
     expect(
-      sismoConnectDataSourceConfigProvider.isAccountPartOfTheConfig(sismoConnectDataSource)
+      sismoConnectDataSourceConfigProvider.isDataSourcePartOfTheConfig(sismoConnectDataSource)
     ).toBe(true);
   });
 
   it("should return false if account is not part of the config", () => {
     sismoConnectDataSource.appId = "999";
     expect(
-      sismoConnectDataSourceConfigProvider.isAccountPartOfTheConfig(sismoConnectDataSource)
+      sismoConnectDataSourceConfigProvider.isDataSourcePartOfTheConfig(sismoConnectDataSource)
     ).toBe(false);
   });
 });

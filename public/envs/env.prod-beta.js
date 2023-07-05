@@ -30,5 +30,19 @@ window.env = {
       "0x05f9c1765a0771cae354874d53ba951ade82040278f5d58f09e9dea00a24f3b2",
     ],
   },
-  walletConnectProjectId: "75f232fcfe4874121b3285c080d79993"
+  walletConnectProjectId: "75f232fcfe4874121b3285c080d79993",
+  sismoConnectDataSourcesConfig: [
+    {
+      appId: "0x3bcdab2ad3caddb11b90b02bde258f6b",
+      type: "worldcoin",
+      name: "World ID",
+      request: {
+        auths: [{
+          authType: 0
+        }],
+        callbackUrl: "https://sismo-spaces-git-create-custom-app-sismo.vercel.app/worldcoin/proof-of-personhood"
+      },
+      groupId: "0x5ae52d5a2bb69b4e56f464d2248a9d96"
+    }
+  ]
 };

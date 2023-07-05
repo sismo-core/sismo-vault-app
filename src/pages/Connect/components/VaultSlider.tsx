@@ -284,7 +284,7 @@ export default function VaultSlider({
 
   const accountNumber =
     (vault?.importedAccounts ? vault?.importedAccounts?.length : 0) +
-    (vault?.sismoConnectDataSourcesStates ? vault?.sismoConnectDataSourcesStates?.length : 0);
+    (vault?.sismoConnectDataSources ? vault?.sismoConnectDataSources?.length : 0);
 
   return (
     <Container ref={ref} vaultSliderOpen={vaultSliderOpen}>
@@ -305,8 +305,8 @@ export default function VaultSlider({
         {vault?.isConnected && (
           <>
             {vault?.importedAccounts?.length === 0 &&
-            (vault?.sismoConnectDataSourcesStates
-              ? vault?.sismoConnectDataSourcesStates?.length === 0
+            (vault?.sismoConnectDataSources
+              ? vault?.sismoConnectDataSources?.length === 0
               : true) &&
             importAccount.importing !== "account" ? (
               <VaultNotConnected vaultSliderOpen={vaultSliderOpen}>
@@ -319,7 +319,7 @@ export default function VaultSlider({
                     <AccountLine source={source} />
                   </div>
                 ))}
-                {vault?.sismoConnectDataSourcesStates?.map((dataSource, index) => (
+                {vault?.sismoConnectDataSources?.map((dataSource, index) => (
                   <div key={dataSource.vaultId + index}>
                     <AccountLine dataSource={dataSource} />
                   </div>

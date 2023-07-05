@@ -14,10 +14,18 @@ export class SismoConnectDataSourceConfigProvider {
     this._sismoConnectDataSourcesConfig = sismoConnectDataSourcesConfig;
   }
 
-  public getSismoConnectDataSourceGroupId(sismoConnectDataSource: SismoConnectDataSource): string {
-    const config = this._sismoConnectDataSourcesConfig.find(
+  public getConfigs(): SismoConnectDataSourceConfig[] {
+    return this._sismoConnectDataSourcesConfig;
+  }
+
+  public getConfig(sismoConnectDataSource: SismoConnectDataSource): SismoConnectDataSourceConfig {
+    return this._sismoConnectDataSourcesConfig.find(
       (el) => el.appId === sismoConnectDataSource.appId
     );
+  }
+
+  public getSismoConnectDataSourceGroupId(sismoConnectDataSource: SismoConnectDataSource): string {
+    const config = this.getConfig(sismoConnectDataSource);
     if (!config) return null;
     return config.groupId;
   }
@@ -37,7 +45,9 @@ export class SismoConnectDataSourceConfigProvider {
     }
   };
 
-  public isAccountPartOfTheConfig = (sismoConnectDataSource: SismoConnectDataSource): boolean => {
+  public isDataSourcePartOfTheConfig = (
+    sismoConnectDataSource: SismoConnectDataSource
+  ): boolean => {
     return Boolean(
       this._sismoConnectDataSourcesConfig.find((el) => el.appId === sismoConnectDataSource.appId)
     );

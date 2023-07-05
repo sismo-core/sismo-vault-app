@@ -34,13 +34,14 @@ window.env = {
     {
       appId: "0x3bcdab2ad3caddb11b90b02bde258f6b",
       type: "worldcoin",
+      name: "World ID",
       request: {
         auths: [{
           authType: 0
         }],
-        callbackUrl: "http://localhost:3003/worldcoin/proof-of-personhood"//"https://sismo-spaces-git-add-worldcoin-sismo.vercel.app/worldcoin/proof-of-personhood"
+        callbackUrl: "https://sismo-spaces-git-create-custom-app-sismo.vercel.app/worldcoin/proof-of-personhood"
       },
-      groupId: "0x5fac4301ba9a37c4275b0cef2201599a"
+      groupId: "0x5ae52d5a2bb69b4e56f464d2248a9d96"
     }
   ]
 };

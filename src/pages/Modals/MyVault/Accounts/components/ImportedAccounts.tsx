@@ -2,8 +2,8 @@ import styled from "styled-components";
 import Button from "../../../../../components/Button";
 import Loader from "../../../../../components/Loader";
 import colors from "../../../../../theme/colors";
-import { ImportedAccount } from "../../../../../libs/vault-client";
-import { SismoConnectDataSourceState, useVault } from "../../../../../hooks/vault";
+import { ImportedAccount, SismoConnectDataSource } from "../../../../../libs/vault-client";
+import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../ImportAccount/provider";
 import AccountLine from "./AccountLine";
 import { useState } from "react";
@@ -103,7 +103,7 @@ const AccountsScroll = styled.div`
 
 export default function ImportedAccounts() {
   const [selectedAccount, setSelectedAccount] = useState<ImportedAccount>(null);
-  const [selectedDataSource, setSelectedDataSource] = useState<SismoConnectDataSourceState>(null);
+  const [selectedDataSource, setSelectedDataSource] = useState<SismoConnectDataSource>(null);
   const importAccount = useImportAccount();
   const vault = useVault();
 
@@ -134,9 +134,9 @@ export default function ImportedAccounts() {
               key={"account" + account.identifier}
             />
           ))}
-        {vault?.sismoConnectDataSourcesStates &&
-          vault?.sismoConnectDataSourcesStates?.length > 0 &&
-          vault?.sismoConnectDataSourcesStates?.map((dataSource) => (
+        {vault?.sismoConnectDataSources &&
+          vault?.sismoConnectDataSources?.length > 0 &&
+          vault?.sismoConnectDataSources?.map((dataSource) => (
             <AccountLine
               dataSource={dataSource}
               isSelected={selectedDataSource && selectedDataSource.vaultId === dataSource.vaultId}

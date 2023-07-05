@@ -95,7 +95,8 @@ export type IconProps = {
     | "arrowRight-outline-lightBlue"
     | "more-outline-blue2"
     | "key-outline-blue"
-    | "worldcoin-outline-white";
+    | "worldcoin-outline-white"
+    | "worldcoin-outline-blue";
 };
 
 const IconExtention = {};

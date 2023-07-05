@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { useVault } from "../../../hooks/vault";
 import { useSismo } from "../../../hooks/sismo";
 import * as Sentry from "@sentry/react";
-import { ArrowLeft, ArrowSquareOut, Info, Warning } from "phosphor-react";
+import { ArrowLeft, ArrowSquareOut, Info } from "phosphor-react";
 import { FactoryApp } from "../../../libs/sismo-client";
 
 import {
@@ -12,6 +12,7 @@ import {
   SelectedSismoConnectRequest,
   RequestGroupMetadata,
   SismoConnectRequest,
+  ClaimRequestEligibility,
 } from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import HoverTooltip from "../../../components/HoverTooltip";
 import colors from "../../../theme/colors";
@@ -22,6 +23,9 @@ import ProofModal from "./components/ProofModal";
 import { SignatureRequest } from "./components/SignatureRequest";
 import SignInButton from "../../../components/SignInButton";
 import { useImportAccount } from "../../Modals/ImportAccount/provider";
+import ImpersonationBanner from "./components/ImpersonationBanner";
+import SismoConnectDataSourceBanner from "./components/SismoConnectDataSourceBanner";
+import { SismoConnectDataSource } from "../../../libs/vault-client";
 
 const Container = styled.div`
   position: relative;
@@ -107,41 +111,6 @@ const LinkWrapper = styled.a`
   text-decoration: none;
 `;
 
-const WarningWrapper = styled.div`
-  flex-shrink: 0;
-`;
-
-const ImpersonatedBanner = styled.div`
-  display: flex;
-  gap: 12px;
-
-  width: 100%;
-  padding: 12px 16px;
-
-  background-color: ${(props) => props.theme.colors.orange2};
-  color: ${(props) => props.theme.colors.orange5};
-  border-radius: 5px;
-  font-size: 14px;
-
-  box-sizing: border-box;
-  margin-bottom: 24px;
-`;
-
-const ImpersonatedDescription = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-`;
-
-const ImpersonatedTitle = styled.div`
-  font-family: ${(props) => props.theme.fonts.bold};
-  font-size: 14px;
-`;
-
-const ImpersonatedText = styled.div`
-  font-family: ${(props) => props.theme.fonts.medium};
-`;
-
 type Props = {
   isImpersonated: boolean;
   requestGroupsMetadata: RequestGroupMetadata[];
@@ -173,6 +142,8 @@ export default function ConnectFlow({
   const importAccount = useImportAccount();
 
   const { getRegistryTreeRoot, generateResponse } = useSismo();
+  const [pendingSismoConnectDataSources, setPendingSismoConnectDataSources] =
+    useState<SismoConnectDataSource[]>(null);
   const vault = useVault();
 
   /* ***************************************************** */
@@ -236,6 +207,31 @@ export default function ConnectFlow({
     []
   );
 
+  const checkDataSourceEligibilities = useCallback(
+    (claimRequestEligibilities: ClaimRequestEligibility[]) => {
+      if (!vault.sismoConnectDataSources || !claimRequestEligibilities) return;
+
+      const _pendingSismoConnectDataSources = [];
+      for (let claimRequestEligibility of claimRequestEligibilities) {
+        if (claimRequestEligibility.isEligible) continue;
+
+        const configs = vault.sismoConnectDataSourceConfigProvider.getConfigs();
+        const config = configs.find(
+          (config) => config.groupId === claimRequestEligibility.claim.groupId
+        );
+        if (config) {
+          const dataSource = vault.sismoConnectDataSources.find(
+            (dataSource) => dataSource.appId === config.appId
+          );
+          // If there is a claim not eligible which is added in the vault
+          if (dataSource) _pendingSismoConnectDataSources.push(dataSource);
+        }
+      }
+      setPendingSismoConnectDataSources(_pendingSismoConnectDataSources);
+    },
+    [vault.sismoConnectDataSourceConfigProvider, vault.sismoConnectDataSources]
+  );
+
   return (
     <>
       <ProofModal
@@ -264,20 +260,26 @@ export default function ConnectFlow({
           </SecondLine>
         </ContentTitle>
 
-        {isImpersonated && (
-          <ImpersonatedBanner>
-            <WarningWrapper>
-              <Warning size={28} color={colors.orange5} />
-            </WarningWrapper>
-            <ImpersonatedDescription>
-              <ImpersonatedTitle>Impersonation mode</ImpersonatedTitle>
-              <ImpersonatedText>
-                The generated proof is based on impersonated accounts. It should not be used in
-                production.
-              </ImpersonatedText>
-            </ImpersonatedDescription>
-          </ImpersonatedBanner>
-        )}
+        {isImpersonated && <ImpersonationBanner />}
+        {pendingSismoConnectDataSources &&
+          pendingSismoConnectDataSources.map((pendingSismoConnectDataSource) => {
+            return (
+              <div key={pendingSismoConnectDataSource.vaultId}>
+                <SismoConnectDataSourceBanner
+                  sismoConnectDataSource={pendingSismoConnectDataSource}
+                  groupMetadata={
+                    requestGroupsMetadata.find(
+                      (requestGroup) =>
+                        requestGroup.claim.groupId ===
+                        vault.sismoConnectDataSourceConfigProvider.getSismoConnectDataSourceGroupId(
+                          pendingSismoConnectDataSource
+                        )
+                    ).groupMetadata
+                  }
+                />
+              </div>
+            );
+          })}
 
         <Title style={{ marginBottom: 8 }}>{factoryApp?.name} wants you to:</Title>
 
@@ -290,6 +292,7 @@ export default function ConnectFlow({
           onEligible={(_isEligible) => {
             setIsEligible(_isEligible);
           }}
+          onClaimRequestEligibilities={checkDataSourceEligibilities}
         />
 
         {sismoConnectRequest?.signature?.message?.length > 0 && (
