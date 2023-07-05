@@ -79,6 +79,7 @@ const SecondLine = styled.div`
   color: ${(props) => props.theme.colors.blue0};
   font-size: 20px;
   line-height: 24px;
+  text-align: center;
 `;
 
 const CallToAction = styled.div`
