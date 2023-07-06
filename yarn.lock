@@ -3292,10 +3292,10 @@
     "@sismo-core/kv-merkle-tree" "^1.0.4"
     snarkjs "^0.6.8"
 
-"@sismo-core/hydra-s3@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/@sismo-core/hydra-s3/-/hydra-s3-1.0.1.tgz#6eb2d7b62fb1e30308e9098e83f3345ed199458d"
-  integrity sha512-98Gq5SEXPXlTA+shHXIJr89OYOqaY2o24/mi5Ac6e/Ob4hJX4NRJzt5FPHSbgQqjGbB9Hyx9QC9u1PIbSON8fg==
+"@sismo-core/hydra-s3@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/@sismo-core/hydra-s3/-/hydra-s3-1.0.3.tgz#f2944740e7b7fec3ce37855b15e179b2da90c24f"
+  integrity sha512-cdg76l4SxunSCXswykrwRDbeK0u/Ut2Luu0VT/4uQvH9XIr1DLJupqjYTbP35olK24DCHr6WKsyJAaPXmQQiow==
   dependencies:
     "@sismo-core/crypto" "^1.1.4"
     "@sismo-core/kv-merkle-tree" "^1.1.0"
