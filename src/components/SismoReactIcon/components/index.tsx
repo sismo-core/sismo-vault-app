@@ -12,3 +12,4 @@ export { EthRounded } from "./EthRounded";
 export { TwitterRounded } from "./TwitterRounded";
 export { TelegramRounded } from "./TelegramRounded";
 export { SismoRounded } from "./SismoRounded";
+export { SismoConnectGem } from "./SismoConnectGem";
