@@ -300,7 +300,7 @@ export default function ConnectFlow({
           </ImpersonatedBanner>
         )}
 
-        <Title style={{ marginBottom: 8 }}>{factoryApp?.name} wants you to prove:</Title>
+        <Title style={{ marginBottom: 8 }}>{factoryApp?.name} requests you to prove:</Title>
 
         <DataRequests
           sismoConnectRequest={sismoConnectRequest}
