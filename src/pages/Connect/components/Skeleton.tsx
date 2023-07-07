@@ -3,6 +3,7 @@ import { SismoConnectRequest } from "../../../libs/sismo-connect-provers";
 import { CaretUp, CheckCircle } from "phosphor-react";
 import colors from "../../../theme/colors";
 import Toggle from "../Flow/components/Toggle";
+import { SismoConnectGem } from "../../../components/SismoReactIcon";
 
 export const SkeletonKeyframes = keyframes`
   from {
@@ -70,6 +71,17 @@ const SecondLine = styled.div`
   color: ${(props) => props.theme.colors.blue0};
   font-size: 20px;
   line-height: 24px;
+  margin-bottom: 2px;
+`;
+
+const SismoConnectLogoLine = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: ${(props) => props.theme.colors.blue4};
+  font-family: ${(props) => props.theme.fonts.medium};
+  font-size: 14px;
+  line-height: 20px;
 `;
 
 const SkeletonTitle = styled(SkeletonColor)`
@@ -241,6 +253,14 @@ export default function Skeleton({ sismoConnectRequest }: Props) {
         <SecondLine>
           <SkeletonTitle />
         </SecondLine>
+        <SismoConnectLogoLine>
+          <SismoConnectGem
+            size={14}
+            color={colors.blue4}
+            style={{ transform: "translateY(1px)" }}
+          />
+          with Sismo Connect
+        </SismoConnectLogoLine>
       </ContentTitle>
 
       {isImpersonated && <ImpersonatedBanner />}
@@ -254,7 +274,7 @@ export default function Skeleton({ sismoConnectRequest }: Props) {
             {index !== 0 && <ItemSeparator />}
             <Line>
               <CheckCircleIcon size={24} color={colors.blue6} />
-              <Request width={320} />
+              <Request width={340} />
             </Line>
           </RequiredWrapper>
         ))}
@@ -276,12 +296,8 @@ export default function Skeleton({ sismoConnectRequest }: Props) {
                   {" "}
                   {index !== 0 && <ItemSeparator />}
                   <Line key={index}>
-                    <Toggle
-                      isDisabled={true}
-                      value={false}
-                      onChange={() => {}}
-                    />
-                    <Request width={304} />
+                    <Toggle isDisabled={true} value={false} onChange={() => {}} />
+                    <Request width={324} />
                   </Line>
                 </OptListWrapper>
               ))}

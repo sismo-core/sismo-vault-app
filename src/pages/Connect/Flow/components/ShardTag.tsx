@@ -324,18 +324,16 @@ export default function ShardTag({
             <GroupName>{humanReadableGroupName}</GroupName>
 
             <ValueComparator>
-              {!selectedValue
-                ? claimType === ClaimType.GTE
-                  ? ">="
-                  : claimType === ClaimType.GT
-                  ? ">"
-                  : claimType === ClaimType.EQ
-                  ? "="
-                  : claimType === ClaimType.LT
-                  ? "<"
-                  : claimType === ClaimType.LTE
-                  ? "<="
-                  : null
+              {claimType === ClaimType.GTE
+                ? ">= "
+                : claimType === ClaimType.GT
+                ? ">"
+                : claimType === ClaimType.EQ
+                ? ""
+                : claimType === ClaimType.LT
+                ? "<"
+                : claimType === ClaimType.LTE
+                ? "<="
                 : null}
               {!selectedValue && requestedValue ? (
                 requestedValue.toString()

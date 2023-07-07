@@ -22,6 +22,7 @@ import ProofModal from "./components/ProofModal";
 import { SignatureRequest } from "./components/SignatureRequest";
 import SignInButton from "../../../components/SignInButton";
 import { useImportAccount } from "../../Modals/ImportAccount/provider";
+import { SismoConnectGem } from "../../../components/SismoReactIcon";
 
 const Container = styled.div`
   position: relative;
@@ -80,6 +81,17 @@ const SecondLine = styled.div`
   font-size: 20px;
   line-height: 24px;
   text-align: center;
+  margin-bottom: 2px;
+`;
+
+const SismoConnectLogoLine = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: ${(props) => props.theme.colors.blue4};
+  font-family: ${(props) => props.theme.fonts.medium};
+  font-size: 14px;
+  line-height: 20px;
 `;
 
 const CallToAction = styled.div`
@@ -263,6 +275,14 @@ export default function ConnectFlow({
               <Info size={14} color={colors.blue0} />
             </HoverTooltip>
           </SecondLine>
+          <SismoConnectLogoLine>
+            <SismoConnectGem
+              size={14}
+              color={colors.blue4}
+              style={{ transform: "translateY(1px)" }}
+            />
+            with Sismo Connect
+          </SismoConnectLogoLine>
         </ContentTitle>
 
         {isImpersonated && (
