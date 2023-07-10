@@ -20,8 +20,11 @@ export class FactoryProvider {
   }
 
   public async getFactoryApp(appId: string): Promise<FactoryApp> {
+    let currentSearch = "";
+    if (window) currentSearch = window.location.search;
+
     const factoryApp = await axios
-      .get(`${this.factoryApiUrl}/apps/${appId}`)
+      .get(`${this.factoryApiUrl}/apps/${appId}${currentSearch}`)
       .then((res) => res.data);
     return factoryApp;
   }
