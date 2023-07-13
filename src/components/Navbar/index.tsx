@@ -134,16 +134,15 @@ const Tag = styled.div`
   margin-left: -5px;
 `;
 
-const Inline = styled.div`
+const Inline = styled.div<{
+  isHidden?: boolean;
+}>`
   display: flex;
   align-items: center;
+  visibility: ${(props) => (props.isHidden ? "hidden" : "visible")};
 `;
 
-export default function Navbar({
-  isImpersonated,
-}: {
-  isImpersonated: boolean;
-}): JSX.Element {
+export default function Navbar({ isImpersonated }: { isImpersonated: boolean }): JSX.Element {
   const vault = useVault();
   const navigate = useNavigate();
   let location = useLocation();
@@ -179,8 +178,7 @@ export default function Navbar({
       setScrollbarWidth(window.innerWidth - window.visualViewport.width);
     }
     window.visualViewport.addEventListener("resize", resizeHandler);
-    return () =>
-      window.visualViewport.removeEventListener("resize", resizeHandler);
+    return () => window.visualViewport.removeEventListener("resize", resizeHandler);
   }, []);
 
   return (
@@ -196,8 +194,8 @@ export default function Navbar({
           />
         </Logo>
 
-        <Inline>
-          <VaultMenu />
+        <Inline isHidden={isTopRightSectionHidden}>
+          {vault.isConnected ? <VaultMenu /> : <SignInButton />}
         </Inline>
       </MobileNav>
       <Container scrollbarWidth={scrollbarWidth} displayNav={displayNav}>
