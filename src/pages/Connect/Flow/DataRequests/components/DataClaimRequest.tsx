@@ -5,7 +5,7 @@ import {
   ClaimRequest,
   ClaimRequestEligibility,
   SelectedSismoConnectRequest,
-} from "../../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import colors from "../../../../../theme/colors";
 import ShardTag from "../../components/ShardTag";
 import EligibilityModal from "../../components/EligibilityModal";
@@ -14,7 +14,7 @@ import Toggle from "../../components/Toggle";
 import ImportButton from "../../components/ImportButton";
 import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../../Modals/ImportAccount/provider";
-import { AccountType, GroupMetadata } from "../../../../../libs/sismo-client";
+import { AccountType, GroupMetadata } from "../../../../../services/sismo-client";
 
 const Container = styled.div`
   display: flex;

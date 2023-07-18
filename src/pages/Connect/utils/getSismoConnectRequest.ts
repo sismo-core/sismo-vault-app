@@ -3,7 +3,7 @@ import {
   AuthType,
   ClaimType,
   SismoConnectRequest,
-} from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { v4 as uuidv4 } from "uuid";
 
 const startsWithHexadecimal = (str) => {

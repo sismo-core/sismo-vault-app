@@ -10,7 +10,7 @@ import {
 import { BigNumber } from "ethers";
 import { MemoryCache } from "../cache-service";
 import { ImportedAccount } from "../vault-client";
-import { getPoseidon } from "../poseidon";
+import { getPoseidon } from "../../utils/getPoseidon";
 
 export type HashCommitmentReceiptAPIResponse = {
   commitmentMapperPubKey: [string, string];

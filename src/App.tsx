@@ -11,10 +11,10 @@ import SismoProvider from "./hooks/sismo";
 import MyVaultModalProvider from "./pages/Modals/MyVault/Provider";
 import ImportAccountModalProvider from "./pages/Modals/ImportAccount/provider";
 import GenerateRecoveryKeyModalProvider from "./pages/Modals/GenerateRecoveryKey/provider";
-import MainScrollManagerProvider from "./libs/main-scroll-manager";
-import EnvsMonitoring from "./libs/envs-monitoring";
-import { ServicesFactory } from "./libs/services-factory";
-import AnalyticsProvider from "./libs/analytics/Provider";
+import MainScrollManagerProvider from "./hooks/main-scroll-manager";
+import EnvsMonitoring from "./components/EnvsMonitoring";
+import { ServicesFactory } from "./services/services-factory";
+import AnalyticsProvider from "./hooks/analytics/Provider";
 
 const FONTS_LIST = [
   "BebasNeuePro-Regular",

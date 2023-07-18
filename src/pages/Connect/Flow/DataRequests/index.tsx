@@ -6,14 +6,14 @@ import {
   RequestGroupMetadata,
   SelectedSismoConnectRequest,
   SismoConnectRequest,
-} from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { CaretUp } from "phosphor-react";
 import colors from "../../../../theme/colors";
 import { DataSourceRequest } from "./components/DataSourceRequest";
 import { useSismo } from "../../../../hooks/sismo";
 import { useVault } from "../../../../hooks/vault";
 import * as Sentry from "@sentry/react";
-import { ImportedAccount } from "../../../../libs/vault-client";
+import { ImportedAccount } from "../../../../services/vault-client";
 import { getIsEligible } from "../../utils/getIsEligible";
 import { DataClaimRequest } from "./components/DataClaimRequest";
 import { getAllVaultIdentifiers } from "../../../../utils/getAllVaultIdentifiers";

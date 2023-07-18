@@ -3,7 +3,7 @@ import Button from "../../../../components/Button";
 import { Question } from "phosphor-react";
 import { useWallet } from "../../../../hooks/wallet";
 import { getMinimalIdentifier } from "../../../../utils/getMinimalIdentifier";
-import { Owner } from "../../../../libs/vault-client";
+import { Owner } from "../../../../services/vault-client";
 import { useVault } from "../../../../hooks/vault";
 import { useNotifications } from "../../../../components/Notifications/provider";
 import { useEffect, useState } from "react";

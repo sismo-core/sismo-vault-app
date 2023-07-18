@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
-import { useMainScrollManager } from "../../libs/main-scroll-manager";
+import { useMainScrollManager } from "../../hooks/main-scroll-manager";
 import useOnClickOutside from "../../utils/useClickOutside";
 import Icon from "../Icon";
 

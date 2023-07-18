@@ -3,14 +3,14 @@ import { Seed } from "../../sismo-client";
 import migration from "../migration/migration";
 import { ImportedAccount } from "..";
 import { VaultProvider } from "../provider/provider";
-import { BaseStore } from "../../vault-store/base-store";
+import { BaseStore } from "../../../libs/vault-store/base-store";
 import { SismoWallet, WalletPurpose } from "../wallet";
 import { RecoveryKey, Vault, VaultNamespaceInputs } from "./client.types";
 import SHA3 from "sha3";
 import { BigNumber, ethers } from "ethers";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { keccak256 } from "ethers/lib/utils";
-import { getPoseidon } from "../../poseidon";
+import { getPoseidon } from "../../../utils/getPoseidon";
 
 export class VaultClient {
   private _provider: VaultProvider;

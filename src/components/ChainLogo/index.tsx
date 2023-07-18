@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ChainIdToLabel, SupportedChainId } from "../../libs/sismo-client";
+import { ChainIdToLabel, SupportedChainId } from "../../services/sismo-client";
 import HoverTooltip from "../HoverTooltip";
 import Icon from "../Icon";
 

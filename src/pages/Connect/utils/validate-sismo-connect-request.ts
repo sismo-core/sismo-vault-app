@@ -1,7 +1,7 @@
 import {
   ClaimType,
   SismoConnectRequest,
-} from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { SISMO_CONNECT_COMPATIBLE_VERSIONS } from "../constants";
 
 export enum RequestValidationStatus {

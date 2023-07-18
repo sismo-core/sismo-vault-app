@@ -3,7 +3,7 @@ import Icon from "../Icon";
 import HorizontalAvatars from "../HorizontalAvatars";
 import Loader from "../Loader";
 import colors from "../../theme/colors";
-import { AccountType } from "../../libs/vault-client";
+import { AccountType } from "../../services/vault-client";
 import { useImportAccount } from "../../pages/Modals/ImportAccount/provider";
 import { useVault } from "../../hooks/vault";
 

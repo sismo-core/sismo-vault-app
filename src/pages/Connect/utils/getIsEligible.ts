@@ -2,7 +2,7 @@ import {
   AuthRequestEligibility,
   ClaimRequestEligibility,
   SismoConnectRequest,
-} from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 
 export function getIsEligible(
   claimRequestEligibilities: ClaimRequestEligibility[],

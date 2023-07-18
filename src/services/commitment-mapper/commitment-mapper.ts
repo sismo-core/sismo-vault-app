@@ -1,7 +1,7 @@
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { BigNumber } from "ethers";
 import SHA3 from "sha3";
-import { getPoseidon } from "../poseidon";
+import { getPoseidon } from "../../utils/getPoseidon";
 import env from "../../environment";
 import { Profile } from "../vault-client";
 

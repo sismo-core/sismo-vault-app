@@ -9,7 +9,7 @@ import Avatar from "../Avatar";
 import colors from "../../theme/colors";
 import { useState, useEffect, useRef, useMemo } from "react";
 import useOnClickOutside from "../../utils/useClickOutside";
-import { ImportedAccount } from "../../libs/vault-client";
+import { ImportedAccount } from "../../services/vault-client";
 
 const Container = styled.div<{ isSuccess: boolean }>`
   position: relative;

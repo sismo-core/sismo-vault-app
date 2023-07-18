@@ -6,8 +6,8 @@ import {
 } from "../commitment-mapper";
 import { VaultClient as VaultClientV1 } from "../vault-client-v1";
 import { VaultClient } from "../vault-client";
-import { AWSStore } from "../vault-store/aws-store";
-import { MemoryStore } from "../vault-store/memory-store";
+import { AWSStore } from "../../libs/vault-store/aws-store";
+import { MemoryStore } from "../../libs/vault-store/memory-store";
 import { VaultsSynchronizer } from "../vaults-synchronizer";
 import { ImpersonatedVaultCreator } from "../impersonated-vault-creator";
 import { AccountResolver } from "../account-resolver";

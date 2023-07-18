@@ -1,7 +1,7 @@
 import env from "../../../../environment";
 import React, { useContext, useState } from "react";
-import { CommitmentMapper, Seed } from "../../../../libs/sismo-client";
-import { AccountType, ImportedAccount, WalletPurpose } from "../../../../libs/vault-client";
+import { CommitmentMapper, Seed } from "../../../../services/sismo-client";
+import { AccountType, ImportedAccount, WalletPurpose } from "../../../../services/vault-client";
 import { useVault } from "../../../../hooks/vault";
 import * as Sentry from "@sentry/react";
 import { useNotifications } from "../../../../components/Notifications/provider";

@@ -2,7 +2,7 @@ import CryptoJS from "crypto-js";
 import { setCookie, deleteCookie } from "./cookies";
 import SHA3 from "sha3";
 import { BigNumber, utils } from "ethers";
-import { Owner } from "../../../libs/vault-client";
+import { Owner } from "../../../services/vault-client";
 
 const generateDataEncryptionKeyFromSeed = (seed: string) => {
   const hash = new SHA3(256);

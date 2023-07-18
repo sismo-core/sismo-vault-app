@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { Account } from "../../libs/sismo-client";
-import { ImportedAccount } from "../../libs/vault-client";
+import { Account } from "../../services/sismo-client";
+import { ImportedAccount } from "../../services/vault-client";
 import Avatar from "../Avatar";
 
 const Container = styled.div<{

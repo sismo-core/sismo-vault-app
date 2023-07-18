@@ -8,13 +8,13 @@ import {
   Vault,
   VaultNamespaceInputs,
   WalletPurpose,
-} from "../../libs/vault-client";
+} from "../../services/vault-client";
 import { useVaultState } from "./useVaultState";
 import { getVaultV2ConnectedOwner } from "./utils/getVaultV2ConnectedOwner";
-import { demoOwner } from "../../libs/vault-client/client/demo-client.mock";
+import { demoOwner } from "../../services/vault-client/client/demo-client.mock";
 import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
-import { CommitmentMapper } from "../../libs/commitment-mapper";
-import { ServicesFactory } from "../../libs/services-factory";
+import { CommitmentMapper } from "../../services/commitment-mapper";
+import { ServicesFactory } from "../../services/services-factory";
 import { useNotifications } from "../../components/Notifications/provider";
 
 type ReactVault = {

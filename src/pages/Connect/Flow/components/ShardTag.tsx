@@ -4,12 +4,12 @@ import {
   ClaimRequest,
   ClaimRequestEligibility,
   ClaimType,
-} from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { CaretDown, Info, PencilSimple } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import useOnClickOutside from "../../../../utils/useClickOutside";
 import { BigNumber } from "ethers";
-import { GroupMetadata } from "../../../../libs/sismo-client";
+import { GroupMetadata } from "../../../../services/sismo-client";
 import Modal from "../../../../components/Modal";
 import ValueSelectorModal from "./ValueSelectorModal";
 import { displayBigNumber } from "../../utils/displayBigNumber";

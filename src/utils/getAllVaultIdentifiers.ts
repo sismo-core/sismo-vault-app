@@ -1,9 +1,9 @@
 import { BigNumber, ethers } from "ethers";
-import { getPoseidon } from "../libs/poseidon";
-import { ImportedAccount } from "../libs/vault-client";
+import { getPoseidon } from "./getPoseidon";
+import { ImportedAccount } from "../services/vault-client";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { keccak256 } from "ethers/lib/utils";
-import { GroupMetadata } from "../libs/sismo-client";
+import { GroupMetadata } from "../services/sismo-client";
 
 export const getAllVaultIdentifiers = async (
   groupsMetadata: GroupMetadata[],

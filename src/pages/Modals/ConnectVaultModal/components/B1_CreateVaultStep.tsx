@@ -7,8 +7,8 @@ import { Question } from "phosphor-react";
 import { useWallet } from "../../../../hooks/wallet";
 import { useVault } from "../../../../hooks/vault";
 import { useNotifications } from "../../../../components/Notifications/provider";
-import { Owner } from "../../../../libs/vault-client";
-import { CommitmentMapper, Seed } from "../../../../libs/sismo-client";
+import { Owner } from "../../../../services/vault-client";
+import { CommitmentMapper, Seed } from "../../../../services/sismo-client";
 import VaultAccessModal from "./VaultAccessModal";
 import * as Sentry from "@sentry/react";
 

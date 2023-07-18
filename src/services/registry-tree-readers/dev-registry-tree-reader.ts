@@ -7,7 +7,7 @@ import {
   OffchainGetAccountsTreeEligibilityInputs,
   RegistryTreeReaderBase,
 } from "./types";
-import { getPoseidon } from "../poseidon";
+import { getPoseidon } from "../../utils/getPoseidon";
 
 const accountTreeRoots = new Map<string, string>();
 

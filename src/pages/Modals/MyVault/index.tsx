@@ -8,7 +8,7 @@ import Menu from "./components/Menu";
 import Icon, { IconProps } from "../../../components/Icon";
 import More from "./More";
 import { ArrowLeft } from "phosphor-react";
-import { useMainScrollManager } from "../../../libs/main-scroll-manager";
+import { useMainScrollManager } from "../../../hooks/main-scroll-manager";
 
 const Container = styled.div`
   width: 100vw;

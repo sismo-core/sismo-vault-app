@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import Blockies from "react-blockies";
-import { ImportedAccount, Owner } from "../../libs/vault-client";
+import { ImportedAccount, Owner } from "../../services/vault-client";
 import Icon from "../Icon";
-import { Account } from "../../libs/sismo-client";
+import { Account } from "../../services/sismo-client";
 
 const Container = styled.div<{ width: number }>`
   min-height: ${(props) => props.width}px;

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Button from "../../../../../components/Button";
 import Loader from "../../../../../components/Loader";
 import colors from "../../../../../theme/colors";
-import { ImportedAccount } from "../../../../../libs/vault-client";
+import { ImportedAccount } from "../../../../../services/vault-client";
 import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../ImportAccount/provider";
 import AccountLine from "./AccountLine";

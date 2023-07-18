@@ -1,6 +1,6 @@
 import { CommitmentMapper } from "../../../commitment-mapper";
 import { ImportedAccount } from "../../../vault-client-v1";
-import { getPoseidon } from "../../../poseidon";
+import { getPoseidon } from "../../../../utils/getPoseidon";
 
 let poseidon = null;
 

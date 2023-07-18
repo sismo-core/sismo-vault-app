@@ -6,7 +6,7 @@ import Icon from "../../../../../components/Icon";
 import HorizontalSteps from "../../../../../components/HorizontalSteps";
 import { useWallet } from "../../../../../hooks/wallet";
 import { useVault } from "../../../../../hooks/vault";
-import { Seed } from "../../../../../libs/sismo-client";
+import { Seed } from "../../../../../services/sismo-client";
 
 const Top = styled.div`
   width: 100%;

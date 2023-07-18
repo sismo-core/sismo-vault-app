@@ -9,7 +9,7 @@ import type {
 import walletConnectModule from "@web3-onboard/walletconnect";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { logo, icon } from "../assets/onboardAssets";
-import { SupportedChainId } from "../../../libs/sismo-client";
+import { SupportedChainId } from "../../../services/sismo-client";
 import { getMinimalEns } from "../../../utils/getMinimalEns";
 import { getMinimalIdentifier } from "../../../utils/getMinimalIdentifier";
 import { ethers } from "ethers";

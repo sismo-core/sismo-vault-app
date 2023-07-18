@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
-import { AuthType } from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+import { AuthType } from "../../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { EthRounded, GithubRounded, TwitterRounded } from "../../../../components/SismoReactIcon";
 import { useMainMinified } from "../../../../hooks/wallet/hooks/useMainMinified";
 import { resolveSismoIdentifier } from "../../utils/resolveSismoIdentifier";

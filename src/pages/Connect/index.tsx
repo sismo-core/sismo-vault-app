@@ -4,7 +4,7 @@ import styled from "styled-components";
 import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
 import * as Sentry from "@sentry/react";
-import { FactoryApp } from "../../libs/sismo-client";
+import { FactoryApp } from "../../services/sismo-client";
 import { useSismo } from "../../hooks/sismo";
 import { getSismoConnectRequest } from "./utils/getSismoConnectRequest";
 import { getReferrer } from "./utils/getReferrer";
@@ -12,9 +12,9 @@ import {
   RequestGroupMetadata,
   SismoConnectRequest,
   SismoConnectResponse,
-} from "../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { useVault } from "../../hooks/vault";
-import { getSismoConnectResponseBytes } from "../../libs/sismo-connect-provers/sismo-connect-prover-v1/utils/getSismoConnectResponseBytes";
+import { getSismoConnectResponseBytes } from "../../services/sismo-connect-provers/sismo-connect-prover-v1/utils/getSismoConnectResponseBytes";
 import Skeleton from "./components/Skeleton";
 import Flow from "./Flow";
 import VaultSlider from "./components/VaultSlider";

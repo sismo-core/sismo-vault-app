@@ -5,14 +5,14 @@ import { useVault } from "../../../hooks/vault";
 import { useSismo } from "../../../hooks/sismo";
 import * as Sentry from "@sentry/react";
 import { ArrowLeft, ArrowSquareOut, Info, Warning } from "phosphor-react";
-import { FactoryApp } from "../../../libs/sismo-client";
+import { FactoryApp } from "../../../services/sismo-client";
 
 import {
   SismoConnectResponse,
   SelectedSismoConnectRequest,
   RequestGroupMetadata,
   SismoConnectRequest,
-} from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import HoverTooltip from "../../../components/HoverTooltip";
 import colors from "../../../theme/colors";
 import { capitalizeFirstLetter } from "../../../utils/capitalizeFirstLetter";

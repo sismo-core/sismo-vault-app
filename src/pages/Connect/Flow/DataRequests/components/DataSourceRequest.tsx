@@ -6,7 +6,7 @@ import {
   AuthRequestEligibility,
   AuthType,
   SelectedSismoConnectRequest,
-} from "../../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import colors from "../../../../../theme/colors";
 import { useCallback, useEffect, useState } from "react";
 import Toggle from "../../components/Toggle";
@@ -18,10 +18,10 @@ import {
   TwitterRounded,
 } from "../../../../../components/SismoReactIcon";
 import UserSelector from "../../components/UserSelector";
-import { ImportedAccount } from "../../../../../libs/vault-client";
+import { ImportedAccount } from "../../../../../services/vault-client";
 import { useVault } from "../../../../../hooks/vault";
 import { useImportAccount } from "../../../../Modals/ImportAccount/provider";
-import { AccountType } from "../../../../../libs/sismo-client";
+import { AccountType } from "../../../../../services/sismo-client";
 
 const Container = styled.div`
   display: flex;

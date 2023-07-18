@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Modal from "../../../../components/Modal";
-import { getSismoConnectResponseBytes } from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1/utils/getSismoConnectResponseBytes";
-import { SismoConnectResponse } from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+import { getSismoConnectResponseBytes } from "../../../../services/sismo-connect-provers/sismo-connect-prover-v1/utils/getSismoConnectResponseBytes";
+import { SismoConnectResponse } from "../../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import colors from "../../../../theme/colors";
 import Button from "../../../../components/Button";
 import { CheckCircle, Copy } from "phosphor-react";

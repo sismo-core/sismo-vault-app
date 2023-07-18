@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import styled from "styled-components";
-import { ChainIdToLabel } from "../../libs/sismo-client";
+import { ChainIdToLabel } from "../../services/sismo-client";
 import colors from "../../theme/colors";
 import useOnClickOutside from "../../utils/useClickOutside";
 import { CaretDown } from "phosphor-react";

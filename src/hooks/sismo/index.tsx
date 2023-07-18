@@ -1,13 +1,13 @@
 import React, { useContext, useMemo } from "react";
-import { SismoClient } from "../../libs/sismo-client";
+import { SismoClient } from "../../services/sismo-client";
 import {
   RequestGroupMetadata,
   SismoConnectRequest,
-} from "../../libs/sismo-connect-provers/sismo-connect-prover-v1";
-import { FactoryApp } from "../../libs/sismo-client";
-import { GroupMetadata } from "../../libs/sismo-client/providers/group-provider";
-import { SismoConnectProvers } from "../../libs/sismo-connect-provers";
-import { ServicesFactory } from "../../libs/services-factory";
+} from "../../services/sismo-connect-provers/sismo-connect-prover-v1";
+import { FactoryApp } from "../../services/sismo-client";
+import { GroupMetadata } from "../../services/sismo-client/providers/group-provider";
+import { SismoConnectProvers } from "../../services/sismo-connect-provers";
+import { ServicesFactory } from "../../services/services-factory";
 
 export type Sismo = SismoConnectProvers & {
   getRequestGroupMetadata: (
