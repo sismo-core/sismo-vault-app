@@ -31,10 +31,7 @@ export class AWSCommitmentMapper extends CommitmentMapper {
     });
 
     return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
+      commitmentMapperPubKey: [data.commitmentMapperPubKey[0], data.commitmentMapperPubKey[1]],
       commitmentReceipt: [
         data.commitmentReceipt[0],
         data.commitmentReceipt[1],
@@ -56,10 +53,7 @@ export class AWSCommitmentMapper extends CommitmentMapper {
     });
 
     return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
+      commitmentMapperPubKey: [data.commitmentMapperPubKey[0], data.commitmentMapperPubKey[1]],
       commitmentReceipt: [
         data.commitmentReceipt[0],
         data.commitmentReceipt[1],
@@ -91,10 +85,7 @@ export class AWSCommitmentMapper extends CommitmentMapper {
     });
 
     return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
+      commitmentMapperPubKey: [data.commitmentMapperPubKey[0], data.commitmentMapperPubKey[1]],
       commitmentReceipt: [
         data.commitmentReceipt[0],
         data.commitmentReceipt[1],
@@ -129,10 +120,7 @@ export class AWSCommitmentMapper extends CommitmentMapper {
     });
 
     return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
+      commitmentMapperPubKey: [data.commitmentMapperPubKey[0], data.commitmentMapperPubKey[1]],
       commitmentReceipt: [
         data.commitmentReceipt[0],
         data.commitmentReceipt[1],
@@ -162,10 +150,7 @@ export class AWSCommitmentMapper extends CommitmentMapper {
     });
 
     return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
+      commitmentMapperPubKey: [data.commitmentMapperPubKey[0], data.commitmentMapperPubKey[1]],
       commitmentReceipt: [
         data.commitmentReceipt[0],
         data.commitmentReceipt[1],
@@ -198,10 +183,7 @@ export class AWSCommitmentMapper extends CommitmentMapper {
     });
 
     return {
-      commitmentMapperPubKey: [
-        data.commitmentMapperPubKey[0],
-        data.commitmentMapperPubKey[1],
-      ],
+      commitmentMapperPubKey: [data.commitmentMapperPubKey[0], data.commitmentMapperPubKey[1]],
       commitmentReceipt: [
         data.commitmentReceipt[0],
         data.commitmentReceipt[1],

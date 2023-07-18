@@ -157,10 +157,7 @@ export default function MyVaultModal() {
             </MobileHeader>
           )}
           <Content id="myvaultcontent">
-            <BackToTheApp
-              onClick={() => myVault.close()}
-              visible={myVault.tab === "menu"}
-            >
+            <BackToTheApp onClick={() => myVault.close()} visible={myVault.tab === "menu"}>
               <Icon
                 name="arrowLeft-outline-white"
                 style={{

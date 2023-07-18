@@ -5,12 +5,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export function SismoRounded({
-  size,
-  color,
-  className,
-  style,
-}: Props): JSX.Element {
+export function SismoRounded({ size, color, className, style }: Props): JSX.Element {
   return (
     <svg
       width={size}

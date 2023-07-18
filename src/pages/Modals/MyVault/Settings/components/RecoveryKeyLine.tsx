@@ -72,10 +72,7 @@ export default function RecoveryKeyLine({ recoveryKey }: Props) {
       />
       <Container>
         <Name>
-          <Icon
-            name="key-outline-white"
-            style={{ width: 26, marginRight: 5, marginBottom: -3 }}
-          />
+          <Icon name="key-outline-white" style={{ width: 26, marginRight: 5, marginBottom: -3 }} />
           {recoveryKey.name}
         </Name>
         <Actions>

@@ -5,12 +5,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export function TelegramRounded({
-  size,
-  color,
-  className,
-  style,
-}: Props): JSX.Element {
+export function TelegramRounded({ size, color, className, style }: Props): JSX.Element {
   return (
     <svg
       width={size}

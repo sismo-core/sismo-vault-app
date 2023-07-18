@@ -220,9 +220,7 @@ export default function ValueSelectorModal({
           />
           <SliderLabel>
             <div>{displayBigNumber({ input: minValue, isWei })}</div>
-            <div>
-              {displayBigNumber({ input: maxValue, isWei, nbDecimals: 2 })}
-            </div>
+            <div>{displayBigNumber({ input: maxValue, isWei, nbDecimals: 2 })}</div>
           </SliderLabel>
         </SliderWrapper>
         <Input
@@ -231,9 +229,7 @@ export default function ValueSelectorModal({
           value={inputText}
           onChange={onInputChange}
           onBlur={onInputBlur}
-          width={
-            maxValueCharLength > 2 ? 59 + (maxValueCharLength - 2) * 7 : 59
-          }
+          width={maxValueCharLength > 2 ? 59 + (maxValueCharLength - 2) * 7 : 59}
         />
       </SelectorWrapper>
 

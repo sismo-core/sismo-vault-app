@@ -37,11 +37,7 @@ export class VaultProvider {
     }
   }
 
-  public async post(
-    seed: string,
-    vault: string,
-    version: number
-  ): Promise<void> {
+  public async post(seed: string, vault: string, version: number): Promise<void> {
     let ciphertext = null;
     const token = VaultProvider.getVaultToken(seed);
     if (vault) {

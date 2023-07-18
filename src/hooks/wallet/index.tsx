@@ -10,11 +10,7 @@ export const useWallet = (): Wallet => {
   return useContext(ConnectorContext);
 };
 
-export default function WalletProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element {
+export default function WalletProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const onboard = useOnboard();
   const signer = useSigner(onboard);
 

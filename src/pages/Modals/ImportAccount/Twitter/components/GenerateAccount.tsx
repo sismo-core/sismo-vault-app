@@ -65,10 +65,7 @@ type Props = {
   oauthV2?: { callback: string; twitterCode: string };
 };
 
-export default function GenerateAccount({
-  oauth,
-  oauthV2,
-}: Props): JSX.Element {
+export default function GenerateAccount({ oauth, oauthV2 }: Props): JSX.Element {
   const importAccount = useImportAccount();
   const generateRecoveryKey = useGenerateRecoveryKey();
 
@@ -84,18 +81,9 @@ export default function GenerateAccount({
   return (
     <Content>
       <Header style={{ marginBottom: 10 }}>
-        <Icon
-          name="logoTwitter-fill-white"
-          style={{ width: 33, marginRight: 10 }}
-        />
-        <img
-          src="/assets/import-in-vault.svg"
-          alt="Importing account in the vault"
-        />
-        <Icon
-          name="vault-outline-white"
-          style={{ width: 41, marginLeft: 10 }}
-        />
+        <Icon name="logoTwitter-fill-white" style={{ width: 33, marginRight: 10 }} />
+        <img src="/assets/import-in-vault.svg" alt="Importing account in the vault" />
+        <Icon name="vault-outline-white" style={{ width: 41, marginLeft: 10 }} />
       </Header>
       <Title style={{ marginBottom: 20 }}>
         <p>
@@ -106,10 +94,7 @@ export default function GenerateAccount({
       <Points style={{ marginBottom: 5 }}>
         <Point>A Twitter account can only be imported into one Vault</Point>
       </Points>
-      <Backup
-        style={{ marginBottom: 30 }}
-        onClick={() => generateRecoveryKey.open()}
-      >
+      <Backup style={{ marginBottom: 30 }} onClick={() => generateRecoveryKey.open()}>
         Backup my Vault
         <Icon name="arrowRight-outline-lightBlue" style={{ marginLeft: 5 }} />
       </Backup>

@@ -19,10 +19,7 @@ type Props = {
   ignoreScrollBar?: boolean;
 };
 
-export default function PageContainer({
-  ignoreScrollBar,
-  children,
-}: Props): JSX.Element {
+export default function PageContainer({ ignoreScrollBar, children }: Props): JSX.Element {
   const [scrollbarWidth, setScrollbarWidth] = useState(null);
 
   useEffect(() => {
@@ -31,8 +28,7 @@ export default function PageContainer({
       setScrollbarWidth(window.innerWidth - window.visualViewport.width);
     }
     window.visualViewport.addEventListener("resize", resizeHandler);
-    return () =>
-      window.visualViewport.removeEventListener("resize", resizeHandler);
+    return () => window.visualViewport.removeEventListener("resize", resizeHandler);
   }, [ignoreScrollBar]);
 
   return <Container scrollbarWidth={scrollbarWidth}>{children}</Container>;

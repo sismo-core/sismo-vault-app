@@ -100,10 +100,7 @@ const v4Vaults: VaultV4[] = [
     version: 4,
   },
   {
-    mnemonics: [
-      tweeterAccount1.wallet.mnemonic,
-      githubAccount1.wallet.mnemonic,
-    ],
+    mnemonics: [tweeterAccount1.wallet.mnemonic, githubAccount1.wallet.mnemonic],
     owners: [owner1, owner2],
     importedAccounts: [
       {

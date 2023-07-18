@@ -62,9 +62,9 @@ export default function EnvsMonitoring({
         ) {
           const msg = `Error: CommitmentMapperPubKeys mismatch between env and vault ${getMainMinified(
             account
-          )}\nenv pubKey = [${
-            (window as any).env.commitmentMapperPubKey
-          }]\nvault pubKey = [${account.commitmentMapperPubKey}]`;
+          )}\nenv pubKey = [${(window as any).env.commitmentMapperPubKey}]\nvault pubKey = [${
+            account.commitmentMapperPubKey
+          }]`;
           console.error(msg);
           Sentry.captureMessage(msg);
         }

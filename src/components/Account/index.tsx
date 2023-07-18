@@ -107,9 +107,7 @@ export default function Account({
     <Container style={style}>
       <Center>
         <BlockiesContainer isBig={isBig}>
-          {address && (
-            <Blockies seed={address} size={8} scale={isBig ? 4 : 3} />
-          )}
+          {address && <Blockies seed={address} size={8} scale={isBig ? 4 : 3} />}
         </BlockiesContainer>
         <Address style={{ marginTop: 4 }} isBig={isBig}>
           {main}

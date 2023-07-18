@@ -6,13 +6,7 @@ type Props = {
   strokeWidth?: number;
 };
 
-export function AppWindow({
-  size,
-  color,
-  className,
-  style,
-  strokeWidth = 2,
-}: Props): JSX.Element {
+export function AppWindow({ size, color, className, style, strokeWidth = 2 }: Props): JSX.Element {
   return (
     <svg
       width={size}

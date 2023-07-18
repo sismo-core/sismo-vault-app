@@ -128,16 +128,10 @@ export default function CreateVaultStep({
   };
 
   const signToOwnership = async (identifier: string): Promise<string> => {
-    return await wallet.sign(
-      vault.commitmentMapper.getOwnershipMsg(identifier)
-    );
+    return await wallet.sign(vault.commitmentMapper.getOwnershipMsg(identifier));
   };
 
-  const create = async (
-    ownershipSignature: string,
-    seed: string,
-    identifier: string
-  ) => {
+  const create = async (ownershipSignature: string, seed: string, identifier: string) => {
     const owner: Owner = {
       seed,
       identifier,
@@ -147,8 +141,7 @@ export default function CreateVaultStep({
     await vault.create();
     await vault.addOwner(owner);
 
-    const commitmentMapperSecret =
-      CommitmentMapper.generateCommitmentMapperSecret(seed);
+    const commitmentMapperSecret = CommitmentMapper.generateCommitmentMapperSecret(seed);
 
     const vaultSecret = await vault.getVaultSecret();
 
@@ -221,15 +214,11 @@ export default function CreateVaultStep({
 
   return (
     <Container>
-      <VaultAccessModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <VaultAccessModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <Top>
         <Title>Set up your first Vault Owner</Title>
         <Text>
-          Only Vault Owners can access your Vault, make sure you will not lose
-          your wallet.
+          Only Vault Owners can access your Vault, make sure you will not lose your wallet.
         </Text>
         <Logo
           type={LogoType.VAULTONBOARDING}

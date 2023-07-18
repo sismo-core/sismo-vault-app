@@ -43,10 +43,7 @@ type Props = {
   size?: number;
 };
 
-export default function ThreeDotsLoader({
-  color = colors.blue1,
-  size,
-}: Props): JSX.Element {
+export default function ThreeDotsLoader({ color = colors.blue1, size }: Props): JSX.Element {
   return (
     <Container>
       <Circle color={color} />

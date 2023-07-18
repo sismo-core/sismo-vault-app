@@ -82,9 +82,7 @@ const CaretWrapper = styled.div<{
 
 const ChainLogo = styled(Logo)<{ isSelected?: boolean }>`
   fill: ${(props) =>
-    !props.isSelected
-      ? props.theme.colors.blue1
-      : `${props.theme.colors.green1} !important`};
+    !props.isSelected ? props.theme.colors.blue1 : `${props.theme.colors.green1} !important`};
 `;
 
 const Line = styled.div<{ selected?: boolean; insideModal: boolean }>`
@@ -144,9 +142,7 @@ export default function SelectChain({
   return (
     <Container style={style} ref={ref}>
       <Header insideModal={insideModal} onClick={() => setIsOpen(true)}>
-        {chainId < 8 && (
-          <Logo type={LogoType.ETHEREUM} size={!insideModal ? 18 : 16} />
-        )}
+        {chainId < 8 && <Logo type={LogoType.ETHEREUM} size={!insideModal ? 18 : 16} />}
         {(chainId === 137 || chainId === 80001) && (
           <Logo type={LogoType.POLYGON} size={!insideModal ? 18 : 16} />
         )}
@@ -175,25 +171,13 @@ export default function SelectChain({
                   }}
                 >
                   {el > 0 && el < 8 && (
-                    <ChainLogo
-                      type={LogoType.ETHEREUM}
-                      size={18}
-                      isSelected={el === chainId}
-                    />
+                    <ChainLogo type={LogoType.ETHEREUM} size={18} isSelected={el === chainId} />
                   )}
                   {(el === 137 || el === 80001) && (
-                    <ChainLogo
-                      type={LogoType.POLYGON}
-                      size={18}
-                      isSelected={el === chainId}
-                    />
+                    <ChainLogo type={LogoType.POLYGON} size={18} isSelected={el === chainId} />
                   )}
                   {el === 100 && (
-                    <ChainLogo
-                      type={LogoType.GNOSIS}
-                      size={18}
-                      isSelected={el === chainId}
-                    />
+                    <ChainLogo type={LogoType.GNOSIS} size={18} isSelected={el === chainId} />
                   )}
 
                   <ChainText>{ChainIdToLabel[el]}</ChainText>
@@ -214,25 +198,13 @@ export default function SelectChain({
                   }}
                 >
                   {el > 0 && el < 8 && (
-                    <ChainLogo
-                      type={LogoType.ETHEREUM}
-                      size={18}
-                      isSelected={el === chainId}
-                    />
+                    <ChainLogo type={LogoType.ETHEREUM} size={18} isSelected={el === chainId} />
                   )}
                   {(el === 137 || el === 80001) && (
-                    <ChainLogo
-                      type={LogoType.POLYGON}
-                      size={18}
-                      isSelected={el === chainId}
-                    />
+                    <ChainLogo type={LogoType.POLYGON} size={18} isSelected={el === chainId} />
                   )}
                   {el === 100 && (
-                    <ChainLogo
-                      type={LogoType.GNOSIS}
-                      size={18}
-                      isSelected={el === chainId}
-                    />
+                    <ChainLogo type={LogoType.GNOSIS} size={18} isSelected={el === chainId} />
                   )}
 
                   <ChainText>{ChainIdToLabel[el]}</ChainText>

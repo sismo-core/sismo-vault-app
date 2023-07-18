@@ -66,8 +66,7 @@ const Tip = styled.span<{
   left: ${(props) => props.tooltipPosition.left}px;
 
   flex-direction: ${(props) =>
-    props.tooltipPosition.tipDirection === "top" ||
-    props.tooltipPosition.tipDirection === "bottom"
+    props.tooltipPosition.tipDirection === "top" || props.tooltipPosition.tipDirection === "bottom"
       ? "column"
       : "row"};
 
@@ -192,8 +191,7 @@ export default function HoverTooltip({
     // TOOLTIP ABOVE CENTERED
     if (
       (tooltipSize.height < infoOffset.top - TOOLTIP_PADDING &&
-        tooltipSize.width / 2 <
-          windowSize.width - infoOffset.left - TOOLTIP_PADDING &&
+        tooltipSize.width / 2 < windowSize.width - infoOffset.left - TOOLTIP_PADDING &&
         tooltipSize.width / 2 < infoOffset.left - TOOLTIP_PADDING) ||
       forcedDirection === "top"
     ) {
@@ -204,10 +202,8 @@ export default function HoverTooltip({
     // TOOLTIP BELOW CENTERED
     if (
       (tooltipSize.height > infoOffset.top - TOOLTIP_PADDING &&
-        tooltipSize.height <
-          windowSize.height - infoOffset.top - TOOLTIP_PADDING &&
-        tooltipSize.width / 2 <
-          windowSize.width - infoOffset.left - TOOLTIP_PADDING &&
+        tooltipSize.height < windowSize.height - infoOffset.top - TOOLTIP_PADDING &&
+        tooltipSize.width / 2 < windowSize.width - infoOffset.left - TOOLTIP_PADDING &&
         tooltipSize.width / 2 < infoOffset.left - TOOLTIP_PADDING) ||
       forcedDirection === "bottom"
     ) {

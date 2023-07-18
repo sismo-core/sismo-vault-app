@@ -5,12 +5,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export function GithubRounded({
-  size,
-  color,
-  className,
-  style,
-}: Props): JSX.Element {
+export function GithubRounded({ size, color, className, style }: Props): JSX.Element {
   return (
     <svg
       width={size}

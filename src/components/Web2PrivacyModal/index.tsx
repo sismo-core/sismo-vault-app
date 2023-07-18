@@ -39,11 +39,7 @@ type Props = {
   isOpen: boolean;
 };
 
-export default function Web2PrivacyModal({
-  isOpen,
-  onContinue,
-  onClose,
-}: Props): JSX.Element {
+export default function Web2PrivacyModal({ isOpen, onContinue, onClose }: Props): JSX.Element {
   const [animated, setAnimated] = useState(false);
 
   useEffect(() => {
@@ -53,34 +49,23 @@ export default function Web2PrivacyModal({
   }, [isOpen]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      animated={animated}
-      outsideClosable
-    >
+    <Modal isOpen={isOpen} onClose={onClose} animated={animated} outsideClosable>
       <Content>
         <Title style={{ marginBottom: 15 }}>Caution</Title>
         <Text style={{ marginBottom: 10 }}>
-          When you imported your Web2 account to your vault, you created
-          connection logs.
+          When you imported your Web2 account to your vault, you created connection logs.
         </Text>
         <Text style={{ marginBottom: 10 }}>
-          No one can learn more from the logs than you are a Sismo User unless
-          they correlate your log timestamp to on-chain activity.
+          No one can learn more from the logs than you are a Sismo User unless they correlate your
+          log timestamp to on-chain activity.
         </Text>
         <Text>
-          <Highlight>To preserve your privacy at its fullest</Highlight>, we
-          advise you to <Highlight>wait a moment</Highlight> before minting a ZK
-          Badge so no one can correlate your Web2 account with your ZK Badge
-          destination.
+          <Highlight>To preserve your privacy at its fullest</Highlight>, we advise you to{" "}
+          <Highlight>wait a moment</Highlight> before minting a ZK Badge so no one can correlate
+          your Web2 account with your ZK Badge destination.
         </Text>
         <Bottom style={{ marginTop: 30 }}>
-          <Button
-            gold
-            style={{ width: 250, marginBottom: 10 }}
-            onClick={() => onContinue()}
-          >
+          <Button gold style={{ width: 250, marginBottom: 10 }} onClick={() => onContinue()}>
             I'm aware, continue
           </Button>
           <Button style={{ width: 250 }} onClick={() => onClose()}>

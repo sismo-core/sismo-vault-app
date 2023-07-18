@@ -116,10 +116,7 @@ searchParams.set("claims", JSON.stringify(claims));
 // searchParams.set("signature", JSON.stringify(signature));
 //searchParams.set("devConfig", JSON.stringify(devConfig));
 searchParams.set("vault", JSON.stringify(vault));
-searchParams.set(
-  "displayRawResponse",
-  sismoConnectRequestMock.displayRawResponse.toString()
-);
+searchParams.set("displayRawResponse", sismoConnectRequestMock.displayRawResponse.toString());
 
 export const sismoConnectRequestMockUrl = url.toString();
 

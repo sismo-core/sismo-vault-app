@@ -111,17 +111,9 @@ export default function Owners() {
     <>
       <Container>
         <Title style={{ marginBottom: 20 }}>Vault control access</Title>
-        <Description>
-          Owner accounts allow user to retrieve and decrypt their vault
-        </Description>
-        <AutoImport
-          onClick={() => autoImportOwner()}
-          style={{ marginTop: 30, marginBottom: 15 }}
-        >
-          <CheckBox
-            isChecked={vault.autoImportOwners}
-            style={{ marginRight: 8 }}
-          />
+        <Description>Owner accounts allow user to retrieve and decrypt their vault</Description>
+        <AutoImport onClick={() => autoImportOwner()} style={{ marginTop: 30, marginBottom: 15 }}>
+          <CheckBox isChecked={vault.autoImportOwners} style={{ marginRight: 8 }} />
           Add all new imported accounts as owners
         </AutoImport>
         <OwnerScroll>

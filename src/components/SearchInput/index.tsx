@@ -85,20 +85,12 @@ export default function SearchInput({
       />
       {value?.length === 0 && (
         <IconWrapper isDisabled={value?.length === 0}>
-          <MagnifyingGlass
-            size={20}
-            color={isFocus ? colors.blue2 : colors.blue5}
-            weight="bold"
-          />
+          <MagnifyingGlass size={20} color={isFocus ? colors.blue2 : colors.blue5} weight="bold" />
         </IconWrapper>
       )}
       {value?.length > 0 && (
         <IconWrapper onClick={clearValue}>
-          <X
-            size={20}
-            color={isFocus ? colors.blue2 : colors.blue5}
-            weight="bold"
-          />
+          <X size={20} color={isFocus ? colors.blue2 : colors.blue5} weight="bold" />
         </IconWrapper>
       )}
     </Container>

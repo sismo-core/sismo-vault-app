@@ -68,10 +68,7 @@ export default function Generation({
   lastGeneration,
   generationFrequency,
 }: EligibilityProps): JSX.Element {
-  const formatNextGeneration = (
-    generationFrequency: string,
-    rawDate: number
-  ) => {
+  const formatNextGeneration = (generationFrequency: string, rawDate: number) => {
     if (!generationFrequency) return;
     if (!rawDate) return;
 
@@ -100,9 +97,7 @@ export default function Generation({
             <ArrowUUpLeft size={"100%"} />
           </IconContainer>
           <GenerationDescription>
-            Last:{" "}
-            {lastGeneration &&
-              DateTime.fromSeconds(lastGeneration).toJSDate().toUTCString()}
+            Last: {lastGeneration && DateTime.fromSeconds(lastGeneration).toJSDate().toUTCString()}
           </GenerationDescription>
         </GenerationLine>
         <GenerationLine>

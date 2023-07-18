@@ -51,134 +51,43 @@ export default function Logo({
 }: Props): JSX.Element {
   switch (type) {
     case LogoType.AVALANCHE:
-      return (
-        <AvalancheLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <AvalancheLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.BADGE:
-      return (
-        <BadgeLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <BadgeLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.DISCORD:
-      return (
-        <DiscordLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <DiscordLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.DISCORD_SQUARED:
-      return (
-        <DiscordSquaredLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <DiscordSquaredLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.ETHEREUM:
-      return (
-        <EthereumLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <EthereumLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.GITBOOK:
-      return (
-        <GitbookLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <GitbookLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.GITHUB_ROUNDED:
-      return (
-        <GithubRoundedLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <GithubRoundedLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.GOERLI:
-      return (
-        <EthereumLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <EthereumLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.GNOSIS:
-      return (
-        <GnosisLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <GnosisLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.PROOF:
-      return (
-        <ProofLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <ProofLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.MUMBAI:
-      return (
-        <PolygonLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <PolygonLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.POLYGON:
-      return (
-        <PolygonLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <PolygonLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.TWITTER:
-      return (
-        <TwitterLogo
-          size={size}
-          color={color}
-          style={style}
-          className={className}
-        />
-      );
+      return <TwitterLogo size={size} color={color} style={style} className={className} />;
 
     case LogoType.TWITTER_ROUNDED:
       return (

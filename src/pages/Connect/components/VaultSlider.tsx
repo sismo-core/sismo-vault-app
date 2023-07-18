@@ -44,15 +44,11 @@ const VaultButton = styled.div<{ vaultSliderOpen: boolean }>`
   border-bottom-left-radius: 0px;
   background-color: ${(props) => props.theme.colors.blue11};
   cursor: pointer;
-  transform: translateX(
-    ${(props) => (props.vaultSliderOpen ? "-8px" : "-296px")}
-  );
+  transform: translateX(${(props) => (props.vaultSliderOpen ? "-8px" : "-296px")});
   transition: transform 0.1s ease-in-out;
 
   @media (max-width: 1180px) {
-    transform: translateX(
-      ${(props) => (props.vaultSliderOpen ? "-8px" : "-196px")}
-    );
+    transform: translateX(${(props) => (props.vaultSliderOpen ? "-8px" : "-196px")});
   }
 `;
 
@@ -114,9 +110,7 @@ const VaultContent = styled.div<{
   white-space: nowrap;
 
   width: 288px;
-  transform: translateX(
-    ${(props) => (props.vaultSliderOpen ? "0px" : "-288px")}
-  );
+  transform: translateX(${(props) => (props.vaultSliderOpen ? "0px" : "-288px")});
 
   border-radius: 5px;
   border-top-left-radius: 0px;
@@ -351,15 +345,10 @@ export default function VaultSlider({
 
   return (
     <Container ref={ref} vaultSliderOpen={vaultSliderOpen}>
-      <VaultContent
-        isConnected={vault?.isConnected}
-        vaultSliderOpen={vaultSliderOpen}
-      >
+      <VaultContent isConnected={vault?.isConnected} vaultSliderOpen={vaultSliderOpen}>
         <VaultTitle vaultSliderOpen={vaultSliderOpen}>
           {vault.vaultName ? vault.vaultName : "Your Sismo vault"}
-          <GearWrapper
-            onClick={() => vault?.isConnected && myVault?.open("accounts")}
-          >
+          <GearWrapper onClick={() => vault?.isConnected && myVault?.open("accounts")}>
             <Gear size={20} color={colors.blue0} />
           </GearWrapper>
         </VaultTitle>
@@ -377,8 +366,7 @@ export default function VaultSlider({
           )}
 
         {vault?.isConnected &&
-          (vault?.importedAccounts?.length > 0 ||
-            importAccount.importing === "account") && (
+          (vault?.importedAccounts?.length > 0 || importAccount.importing === "account") && (
             <VaultList vaultSliderOpen={vaultSliderOpen}>
               {vault?.importedAccounts?.map((source, index) => (
                 <AccountLine key={source.identifier + index}>
@@ -397,11 +385,7 @@ export default function VaultSlider({
                   </AvatarName>
 
                   <CopyWrapper>
-                    <Copy
-                      size={12}
-                      color={colors.blue0}
-                      onClick={() => copy(source.identifier)}
-                    />
+                    <Copy size={12} color={colors.blue0} onClick={() => copy(source.identifier)} />
                   </CopyWrapper>
                 </AccountLine>
               ))}
@@ -431,9 +415,7 @@ export default function VaultSlider({
           <VaultIcon src="/assets/sismo-vault.svg" alt="vault" />
 
           <AccountsNumber isTwoDigits={vault?.importedAccounts?.length > 9}>
-            {vault?.importedAccounts?.length
-              ? vault?.importedAccounts?.length
-              : 0}
+            {vault?.importedAccounts?.length ? vault?.importedAccounts?.length : 0}
           </AccountsNumber>
         </VaultIconWrapper>
 

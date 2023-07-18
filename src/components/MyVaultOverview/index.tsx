@@ -168,12 +168,10 @@ const IconArrow = styled.div<{ isOpen: boolean }>`
   height: 16px;
 
   @media (min-width: 901px) {
-    transform: ${(props) =>
-      props.isOpen ? "rotate(90deg)" : "rotate(-90deg)"};
+    transform: ${(props) => (props.isOpen ? "rotate(90deg)" : "rotate(-90deg)")};
   }
   @media (max-width: 900px) {
-    transform: ${(props) =>
-      props.isOpen ? "rotate(-90deg)" : "rotate(90deg)"};
+    transform: ${(props) => (props.isOpen ? "rotate(-90deg)" : "rotate(90deg)")};
   }
 `;
 
@@ -252,24 +250,15 @@ export default function MyVaultOverview({
         </Tongue>
         <ImportedAccountsContainer>
           <ImportedAccounts isOpen={isOpen}>
-            {(vault &&
-              vault.importedAccounts &&
-              vault.importedAccounts.length > 0) ||
+            {(vault && vault.importedAccounts && vault.importedAccounts.length > 0) ||
             importingAccount ? (
               <Scroll ref={scroll}>
                 {vault.importedAccounts &&
                   vault.importedAccounts.map((account) => {
                     return (
-                      <Account
-                        title={account.identifier}
-                        key={account.identifier}
-                      >
+                      <Account title={account.identifier} key={account.identifier}>
                         <Info>
-                          <Avatar
-                            account={account}
-                            style={{ marginRight: 8 }}
-                            width={21}
-                          />
+                          <Avatar account={account} style={{ marginRight: 8 }} width={21} />
                           {getMainMinified(account)}
                         </Info>
                       </Account>

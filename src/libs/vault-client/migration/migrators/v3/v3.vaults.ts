@@ -114,10 +114,7 @@ const v3Vaults: VaultV3[] = [
     version: 3,
   },
   {
-    mnemonics: [
-      tweeterAccount1.wallet.mnemonic,
-      githubAccount1.wallet.mnemonic,
-    ],
+    mnemonics: [tweeterAccount1.wallet.mnemonic, githubAccount1.wallet.mnemonic],
     owners: [owner1, owner2],
     sources: [
       {

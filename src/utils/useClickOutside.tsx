@@ -14,11 +14,7 @@ export default function useOnClickOutside(
 ) {
   useEffect(() => {
     function handleClickOutside(event: any) {
-      if (
-        event.type === "mousedown" &&
-        ref.current &&
-        !ref.current.contains(event.target)
-      ) {
+      if (event.type === "mousedown" && ref.current && !ref.current.contains(event.target)) {
         outsideClickCallback();
       }
       if (event.type === "keydown" && event.code === "Escape") {

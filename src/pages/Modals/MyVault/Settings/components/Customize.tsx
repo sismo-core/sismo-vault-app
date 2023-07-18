@@ -104,10 +104,7 @@ export default function Customize() {
         ) : (
           <Name onClick={() => setEditIsOpen(true)}>
             {vault.vaultName}
-            <Icon
-              name="edit-outline-white"
-              style={{ width: 15, height: 15, marginLeft: 5 }}
-            />
+            <Icon name="edit-outline-white" style={{ width: 15, height: 15, marginLeft: 5 }} />
           </Name>
         )}
       </Inline>

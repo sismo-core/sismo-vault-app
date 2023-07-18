@@ -10,9 +10,7 @@ export class V2Migrator extends Migrator<VaultV2> {
 
   public migrate = (vaultV1: VaultV1): VaultV2 => {
     if (vaultV1.version !== this.prevVersion)
-      throw new Error(
-        `V2Migrator: Incorrect prev vault version ${vaultV1.version}`
-      );
+      throw new Error(`V2Migrator: Incorrect prev vault version ${vaultV1.version}`);
 
     const sources = vaultV1.importedAccounts
       .filter((account) => account.isSource)

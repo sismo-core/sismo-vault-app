@@ -45,26 +45,17 @@ export type ReferrerApp = {
 // };
 
 export const getReferrer = (): string => {
-  const isReferrerSameAsLocation = window?.location?.href?.includes(
-    document?.referrer
-  );
+  const isReferrerSameAsLocation = window?.location?.href?.includes(document?.referrer);
 
-  const isReferrerMintingApp = (env.mintingAppUrl + "/").includes(
-    document?.referrer
-  );
+  const isReferrerMintingApp = (env.mintingAppUrl + "/").includes(document?.referrer);
 
-  if (
-    document?.referrer &&
-    !isReferrerSameAsLocation &&
-    !isReferrerMintingApp
-  ) {
+  if (document?.referrer && !isReferrerSameAsLocation && !isReferrerMintingApp) {
     localStorage.setItem(`sc_referrer`, document?.referrer);
     return document?.referrer;
   }
 
   if (
-    (document?.referrer &&
-      (isReferrerSameAsLocation || isReferrerMintingApp)) ||
+    (document?.referrer && (isReferrerSameAsLocation || isReferrerMintingApp)) ||
     !document?.referrer
   ) {
     const referrer = localStorage.getItem(`sc_referrer`);

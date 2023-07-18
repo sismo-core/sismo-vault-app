@@ -10,9 +10,7 @@ export class V1Migrator extends Migrator<VaultV1> {
 
   public migrate = (vaultV0: VaultV0): VaultV1 => {
     if (vaultV0.version !== this.prevVersion)
-      throw new Error(
-        `V1Migrator: Incorrect prev vault version ${vaultV0.version}`
-      );
+      throw new Error(`V1Migrator: Incorrect prev vault version ${vaultV0.version}`);
     const owners = [];
     const importedAccounts = [];
 

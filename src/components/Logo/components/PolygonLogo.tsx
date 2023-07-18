@@ -5,12 +5,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export default function PolygonLogo({
-  size,
-  color,
-  className,
-  style,
-}: Props): JSX.Element {
+export default function PolygonLogo({ size, color, className, style }: Props): JSX.Element {
   return (
     <svg
       width={size}

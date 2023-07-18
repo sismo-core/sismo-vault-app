@@ -154,10 +154,7 @@ export default function VaultMenu({ style }: VaultMenuProps): JSX.Element {
           isOpen={isOpen}
         >
           <LogoContainer>
-            <Icon
-              name="vault-outline-blue0"
-              style={{ width: "100%", height: "100%" }}
-            />
+            <Icon name="vault-outline-blue0" style={{ width: "100%", height: "100%" }} />
           </LogoContainer>
           <AccountName style={{ marginLeft: 10 }}>
             <VaultText isOpen={isOpen}>{vault.vaultName}</VaultText>
@@ -182,10 +179,7 @@ export default function VaultMenu({ style }: VaultMenuProps): JSX.Element {
                 }}
                 style={{ marginBottom: 5, marginTop: 5 }}
               >
-                <Icon
-                  name="sources-outline-white"
-                  style={{ marginRight: 10 }}
-                />
+                <Icon name="sources-outline-white" style={{ marginRight: 10 }} />
                 Accounts
               </RowText>
               <RowText
@@ -195,10 +189,7 @@ export default function VaultMenu({ style }: VaultMenuProps): JSX.Element {
                 }}
                 style={{ marginBottom: 5, marginTop: 5 }}
               >
-                <Icon
-                  name="settings-outline-white"
-                  style={{ marginRight: 10 }}
-                />
+                <Icon name="settings-outline-white" style={{ marginRight: 10 }} />
                 Settings
               </RowText>
               {/* <Button style={{ width: "100%" }} onClick={disconnect}>

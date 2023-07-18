@@ -57,16 +57,9 @@ type ToggleProps = {
   onChange: (value: boolean) => void;
 };
 
-export default function Toggle({
-  onChange,
-  value,
-  isDisabled,
-}: ToggleProps): JSX.Element {
+export default function Toggle({ onChange, value, isDisabled }: ToggleProps): JSX.Element {
   const toggler = (
-    <Container
-      onClick={() => !isDisabled && onChange(!value)}
-      isDisabled={isDisabled}
-    >
+    <Container onClick={() => !isDisabled && onChange(!value)} isDisabled={isDisabled}>
       <ToggleContainer value={value} isDisabled={isDisabled}>
         <Circle value={value}>
           {value && <Check size={12} weight="bold" color={colors.green1} />}

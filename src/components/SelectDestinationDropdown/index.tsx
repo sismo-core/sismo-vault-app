@@ -19,8 +19,7 @@ const Container = styled.div<{ isSuccess: boolean }>`
   gap: 10px;
   color: ${(props) => props.theme.colors.blue0};
 
-  background-color: ${(props) =>
-    props.isSuccess ? "transparent" : props.theme.colors.blue9};
+  background-color: ${(props) => (props.isSuccess ? "transparent" : props.theme.colors.blue9)};
   border-radius: 5px;
   padding: 5px 10px;
 
@@ -65,8 +64,7 @@ const PlaceholderSub2 = styled.div<{ isSelected: boolean }>`
   font-size: 12px;
   line-height: 18px;
 
-  color: ${(props) =>
-    props.isSelected ? props.theme.colors.green1 : props.theme.colors.blue0};
+  color: ${(props) => (props.isSelected ? props.theme.colors.green1 : props.theme.colors.blue0)};
 `;
 
 const DropdownContainer = styled.div<{
@@ -144,8 +142,7 @@ const AccountImporting = styled.div`
 `;
 
 const CaretWrapper = styled.div<{ dropdownOpen: boolean }>`
-  transform: ${(props) =>
-    props.dropdownOpen ? "rotate(180deg)" : "rotate(0deg)"};
+  transform: ${(props) => (props.dropdownOpen ? "rotate(180deg)" : "rotate(0deg)")};
 `;
 
 const ButtonInner = styled.div`
@@ -156,9 +153,7 @@ const ButtonInner = styled.div`
 
 type Props = {
   selectedDestination: ImportedAccount | null;
-  setSelectedDestination: React.Dispatch<
-    React.SetStateAction<ImportedAccount | null>
-  >;
+  setSelectedDestination: React.Dispatch<React.SetStateAction<ImportedAccount | null>>;
   isSuccess: boolean;
 };
 
@@ -237,9 +232,7 @@ export default function SelectDestinationDropdown({
         )}
         <PlaceholderTextGroup>
           <PlaceholderSub1>
-            {selectedDestination
-              ? getMainMinified(selectedDestination)
-              : "Select"}
+            {selectedDestination ? getMainMinified(selectedDestination) : "Select"}
           </PlaceholderSub1>
           <PlaceholderSub2 isSelected={selectedDestination ? true : false}>
             Destination account

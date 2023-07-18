@@ -9,10 +9,6 @@ export const theme = {
 
 export type ThemeInterface = typeof theme;
 
-export default function Theme({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element {
+export default function Theme({ children }: { children: React.ReactNode }): JSX.Element {
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 }

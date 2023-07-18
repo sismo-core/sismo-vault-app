@@ -35,40 +35,16 @@ export function LogoV2({ size, color, className, style }: Props): JSX.Element {
         />
         <g opacity="0.49">
           <g opacity="0.6">
-            <rect
-              x="16.9395"
-              y="13.4683"
-              width="16.296"
-              height="15.372"
-              fill="url(#pattern0)"
-            />
+            <rect x="16.9395" y="13.4683" width="16.296" height="15.372" fill="url(#pattern0)" />
           </g>
           <g opacity="0.6">
-            <rect
-              x="26.7676"
-              y="11.6621"
-              width="16.506"
-              height="13.86"
-              fill="url(#pattern1)"
-            />
+            <rect x="26.7676" y="11.6621" width="16.506" height="13.86" fill="url(#pattern1)" />
           </g>
           <g opacity="0.6">
-            <rect
-              x="36.5957"
-              y="13.5103"
-              width="16.422"
-              height="15.456"
-              fill="url(#pattern2)"
-            />
+            <rect x="36.5957" y="13.5103" width="16.422" height="15.456" fill="url(#pattern2)" />
           </g>
           <g opacity="0.6">
-            <rect
-              x="26.6836"
-              y="44.5479"
-              width="16.548"
-              height="13.818"
-              fill="url(#pattern3)"
-            />
+            <rect x="26.6836" y="44.5479" width="16.548" height="13.818" fill="url(#pattern3)" />
           </g>
         </g>
         <path
@@ -81,49 +57,17 @@ export function LogoV2({ size, color, className, style }: Props): JSX.Element {
         />
       </g>
       <defs>
-        <pattern
-          id="pattern0"
-          patternContentUnits="objectBoundingBox"
-          width="1"
-          height="1"
-        >
-          <use
-            xlinkHref="#image0_2054_77041"
-            transform="scale(0.00257732 0.00273224)"
-          />
+        <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+          <use xlinkHref="#image0_2054_77041" transform="scale(0.00257732 0.00273224)" />
         </pattern>
-        <pattern
-          id="pattern1"
-          patternContentUnits="objectBoundingBox"
-          width="1"
-          height="1"
-        >
-          <use
-            xlinkHref="#image1_2054_77041"
-            transform="scale(0.00254453 0.0030303)"
-          />
+        <pattern id="pattern1" patternContentUnits="objectBoundingBox" width="1" height="1">
+          <use xlinkHref="#image1_2054_77041" transform="scale(0.00254453 0.0030303)" />
         </pattern>
-        <pattern
-          id="pattern2"
-          patternContentUnits="objectBoundingBox"
-          width="1"
-          height="1"
-        >
-          <use
-            xlinkHref="#image2_2054_77041"
-            transform="scale(0.00255754 0.00271739)"
-          />
+        <pattern id="pattern2" patternContentUnits="objectBoundingBox" width="1" height="1">
+          <use xlinkHref="#image2_2054_77041" transform="scale(0.00255754 0.00271739)" />
         </pattern>
-        <pattern
-          id="pattern3"
-          patternContentUnits="objectBoundingBox"
-          width="1"
-          height="1"
-        >
-          <use
-            xlinkHref="#image3_2054_77041"
-            transform="scale(0.00253807 0.00303951)"
-          />
+        <pattern id="pattern3" patternContentUnits="objectBoundingBox" width="1" height="1">
+          <use xlinkHref="#image3_2054_77041" transform="scale(0.00253807 0.00303951)" />
         </pattern>
         <linearGradient
           id="paint0_linear_2054_77041"

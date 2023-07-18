@@ -14,10 +14,7 @@ export type Sismo = SismoConnectProvers & {
     sismoConnectRequest: SismoConnectRequest
   ) => Promise<RequestGroupMetadata[]>;
   getFactoryApp: (appId: string) => Promise<FactoryApp>;
-  getGroupMetadata: (
-    groupId: string,
-    timestamp: "latest" | number
-  ) => Promise<GroupMetadata>;
+  getGroupMetadata: (groupId: string, timestamp: "latest" | number) => Promise<GroupMetadata>;
 };
 
 export const useSismo = (): Sismo => {
@@ -51,10 +48,8 @@ export default function SismoProvider({
     () => ({
       initDevConfig: sismoConnectProvers.initDevConfig,
       getRegistryTreeRoot: sismoConnectProvers.getRegistryTreeRoot,
-      getClaimRequestEligibilities:
-        sismoConnectProvers.getClaimRequestEligibilities,
-      getAuthRequestEligibilities:
-        sismoConnectProvers.getAuthRequestEligibilities,
+      getClaimRequestEligibilities: sismoConnectProvers.getClaimRequestEligibilities,
+      getAuthRequestEligibilities: sismoConnectProvers.getAuthRequestEligibilities,
       generateResponse: sismoConnectProvers.generateResponse,
     }),
     [sismoConnectProvers]

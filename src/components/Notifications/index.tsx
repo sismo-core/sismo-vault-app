@@ -63,15 +63,9 @@ export default function Notifications(): JSX.Element {
             backgroundColor = colors.error;
           }
           return (
-            <Notification
-              backgroundColor={backgroundColor}
-              key={"notif" + notif.id}
-            >
+            <Notification backgroundColor={backgroundColor} key={"notif" + notif.id}>
               {notif.type === "success" && (
-                <Icon
-                  name={"confirmNotif-outline-blue"}
-                  style={{ marginTop: 5 }}
-                />
+                <Icon name={"confirmNotif-outline-blue"} style={{ marginTop: 5 }} />
               )}
               <NotificationText color={color}>{notif.text}</NotificationText>
               <Close onClick={() => notificationDeleted(notif.id)}>

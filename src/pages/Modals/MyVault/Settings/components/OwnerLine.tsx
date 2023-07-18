@@ -97,10 +97,9 @@ export default function OwnerLine({ owner }: Props) {
           {getMainMinified(owner)}
         </Infos>
         <Actions>
-          {vault.connectedOwner &&
-            vault.connectedOwner.identifier === owner.identifier && (
-              <ConnectedOwner>Connected owner</ConnectedOwner>
-            )}
+          {vault.connectedOwner && vault.connectedOwner.identifier === owner.identifier && (
+            <ConnectedOwner>Connected owner</ConnectedOwner>
+          )}
           {vault.connectedOwner &&
             vault.connectedOwner.identifier !== owner.identifier &&
             vault.owners.length > 1 && (

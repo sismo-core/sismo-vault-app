@@ -82,32 +82,29 @@ export default function More() {
       <Container>
         <Content>
           <Title style={{ marginBottom: 30 }}>Sismo Vault</Title>
-          The vault is a secure and encrypted UX tool that stores the
-          cryptographic secrets of your imported accounts so you don't have to
-          generate them each time you use Sismo. Vaults are store on a server.
-          Since the vault is encrypted, the server is just acting as tool so you
+          The vault is a secure and encrypted UX tool that stores the cryptographic secrets of your
+          imported accounts so you don't have to generate them each time you use Sismo. Vaults are
+          store on a server. Since the vault is encrypted, the server is just acting as tool so you
           can retrieve your vault from multiple browsers/devices.
           <br />
           <br />
-          The vault can be access by its owners, which are the only addresses
-          that can decrypt your vault. By default all imported accounts (as
-          sources or destinations) are owners of the vault. It can be modified
-          in settings's owners tabs.
+          The vault can be access by its owners, which are the only addresses that can decrypt your
+          vault. By default all imported accounts (as sources or destinations) are owners of the
+          vault. It can be modified in settings's owners tabs.
           <br />
           <br />
-          By signing-in to Sismo with any owner of the vault, you retrieve and
-          decrypt the entire vault with all its imported accounts.
+          By signing-in to Sismo with any owner of the vault, you retrieve and decrypt the entire
+          vault with all its imported accounts.
           <br />
           <br />
           Each imported account has currently two stored entries in the vault:
           <br />
           <br />
-          - The Sismo seed, generated deterministically from a signature. It is
-          used as entropy to generate secrets such as a key used to encrypt the
-          vault or the secret used to make a the Hydra-S1 ZK commitment.
-          <br />- The Hydra-S1 Commitment Receipt. It is generated when
-          importing an account as a source or destination and enables you to
-          generate ZK Proofs.
+          - The Sismo seed, generated deterministically from a signature. It is used as entropy to
+          generate secrets such as a key used to encrypt the vault or the secret used to make a the
+          Hydra-S1 ZK commitment.
+          <br />- The Hydra-S1 Commitment Receipt. It is generated when importing an account as a
+          source or destination and enables you to generate ZK Proofs.
           <Bottom>
             {vault.deletable && (
               <Button

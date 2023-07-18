@@ -67,11 +67,7 @@ export class IndexDbCache extends Cache {
     if (this.dbPromise) {
       try {
         const db = await this.dbPromise;
-        const res = await db.put(
-          "expiration",
-          Date.now() + EXPIRATION_DURATION,
-          key
-        );
+        const res = await db.put("expiration", Date.now() + EXPIRATION_DURATION, key);
         return res;
       } catch (e) {
         console.error(e);

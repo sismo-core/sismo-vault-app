@@ -1,9 +1,7 @@
 import { Vault, Owner } from "./client.types";
 
 export const demoVault: Vault = {
-  mnemonics: [
-    "fortune appear seed height chunk very between dismiss because kit blush penalty",
-  ],
+  mnemonics: ["fortune appear seed height chunk very between dismiss because kit blush penalty"],
   importedAccounts: [
     {
       identifier: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",

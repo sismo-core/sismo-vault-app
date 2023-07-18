@@ -42,9 +42,8 @@ export default function SwitchActiveTutoStep({
     <>
       {wallet.isInjectedWallet && <ExtensionArrow src="/assets/arrow.svg" />}
       <Title style={{ marginBottom: 18 }}>
-        Select{" "}
-        {importTarget ? getMinimalIdentifier(importTarget) : "another account"}{" "}
-        in your wallet {wallet.isInjectedWallet && "extension"}
+        Select {importTarget ? getMinimalIdentifier(importTarget) : "another account"} in your
+        wallet {wallet.isInjectedWallet && "extension"}
       </Title>
       <Bottom>
         <Button

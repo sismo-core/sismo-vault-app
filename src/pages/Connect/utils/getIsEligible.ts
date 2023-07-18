@@ -10,21 +10,15 @@ export function getIsEligible(
   sismoConnectRequest: SismoConnectRequest
 ) {
   if (sismoConnectRequest?.auths?.length) {
-    const isEligible = authRequestEligibilities?.every(
-      (authRequestEligibility) =>
-        authRequestEligibility?.auth?.isOptional
-          ? true
-          : authRequestEligibility?.isEligible
+    const isEligible = authRequestEligibilities?.every((authRequestEligibility) =>
+      authRequestEligibility?.auth?.isOptional ? true : authRequestEligibility?.isEligible
     );
     if (!isEligible) return false;
   }
 
   if (sismoConnectRequest?.claims?.length) {
-    const isEligible = claimRequestEligibilities?.every(
-      (claimRequestEligibility) =>
-        claimRequestEligibility?.claim?.isOptional
-          ? true
-          : claimRequestEligibility?.isEligible
+    const isEligible = claimRequestEligibilities?.every((claimRequestEligibility) =>
+      claimRequestEligibility?.claim?.isOptional ? true : claimRequestEligibility?.isEligible
     );
     if (!isEligible) return false;
   }

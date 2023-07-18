@@ -31,8 +31,7 @@ const Box = styled.span<{
   display: flex;
   flex-direction: column;
   justify-content: center;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
-    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 
   color: #e9ecff;
   font-size: 14px;
@@ -88,12 +87,7 @@ type InfoProps = {
   isOpen?: boolean;
 };
 
-export default function Info({
-  children,
-  isOpen,
-  color,
-  style,
-}: InfoProps): JSX.Element {
+export default function Info({ children, isOpen, color, style }: InfoProps): JSX.Element {
   const [isHover, setIsHover] = useState(false);
   const [displayNone, setDisplayNone] = useState(true);
   const [opacity, setOpacity] = useState(false);

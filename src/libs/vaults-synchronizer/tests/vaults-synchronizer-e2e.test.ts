@@ -523,8 +523,7 @@ describe("Vaults Synchronizer", () => {
 
 const isVaultsSync = (vault1: Vault, vault2: Vault) => {
   // Imported accounts
-  if (vault1.importedAccounts.length !== vault2.importedAccounts.length)
-    return false;
+  if (vault1.importedAccounts.length !== vault2.importedAccounts.length) return false;
   for (let account of vault1.importedAccounts) {
     if (!isAccountInVault(account.identifier, vault2)) return false;
   }

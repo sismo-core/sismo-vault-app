@@ -13,11 +13,7 @@ import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
 import { getMockUrl } from "./Connect/mockRequest";
 
-export default function Pages({
-  isImpersonated,
-}: {
-  isImpersonated: boolean;
-}): JSX.Element {
+export default function Pages({ isImpersonated }: { isImpersonated: boolean }): JSX.Element {
   const vault = useVault();
   const { open: openMyVault } = useMyVault();
 
@@ -55,21 +51,13 @@ export default function Pages({
 
         <ImportAccountModal isImpersonated={isImpersonated} />
 
-        <ConnectVaultModal
-          isOpen={connectIsOpen}
-          onClose={() => setConnectIsOpen(false)}
-        />
+        <ConnectVaultModal isOpen={connectIsOpen} onClose={() => setConnectIsOpen(false)} />
 
         {!(window as any).localStorage.getItem("alpha-notif-first-time") &&
           (window as any).innerWidth > 900 &&
           window.location.pathname !== "/prove" && (
             <AlphaNotification
-              onClose={() =>
-                !(window as any).localStorage.setItem(
-                  "alpha-notif-first-time",
-                  true
-                )
-              }
+              onClose={() => !(window as any).localStorage.setItem("alpha-notif-first-time", true)}
             />
           )}
         <MyVaultModal />
@@ -79,10 +67,7 @@ export default function Pages({
         <Navbar isImpersonated={isImpersonated} />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route
-            path="/connect"
-            element={<Connect isImpersonated={isImpersonated} />}
-          />
+          <Route path="/connect" element={<Connect isImpersonated={isImpersonated} />} />
           {/* <Route
             path="*"
             element={<Navigate to={`/connect`} replace={true} />}

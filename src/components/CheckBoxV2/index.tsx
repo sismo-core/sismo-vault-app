@@ -61,12 +61,7 @@ export default function CheckBox({
   onClick,
 }: CheckBoxProps): JSX.Element {
   return (
-    <Container
-      isChecked={isChecked}
-      isDisabled={isDisabled}
-      style={style}
-      onClick={onClick}
-    >
+    <Container isChecked={isChecked} isDisabled={isDisabled} style={style} onClick={onClick}>
       {isChecked && (
         <CheckWrapper>
           <Check color={colors.blue10} weight={"bold"} />

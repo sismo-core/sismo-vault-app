@@ -5,12 +5,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export default function GnosisLogo({
-  size,
-  color,
-  className,
-  style,
-}: Props): JSX.Element {
+export default function GnosisLogo({ size, color, className, style }: Props): JSX.Element {
   return (
     <svg
       width={size}

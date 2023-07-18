@@ -63,13 +63,8 @@ type Props = {
   isOpen: boolean;
 };
 
-export default function BannerPlayground({
-  onClose,
-  isOpen,
-}: Props): JSX.Element {
-  const remainingDays = DateTime.fromISO("2023-01-16")
-    .diffNow("days")
-    ?.days?.toFixed(0);
+export default function BannerPlayground({ onClose, isOpen }: Props): JSX.Element {
+  const remainingDays = DateTime.fromISO("2023-01-16").diffNow("days")?.days?.toFixed(0);
 
   return (
     <Container>
@@ -79,23 +74,17 @@ export default function BannerPlayground({
 
       <InnerContainer>
         <div>
-          Playground will be deprecated in{" "}
-          {remainingDays <= 0 ? 0 : remainingDays}day
+          Playground will be deprecated in {remainingDays <= 0 ? 0 : remainingDays}day
           {remainingDays < 2 ? "" : "s"}.
         </div>
         <div>
           Contact the Sismo Core Team on{" "}
-          <Highlighted
-            href="https://discord.gg/sismo"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <Highlighted href="https://discord.gg/sismo" target="_blank" rel="noreferrer">
             Discord
           </Highlighted>{" "}
           if you want your badge on the main app.
           <br />
-          This interface and the smart contracts will be frozen and remain
-          accessible here.{" "}
+          This interface and the smart contracts will be frozen and remain accessible here.{" "}
           <ReadMore
             href="https://snapshot.org/#/sismo.eth/proposal/0xcbb49810ada2ed4dab220cdc82d764862fc215b6e5990a470fb26c572830e60b"
             target="_blank"

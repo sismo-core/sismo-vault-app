@@ -131,30 +131,18 @@ export default function LinksMenu(): JSX.Element {
       {isOpen && (
         <MoreMenucontainer>
           <MoreMainLinksWrapper>
-            <MoreMainLink
-              href="https://docs.sismo.io/sismo-docs/"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <MoreMainLink href="https://docs.sismo.io/sismo-docs/" target="_blank" rel="noreferrer">
               <Logo type={LogoType.GITBOOK} size={14} />
               Docs
             </MoreMainLink>
 
             {env.name === "STAGING_BETA" || env.name === "PROD_BETA" ? (
-              <MoreMainLink
-                href="https://testnets.sismo.io"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <MoreMainLink href="https://testnets.sismo.io" target="_blank" rel="noreferrer">
                 <GameController size={14} weight="bold" />
                 Testnets
               </MoreMainLink>
             ) : (
-              <MoreMainLink
-                href="https://app.sismo.io"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <MoreMainLink href="https://app.sismo.io" target="_blank" rel="noreferrer">
                 <img
                   src="/icons/sismoLogo-fill-white.svg"
                   style={{ width: 14 }}
@@ -163,11 +151,7 @@ export default function LinksMenu(): JSX.Element {
                 Main app
               </MoreMainLink>
             )}
-            <MoreMainLink
-              href="https://factory.sismo.io/"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <MoreMainLink href="https://factory.sismo.io/" target="_blank" rel="noreferrer">
               <BadgeLogoWrapper>
                 <Logo type={LogoType.BADGE} size={12} />
               </BadgeLogoWrapper>
@@ -184,30 +168,14 @@ export default function LinksMenu(): JSX.Element {
           </GovernanceLink>
 
           <SocialWrapper>
-            <SocialLink
-              href="https://twitter.com/sismo_eth"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <SocialLink href="https://twitter.com/sismo_eth" target="_blank" rel="noreferrer">
               <Logo type={LogoType.TWITTER} size={12} color={colors.blue1} />
             </SocialLink>
-            <SocialLink
-              href="https://github.com/sismo-core"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Logo
-                type={LogoType.GITHUB_ROUNDED}
-                size={12}
-                color={colors.blue1}
-              />
+            <SocialLink href="https://github.com/sismo-core" target="_blank" rel="noreferrer">
+              <Logo type={LogoType.GITHUB_ROUNDED} size={12} color={colors.blue1} />
             </SocialLink>
 
-            <SocialLink
-              href="https://discord.gg/sismo"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <SocialLink href="https://discord.gg/sismo" target="_blank" rel="noreferrer">
               <Logo type={LogoType.DISCORD} size={12} color={colors.blue1} />
             </SocialLink>
           </SocialWrapper>

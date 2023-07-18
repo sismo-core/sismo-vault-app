@@ -33,9 +33,7 @@ export default function WrongUrlScreen({ callbackUrl, isWrongUrl }: Props) {
   return (
     <Container>
       <ErrorBlock>
-        <Text style={{ marginBottom: 20 }}>
-          It seems that you entered a wrong url
-        </Text>
+        <Text style={{ marginBottom: 20 }}>It seems that you entered a wrong url</Text>
         <Text style={{ marginBottom: 10 }}>Error message:</Text>
         <Text>{isWrongUrl.message}</Text>
       </ErrorBlock>

@@ -1,9 +1,5 @@
 import { VaultClient as VaultClientV1 } from "../../vault-client-v1";
-import {
-  ImportedAccount,
-  VaultClient as VaultClientV2,
-  WalletPurpose,
-} from "../../vault-client";
+import { ImportedAccount, VaultClient as VaultClientV2, WalletPurpose } from "../../vault-client";
 import { LocalStore } from "../../vault-store/local-store";
 import { CommitmentMapperTest } from "./commitment-mapper-test";
 import { getS1Commitment, getS2Commitment } from "./utils/getCommitments";

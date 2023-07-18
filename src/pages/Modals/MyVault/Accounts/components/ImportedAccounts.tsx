@@ -105,20 +105,14 @@ type Props = {
   onSelectAccount: (account: ImportedAccount) => void;
 };
 
-export default function ImportedAccounts({
-  selectedAccount,
-  onSelectAccount,
-}: Props) {
+export default function ImportedAccounts({ selectedAccount, onSelectAccount }: Props) {
   const importAccount = useImportAccount();
   const vault = useVault();
 
   return (
     <Container>
       {vault?.importedAccounts && vault?.importedAccounts?.length > 0 && (
-        <AllAccounts
-          selected={selectedAccount === null}
-          onClick={() => onSelectAccount(null)}
-        >
+        <AllAccounts selected={selectedAccount === null} onClick={() => onSelectAccount(null)}>
           All
         </AllAccounts>
       )}
@@ -128,10 +122,7 @@ export default function ImportedAccounts({
           vault?.importedAccounts?.map((account) => (
             <AccountLine
               account={account}
-              isSelected={
-                selectedAccount &&
-                selectedAccount.identifier === account.identifier
-              }
+              isSelected={selectedAccount && selectedAccount.identifier === account.identifier}
               onSelectAccount={() => onSelectAccount(account)}
               key={"account" + account.identifier}
             />

@@ -26,9 +26,7 @@ export class GroupProvider {
     timestamp: "latest" | number
   ): Promise<GroupMetadata> {
     const data = await axios
-      .get(
-        `${this.hubApiUrl}/group-snapshots/${groupId}?timestamp=${timestamp}`
-      )
+      .get(`${this.hubApiUrl}/group-snapshots/${groupId}?timestamp=${timestamp}`)
       .then((res) => res.data.items);
 
     if (data.length !== 1)
@@ -42,15 +40,11 @@ export class GroupProvider {
     const groupsQueryUrlAppendix =
       timestamp === "latest" ? `?latest=true` : `?timestamp=${timestamp}`;
     const groups = await axios
-      .get(
-        `${this.hubApiUrl}/groups/${groupsSnapshotMetadata.name}?${groupsQueryUrlAppendix}`
-      )
+      .get(`${this.hubApiUrl}/groups/${groupsSnapshotMetadata.name}?${groupsQueryUrlAppendix}`)
       .then((res) => res.data.items[0]);
 
     const groupsGenerator = await axios
-      .get(
-        `${this.hubApiUrl}/group-generators/${groups.generatedBy}?latest=true`
-      )
+      .get(`${this.hubApiUrl}/group-generators/${groups.generatedBy}?latest=true`)
       .then((res) => res.data.items[0])
       .catch((err) => console.log(err));
 

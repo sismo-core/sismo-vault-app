@@ -45,10 +45,7 @@ type Props = {
   onRetrieve: () => void;
 };
 
-export default function VaultNotFound({
-  onCreate,
-  onRetrieve,
-}: Props): JSX.Element {
+export default function VaultNotFound({ onCreate, onRetrieve }: Props): JSX.Element {
   return (
     <Container>
       <Top>

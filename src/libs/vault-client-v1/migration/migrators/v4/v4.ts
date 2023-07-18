@@ -10,9 +10,7 @@ export class V4Migrator extends Migrator<VaultV4> {
 
   public migrate = (vaultV3: VaultV3, forceTimestamp?: number): VaultV4 => {
     if (vaultV3.version !== this.prevVersion)
-      throw new Error(
-        `V4Migrator: Incorrect prev vault version ${vaultV3.version}`
-      );
+      throw new Error(`V4Migrator: Incorrect prev vault version ${vaultV3.version}`);
 
     let importedAccounts: ImportedAccount[] = vaultV3.sources;
 

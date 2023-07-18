@@ -108,9 +108,7 @@ export default function ConnectVaultModal({
               onRecoveryKey={() => setStep("AccessRecoveryKey")}
             />
           )}
-          {step === "AccessRecoveryKey" && (
-            <AccessRecoveryKey onConnected={() => onClose()} />
-          )}
+          {step === "AccessRecoveryKey" && <AccessRecoveryKey onConnected={() => onClose()} />}
           {step === "signStep" && (
             <SignStep
               onSwitchAddress={() => switchWallet()}

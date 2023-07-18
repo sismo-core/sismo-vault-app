@@ -17,9 +17,7 @@ export const useSigner = (onboard: OnboardHook): SignerHook => {
     if (!onboard?.connected?.provider) {
       setSigner(null);
     } else {
-      const _provider = new ethers.providers.Web3Provider(
-        onboard.connected.provider
-      );
+      const _provider = new ethers.providers.Web3Provider(onboard.connected.provider);
       setSigner(_provider.getSigner() as JsonRpcSigner);
     }
   }, [onboard?.connected]);

@@ -250,10 +250,7 @@ export default function AlphaNotification({ onClose }: Props): JSX.Element {
         >
           <X weight="bold" size={9.2} />
         </Close>
-        <ZikiRun
-          style={{ transform: isClose ? "scaleX(-1)" : "" }}
-          isDev={env.name === "DEV_BETA"}
-        >
+        <ZikiRun style={{ transform: isClose ? "scaleX(-1)" : "" }} isDev={env.name === "DEV_BETA"}>
           <div
             ref={zikiRunElement}
             style={{

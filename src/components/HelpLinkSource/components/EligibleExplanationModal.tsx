@@ -96,12 +96,7 @@ export default function EligibleExplanationModal({
   //https://source-store.sismo.io/data/0x037059f9f574b33ee4e11c8302d9606c33b357c8c7c89bfbec464386d4378d4b.json
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      animated={animated}
-      outsideClosable
-    >
+    <Modal isOpen={isOpen} onClose={onClose} animated={animated} outsideClosable>
       <Content>
         <Header>
           <Title>Eligible accounts</Title>
@@ -109,39 +104,34 @@ export default function EligibleExplanationModal({
         <Explanations>
           <SectionTitle>What is an Eligible account?</SectionTitle>
           <Text style={{ marginBottom: 5 }}>
-            An Eligible account is the source that Badges are derived from. If
-            one of your imported accounts meets the requirements for minting a
-            Badge, it is considered an Eligible account.
+            An Eligible account is the source that Badges are derived from. If one of your imported
+            accounts meets the requirements for minting a Badge, it is considered an Eligible
+            account.
           </Text>
 
           <SectionTitle>Do my Eligible accounts remain private?</SectionTitle>
           <Text style={{}}>
-            When minting ZK Badges, no link between your Eligible and
-            Destination accounts is ever created. ZK proofs generated in your
-            Sismo Vault prove you own your desired Destination account without
-            linking the two.
+            When minting ZK Badges, no link between your Eligible and Destination accounts is ever
+            created. ZK proofs generated in your Sismo Vault prove you own your desired Destination
+            account without linking the two.
           </Text>
 
-          <SectionTitle>
-            How do I import an Eligible account into my Vault?
-          </SectionTitle>
+          <SectionTitle>How do I import an Eligible account into my Vault?</SectionTitle>
           <Text style={{ marginBottom: 5 }}>
-            To import an Eligible account into your Vault, you simply sign the
-            two wallet messages necessary to generate ZK proofs and mint ZK
-            Badges.
+            To import an Eligible account into your Vault, you simply sign the two wallet messages
+            necessary to generate ZK proofs and mint ZK Badges.
           </Text>
           <Text>
-            These cryptographic signatures are stored in your encrypted Vault so
-            you don’t have to sign the messages every time you mint a Badge.
+            These cryptographic signatures are stored in your encrypted Vault so you don’t have to
+            sign the messages every time you mint a Badge.
           </Text>
 
           <SectionTitle>Who can access my vault?</SectionTitle>
           <Text>
-            Only wallets designated as Vault Owners can access your Vault. The
-            Sismo Vault only ever exists in its decrypted state in a user’s
-            browser—remaining fully encrypted in the Sismo Vault backend.
-            Imported accounts are designated as Vault Owners by default, though
-            this can be modified in the app’s settings.
+            Only wallets designated as Vault Owners can access your Vault. The Sismo Vault only ever
+            exists in its decrypted state in a user’s browser—remaining fully encrypted in the Sismo
+            Vault backend. Imported accounts are designated as Vault Owners by default, though this
+            can be modified in the app’s settings.
           </Text>
         </Explanations>
         <Bottom style={{ marginTop: 30 }}>

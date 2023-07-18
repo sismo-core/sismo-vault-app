@@ -9,10 +9,7 @@ type Props = {
   importTarget: string;
 };
 
-export default function WrongImported({
-  onNext,
-  importTarget,
-}: Props): JSX.Element {
+export default function WrongImported({ onNext, importTarget }: Props): JSX.Element {
   const wallet = useWallet();
 
   return (

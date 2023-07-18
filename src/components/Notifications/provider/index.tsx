@@ -26,32 +26,29 @@ export default function NotificationsProvider({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const id = useRef(0);
 
-  const notificationAdded = useCallback(
-    (notification: Notification, timeout?: number) => {
-      setNotifications((currentNotifications) => {
-        const _notifications = [...currentNotifications];
+  const notificationAdded = useCallback((notification: Notification, timeout?: number) => {
+    setNotifications((currentNotifications) => {
+      const _notifications = [...currentNotifications];
 
-        _notifications.push({
-          ...notification,
-          id: id.current,
-        });
-
-        const _id = id.current;
-        setTimeout(() => {
-          notificationDeleted(_id);
-        }, timeout || 8000);
-
-        id.current = id.current + 1;
-
-        if (_notifications.length > 8) {
-          _notifications.shift();
-        }
-
-        return _notifications;
+      _notifications.push({
+        ...notification,
+        id: id.current,
       });
-    },
-    []
-  );
+
+      const _id = id.current;
+      setTimeout(() => {
+        notificationDeleted(_id);
+      }, timeout || 8000);
+
+      id.current = id.current + 1;
+
+      if (_notifications.length > 8) {
+        _notifications.shift();
+      }
+
+      return _notifications;
+    });
+  }, []);
   const notificationDeleted = (id: number) => {
     setNotifications((currentNotifications) => {
       const _notifications = [...currentNotifications];

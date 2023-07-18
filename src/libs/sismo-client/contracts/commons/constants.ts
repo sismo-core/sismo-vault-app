@@ -60,8 +60,7 @@ export const ChainNameToLabel = {
   [SupportedChainName.LOCAL]: SupportedChainLabel.LOCAL,
   [SupportedChainName.GORLI]: SupportedChainLabel.GORLI,
   [SupportedChainName.POLYGON]: SupportedChainLabel.POLYGON,
-  [SupportedChainName.POLYGON_PLAYGROUND]:
-    SupportedChainLabel.POLYGON_PLAYGROUND,
+  [SupportedChainName.POLYGON_PLAYGROUND]: SupportedChainLabel.POLYGON_PLAYGROUND,
   [SupportedChainName.MUMBAI]: SupportedChainLabel.MUMBAI,
   [SupportedChainName.GNOSIS]: SupportedChainLabel.GNOSIS,
   [SupportedChainName.MAINNET]: SupportedChainLabel.MAINNET,

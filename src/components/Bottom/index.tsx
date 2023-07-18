@@ -59,11 +59,7 @@ export default function Bottom(): JSX.Element {
         >
           <Icon name="logoGithub-fill-white" />
         </Link>
-        <Link
-          href="https://discord.gg/uAPtsfNrve"
-          rel="noreferrer"
-          target="_blank"
-        >
+        <Link href="https://discord.gg/uAPtsfNrve" rel="noreferrer" target="_blank">
           <Icon name="logoDiscord-fill-white" />
         </Link>
         <LinkText

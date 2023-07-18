@@ -1,9 +1,6 @@
 import { isValidEns } from "../../utils/regex";
 import { ImportedAccount } from "../vault-client-v1";
-import {
-  SismoIdentifierApiResolver,
-  HubApiResolver,
-} from "./sismo-identifier-api-resolvers";
+import { SismoIdentifierApiResolver, HubApiResolver } from "./sismo-identifier-api-resolvers";
 
 type Account = Partial<ImportedAccount>;
 
@@ -30,9 +27,7 @@ export class AccountResolver {
     });
   }
 
-  public fromAccountIdTypeToHumanReadable(
-    idType: AccountIdentifierType
-  ): string {
+  public fromAccountIdTypeToHumanReadable(idType: AccountIdentifierType): string {
     switch (idType) {
       case AccountIdentifierType.ENS_NAME:
         return HumanReadableIdentifierType.ENS_NAME;
@@ -83,13 +78,9 @@ export class AccountResolver {
 
     switch (identifierType) {
       case AccountIdentifierType.ENS_NAME:
-        let sismoIdentifierFromHub = await this._hubResolver.getSismoIdentifier(
-          identifier
-        );
+        let sismoIdentifierFromHub = await this._hubResolver.getSismoIdentifier(identifier);
         if (!sismoIdentifierFromHub) {
-          throw new Error(
-            `Invalid identifier: ${identifier} - unable to resolve your ENS profile`
-          );
+          throw new Error(`Invalid identifier: ${identifier} - unable to resolve your ENS profile`);
         }
         account = {
           identifier: sismoIdentifierFromHub?.toLowerCase(),
@@ -101,9 +92,7 @@ export class AccountResolver {
         break;
 
       default:
-        let sismoIdentifier = await this._hubResolver.getSismoIdentifier(
-          identifier
-        );
+        let sismoIdentifier = await this._hubResolver.getSismoIdentifier(identifier);
         if (!sismoIdentifier) {
           throw new Error(
             `Invalid identifier: ${identifier} - unable to resolve your web2 profile`

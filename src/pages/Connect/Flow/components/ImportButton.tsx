@@ -28,8 +28,7 @@ const Container = styled.button<{
   padding: 0px 25px;
   background-color: #2a3557;
 
-  ${(props) =>
-    props.hover && !props.disabled && props.clickable && "opacity: 0.8;"}
+  ${(props) => props.hover && !props.disabled && props.clickable && "opacity: 0.8;"}
   ${(props) =>
     !props.clickable &&
     `

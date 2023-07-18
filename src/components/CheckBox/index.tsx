@@ -22,21 +22,10 @@ type CheckBoxProps = {
   onClick?: () => void;
 };
 
-export default function CheckBox({
-  isChecked,
-  style,
-  onClick,
-}: CheckBoxProps): JSX.Element {
+export default function CheckBox({ isChecked, style, onClick }: CheckBoxProps): JSX.Element {
   return (
-    <Container
-      isChecked={isChecked}
-      style={style}
-      onClick={onClick}
-      clickable={Boolean(onClick)}
-    >
-      {isChecked && (
-        <Icon name="check-outline-white" style={{ width: 12, height: 12 }} />
-      )}
+    <Container isChecked={isChecked} style={style} onClick={onClick} clickable={Boolean(onClick)}>
+      {isChecked && <Icon name="check-outline-white" style={{ width: 12, height: 12 }} />}
     </Container>
   );
 }

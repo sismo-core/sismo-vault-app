@@ -37,8 +37,7 @@ export class SismoWallet {
 
   private getWallet(purpose: WalletPurpose, accountNumber: number): Wallet {
     const path = SismoWallet.getPath(purpose, accountNumber);
-    if (!walletAccountsCache[this.mnemonicHash])
-      walletAccountsCache[this.mnemonicHash] = {};
+    if (!walletAccountsCache[this.mnemonicHash]) walletAccountsCache[this.mnemonicHash] = {};
     if (!walletAccountsCache[this.mnemonicHash][path])
       walletAccountsCache[this.mnemonicHash][path] = {};
     let wallet = null;

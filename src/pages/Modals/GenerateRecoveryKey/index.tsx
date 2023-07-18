@@ -133,9 +133,7 @@ export default function GenerateRecoveryKeyModal(): JSX.Element {
       zIndex={zIndex.generateRecoveryKey}
     >
       <Content>
-        <Title style={{ marginBottom: 25 }}>
-          Generate a Vault Recovery Key
-        </Title>
+        <Title style={{ marginBottom: 25 }}>Generate a Vault Recovery Key</Title>
         <div style={{ marginBottom: 15 }}>
           Your Recovery Key enables you to regain access to your Vault{" "}
         </div>
@@ -157,13 +155,8 @@ export default function GenerateRecoveryKeyModal(): JSX.Element {
         )}
         <div style={{ marginBottom: 10, marginTop: 15 }}>Tips:</div>
         <Tips style={{ marginBottom: 25 }}>
-          <Tip>
-            Store your Recovery Key in a password manager like 1Password.
-          </Tip>
-          <Tip>
-            Never share your Recovery Key. Anyone with this key can decrypt your
-            Vault.
-          </Tip>
+          <Tip>Store your Recovery Key in a password manager like 1Password.</Tip>
+          <Tip>Never share your Recovery Key. Anyone with this key can decrypt your Vault.</Tip>
           <Tip>Be aware of phishing risks.</Tip>
         </Tips>
         <Bottom>

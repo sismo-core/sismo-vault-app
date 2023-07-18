@@ -47,19 +47,11 @@ type Props = {
   onSwitchTab: (tabId: string) => void;
 };
 
-export default function Menu({
-  visible,
-  tabs,
-  activeTab,
-  onSwitchTab,
-}: Props): JSX.Element {
+export default function Menu({ visible, tabs, activeTab, onSwitchTab }: Props): JSX.Element {
   return (
     <Container visible={visible}>
       <Title>
-        <Icon
-          name="vault-outline-white"
-          style={{ width: 40, marginRight: 15 }}
-        />
+        <Icon name="vault-outline-white" style={{ width: 40, marginRight: 15 }} />
         Vault
       </Title>
       <Tabs tabs={tabs} onSwitchTab={onSwitchTab} activeTab={activeTab} />

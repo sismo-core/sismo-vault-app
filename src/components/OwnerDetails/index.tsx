@@ -61,11 +61,7 @@ type OwnerDetailsProps = {
   subtitle: string;
 };
 
-export default function OwnerDetails({
-  address,
-  main,
-  subtitle,
-}: OwnerDetailsProps): JSX.Element {
+export default function OwnerDetails({ address, main, subtitle }: OwnerDetailsProps): JSX.Element {
   return (
     <OwnerContainer style={{ marginBottom: 5, marginTop: 5 }}>
       {address && (

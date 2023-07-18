@@ -7,9 +7,7 @@ type AlreadyImportedProps = {
   onNext: () => void;
 };
 
-export default function AlreadyImported({
-  onNext,
-}: AlreadyImportedProps): JSX.Element {
+export default function AlreadyImported({ onNext }: AlreadyImportedProps): JSX.Element {
   const wallet = useWallet();
 
   return (

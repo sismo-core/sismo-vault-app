@@ -1,8 +1,5 @@
 import { sha256 } from "ethers/lib/utils";
-import {
-  CommitmentMapper,
-  ImpersonatedCommitmentMapper,
-} from "../commitment-mapper";
+import { CommitmentMapper, ImpersonatedCommitmentMapper } from "../commitment-mapper";
 import { ImportedAccount, Owner, VaultClient, VaultV4 } from "../vault-client";
 import { AccountResolver } from "../account-resolver";
 import { isValidEns, isValidEthAddress } from "../../utils/regex";
@@ -48,9 +45,7 @@ export class ImpersonatedVaultCreator {
         if (isValidEthAddress(account)) {
           isValidEthAddress(account)
             ? validAccounts.push(account?.toLowerCase())
-            : impersonationErrors.push(
-                `Invalid impersonated Ethereum address: ${account}`
-              );
+            : impersonationErrors.push(`Invalid impersonated Ethereum address: ${account}`);
           continue;
         }
 
@@ -162,8 +157,7 @@ export class ImpersonatedVaultCreator {
     mnemonic: string;
     accountNumber: number;
   }): Promise<VaultV4> {
-    const commitmentMapperSecret =
-      CommitmentMapper.generateCommitmentMapperSecret(seed);
+    const commitmentMapperSecret = CommitmentMapper.generateCommitmentMapperSecret(seed);
 
     const web2ImpersonatedCommitmentReceipt =
       await this._commitmentMapper.getWeb2ImpersonatedCommitmentReceipt(
@@ -176,8 +170,7 @@ export class ImpersonatedVaultCreator {
       identifier: account.identifier,
       seed: seed,
       commitmentReceipt: web2ImpersonatedCommitmentReceipt.commitmentReceipt,
-      commitmentMapperPubKey:
-        web2ImpersonatedCommitmentReceipt.commitmentMapperPubKey,
+      commitmentMapperPubKey: web2ImpersonatedCommitmentReceipt.commitmentMapperPubKey,
       type: account.type,
       timestamp: Date.now(),
       profile: web2ImpersonatedCommitmentReceipt.profile,
@@ -201,8 +194,7 @@ export class ImpersonatedVaultCreator {
     vaultSecret: string;
     ens?: string;
   }): Promise<VaultV4> {
-    const commitmentMapperSecret =
-      CommitmentMapper.generateCommitmentMapperSecret(seed);
+    const commitmentMapperSecret = CommitmentMapper.generateCommitmentMapperSecret(seed);
 
     const { commitmentMapperPubKey, commitmentReceipt } =
       await this._commitmentMapper.getEthereumCommitmentReceipt(

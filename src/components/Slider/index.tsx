@@ -70,34 +70,21 @@ type SliderProps = {
   pages: React.ReactNode[];
 };
 
-export default function Slider({
-  width,
-  pages,
-  page,
-  onSelectPage,
-}: SliderProps): JSX.Element {
+export default function Slider({ width, pages, page, onSelectPage }: SliderProps): JSX.Element {
   return (
     <Container>
       <SliderContainer page={page} width={width}>
         {pages &&
           pages.map((_page, index) => {
             return (
-              <Content
-                key={index + "page"}
-                isTransparent={page === index}
-                width={width}
-              >
+              <Content key={index + "page"} isTransparent={page === index} width={width}>
                 {_page}
               </Content>
             );
           })}
       </SliderContainer>
       <Stepper>
-        <Step
-          isOn={page === 1}
-          style={{ marginRight: 10 }}
-          onClick={() => onSelectPage(1)}
-        />
+        <Step isOn={page === 1} style={{ marginRight: 10 }} onClick={() => onSelectPage(1)} />
         <Step isOn={page === 2} onClick={() => onSelectPage(2)} />
       </Stepper>
     </Container>

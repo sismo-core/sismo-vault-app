@@ -13,9 +13,7 @@ type HelpLinkSourceProps = {
   style: React.CSSProperties;
 };
 
-export default function HelpLinkSource({
-  style,
-}: HelpLinkSourceProps): JSX.Element {
+export default function HelpLinkSource({ style }: HelpLinkSourceProps): JSX.Element {
   const [sourceExpIsOpen, setSourceExpIsOpen] = useState(false);
 
   return (

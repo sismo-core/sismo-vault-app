@@ -8,8 +8,7 @@ describe("Vault client V1", () => {
 
   beforeAll(() => {
     message = "Sign this message to prove your ownership";
-    mnemonic =
-      "truck afraid crane nasty elite present cushion evoke book dinosaur card lizard";
+    mnemonic = "truck afraid crane nasty elite present cushion evoke book dinosaur card lizard";
     sismoWallet = new SismoWallet(mnemonic);
   });
 
@@ -29,11 +28,7 @@ describe("Vault client V1", () => {
   });
 
   it("Should sign a message with account 0", async () => {
-    const signature0 = await sismoWallet.sign(
-      WalletPurpose.IMPORTED_ACCOUNT,
-      0,
-      message
-    );
+    const signature0 = await sismoWallet.sign(WalletPurpose.IMPORTED_ACCOUNT, 0, message);
     const address0 = utils.verifyMessage(message, signature0);
     expect(address0.toLowerCase()).toEqual(
       sismoWallet.getAccount(WalletPurpose.IMPORTED_ACCOUNT, 0)
@@ -41,11 +36,7 @@ describe("Vault client V1", () => {
   });
 
   it("Should sign a message with account 1", async () => {
-    const signature1 = await sismoWallet.sign(
-      WalletPurpose.IMPORTED_ACCOUNT,
-      1,
-      message
-    );
+    const signature1 = await sismoWallet.sign(WalletPurpose.IMPORTED_ACCOUNT, 1, message);
     const address1 = utils.verifyMessage(message, signature1);
     expect(address1.toLowerCase()).toEqual(
       sismoWallet.getAccount(WalletPurpose.IMPORTED_ACCOUNT, 1)
@@ -53,11 +44,7 @@ describe("Vault client V1", () => {
   });
 
   it("Should sign a message with account 2", async () => {
-    const signature2 = await sismoWallet.sign(
-      WalletPurpose.IMPORTED_ACCOUNT,
-      2,
-      message
-    );
+    const signature2 = await sismoWallet.sign(WalletPurpose.IMPORTED_ACCOUNT, 2, message);
     const address2 = utils.verifyMessage(message, signature2);
     expect(address2.toLowerCase()).toEqual(
       sismoWallet.getAccount(WalletPurpose.IMPORTED_ACCOUNT, 2)
@@ -68,11 +55,7 @@ describe("Vault client V1", () => {
     const mnemonic = await SismoWallet.generateMnemonic();
     const wallet = new SismoWallet(mnemonic);
     const address = wallet.getAccount(WalletPurpose.IMPORTED_ACCOUNT, 0);
-    const signature = await wallet.sign(
-      WalletPurpose.IMPORTED_ACCOUNT,
-      0,
-      message
-    );
+    const signature = await wallet.sign(WalletPurpose.IMPORTED_ACCOUNT, 0, message);
     const addressResolve = utils.verifyMessage(message, signature);
     expect(addressResolve.toLowerCase()).toEqual(address);
   });

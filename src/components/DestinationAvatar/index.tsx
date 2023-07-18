@@ -46,10 +46,7 @@ export default function DestinationAvatar({
   size = "small",
 }: DestinationAvatarProps): JSX.Element {
   return (
-    <OuterCircle
-      color={isActive ? "#C08AFF" : "#D0D7FB"}
-      size={size === "small" ? 30 : 62}
-    >
+    <OuterCircle color={isActive ? "#C08AFF" : "#D0D7FB"} size={size === "small" ? 30 : 62}>
       {address ? (
         <BlockiesContainer size={size === "small" ? 30 : 62}>
           <Blockies seed={address} size={8} scale={size === "small" ? 3 : 7} />

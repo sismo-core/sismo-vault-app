@@ -1,18 +1,12 @@
-export const setCookie = (
-  cookieName: string,
-  cookieValue: string,
-  expireHours: number
-) => {
+export const setCookie = (cookieName: string, cookieValue: string, expireHours: number) => {
   const d = new Date();
   d.setTime(d.getTime() + expireHours * 60 * 60 * 1000);
   let expires = "expires=" + d.toUTCString();
-  document.cookie =
-    cookieName + "=" + cookieValue + ";" + expires + ";path=/; secure";
+  document.cookie = cookieName + "=" + cookieValue + ";" + expires + ";path=/; secure";
 };
 
 export const deleteCookie = (cookieName: string) => {
-  document.cookie =
-    cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure";
+  document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure";
 };
 
 export const getCookie = (cookieName: string) => {

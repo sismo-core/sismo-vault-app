@@ -185,23 +185,13 @@ type Props = {
   groupMetadata: GroupMetadata;
 };
 
-export default function EligibilityModal({
-  isOpen,
-  onClose,
-  groupMetadata,
-}: Props): JSX.Element {
+export default function EligibilityModal({ isOpen, onClose, groupMetadata }: Props): JSX.Element {
   const humanReadableGroupName = groupMetadata?.name
     ?.replace(/-/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      animated
-      outsideClosable
-      zIndex={2008}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} animated outsideClosable zIndex={2008}>
       <Container>
         <Header>
           <Id>{groupMetadata?.id}</Id>
@@ -230,19 +220,14 @@ export default function EligibilityModal({
         <Advanced>
           <SubTitle>Advanced</SubTitle>
 
-          <GroupGenerator>
-            Group name: {groupMetadata?.groupGeneratorName}
-          </GroupGenerator>
+          <GroupGenerator>Group name: {groupMetadata?.groupGeneratorName}</GroupGenerator>
           <Link
             href={`https://github.com/sismo-core/sismo-hub/tree/main/group-generators/generators/${groupMetadata?.groupGeneratorName}/index.ts`}
             target="_blank"
             rel="noreferrer"
           >
             <IconGithubContainer>
-              <Icon
-                name="logoGithub-fill-blue0"
-                style={{ width: "100%", height: "100%" }}
-              />
+              <Icon name="logoGithub-fill-blue0" style={{ width: "100%", height: "100%" }} />
             </IconGithubContainer>
             <LinkText>Group generator code</LinkText>
 

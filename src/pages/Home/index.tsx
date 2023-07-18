@@ -20,10 +20,7 @@ export default function Home() {
 
   return (
     <>
-      <ConnectVaultModal
-        isOpen={connectIsOpen}
-        onClose={() => setConnectIsOpen(false)}
-      />
+      <ConnectVaultModal isOpen={connectIsOpen} onClose={() => setConnectIsOpen(false)} />
       <Container>
         <Art src="/assets/sismo-landing-art.svg" alt="sismo art" />
       </Container>

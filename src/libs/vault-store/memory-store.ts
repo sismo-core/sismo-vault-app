@@ -14,11 +14,7 @@ export class MemoryStore extends BaseStore {
     return this.mapper.get(id);
   }
 
-  public async post(
-    cipherText: string,
-    token: string,
-    version: number
-  ): Promise<void> {
+  public async post(cipherText: string, token: string, version: number): Promise<void> {
     const hash = new SHA3(256);
     const id = hash.update(token).digest("hex");
     this.mapper.set(id, cipherText);

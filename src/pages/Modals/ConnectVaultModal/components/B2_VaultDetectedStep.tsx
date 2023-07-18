@@ -121,15 +121,12 @@ export default function VaultDetectedStep({
 
   return (
     <Container>
-      <VaultAccessModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <VaultAccessModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <Top>
         <Title>Vault detected</Title>
         <Text>
-          {getMinimalIdentifier(wallet.activeAddress)} is already the Owner of a
-          Vault. A wallet can only be the owner of one Vault at once.
+          {getMinimalIdentifier(wallet.activeAddress)} is already the Owner of a Vault. A wallet can
+          only be the owner of one Vault at once.
         </Text>
         <VaultAccess onClick={() => setIsModalOpen(true)}>
           Vault Access

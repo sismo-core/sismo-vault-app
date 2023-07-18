@@ -11,9 +11,7 @@ export class AWSStore extends BaseStore {
 
   public async get(id: string): Promise<string | null> {
     try {
-      const { data } = await axios.get(
-        `${this.vaultUrl}/retrieve?id=${id}&cache_id=${Date.now()}`
-      );
+      const { data } = await axios.get(`${this.vaultUrl}/retrieve?id=${id}&cache_id=${Date.now()}`);
       return data.ciphertext;
     } catch (e) {
       console.error(e);
@@ -21,11 +19,7 @@ export class AWSStore extends BaseStore {
     return null;
   }
 
-  public async post(
-    ciphertext: string,
-    token: string,
-    version: number
-  ): Promise<void> {
+  public async post(ciphertext: string, token: string, version: number): Promise<void> {
     await axios.post(`${this.vaultUrl}/add`, {
       token,
       ciphertext,

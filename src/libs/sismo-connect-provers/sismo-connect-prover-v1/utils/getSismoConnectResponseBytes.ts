@@ -2,9 +2,7 @@ import { BigNumber, ethers } from "ethers";
 import { AuthRequest, ClaimRequest, SismoConnectResponse } from "../types";
 import { isHexlify } from "./isHexlify";
 
-export const getSismoConnectResponseBytes = (
-  sismoConnectResponse: SismoConnectResponse
-) => {
+export const getSismoConnectResponseBytes = (sismoConnectResponse: SismoConnectResponse) => {
   if (!sismoConnectResponse) return null;
 
   const AbiCoder = new ethers.utils.AbiCoder();
@@ -40,10 +38,7 @@ export const getSismoConnectResponseBytes = (
     ],
     [
       {
-        appId: ethers.utils.hexZeroPad(
-          ethers.utils.hexlify(sismoConnectResponse?.appId),
-          16
-        ),
+        appId: ethers.utils.hexZeroPad(ethers.utils.hexlify(sismoConnectResponse?.appId), 16),
         namespace: ethers.utils.hexDataSlice(
           ethers.utils.keccak256(
             ethers.utils.toUtf8Bytes(sismoConnectResponse?.namespace ?? "main")
@@ -66,9 +61,7 @@ export const getSismoConnectResponseBytes = (
             auths: [],
             claims: [],
             provingScheme: ethers.utils.hexZeroPad(
-              ethers.utils.formatBytes32String(
-                proof?.provingScheme ?? "hydra-s3.1"
-              ),
+              ethers.utils.formatBytes32String(proof?.provingScheme ?? "hydra-s3.1"),
               32
             ),
             proofData: proof.proofData,
@@ -104,13 +97,9 @@ export const getSismoConnectResponseBytes = (
                 ),
                 groupTimestamp:
                   proof?.claims[0]?.groupTimestamp === "latest"
-                    ? BigNumber.from(
-                        ethers.utils.formatBytes32String("latest")
-                      ).shr(128)
+                    ? BigNumber.from(ethers.utils.formatBytes32String("latest")).shr(128)
                     : proof?.claims[0]?.groupTimestamp ??
-                      BigNumber.from(
-                        ethers.utils.formatBytes32String("latest")
-                      ).shr(128),
+                      BigNumber.from(ethers.utils.formatBytes32String("latest")).shr(128),
                 isSelectableByUser: claim?.isSelectableByUser ?? false,
                 value: claim?.value ?? 1,
                 extraData: ethers.utils.toUtf8Bytes(claim?.extraData ?? ""),

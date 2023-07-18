@@ -29,10 +29,7 @@ type Props = {
   size?: "default" | "small";
 };
 
-export default function HorizontalAvatars({
-  accounts,
-  size = "default",
-}: Props): JSX.Element {
+export default function HorizontalAvatars({ accounts, size = "default" }: Props): JSX.Element {
   return (
     <Container accountCount={accounts.slice(0, 15).length} size={size}>
       {accounts

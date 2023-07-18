@@ -67,9 +67,7 @@ type Props = {
   selectedSismoConnectRequest: SelectedSismoConnectRequest;
   sismoConnectRequest: SismoConnectRequest;
   proofLoading: boolean;
-  onSelectedSismoRequest: (
-    selectedSismoConnectRequest: SelectedSismoConnectRequest
-  ) => void;
+  onSelectedSismoRequest: (selectedSismoConnectRequest: SelectedSismoConnectRequest) => void;
 };
 
 export function SignatureRequest({
@@ -83,12 +81,8 @@ export function SignatureRequest({
   const [rows] = useState(3);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [liveValue, setLiveValue] = useState(
-    sismoConnectRequest?.signature?.message
-  );
-  const [savedValue, setSavedValue] = useState(
-    sismoConnectRequest?.signature?.message
-  );
+  const [liveValue, setLiveValue] = useState(sismoConnectRequest?.signature?.message);
+  const [savedValue, setSavedValue] = useState(sismoConnectRequest?.signature?.message);
 
   const isEditable =
     selectedSismoConnectRequest?.selectedSignature?.isSelectableByUser &&
@@ -144,13 +138,7 @@ export function SignatureRequest({
           <Button verySmall isMedium onClick={onCancel} disabled={proofLoading}>
             Cancel
           </Button>
-          <Button
-            verySmall
-            isMedium
-            primary
-            onClick={onSave}
-            disabled={proofLoading}
-          >
+          <Button verySmall isMedium primary onClick={onSave} disabled={proofLoading}>
             Save
           </Button>
         </ButtonsWrapper>

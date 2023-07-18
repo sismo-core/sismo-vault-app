@@ -90,10 +90,7 @@ export default function RecoveryKeys() {
           {!vault?.recoveryKeys && <NoKeys>No Recovery Key</NoKeys>}
         </OwnerScroll>
         <Bottom>
-          <Button
-            style={{ width: 280, marginTop: 10 }}
-            onClick={() => generateRecoveryKey.open()}
-          >
+          <Button style={{ width: 280, marginTop: 10 }} onClick={() => generateRecoveryKey.open()}>
             + Generate a Recovery Key
           </Button>
         </Bottom>

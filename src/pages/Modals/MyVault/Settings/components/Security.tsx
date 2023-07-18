@@ -55,10 +55,7 @@ export default function Security() {
   return (
     <Container>
       <Title style={{ marginBottom: 20 }}>Security</Title>
-      <AutoImport
-        onClick={() => keepConnected()}
-        style={{ marginTop: 30, marginBottom: 15 }}
-      >
+      <AutoImport onClick={() => keepConnected()} style={{ marginTop: 30, marginBottom: 15 }}>
         <CheckBox isChecked={vault.keepConnected} style={{ marginRight: 8 }} />
         Keep me connected
       </AutoImport>

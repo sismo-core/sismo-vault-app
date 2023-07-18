@@ -75,18 +75,9 @@ export default function GenerateAccount({ code }: Props): JSX.Element {
   return (
     <Content>
       <Header style={{ marginBottom: 10 }}>
-        <Icon
-          name="logoGithub-fill-white"
-          style={{ width: 33, marginRight: 10 }}
-        />
-        <img
-          src="/assets/import-in-vault.svg"
-          alt="Importing account in the vault"
-        />
-        <Icon
-          name="vault-outline-white"
-          style={{ width: 41, marginLeft: 10 }}
-        />
+        <Icon name="logoGithub-fill-white" style={{ width: 33, marginRight: 10 }} />
+        <img src="/assets/import-in-vault.svg" alt="Importing account in the vault" />
+        <Icon name="vault-outline-white" style={{ width: 41, marginLeft: 10 }} />
       </Header>
       <Title style={{ marginBottom: 20 }}>
         <p>
@@ -97,10 +88,7 @@ export default function GenerateAccount({ code }: Props): JSX.Element {
       <Points style={{ marginBottom: 5 }}>
         <Point>A GitHub account can only be imported into one Vault</Point>
       </Points>
-      <Backup
-        style={{ marginBottom: 30 }}
-        onClick={() => generateRecoveryKey.open()}
-      >
+      <Backup style={{ marginBottom: 30 }} onClick={() => generateRecoveryKey.open()}>
         Backup my Vault
         <Icon name="arrowRight-outline-lightBlue" style={{ marginLeft: 5 }} />
       </Backup>

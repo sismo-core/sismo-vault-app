@@ -91,9 +91,7 @@ export default function ProofModal({
   response,
   registryTreeRoot,
 }: Props): JSX.Element {
-  const [selectedType, setSelectedType] = useState<"bytes" | "typescript">(
-    "bytes"
-  );
+  const [selectedType, setSelectedType] = useState<"bytes" | "typescript">("bytes");
   const [isCopied, setIsCopied] = useState(false);
 
   const typescriptResponse: SismoConnectResponse = {
@@ -107,9 +105,7 @@ export default function ProofModal({
   const bytesResponse = getSismoConnectResponseBytes(response);
 
   const [readableResponse, setReadableResponse] = useState<string>(
-    selectedType === "typescript"
-      ? JSON.stringify(typescriptResponse)
-      : bytesResponse
+    selectedType === "typescript" ? JSON.stringify(typescriptResponse) : bytesResponse
   );
 
   useEffect(() => {
@@ -127,13 +123,7 @@ export default function ProofModal({
   }
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      animated
-      outsideClosable
-      zIndex={2010}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} animated outsideClosable zIndex={2010}>
       {response && (
         <Container>
           <SelectorWrapper>
@@ -173,11 +163,7 @@ export default function ProofModal({
             >
               <Flex>
                 <div style={{ fontSize: 14 }}>{"Copy to clipboard"}</div>
-                {isCopied ? (
-                  <CheckCircle size={18} color={colors.green1} />
-                ) : (
-                  <Copy size={16} />
-                )}
+                {isCopied ? <CheckCircle size={18} color={colors.green1} /> : <Copy size={16} />}
               </Flex>
             </Button>
             {readableResponse}

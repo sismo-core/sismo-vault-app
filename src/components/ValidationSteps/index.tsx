@@ -72,10 +72,7 @@ export default function ValidationSteps({
           success={currentStep > index + 1}
           style={{ marginBottom: 15 }}
         >
-          <Circle
-            current={currentStep === index + 1}
-            success={currentStep > index + 1}
-          >
+          <Circle current={currentStep === index + 1} success={currentStep > index + 1}>
             <Icon name="check-outline-blue" style={{ width: 11 }} />
           </Circle>
           {step}

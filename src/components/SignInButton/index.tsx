@@ -12,19 +12,14 @@ export default function SignInButton(): JSX.Element {
 
   return (
     <Container>
-      <ConnectVaultModal
-        isOpen={connectIsOpen}
-        onClose={() => setConnectIsOpen(false)}
-      />
+      <ConnectVaultModal isOpen={connectIsOpen} onClose={() => setConnectIsOpen(false)} />
       <Button
         primary
         loading={vault.loadingActiveSession}
         style={{ width: 252 }}
         onClick={() => setConnectIsOpen(true)}
       >
-        {vault.loadingActiveSession
-          ? "Sign-in to Sismo..."
-          : "Sign-in to Sismo"}
+        {vault.loadingActiveSession ? "Sign-in to Sismo..." : "Sign-in to Sismo"}
       </Button>
     </Container>
   );

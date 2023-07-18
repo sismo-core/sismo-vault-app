@@ -197,10 +197,7 @@ export default function Modal({
         <Content ref={ref}>
           {onClose && outsideClosable && (
             <Close onClick={onClose}>
-              <Icon
-                name="cross-outline-white"
-                style={{ width: 12, height: 12 }}
-              />
+              <Icon name="cross-outline-white" style={{ width: 12, height: 12 }} />
             </Close>
           )}
           {children}

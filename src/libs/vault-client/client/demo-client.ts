@@ -1,15 +1,7 @@
 import { VaultClient } from "./client";
-import {
-  ImportedAccount,
-  Owner,
-  Vault,
-  VaultNamespaceInputs,
-} from "./client.types";
+import { ImportedAccount, Owner, Vault, VaultNamespaceInputs } from "./client.types";
 import { demoVault } from "./demo-client.mock";
-import {
-  commitmentMapperPubKeyDemo,
-  commitmentReceiptDemo,
-} from "../../commitment-mapper/mocks";
+import { commitmentMapperPubKeyDemo, commitmentReceiptDemo } from "../../commitment-mapper/mocks";
 
 export class DemoVaultClient extends VaultClient {
   public create(): Vault {
@@ -24,9 +16,7 @@ export class DemoVaultClient extends VaultClient {
     return "0x000";
   }
 
-  public async getVaultId(
-    vaultNamespaceInputs: VaultNamespaceInputs
-  ): Promise<string> {
+  public async getVaultId(vaultNamespaceInputs: VaultNamespaceInputs): Promise<string> {
     return "0x123";
   }
 
@@ -50,9 +40,7 @@ export class DemoVaultClient extends VaultClient {
     return demoVault;
   }
 
-  public async deleteImportedAccount(
-    accountDeleted: ImportedAccount
-  ): Promise<Vault> {
+  public async deleteImportedAccount(accountDeleted: ImportedAccount): Promise<Vault> {
     return demoVault;
   }
 

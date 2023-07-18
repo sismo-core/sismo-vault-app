@@ -28,10 +28,6 @@ type LoaderProps = {
   size?: number;
 };
 
-export default function Loader({
-  color,
-  style,
-  size = 13,
-}: LoaderProps): JSX.Element {
+export default function Loader({ color, style, size = 13 }: LoaderProps): JSX.Element {
   return <Spinner color={color} style={style} size={size} />;
 }

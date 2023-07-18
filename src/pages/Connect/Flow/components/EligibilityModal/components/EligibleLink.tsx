@@ -5,20 +5,8 @@ import { ArrowSquareOut } from "phosphor-react";
 import formatNumberWithSpace from "../../../../../../utils/formatNumberWithSpace";
 
 const UserIcon = (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <circle
-      cx="8.00741"
-      cy="7.4039"
-      r="2.03378"
-      stroke="#E9ECFF"
-      strokeWidth="0.75"
-    />
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="8.00741" cy="7.4039" r="2.03378" stroke="#E9ECFF" strokeWidth="0.75" />
     <path
       d="M4.82959 12.5812C4.82959 12.5812 4.91153 9.43617 8.0581 9.4375C11.2047 9.43883 11.1849 12.5815 11.1849 12.5815"
       stroke="#E9ECFF"
@@ -107,10 +95,7 @@ type EligibilityProps = {
   dataUrl: string;
 };
 
-export default function EligibleLink({
-  accountsNumber,
-  dataUrl,
-}: EligibilityProps): JSX.Element {
+export default function EligibleLink({ accountsNumber, dataUrl }: EligibilityProps): JSX.Element {
   return (
     <Container>
       {accountsNumber ? (
@@ -120,10 +105,7 @@ export default function EligibleLink({
         <nk"
         >
           <IconUserContainer>{UserIcon}</IconUserContainer>
-          {accountsNumber === 0
-            ? 0
-            : formatNumberWithSpace(accountsNumber)}{" "}
-          eligible accounts
+          {accountsNumber === 0 ? 0 : formatNumberWithSpace(accountsNumber)} eligible accounts
           <IconContainer>
             <ArrowSquareOut size={"100%"} weight="bold" />
           </IconContainer>

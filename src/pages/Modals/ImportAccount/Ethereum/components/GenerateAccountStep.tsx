@@ -68,11 +68,7 @@ const HoverAccount = styled.div`
 // `;
 
 type GenerateAccountStepProps = {
-  onImport: (
-    address: string,
-    seedSignature: string,
-    ownershipSignature: string
-  ) => void;
+  onImport: (address: string, seedSignature: string, ownershipSignature: string) => void;
   onImportAnother: () => void;
   onLoading: (loading: boolean) => void;
   type: "account" | "owner";
@@ -95,16 +91,12 @@ export default function GenerateAccountStep({
   const isAlreadyImported = useMemo(() => {
     const importedAccount =
       vault.importedAccounts &&
-      vault.importedAccounts.find(
-        (el) => el.identifier === wallet.activeAddress
-      );
+      vault.importedAccounts.find((el) => el.identifier === wallet.activeAddress);
     return importedAccount;
   }, [wallet.activeAddress, vault.importedAccounts]);
 
   const isAlreadyOwner = useMemo(() => {
-    const owner = vault.owners.find(
-      (el) => el.identifier === wallet.activeAddress
-    );
+    const owner = vault.owners.find((el) => el.identifier === wallet.activeAddress);
     return owner;
   }, [wallet.activeAddress, vault.owners]);
 
@@ -121,9 +113,7 @@ export default function GenerateAccountStep({
   const signSeed = async () => {
     setLoading(true);
     onLoading(true);
-    const _seedSignature = await wallet.sign(
-      Seed.getSeedMsg(wallet.activeAddress)
-    );
+    const _seedSignature = await wallet.sign(Seed.getSeedMsg(wallet.activeAddress));
     onLoading(false);
     setLoading(false);
     if (_seedSignature) {
@@ -215,15 +205,13 @@ export default function GenerateAccountStep({
                     Generate Sismo Seed
                     <br />
                     <br />
-                    This signature allows to generate the Sismo seed of this
-                    account. This seed is used to encrypt and decrypt your vault
-                    and required generate ZK proof.
+                    This signature allows to generate the Sismo seed of this account. This seed is
+                    used to encrypt and decrypt your vault and required generate ZK proof.
                   </>,
                 ]
               : [
                   <>
-                    {(isAlreadyOwner && !isAlreadyImported) ||
-                    isAlreadyImported ? (
+                    {(isAlreadyOwner && !isAlreadyImported) || isAlreadyImported ? (
                       <Highlight>Generate Sismo Seed</Highlight>
                     ) : (
                       <>Generate Sismo Seed</>
@@ -233,9 +221,8 @@ export default function GenerateAccountStep({
                         <br />
                         <br />
                         <Highlight>
-                          This account is already imported as Owner in your
-                          vault. You don't have to generate again the seed of
-                          this account.
+                          This account is already imported as Owner in your vault. You don't have to
+                          generate again the seed of this account.
                         </Highlight>
                       </>
                     )}
@@ -244,16 +231,15 @@ export default function GenerateAccountStep({
                         <br />
                         <br />
                         <Highlight>
-                          This account is already imported in your vault. You
-                          don't have to sign again.
+                          This account is already imported in your vault. You don't have to sign
+                          again.
                         </Highlight>
                       </>
                     )}
                     <br />
                     <br />
-                    This signature allows to generate the Sismo seed of this
-                    account. This seed is used to encrypt and decrypt your vault
-                    and required generate ZK proof.
+                    This signature allows to generate the Sismo seed of this account. This seed is
+                    used to encrypt and decrypt your vault and required generate ZK proof.
                   </>,
                   <>
                     {isAlreadyImported ? (
@@ -266,15 +252,15 @@ export default function GenerateAccountStep({
                         <br />
                         <br />
                         <Highlight>
-                          This account is already imported in your vault. You
-                          don't have to sign again.
+                          This account is already imported in your vault. You don't have to sign
+                          again.
                         </Highlight>
                       </>
                     )}
                     <br />
                     <br />
-                    This signature is used to prove that you own the address
-                    during the ZK Proof generation.
+                    This signature is used to prove that you own the address during the ZK Proof
+                    generation.
                   </>,
                 ]
           }

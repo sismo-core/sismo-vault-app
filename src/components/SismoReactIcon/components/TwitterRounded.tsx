@@ -5,12 +5,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export function TwitterRounded({
-  size,
-  color,
-  className,
-  style,
-}: Props): JSX.Element {
+export function TwitterRounded({ size, color, className, style }: Props): JSX.Element {
   return (
     <svg
       width={size}

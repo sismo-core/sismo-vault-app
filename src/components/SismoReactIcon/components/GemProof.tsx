@@ -5,12 +5,7 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-export function GemProof({
-  size = 19,
-  color = "#E9ECFF",
-  className,
-  style,
-}: Props) {
+export function GemProof({ size = 19, color = "#E9ECFF", className, style }: Props) {
   return (
     <svg
       width={size}

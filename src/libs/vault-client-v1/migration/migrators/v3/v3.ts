@@ -10,21 +10,17 @@ export class V3Migrator extends Migrator<VaultV3> {
 
   public migrate = (vaultV2: VaultV2, forceTimestamp?: number): VaultV3 => {
     if (vaultV2.version !== this.prevVersion)
-      throw new Error(
-        `V3Migrator: Incorrect prev vault version ${vaultV2.version}`
-      );
+      throw new Error(`V3Migrator: Incorrect prev vault version ${vaultV2.version}`);
 
     const sources: Source[] = vaultV2.sources.map((source) => ({
       ...source,
       timestamp: forceTimestamp ? forceTimestamp : Date.now(),
     }));
 
-    const destinations: Destination[] = vaultV2.destinations.map(
-      (destination) => ({
-        ...destination,
-        timestamp: forceTimestamp ? forceTimestamp : Date.now(),
-      })
-    );
+    const destinations: Destination[] = vaultV2.destinations.map((destination) => ({
+      ...destination,
+      timestamp: forceTimestamp ? forceTimestamp : Date.now(),
+    }));
 
     const owners: Owner[] = vaultV2.owners.map((owner) => ({
       ...owner,

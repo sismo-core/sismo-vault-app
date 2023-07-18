@@ -40,8 +40,7 @@ export default function ConnectTelegram(): JSX.Element {
   return (
     <Content>
       <Text>
-        <Success>No link</Success> will be created <Success>between</Success>{" "}
-        your{" "}
+        <Success>No link</Success> will be created <Success>between</Success> your{" "}
         <Success>
           Telegram account and the other <br />
           accounts

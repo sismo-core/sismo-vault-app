@@ -102,11 +102,5 @@ const IconExtention = {};
 //[description camelCase] - [outline|fill] - [color]
 
 export default function Icon({ style, name }: IconProps): JSX.Element {
-  return (
-    <img
-      src={`/icons/${name}.${IconExtention[name] || "svg"}`}
-      style={style}
-      alt={name}
-    />
-  );
+  return <img src={`/icons/${name}.${IconExtention[name] || "svg"}`} style={style} alt={name} />;
 }

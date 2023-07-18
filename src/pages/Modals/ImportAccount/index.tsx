@@ -57,9 +57,9 @@ export default function ImportAccountModal({
   const [blur, setBlur] = useState(false);
   const [outsideClosable, setOutsideClosable] = useState(true);
   const wallet = useWallet();
-  const [display, setDisplay] = useState<
-    "choice" | "ethereum" | "github" | "twitter" | "telegram"
-  >(null);
+  const [display, setDisplay] = useState<"choice" | "ethereum" | "github" | "twitter" | "telegram">(
+    null
+  );
   const { isOpen, importType, accountTypes, close, open } = useImportAccount();
   const [githubCode, setGithubCode] = useState(null);
   const [telegramPayload, setTelegramPayload] = useState(null);
@@ -81,37 +81,23 @@ export default function ImportAccountModal({
 
     if (
       importType === "owner" ||
-      (accountTypes &&
-        accountTypes.length === 1 &&
-        accountTypes[0] === "ethereum")
+      (accountTypes && accountTypes.length === 1 && accountTypes[0] === "ethereum")
     ) {
       setDisplay("ethereum");
       return;
     }
 
-    if (
-      accountTypes &&
-      accountTypes.length === 1 &&
-      accountTypes[0] === "github"
-    ) {
+    if (accountTypes && accountTypes.length === 1 && accountTypes[0] === "github") {
       setDisplay("github");
       return;
     }
 
-    if (
-      accountTypes &&
-      accountTypes.length === 1 &&
-      accountTypes[0] === "twitter"
-    ) {
+    if (accountTypes && accountTypes.length === 1 && accountTypes[0] === "twitter") {
       setDisplay("twitter");
       return;
     }
 
-    if (
-      accountTypes &&
-      accountTypes.length === 1 &&
-      accountTypes[0] === "telegram"
-    ) {
+    if (accountTypes && accountTypes.length === 1 && accountTypes[0] === "telegram") {
       setDisplay("telegram");
       return;
     }
@@ -129,15 +115,7 @@ export default function ImportAccountModal({
       }
     };
     connectWallet();
-  }, [
-    wallet.isConnected,
-    accountTypes,
-    importType,
-    wallet,
-    display,
-    close,
-    isOpen,
-  ]);
+  }, [wallet.isConnected, accountTypes, importType, wallet, display, close, isOpen]);
 
   /*********************************************************/
   /*********************  WEB2 ACCOUNTS ********************/
@@ -212,8 +190,7 @@ export default function ImportAccountModal({
     if (!vault.isConnected) return;
     if (featureFlagProvider.isTwitterV2Enabled()) return;
     const urlParams = new URLSearchParams(window.location.search);
-    const isTwitterV1Callback =
-      urlParams.get("callback_source") === "twitter-v1";
+    const isTwitterV1Callback = urlParams.get("callback_source") === "twitter-v1";
     if (!isTwitterV1Callback) return;
 
     const oauthToken = urlParams.get("oauth_token");
@@ -249,8 +226,7 @@ export default function ImportAccountModal({
     if (!vault.isConnected) return;
     if (!featureFlagProvider.isTwitterV2Enabled()) return;
     const urlParams = new URLSearchParams(window.location.search);
-    const isTwitterV2Redirect =
-      urlParams.get("callback_source") === "twitter-v2";
+    const isTwitterV2Redirect = urlParams.get("callback_source") === "twitter-v2";
     if (!isTwitterV2Redirect) return;
 
     const code = urlParams.get("code");
@@ -294,15 +270,11 @@ export default function ImportAccountModal({
       {display === "ethereum" && (
         <ImportEthereum
           onBackgroundBlur={(_blur) => setBlur(_blur)}
-          onOutsideClickable={(_outsideCLosable) =>
-            setOutsideClosable(_outsideCLosable)
-          }
+          onOutsideClickable={(_outsideCLosable) => setOutsideClosable(_outsideCLosable)}
         />
       )}
       {display === "github" && <ImportGithub code={githubCode} />}
-      {display === "twitter" && (
-        <ImportTwitter oauth={twitterOauth} oauthV2={twitterV2Oauth} />
-      )}
+      {display === "twitter" && <ImportTwitter oauth={twitterOauth} oauthV2={twitterV2Oauth} />}
       {display === "telegram" && <ImportTelegram payload={telegramPayload} />}
 
       {display === "choice" && (
@@ -312,47 +284,25 @@ export default function ImportAccountModal({
             {accountTypes ? (
               <>
                 {accountTypes.includes("ethereum") && (
-                  <Account
-                    type={"ethereum"}
-                    onClick={() => setDisplay("ethereum")}
-                  />
+                  <Account type={"ethereum"} onClick={() => setDisplay("ethereum")} />
                 )}
                 {accountTypes.includes("github") && (
-                  <Account
-                    type={"github"}
-                    onClick={() => setDisplay("github")}
-                  />
+                  <Account type={"github"} onClick={() => setDisplay("github")} />
                 )}
                 {accountTypes.includes("twitter") && (
-                  <Account
-                    type={"twitter"}
-                    onClick={() => setDisplay("twitter")}
-                  />
+                  <Account type={"twitter"} onClick={() => setDisplay("twitter")} />
                 )}
-                {featureFlagProvider.isTelegramEnabled() &&
-                  accountTypes.includes("telegram") && (
-                    <Account
-                      type={"telegram"}
-                      onClick={() => setDisplay("telegram")}
-                    />
-                  )}
+                {featureFlagProvider.isTelegramEnabled() && accountTypes.includes("telegram") && (
+                  <Account type={"telegram"} onClick={() => setDisplay("telegram")} />
+                )}
               </>
             ) : (
               <>
-                <Account
-                  type={"ethereum"}
-                  onClick={() => setDisplay("ethereum")}
-                />
+                <Account type={"ethereum"} onClick={() => setDisplay("ethereum")} />
                 <Account type={"github"} onClick={() => setDisplay("github")} />
-                <Account
-                  type={"twitter"}
-                  onClick={() => setDisplay("twitter")}
-                />
+                <Account type={"twitter"} onClick={() => setDisplay("twitter")} />
                 {featureFlagProvider.isTelegramEnabled() && (
-                  <Account
-                    type={"telegram"}
-                    onClick={() => setDisplay("telegram")}
-                  />
+                  <Account type={"telegram"} onClick={() => setDisplay("telegram")} />
                 )}
               </>
             )}

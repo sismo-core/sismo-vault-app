@@ -85,9 +85,7 @@ export default function ImportAccountButton({
               accountTypes: accountTypes,
             })
           }
-          minButton={
-            vault.importedAccounts && vault.importedAccounts.length >= 10
-          }
+          minButton={vault.importedAccounts && vault.importedAccounts.length >= 10}
           disabled={loading}
         >
           {loading ? (
@@ -109,17 +107,12 @@ export default function ImportAccountButton({
               }
               style={{
                 width: 12,
-                marginRight:
-                  vault.importedAccounts && vault.importedAccounts.length < 10
-                    ? 7
-                    : 0,
+                marginRight: vault.importedAccounts && vault.importedAccounts.length < 10 ? 7 : 0,
                 marginTop: 1,
               }}
             />
           )}
-          {vault.importedAccounts &&
-          vault.importedAccounts.length <= 10 &&
-          loading
+          {vault.importedAccounts && vault.importedAccounts.length <= 10 && loading
             ? "Importing..."
             : "Import account"}
         </Button>

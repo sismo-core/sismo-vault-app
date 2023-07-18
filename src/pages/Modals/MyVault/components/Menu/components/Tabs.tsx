@@ -55,19 +55,11 @@ type Props = {
   onSwitchTab: (tabId: string) => void;
 };
 
-export default function Tabs({
-  tabs,
-  onSwitchTab,
-  activeTab,
-}: Props): JSX.Element {
+export default function Tabs({ tabs, onSwitchTab, activeTab }: Props): JSX.Element {
   return (
     <Container>
       {tabs.map((tab) => (
-        <Tab
-          key={tab.id}
-          onClick={() => onSwitchTab(tab.id)}
-          selected={activeTab === tab.id}
-        >
+        <Tab key={tab.id} onClick={() => onSwitchTab(tab.id)} selected={activeTab === tab.id}>
           <TabLogo>
             <Icon name={tab.icon} style={{ width: 16 }} />
           </TabLogo>

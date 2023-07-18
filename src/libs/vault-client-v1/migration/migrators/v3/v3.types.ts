@@ -1,7 +1,4 @@
-import {
-  CommitmentMapperPubKey,
-  CommitmentReceipt,
-} from "../../../../sismo-client";
+import { CommitmentMapperPubKey, CommitmentReceipt } from "../../../../sismo-client";
 
 export type Owner = {
   identifier: string;

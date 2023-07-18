@@ -6,13 +6,7 @@ type Props = {
   strokeWidth?: number;
 };
 
-export function Group({
-  size,
-  color,
-  className,
-  style,
-  strokeWidth = 2,
-}: Props): JSX.Element {
+export function Group({ size, color, className, style, strokeWidth = 2 }: Props): JSX.Element {
   return (
     <svg
       width={size}

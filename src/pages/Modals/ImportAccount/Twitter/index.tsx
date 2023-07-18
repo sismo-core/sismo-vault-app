@@ -8,9 +8,5 @@ type Props = {
 
 export default function ImportTwitter({ oauth, oauthV2 }: Props): JSX.Element {
   const hasOAuth = oauth || oauthV2;
-  return hasOAuth ? (
-    <GenerateAccount oauth={oauth} oauthV2={oauthV2} />
-  ) : (
-    <ConnectTwitter />
-  );
+  return hasOAuth ? <GenerateAccount oauth={oauth} oauthV2={oauthV2} /> : <ConnectTwitter />;
 }

@@ -1,10 +1,7 @@
 import { VaultClient } from "./client";
 import { ImportedAccount, Owner, Vault } from "./client.types";
 import { demoVault } from "./client-demo.mock";
-import {
-  commitmentMapperPubKeyDemo,
-  commitmentReceiptDemo,
-} from "../../commitment-mapper/mocks";
+import { commitmentMapperPubKeyDemo, commitmentReceiptDemo } from "../../commitment-mapper/mocks";
 
 export class VaultClientDemo extends VaultClient {
   public create(): Vault {
@@ -39,9 +36,7 @@ export class VaultClientDemo extends VaultClient {
     return demoVault;
   }
 
-  public async deleteImportedAccount(
-    accountDeleted: ImportedAccount
-  ): Promise<Vault> {
+  public async deleteImportedAccount(accountDeleted: ImportedAccount): Promise<Vault> {
     return demoVault;
   }
 

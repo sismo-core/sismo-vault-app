@@ -49,10 +49,8 @@ export class VaultsSynchronizer {
     this._vaultClientV1.lock();
 
     let [vaultV1, vaultV2] = await Promise.all([
-      connectedOwnerV1 &&
-        (await this._vaultClientV1.unlock(connectedOwnerV1.seed)),
-      connectedOwnerV2 &&
-        (await this._vaultClientV2.unlock(connectedOwnerV2.seed)),
+      connectedOwnerV1 && (await this._vaultClientV1.unlock(connectedOwnerV1.seed)),
+      connectedOwnerV2 && (await this._vaultClientV2.unlock(connectedOwnerV2.seed)),
     ]);
 
     // Tested by case 1, 2
@@ -148,10 +146,7 @@ export class VaultsSynchronizer {
   /*************************** V1 to V2 ****************************/
   /*****************************************************************/
 
-  private _importV1toV2 = async (
-    vaultV1: Vault,
-    vaultV2: Vault
-  ): Promise<Vault> => {
+  private _importV1toV2 = async (vaultV1: Vault, vaultV2: Vault): Promise<Vault> => {
     let vaultSecret = null;
 
     for (let account of vaultV1.importedAccounts) {
@@ -159,14 +154,9 @@ export class VaultsSynchronizer {
 
       try {
         // Throw an error if the account is already imported in another VaultV2
-        if (!vaultSecret)
-          vaultSecret = await this._vaultClientV2.getVaultSecret();
+        if (!vaultSecret) vaultSecret = await this._vaultClientV2.getVaultSecret();
 
-        vaultV2 = await this._migrateAccountS1toS2(
-          this._vaultClientV2,
-          account,
-          vaultSecret
-        );
+        vaultV2 = await this._migrateAccountS1toS2(this._vaultClientV2, account, vaultSecret);
       } catch (e) {
         console.log(e);
       }
@@ -178,8 +168,7 @@ export class VaultsSynchronizer {
       ownersToAdd.push(owner);
     }
     try {
-      if (ownersToAdd.length > 0)
-        vaultV2 = await this._vaultClientV2.addOwners(ownersToAdd);
+      if (ownersToAdd.length > 0) vaultV2 = await this._vaultClientV2.addOwners(ownersToAdd);
     } catch (e) {
       console.log(e);
     }
@@ -190,9 +179,7 @@ export class VaultsSynchronizer {
       );
       if (recoveryKeyV2) {
         if (recoveryKey.valid === false && recoveryKeyV2.valid !== false) {
-          vaultV2 = await this._vaultClientV2.disableRecoveryKey(
-            recoveryKey.key
-          );
+          vaultV2 = await this._vaultClientV2.disableRecoveryKey(recoveryKey.key);
         }
         continue;
       }
@@ -213,9 +200,7 @@ export class VaultsSynchronizer {
     account: ImportedAccount,
     vaultSecret: string
   ) => {
-    const oldAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
-      account.seed
-    );
+    const oldAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(account.seed);
 
     if (account.type !== "ethereum") {
       // If it's a web2 account we update the seed with the mnemonic of the VaultV1
@@ -229,9 +214,7 @@ export class VaultsSynchronizer {
       account.seed = seed;
     }
 
-    const newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
-      account.seed
-    );
+    const newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(account.seed);
 
     const oldCommitmentSecret = [oldAccountSecret];
     const newCommitmentSecret = [vaultSecret, newAccountSecret];
@@ -257,30 +240,18 @@ export class VaultsSynchronizer {
   /*************************** V2 to V1 ****************************/
   /*****************************************************************/
 
-  private _importV2toV1 = async (
-    vaultV2: Vault,
-    vaultV1: Vault
-  ): Promise<Vault> => {
+  private _importV2toV1 = async (vaultV2: Vault, vaultV1: Vault): Promise<Vault> => {
     let vaultSecret = null;
 
     for (let account of vaultV2.importedAccounts) {
-      if (
-        account.type !== "github" &&
-        account.type !== "ethereum" &&
-        account.type !== "twitter"
-      )
+      if (account.type !== "github" && account.type !== "ethereum" && account.type !== "twitter")
         continue;
       if (isAccountInVault(account.identifier, vaultV1)) continue;
 
       try {
-        if (!vaultSecret)
-          vaultSecret = await this._vaultClientV2.getVaultSecret();
+        if (!vaultSecret) vaultSecret = await this._vaultClientV2.getVaultSecret();
 
-        vaultV1 = await this._migrateAccountS2toS1(
-          this._vaultClientV1,
-          account,
-          vaultSecret
-        );
+        vaultV1 = await this._migrateAccountS2toS1(this._vaultClientV1, account, vaultSecret);
       } catch (e) {
         console.log(e);
       }
@@ -292,8 +263,7 @@ export class VaultsSynchronizer {
       ownersToAdd.push(owner);
     }
     try {
-      if (ownersToAdd.length > 0)
-        vaultV1 = await this._vaultClientV1.addOwners(ownersToAdd);
+      if (ownersToAdd.length > 0) vaultV1 = await this._vaultClientV1.addOwners(ownersToAdd);
     } catch (e) {
       console.log(e);
     }
@@ -304,9 +274,7 @@ export class VaultsSynchronizer {
       );
       if (recoveryKeyV1) {
         if (recoveryKey.valid === false && recoveryKeyV1.valid !== false) {
-          vaultV1 = await this._vaultClientV1.disableRecoveryKey(
-            recoveryKey.key
-          );
+          vaultV1 = await this._vaultClientV1.disableRecoveryKey(recoveryKey.key);
         }
         continue;
       }
@@ -327,9 +295,7 @@ export class VaultsSynchronizer {
     account: ImportedAccount,
     vaultSecret: string
   ) => {
-    const oldAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
-      account.seed
-    );
+    const oldAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(account.seed);
 
     if (account.type !== "ethereum") {
       // If it's a web2 account we update the seed with the mnemonic of the VaultV2
@@ -342,9 +308,7 @@ export class VaultsSynchronizer {
       };
       account.seed = seed;
     }
-    const newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(
-      account.seed
-    );
+    const newAccountSecret = CommitmentMapper.generateCommitmentMapperSecret(account.seed);
 
     const oldCommitmentSecret = [vaultSecret, oldAccountSecret];
     const newCommitmentSecret = [newAccountSecret];

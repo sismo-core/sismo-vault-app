@@ -54,18 +54,12 @@ export default function ImportEthereum({
     if (importAccount.isOpen) {
       const importedAccounts =
         vault.importedAccounts &&
-        vault.importedAccounts.find(
-          (account) => account.identifier === wallet.activeAddress
-        );
+        vault.importedAccounts.find((account) => account.identifier === wallet.activeAddress);
 
       const owner =
-        vault.owners &&
-        vault.owners.find((owner) => owner.identifier === wallet.activeAddress);
+        vault.owners && vault.owners.find((owner) => owner.identifier === wallet.activeAddress);
 
-      if (
-        importAccount.importTarget &&
-        wallet.activeAddress !== importAccount.importTarget
-      ) {
+      if (importAccount.importTarget && wallet.activeAddress !== importAccount.importTarget) {
         if (isInit.current) {
           _step = "wrongImported";
         } else {
@@ -76,11 +70,7 @@ export default function ImportEthereum({
         return;
       }
 
-      if (
-        !importAccount.importTarget &&
-        owner &&
-        importAccount.importType === "owner"
-      ) {
+      if (!importAccount.importTarget && owner && importAccount.importType === "owner") {
         if (isInit.current) {
           _step = "alreadyImported";
         } else {
@@ -130,9 +120,7 @@ export default function ImportEthereum({
   return (
     <>
       <Content>
-        {step === "alreadyImported" && (
-          <AlreadyImported onNext={() => setStep("whereIsAddress")} />
-        )}
+        {step === "alreadyImported" && <AlreadyImported onNext={() => setStep("whereIsAddress")} />}
         {step === "wrongImported" && (
           <WrongImported
             onNext={() => setStep("whereIsAddress")}

@@ -70,10 +70,7 @@ type Props = {
   onCreateVault: () => void;
 };
 
-export default function AccessOrCreateStep({
-  onConnect,
-  onCreateVault,
-}: Props): JSX.Element {
+export default function AccessOrCreateStep({ onConnect, onCreateVault }: Props): JSX.Element {
   return (
     <Container>
       <Top>
