@@ -1,16 +1,12 @@
-import { AuthType } from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+import { AuthType } from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 
 const startsWithHexadecimal = (str) => {
   let hexRegex = /^0x[0-9a-fA-F]{6}/;
   return hexRegex.test(str);
 };
 
-export const resolveSismoIdentifier = (
-  sismoIdentifier: string,
-  authType: AuthType
-) => {
-  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT)
-    return sismoIdentifier;
+export const resolveSismoIdentifier = (sismoIdentifier: string, authType: AuthType) => {
+  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT) return sismoIdentifier;
   if (!startsWithHexadecimal(sismoIdentifier)) return sismoIdentifier;
 
   const removeLeadingZeros = (str) => {

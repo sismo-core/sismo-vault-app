@@ -3,21 +3,18 @@ import { SismoClient } from "../../libs/sismo-client";
 import {
   RequestGroupMetadata,
   SismoConnectRequest,
-} from "../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { FactoryApp } from "../../libs/sismo-client";
 import { GroupMetadata } from "../../libs/sismo-client/providers/group-provider";
-import { SismoConnectProvers } from "../../libs/sismo-connect-provers";
-import { ServicesFactory } from "../../libs/services-factory";
+import { SismoConnectProvers } from "../../services/sismo-connect-provers";
+import { ServicesFactory } from "../../services/services-factory";
 
 export type Sismo = SismoConnectProvers & {
   getRequestGroupMetadata: (
     sismoConnectRequest: SismoConnectRequest
   ) => Promise<RequestGroupMetadata[]>;
   getFactoryApp: (appId: string) => Promise<FactoryApp>;
-  getGroupMetadata: (
-    groupId: string,
-    timestamp: "latest" | number
-  ) => Promise<GroupMetadata>;
+  getGroupMetadata: (groupId: string, timestamp: "latest" | number) => Promise<GroupMetadata>;
 };
 
 export const useSismo = (): Sismo => {
@@ -51,10 +48,8 @@ export default function SismoProvider({
     () => ({
       initDevConfig: sismoConnectProvers.initDevConfig,
       getRegistryTreeRoot: sismoConnectProvers.getRegistryTreeRoot,
-      getClaimRequestEligibilities:
-        sismoConnectProvers.getClaimRequestEligibilities,
-      getAuthRequestEligibilities:
-        sismoConnectProvers.getAuthRequestEligibilities,
+      getClaimRequestEligibilities: sismoConnectProvers.getClaimRequestEligibilities,
+      getAuthRequestEligibilities: sismoConnectProvers.getAuthRequestEligibilities,
       generateResponse: sismoConnectProvers.generateResponse,
     }),
     [sismoConnectProvers]

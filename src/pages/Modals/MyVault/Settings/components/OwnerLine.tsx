@@ -5,7 +5,7 @@ import YesNoModal from "../../../../../components/YesNoModal";
 import { getMainMinified } from "../../../../../utils/getMain";
 import Icon from "../../../../../components/Icon";
 import { useVault } from "../../../../../hooks/vault";
-import { Owner } from "../../../../../libs/vault-client";
+import { Owner } from "../../../../../services/vault-client";
 import Avatar from "../../../../../components/Avatar";
 
 const Container = styled.div`
@@ -97,10 +97,9 @@ export default function OwnerLine({ owner }: Props) {
           {getMainMinified(owner)}
         </Infos>
         <Actions>
-          {vault.connectedOwner &&
-            vault.connectedOwner.identifier === owner.identifier && (
-              <ConnectedOwner>Connected owner</ConnectedOwner>
-            )}
+          {vault.connectedOwner && vault.connectedOwner.identifier === owner.identifier && (
+            <ConnectedOwner>Connected owner</ConnectedOwner>
+          )}
           {vault.connectedOwner &&
             vault.connectedOwner.identifier !== owner.identifier &&
             vault.owners.length > 1 && (

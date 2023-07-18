@@ -12,7 +12,7 @@ import {
   SelectedSismoConnectRequest,
   RequestGroupMetadata,
   SismoConnectRequest,
-} from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import HoverTooltip from "../../../components/HoverTooltip";
 import colors from "../../../theme/colors";
 import { capitalizeFirstLetter } from "../../../utils/capitalizeFirstLetter";

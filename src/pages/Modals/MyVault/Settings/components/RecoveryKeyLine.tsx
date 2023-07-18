@@ -4,7 +4,7 @@ import colors from "../../../../../theme/colors";
 import YesNoModal from "../../../../../components/YesNoModal";
 import Icon from "../../../../../components/Icon";
 import { useVault } from "../../../../../hooks/vault";
-import { RecoveryKey } from "../../../../../libs/vault-client";
+import { RecoveryKey } from "../../../../../services/vault-client";
 
 const Container = styled.div`
   font-weight: 500;
@@ -72,10 +72,7 @@ export default function RecoveryKeyLine({ recoveryKey }: Props) {
       />
       <Container>
         <Name>
-          <Icon
-            name="key-outline-white"
-            style={{ width: 26, marginRight: 5, marginBottom: -3 }}
-          />
+          <Icon name="key-outline-white" style={{ width: 26, marginRight: 5, marginBottom: -3 }} />
           {recoveryKey.name}
         </Name>
         <Actions>

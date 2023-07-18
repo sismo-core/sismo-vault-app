@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import colors from "../../../../theme/colors";
-import { Owner } from "../../../../libs/vault-client";
+import { Owner } from "../../../../services/vault-client";
 import { useVault } from "../../../../hooks/vault";
 import Button from "../../../../components/Button";
 import Icon from "../../../../components/Icon";
@@ -88,18 +88,13 @@ export default function AccessRecoveryKey({ onConnected }: Props): JSX.Element {
       <Title style={{ marginBottom: 20 }}>Access Sismo Vault</Title>
       <Label style={{ marginBottom: 5 }}>
         Enter your Vault Recovery Key
-        <Icon
-          name="key-outline-white"
-          style={{ width: 20, marginLeft: 5, marginBottom: -2 }}
-        />
+        <Icon name="key-outline-white" style={{ width: 20, marginLeft: 5, marginBottom: -2 }} />
       </Label>
       <Input>
         <TextArea
           value={recoveryKey}
           onChange={(text) => setRecoveryKey(text)}
-          placeholder={
-            "e.g: 0xa3e165f15905112ab287ec7464ea8b3acd4d538df69287e7097f9874454c59da"
-          }
+          placeholder={"e.g: 0xa3e165f15905112ab287ec7464ea8b3acd4d538df69287e7097f9874454c59da"}
           error={noVaultFound}
         />
         {noVaultFound && <Error>No Vault found</Error>}

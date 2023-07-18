@@ -1,4 +1,4 @@
-import { SismoConnectRequest } from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+import { SismoConnectRequest } from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import {
   RequestValidationStatus,
   validateSismoConnectRequest,

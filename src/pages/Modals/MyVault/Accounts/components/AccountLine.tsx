@@ -8,7 +8,7 @@ import { useNotifications } from "../../../../../components/Notifications/provid
 import { getMinimalIdentifier } from "../../../../../utils/getMinimalIdentifier";
 import { useVault } from "../../../../../hooks/vault";
 import Avatar from "../../../../../components/Avatar";
-import { ImportedAccount } from "../../../../../libs/vault-client";
+import { ImportedAccount } from "../../../../../services/vault-client";
 import * as Sentry from "@sentry/react";
 
 const Container = styled.div<{ selected: boolean }>`
@@ -63,11 +63,7 @@ type Props = {
   onSelectAccount: () => void;
 };
 
-export default function AccountLine({
-  account,
-  isSelected,
-  onSelectAccount,
-}: Props) {
+export default function AccountLine({ account, isSelected, onSelectAccount }: Props) {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const { notificationAdded } = useNotifications();
   const vault = useVault();
@@ -83,9 +79,7 @@ export default function AccountLine({
   const copy = () => {
     navigator.clipboard.writeText(account.identifier);
     notificationAdded({
-      text: `${getMinimalIdentifier(
-        account.identifier
-      )} copied in your clipboard!`,
+      text: `${getMinimalIdentifier(account.identifier)} copied in your clipboard!`,
       type: "success",
     });
   };

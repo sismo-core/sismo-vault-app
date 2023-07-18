@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import { SismoConnectRequest } from "../../../libs/sismo-connect-provers";
+import { SismoConnectRequest } from "../../../services/sismo-connect-provers";
 import { CaretUp, CheckCircle } from "phosphor-react";
 import colors from "../../../theme/colors";
 import Toggle from "../Flow/components/Toggle";

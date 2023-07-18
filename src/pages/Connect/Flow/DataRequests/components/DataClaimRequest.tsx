@@ -5,7 +5,7 @@ import {
   ClaimRequest,
   ClaimRequestEligibility,
   SelectedSismoConnectRequest,
-} from "../../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import colors from "../../../../../theme/colors";
 import ShardTag from "../../components/ShardTag";
 import EligibilityModal from "../../components/EligibilityModal";

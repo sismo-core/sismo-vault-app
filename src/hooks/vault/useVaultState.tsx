@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  ImportedAccount,
-  Owner,
-  RecoveryKey,
-  Vault,
-} from "../../libs/vault-client";
+import { ImportedAccount, Owner, RecoveryKey, Vault } from "../../services/vault-client";
 import { useWallet } from "../wallet";
 
 export type VaultState = {
@@ -26,8 +21,7 @@ export const useVaultState = (): VaultState => {
   const [vaultName, setVaultName] = useState(null);
   const [autoImportOwners, setAutoImportOwners] = useState<boolean>(null);
   const [keepConnected, setKeepConnected] = useState<boolean>(null);
-  const [importedAccounts, setImportedAccounts] =
-    useState<ImportedAccount[]>(null);
+  const [importedAccounts, setImportedAccounts] = useState<ImportedAccount[]>(null);
   const [recoveryKeys, setRecoveryKeys] = useState<RecoveryKey[]>(null);
   const [owners, setOwners] = useState<Owner[]>(null);
   const [connectedOwner, setConnectedOwner] = useState<Owner>(null);
@@ -99,9 +93,7 @@ export const useVaultState = (): VaultState => {
     if (
       owners === null ||
       vault.owners.length !== owners.length ||
-      !vault.owners.every((source) =>
-        owners.find((el) => el.identifier === source.identifier)
-      )
+      !vault.owners.every((source) => owners.find((el) => el.identifier === source.identifier))
     ) {
       const _owners = await addEns(vault.owners);
       setOwners(_owners);

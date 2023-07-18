@@ -1,6 +1,6 @@
 import { getMinimalIdentifier } from "../utils/getMinimalIdentifier";
 import { getMinimalEns } from "../utils/getMinimalEns";
-import { Owner, ImportedAccount } from "../libs/vault-client";
+import { Owner, ImportedAccount } from "../services/vault-client";
 
 export const getMain = (importedAccount: ImportedAccount | Owner) => {
   if (!importedAccount) return "";

@@ -11,10 +11,10 @@ import SismoProvider from "./hooks/sismo";
 import MyVaultModalProvider from "./pages/Modals/MyVault/Provider";
 import ImportAccountModalProvider from "./pages/Modals/ImportAccount/provider";
 import GenerateRecoveryKeyModalProvider from "./pages/Modals/GenerateRecoveryKey/provider";
-import MainScrollManagerProvider from "./libs/main-scroll-manager";
-import EnvsMonitoring from "./libs/envs-monitoring";
-import { ServicesFactory } from "./libs/services-factory";
-import AnalyticsProvider from "./libs/analytics/Provider";
+import MainScrollManagerProvider from "./hooks/main-scroll-manager";
+import EnvsMonitoring from "./components/EnvsMonitoring";
+import { ServicesFactory } from "./services/services-factory";
+import AnalyticsProvider from "./hooks/analytics/Provider";
 
 const FONTS_LIST = [
   "BebasNeuePro-Regular",
@@ -31,8 +31,7 @@ const services = ServicesFactory.init({
 });
 
 // TODO REFACTOR THIS TO AVOID THIS GLOBAL VARIABLE AND USE A CONTEXT INSTEAD WITH HOOKS TO ACCESS SERVICES
-const isImpersonated =
-  services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
+const isImpersonated = services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
 
 const removeHexadecimalNumbers = (event: Sentry.Event) => {
   const reg = /0x[a-fA-F0-9]+/g;
@@ -120,10 +119,7 @@ function App() {
       <MainScrollManagerProvider>
         <WalletProvider>
           <NotificationsProvider>
-            <SismoVaultProvider
-              services={services}
-              isImpersonated={isImpersonated}
-            >
+            <SismoVaultProvider services={services} isImpersonated={isImpersonated}>
               <SismoProvider services={services}>
                 <GenerateRecoveryKeyModalProvider>
                   <MyVaultModalProvider>

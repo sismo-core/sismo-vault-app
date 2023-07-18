@@ -3,7 +3,7 @@ import {
   AuthType,
   ClaimType,
   SismoConnectRequest,
-} from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { v4 as uuidv4 } from "uuid";
 
 const startsWithHexadecimal = (str) => {
@@ -12,8 +12,7 @@ const startsWithHexadecimal = (str) => {
 };
 
 export const toSismoIdentifier = (identifier: string, authType: AuthType) => {
-  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT)
-    return identifier;
+  if (authType === AuthType.EVM_ACCOUNT || authType === AuthType.VAULT) return identifier;
   if (startsWithHexadecimal(identifier)) return identifier;
 
   let prefix = null;
@@ -31,9 +30,7 @@ export const toSismoIdentifier = (identifier: string, authType: AuthType) => {
   return identifier;
 };
 
-export const getSismoConnectRequest = (
-  searchParams: URLSearchParams
-): SismoConnectRequest => {
+export const getSismoConnectRequest = (searchParams: URLSearchParams): SismoConnectRequest => {
   let _appId = searchParams.get("appId");
   let _namespace = searchParams.get("namespace");
   let _auths = searchParams.get("auths");
@@ -99,23 +96,20 @@ export const getSismoConnectRequest = (
   if (request.auths) {
     for (const auth of request.auths) {
       auth.uuid = uuidv4();
-      auth.authType =
-        typeof auth.authType === "undefined" ? AuthType.VAULT : auth.authType;
+      auth.authType = typeof auth.authType === "undefined" ? AuthType.VAULT : auth.authType;
       auth.isAnon = typeof auth.isAnon === "undefined" ? false : auth.isAnon;
       auth.userId =
         typeof auth.userId === "undefined" || auth.userId === "0"
           ? "0"
           : toSismoIdentifier(auth.userId, auth.authType);
-      auth.isOptional =
-        typeof auth.isOptional === "undefined" ? false : auth.isOptional;
+      auth.isOptional = typeof auth.isOptional === "undefined" ? false : auth.isOptional;
       auth.isSelectableByUser =
         auth.userId === "0"
           ? true
           : typeof auth.isSelectableByUser === "undefined"
           ? false
           : auth.isSelectableByUser;
-      auth.extraData =
-        typeof auth.extraData === "undefined" ? "" : auth.extraData;
+      auth.extraData = typeof auth.extraData === "undefined" ? "" : auth.extraData;
     }
   }
   /* ****************************************** */
@@ -125,19 +119,13 @@ export const getSismoConnectRequest = (
   if (request.claims) {
     for (const claim of request.claims) {
       claim.uuid = uuidv4();
-      claim.claimType =
-        typeof claim.claimType === "undefined"
-          ? ClaimType.GTE
-          : claim.claimType;
+      claim.claimType = typeof claim.claimType === "undefined" ? ClaimType.GTE : claim.claimType;
 
       claim.groupTimestamp =
-        typeof claim.groupTimestamp === "undefined"
-          ? "latest"
-          : claim.groupTimestamp;
+        typeof claim.groupTimestamp === "undefined" ? "latest" : claim.groupTimestamp;
 
       claim.value = typeof claim.value === "undefined" ? 1 : claim.value;
-      claim.isOptional =
-        typeof claim.isOptional === "undefined" ? false : claim.isOptional;
+      claim.isOptional = typeof claim.isOptional === "undefined" ? false : claim.isOptional;
       claim.isSelectableByUser =
         claim.claimType === ClaimType.EQ
           ? false
@@ -145,8 +133,7 @@ export const getSismoConnectRequest = (
           ? false
           : claim.isSelectableByUser;
 
-      claim.extraData =
-        typeof claim.extraData === "undefined" ? "" : claim.extraData;
+      claim.extraData = typeof claim.extraData === "undefined" ? "" : claim.extraData;
     }
   }
 

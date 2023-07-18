@@ -12,9 +12,9 @@ import {
   RequestGroupMetadata,
   SismoConnectRequest,
   SismoConnectResponse,
-} from "../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { useVault } from "../../hooks/vault";
-import { getSismoConnectResponseBytes } from "../../libs/sismo-connect-provers/sismo-connect-prover-v1/utils/getSismoConnectResponseBytes";
+import { getSismoConnectResponseBytes } from "../../services/sismo-connect-provers/sismo-connect-prover-v1/utils/getSismoConnectResponseBytes";
 import Skeleton from "./components/Skeleton";
 import Flow from "./Flow";
 import VaultSlider from "./components/VaultSlider";

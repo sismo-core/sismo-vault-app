@@ -1,7 +1,7 @@
 import {
   ClaimType,
   SismoConnectRequest,
-} from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { SISMO_CONNECT_COMPATIBLE_VERSIONS } from "../constants";
 
 export enum RequestValidationStatus {
@@ -14,17 +14,14 @@ export type RequestValidation = {
   message: string;
 };
 
-export const validateSismoConnectRequest = (
-  sismoConnectRequest: SismoConnectRequest
-) => {
+export const validateSismoConnectRequest = (sismoConnectRequest: SismoConnectRequest) => {
   if (
     !sismoConnectRequest.version ||
     !SISMO_CONNECT_COMPATIBLE_VERSIONS.includes(sismoConnectRequest.version)
   ) {
     return {
       status: RequestValidationStatus.Error,
-      message:
-        "Invalid version query parameter: " + sismoConnectRequest.version,
+      message: "Invalid version query parameter: " + sismoConnectRequest.version,
     };
   }
   if (!sismoConnectRequest.appId) {
@@ -34,14 +31,10 @@ export const validateSismoConnectRequest = (
     };
   }
 
-  if (
-    !sismoConnectRequest?.claims?.length &&
-    !sismoConnectRequest?.auths?.length
-  ) {
+  if (!sismoConnectRequest?.claims?.length && !sismoConnectRequest?.auths?.length) {
     return {
       status: RequestValidationStatus.Error,
-      message:
-        "Invalid request: you must specify at least one claim or one auth",
+      message: "Invalid request: you must specify at least one claim or one auth",
     };
   }
 
@@ -63,23 +56,13 @@ export const validateSismoConnectRequest = (
     }
   }
 
-  if (
-    sismoConnectRequest?.devConfig &&
-    Boolean(sismoConnectRequest?.claims?.length)
-  ) {
-    const claimGroupIds = sismoConnectRequest?.claims?.map(
-      (claim) => claim?.groupId
-    );
+  if (sismoConnectRequest?.devConfig && Boolean(sismoConnectRequest?.claims?.length)) {
+    const claimGroupIds = sismoConnectRequest?.claims?.map((claim) => claim?.groupId);
     const devConfigGroupIds = sismoConnectRequest?.devConfig?.devGroups?.map(
       (group) => group?.groupId
     );
-    const missingGroups = claimGroupIds?.filter(
-      (groupId) => !devConfigGroupIds?.includes(groupId)
-    );
-    if (
-      missingGroups?.length > 0 &&
-      sismoConnectRequest?.devConfig?.devGroups?.length > 0
-    ) {
+    const missingGroups = claimGroupIds?.filter((groupId) => !devConfigGroupIds?.includes(groupId));
+    if (missingGroups?.length > 0 && sismoConnectRequest?.devConfig?.devGroups?.length > 0) {
       return {
         status: RequestValidationStatus.Error,
         message:

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Account } from "../../libs/sismo-client";
-import { ImportedAccount } from "../../libs/vault-client";
+import { ImportedAccount } from "../../services/vault-client";
 import Avatar from "../Avatar";
 
 const Container = styled.div<{
@@ -29,10 +29,7 @@ type Props = {
   size?: "default" | "small";
 };
 
-export default function HorizontalAvatars({
-  accounts,
-  size = "default",
-}: Props): JSX.Element {
+export default function HorizontalAvatars({ accounts, size = "default" }: Props): JSX.Element {
   return (
     <Container accountCount={accounts.slice(0, 15).length} size={size}>
       {accounts

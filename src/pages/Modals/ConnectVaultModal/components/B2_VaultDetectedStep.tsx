@@ -3,7 +3,7 @@ import Button from "../../../../components/Button";
 import { Question } from "phosphor-react";
 import { useWallet } from "../../../../hooks/wallet";
 import { getMinimalIdentifier } from "../../../../utils/getMinimalIdentifier";
-import { Owner } from "../../../../libs/vault-client";
+import { Owner } from "../../../../services/vault-client";
 import { useVault } from "../../../../hooks/vault";
 import { useNotifications } from "../../../../components/Notifications/provider";
 import { useEffect, useState } from "react";
@@ -121,15 +121,12 @@ export default function VaultDetectedStep({
 
   return (
     <Container>
-      <VaultAccessModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <VaultAccessModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <Top>
         <Title>Vault detected</Title>
         <Text>
-          {getMinimalIdentifier(wallet.activeAddress)} is already the Owner of a
-          Vault. A wallet can only be the owner of one Vault at once.
+          {getMinimalIdentifier(wallet.activeAddress)} is already the Owner of a Vault. A wallet can
+          only be the owner of one Vault at once.
         </Text>
         <VaultAccess onClick={() => setIsModalOpen(true)}>
           Vault Access

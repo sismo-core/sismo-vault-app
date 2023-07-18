@@ -106,22 +106,16 @@ export const useOnboard = (): OnboardHook => {
     () => web3Onboard.state.get().wallets
   );
 
-  const [connectedChain, setConnectedChain] = useState<ConnectedChain | null>(
-    () => {
-      const initialWallets = web3Onboard.state.get().wallets;
-      if (initialWallets.length === 0) return null;
-      return initialWallets[0].chains[0] || null;
-    }
-  );
+  const [connectedChain, setConnectedChain] = useState<ConnectedChain | null>(() => {
+    const initialWallets = web3Onboard.state.get().wallets;
+    if (initialWallets.length === 0) return null;
+    return initialWallets[0].chains[0] || null;
+  });
 
   const [activeMainMinified, setActiveMainMinified] = useState(null);
 
   const mainnetProvider = useMemo(
-    () =>
-      new ethers.providers.InfuraProvider(
-        1,
-        "6f9a75d029ce430794e3155621e2d620"
-      ),
+    () => new ethers.providers.InfuraProvider(1, "6f9a75d029ce430794e3155621e2d620"),
     []
   );
 
@@ -162,12 +156,10 @@ export const useOnboard = (): OnboardHook => {
   );
 
   useEffect(() => {
-    const subscription = web3Onboard.state
-      .select("wallets")
-      .subscribe((wallets) => {
-        const _wallet = wallets[0];
-        _wallet && setConnectedChain(_wallet.chains[0]);
-      });
+    const subscription = web3Onboard.state.select("wallets").subscribe((wallets) => {
+      const _wallet = wallets[0];
+      _wallet && setConnectedChain(_wallet.chains[0]);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -198,15 +190,11 @@ export const useOnboard = (): OnboardHook => {
   }, [wallet?.accounts, updateActiveMain]);
 
   useEffect(() => {
-    const subscription = web3Onboard.state
-      .select("wallets")
-      .subscribe((wallets) => {
-        if (!wallet) return;
-        const updatedWallet = wallets.find(
-          ({ label }) => label === wallet.label
-        );
-        updatedWallet && setConnectedWallet(updatedWallet);
-      });
+    const subscription = web3Onboard.state.select("wallets").subscribe((wallets) => {
+      if (!wallet) return;
+      const updatedWallet = wallets.find(({ label }) => label === wallet.label);
+      updatedWallet && setConnectedWallet(updatedWallet);
+    });
     return () => subscription.unsubscribe();
   }, [wallet]);
 
@@ -243,9 +231,7 @@ export const useOnboard = (): OnboardHook => {
   };
 
   const getWalletConnectName = () => {
-    const walletConnectStorage = (window as any).localStorage.getItem(
-      "walletconnect"
-    );
+    const walletConnectStorage = (window as any).localStorage.getItem("walletconnect");
     if (!walletConnectStorage) return "WalletConnect";
     const walletConnect = JSON.parse(walletConnectStorage);
     return walletConnect.peerMeta.name;

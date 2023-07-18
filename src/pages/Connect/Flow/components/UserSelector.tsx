@@ -3,7 +3,7 @@ import {
   Auth,
   AuthRequestEligibility,
   AuthType,
-} from "../../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { useEffect, useRef, useState } from "react";
 import colors from "../../../../theme/colors";
 import {
@@ -13,7 +13,7 @@ import {
   TelegramRounded,
   TwitterRounded,
 } from "../../../../components/SismoReactIcon";
-import { ImportedAccount } from "../../../../libs/vault-client";
+import { ImportedAccount } from "../../../../services/vault-client";
 import { CaretDown, Info } from "phosphor-react";
 import useOnClickOutside from "../../../../utils/useClickOutside";
 import { getLargeIdentifier } from "../../../../utils/getLargeIdentifier";

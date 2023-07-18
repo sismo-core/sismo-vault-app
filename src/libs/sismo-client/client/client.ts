@@ -1,7 +1,7 @@
 import {
   RequestGroupMetadata,
   SismoConnectRequest,
-} from "../../sismo-connect-provers/sismo-connect-prover-v1";
+} from "../../../services/sismo-connect-provers/sismo-connect-prover-v1";
 import { FactoryApp, FactoryProvider } from "../providers/factory-provider";
 import env from "../../../environment";
 import { GroupProvider } from "../providers/group-provider";

@@ -1,16 +1,6 @@
-import React, {
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-} from "react";
+import React, { ReactNode, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import env from "../../environment";
-import {
-  createActiveSession,
-  deleteActiveSession,
-} from "./utils/createActiveSession";
+import { createActiveSession, deleteActiveSession } from "./utils/createActiveSession";
 import {
   ImportedAccount,
   Owner,
@@ -18,13 +8,13 @@ import {
   Vault,
   VaultNamespaceInputs,
   WalletPurpose,
-} from "../../libs/vault-client";
+} from "../../services/vault-client";
 import { useVaultState } from "./useVaultState";
 import { getVaultV2ConnectedOwner } from "./utils/getVaultV2ConnectedOwner";
-import { demoOwner } from "../../libs/vault-client/client/demo-client.mock";
+import { demoOwner } from "../../services/vault-client/client/demo-client.mock";
 import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
-import { CommitmentMapper } from "../../libs/commitment-mapper";
-import { ServicesFactory } from "../../libs/services-factory";
+import { CommitmentMapper } from "../../services/commitment-mapper";
+import { ServicesFactory } from "../../services/services-factory";
 import { useNotifications } from "../../components/Notifications/provider";
 
 type ReactVault = {
@@ -42,10 +32,7 @@ type ReactVault = {
   commitmentMapper: CommitmentMapper;
   synchronizing: boolean;
   getVaultSecret: () => Promise<string>;
-  getVaultId: ({
-    appId,
-    derivationKey,
-  }: VaultNamespaceInputs) => Promise<string>;
+  getVaultId: ({ appId, derivationKey }: VaultNamespaceInputs) => Promise<string>;
   disconnect: () => void;
   connect: (owner: Owner) => Promise<boolean>;
   isVaultExist: (owner: Owner) => Promise<boolean>;
@@ -115,8 +102,7 @@ export default function SismoVaultProvider({
 
       if (isImpersonated) {
         const impersonatedVaultCreator = services.getImpersonatedVaultCreator();
-        const { impersonationErrors } =
-          await impersonatedVaultCreator.getImpersonationState();
+        const { impersonationErrors } = await impersonatedVaultCreator.getImpersonationState();
         if (impersonationErrors.length > 0) {
           setImpersonationErrors(impersonationErrors);
         }
@@ -133,10 +119,7 @@ export default function SismoVaultProvider({
 
       // Add a loading state which trigger only the first time when the user don't have a VaultV2
       setSynchronizing(true);
-      const res = await vaultSynchronizer.sync(
-        ownerConnectedV1,
-        ownerConnectedV2
-      );
+      const res = await vaultSynchronizer.sync(ownerConnectedV1, ownerConnectedV2);
       if (res && res.vault && !Boolean(vaultState.connectedOwner)) {
         await Promise.all([
           vaultState.updateConnectedOwner(res.owner),
@@ -219,10 +202,7 @@ export default function SismoVaultProvider({
     return await vaultClient.getVaultSecret();
   }, [vaultClient]);
 
-  const getVaultId = async ({
-    appId,
-    derivationKey,
-  }: VaultNamespaceInputs): Promise<string> => {
+  const getVaultId = async ({ appId, derivationKey }: VaultNamespaceInputs): Promise<string> => {
     return await vaultClient.getVaultId({ appId, derivationKey });
   };
 
@@ -237,12 +217,10 @@ export default function SismoVaultProvider({
     syncVaults();
     await vaultState.updateVaultState(vault);
     const mnemonic = vault.mnemonics[0];
-    const accountNumber =
-      vault.recoveryKeys.filter((key) => key.mnemonic === mnemonic).length - 1;
+    const accountNumber = vault.recoveryKeys.filter((key) => key.mnemonic === mnemonic).length - 1;
     const recoveryKeyGenerated = vault.recoveryKeys.find(
       (recoveryKey) =>
-        recoveryKey.mnemonic === mnemonic &&
-        recoveryKey.accountNumber === accountNumber
+        recoveryKey.mnemonic === mnemonic && recoveryKey.accountNumber === accountNumber
     );
 
     return recoveryKeyGenerated.key;
@@ -257,9 +235,7 @@ export default function SismoVaultProvider({
   const importAccount = async (account: ImportedAccount): Promise<void> => {
     const vault = await vaultClient.importAccount(account);
     if (account.type === "ethereum" && vaultState.autoImportOwners) {
-      if (
-        !vault.owners.find((owner) => owner.identifier === account.identifier)
-      ) {
+      if (!vault.owners.find((owner) => owner.identifier === account.identifier)) {
         await addOwner(account);
         return;
       }
@@ -268,10 +244,7 @@ export default function SismoVaultProvider({
     await vaultState.updateVaultState(vault);
   };
 
-  const deleteImportedAccount = async (
-    owner: Owner,
-    account: ImportedAccount
-  ): Promise<void> => {
+  const deleteImportedAccount = async (owner: Owner, account: ImportedAccount): Promise<void> => {
     const vault = await vaultClient.deleteImportedAccount(account);
     await vaultState.updateVaultState(vault);
   };
@@ -288,17 +261,12 @@ export default function SismoVaultProvider({
     await vaultState.updateVaultState(vault);
   };
 
-  const setAutoImportOwners = async (
-    autoImportOwners: boolean
-  ): Promise<void> => {
+  const setAutoImportOwners = async (autoImportOwners: boolean): Promise<void> => {
     const vault = await vaultClient.setAutoImportOwners(autoImportOwners);
     await vaultState.updateVaultState(vault);
   };
 
-  const setKeepConnected = async (
-    owner: Owner,
-    keepConnected: boolean
-  ): Promise<void> => {
+  const setKeepConnected = async (owner: Owner, keepConnected: boolean): Promise<void> => {
     const vault = await vaultClient.setKeepConnected(keepConnected);
     if (!keepConnected) {
       deleteActiveSession();

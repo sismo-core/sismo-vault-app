@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
-import { getPoseidon } from "../libs/poseidon";
-import { ImportedAccount } from "../libs/vault-client";
+import { getPoseidon } from "./getPoseidon";
+import { ImportedAccount } from "../services/vault-client";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
 import { keccak256 } from "ethers/lib/utils";
 import { GroupMetadata } from "../libs/sismo-client";
@@ -17,17 +17,14 @@ export const getAllVaultIdentifiers = async (
     const accountTypes: string[] = [];
     for (let groupMetadata of groupsMetadata) {
       for (let accountType of groupMetadata.accountTypes) {
-        if (!accountTypes.find((el) => el === accountType))
-          accountTypes.push(accountType);
+        if (!accountTypes.find((el) => el === accountType)) accountTypes.push(accountType);
       }
     }
 
     // List of all appId used to generate vaultId in groups of claims
     const appIds: string[] = [];
     for (let accountType of accountTypes) {
-      const match = accountType.match(
-        /sismo-connect-app\(appid=(0x[a-fA-F0-9]+)\)/i
-      );
+      const match = accountType.match(/sismo-connect-app\(appid=(0x[a-fA-F0-9]+)\)/i);
       if (match) {
         const appId = match[1];
         if (!appIds.find((el) => el === appId)) appIds.push(appId);
@@ -39,12 +36,7 @@ export const getAllVaultIdentifiers = async (
       const poseidon = await getPoseidon();
       for (let appId of appIds) {
         const namespace = BigNumber.from(
-          keccak256(
-            ethers.utils.solidityPack(
-              ["uint128", "uint128"],
-              [appId, BigNumber.from(0)]
-            )
-          )
+          keccak256(ethers.utils.solidityPack(["uint128", "uint128"], [appId, BigNumber.from(0)]))
         )
           .mod(SNARK_FIELD)
           .toHexString();
