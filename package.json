@@ -2,6 +2,18 @@
   "name": "sismo-app",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "export REACT_APP_GIT_HASH=$(git rev-parse HEAD) && PORT=3000 GENERATE_SOURCEMAP=false react-app-rewired start",
+    "build": "export REACT_APP_GIT_HASH=$(git rev-parse HEAD) && react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject",
+    "prettier": "prettier --write 'src/**/*'",
+    "prettier:check": "prettier --check 'src/**/*'",
+    "eslint": "eslint src --max-warnings=0",
+    "delete-maps": "yarn run delete-map-files && yarn run delete-references-to-map-files",
+    "delete-map-files": "find ./build -name '*.map' -delete",
+    "delete-references-to-map-files": "find ./build -regex '.*\\.\\(js\\|css\\)' -exec sed -i -E '\\/[\\*\\/]#\\ssourceMappingURL=main(\\.[0-9a-f]+)?\\.(css|js)\\.map(\\*\\/)?/g' {} +"
+  },
   "dependencies": {
     "@apollo/client": "^3.7.1",
     "@octokit/types": "^9.2.3",
@@ -51,18 +63,6 @@
     "uuid": "^9.0.0",
     "web-vitals": "^2.1.4"
   },
-  "scripts": {
-    "start": "export REACT_APP_GIT_HASH=$(git rev-parse HEAD) && PORT=3000 GENERATE_SOURCEMAP=false react-app-rewired start",
-    "build": "export REACT_APP_GIT_HASH=$(git rev-parse HEAD) && react-app-rewired build",
-    "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject",
-    "prettier": "prettier --write 'src/**/*.ts' '.github' 'README.md'",
-    "prepare": "husky install",
-    "eslint": "eslint src --max-warnings=0",
-    "delete-maps": "yarn run delete-map-files && yarn run delete-references-to-map-files",
-    "delete-map-files": "find ./build -name '*.map' -delete",
-    "delete-references-to-map-files": "find ./build -regex '.*\\.\\(js\\|css\\)' -exec sed -i -E '\\/[\\*\\/]#\\ssourceMappingURL=main(\\.[0-9a-f]+)?\\.(css|js)\\.map(\\*\\/)?/g' {} +"
-  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -90,8 +90,6 @@
     "crypto-browserify": "^3.12.0",
     "eslint": "^8.10.0",
     "https-browserify": "^1.0.0",
-    "husky": ">=6",
-    "lint-staged": ">=10",
     "os-browserify": "^0.3.0",
     "prettier": "^2.8.8",
     "process": "^0.11.10",
@@ -102,11 +100,5 @@
   },
   "engines": {
     "npm": "USE YARN INSTEAD OF NPM"
-  },
-  "lint-staged": {
-    "src/**/*": "prettier --write --ignore-unknown",
-    "src/**/*.{ts,tsx,js,jsx}": [
-      "eslint src --max-warnings=0"
-    ]
   }
 }

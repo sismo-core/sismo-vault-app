@@ -1,3 +1,14 @@
 # Ignore artifacts:
 build
 coverage
+**/node_modules
+**/lib
+**/*.svg
+**/*.prettierignore
+**/*.sol
+**/*.npmrc
+**/*.toml
+**/*.txt
+**/yarn.lock
+**/*.ttf
+**/*.otf
