@@ -3,6 +3,8 @@ import { ImportedAccount, Owner, RecoveryKey, Vault } from "../../services/vault
 import { useWallet } from "../wallet";
 
 export type VaultState = {
+  version: number;
+  timestamp: number;
   vaultName: string;
   autoImportOwners: boolean;
   keepConnected: boolean;
@@ -19,6 +21,8 @@ export type VaultState = {
 export const useVaultState = (): VaultState => {
   const wallet = useWallet();
   const [vaultName, setVaultName] = useState(null);
+  const [timestamp, setTimestamp] = useState<number>(null);
+  const [version, setVersion] = useState<number>(null);
   const [autoImportOwners, setAutoImportOwners] = useState<boolean>(null);
   const [keepConnected, setKeepConnected] = useState<boolean>(null);
   const [importedAccounts, setImportedAccounts] = useState<ImportedAccount[]>(null);
@@ -100,6 +104,18 @@ export const useVaultState = (): VaultState => {
     }
   };
 
+  const updateTimestamp = async (vault: Vault): Promise<void> => {
+    if (vault.timestamp !== timestamp) {
+      setTimestamp(vault.timestamp);
+    }
+  };
+
+  const updateVersion = async (vault: Vault): Promise<void> => {
+    if (vault.version !== version) {
+      setVersion(vault.version);
+    }
+  };
+
   const updateVaultState = async (vault: Vault) => {
     if (!vault) return;
     if (vault.mnemonics && vault.mnemonics.length === 0) setDeletable(true);
@@ -110,6 +126,8 @@ export const useVaultState = (): VaultState => {
       updateAutoImportOwners(vault),
       updateRecoveryKeys(vault),
       updateKeepConnected(vault),
+      updateTimestamp(vault),
+      updateVersion(vault),
     ]);
   };
 
@@ -134,6 +152,8 @@ export const useVaultState = (): VaultState => {
   };
 
   return {
+    version,
+    timestamp,
     vaultName,
     autoImportOwners,
     importedAccounts,

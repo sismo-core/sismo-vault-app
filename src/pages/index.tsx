@@ -12,6 +12,7 @@ import Connect from "./Connect";
 import ConnectVaultModal from "./Modals/ConnectVaultModal";
 import Home from "./Home";
 import { getMockUrl } from "./Connect/mockRequest";
+import LoggerTest from "./LoggerTest";
 
 export default function Pages({ isImpersonated }: { isImpersonated: boolean }): JSX.Element {
   const vault = useVault();
@@ -68,6 +69,7 @@ export default function Pages({ isImpersonated }: { isImpersonated: boolean }): 
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/connect" element={<Connect isImpersonated={isImpersonated} />} />
+          <Route path="/logger-test" element={<LoggerTest />} />
           {/* <Route
             path="*"
             element={<Navigate to={`/connect`} replace={true} />}

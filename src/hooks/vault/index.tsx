@@ -16,6 +16,20 @@ import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
 import { CommitmentMapper } from "../../services/commitment-mapper";
 import { ServicesFactory } from "../../services/services-factory";
 import { useNotifications } from "../../components/Notifications/provider";
+import { formatDate } from "../../utils/formatDate";
+
+type VaultErrorContext = {
+  connected: boolean;
+  dataSources?: { [accountType: string]: number };
+  owners?: number;
+  recoveryKeys?: number;
+  version?: number;
+  createdAt?: string;
+  settings?: {
+    autoImportOwners?: boolean;
+    keepConnected?: boolean;
+  };
+};
 
 type ReactVault = {
   mnemonics: string[];
@@ -50,6 +64,7 @@ type ReactVault = {
   updateName: (name: string) => Promise<void>;
   deleteVault: () => Promise<void>;
   setKeepConnected: (owner: Owner, keepConnected: boolean) => Promise<void>;
+  getErrorContext: () => VaultErrorContext;
 };
 
 export const useVault = (): ReactVault => {
@@ -78,6 +93,34 @@ export default function SismoVaultProvider({
   const vaultClient = services.getVaultClient();
   const vaultClientV1 = services.getVaultClientV1();
   const vaultSynchronizer = services.getVaultsSynchronizer();
+
+  const getErrorContext = (): VaultErrorContext => {
+    if (!Boolean(vaultState.connectedOwner)) {
+      return {
+        connected: false,
+      };
+    }
+    let dataSources = {};
+    for (let account of vaultState.importedAccounts) {
+      if (!dataSources[account.type]) {
+        dataSources[account.type] = 1;
+      } else {
+        dataSources[account.type]++;
+      }
+    }
+    return {
+      connected: true,
+      dataSources,
+      owners: vaultState.owners.length,
+      recoveryKeys: vaultState.recoveryKeys.length,
+      version: vaultState.version,
+      settings: {
+        autoImportOwners: vaultState.autoImportOwners,
+        keepConnected: vaultState.keepConnected,
+      },
+      createdAt: formatDate(new Date(vaultState.timestamp)),
+    };
+  };
 
   useEffect(() => {
     if (impersonationErrors.length === 0) return;
@@ -313,6 +356,7 @@ export default function SismoVaultProvider({
         deletable: vaultState.deletable,
         recoveryKeys: vaultState.recoveryKeys,
         synchronizing,
+        getErrorContext,
         getVaultSecret,
         getVaultId,
         disableRecoveryKey,

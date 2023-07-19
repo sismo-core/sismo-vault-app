@@ -14,6 +14,9 @@ import { AccountResolver } from "../account-resolver";
 import { VaultConfigParser } from "../vault-config-parser";
 import { SismoConnectProvers } from "../sismo-connect-provers";
 import { IndexDbCache } from "../cache-service/indexdb-cache";
+import { LoggerService } from "../logger-service/logger-service";
+import { StdOutLoggerProvider } from "../logger-service/providers/stdout-loger-provider";
+import { SentryLoggerProvider } from "../logger-service/providers/sentry-logger-provider";
 
 // factory service
 type Configuration = {
@@ -26,6 +29,7 @@ type Configuration = {
   impersonatedVaultCreator: ImpersonatedVaultCreator;
   accountResolver: AccountResolver;
   sismoConnectProvers: SismoConnectProvers;
+  loggerService: LoggerService;
 };
 
 export class ServicesFactory {
@@ -83,6 +87,12 @@ export class ServicesFactory {
             vaultClientV2: vaultClient,
           });
 
+    const loggerProviders = [new StdOutLoggerProvider()];
+    if (!env.disabledSentry) {
+      loggerProviders.push(new SentryLoggerProvider());
+    }
+    const loggerService = new LoggerService({ loggerProviders });
+
     const configuration = {
       vaultConfigParser: vaultConfigParser,
       vaultsSynchronizer,
@@ -93,9 +103,14 @@ export class ServicesFactory {
       impersonatedVaultCreator: impersonatedVaultCreator,
       accountResolver: accountResolver,
       sismoConnectProvers: sismoConnectProvers,
+      loggerService: loggerService,
     };
 
     return new ServicesFactory(configuration);
+  }
+
+  public getLoggerService() {
+    return this._configuration.loggerService;
   }
 
   public getSismoConnectProvers() {
