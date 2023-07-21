@@ -3,7 +3,6 @@ import { useCallback, useState } from "react";
 
 import { useVault } from "../../../hooks/vault";
 import { useSismo } from "../../../hooks/sismo";
-import * as Sentry from "@sentry/react";
 import { ArrowLeft, ArrowSquareOut, Info, Warning } from "phosphor-react";
 import { FactoryApp } from "../../../services/sismo-client";
 
@@ -23,6 +22,8 @@ import { SignatureRequest } from "./components/SignatureRequest";
 import SignInButton from "../../../components/SignInButton";
 import { useImportAccount } from "../../Modals/ImportAccount/provider";
 import { SismoConnectGem } from "../../../components/SismoReactIcon";
+import { useLogger } from "../../../hooks/logger";
+import { useNotifications } from "../../../components/Notifications/provider";
 
 const Container = styled.div`
   position: relative;
@@ -175,7 +176,6 @@ export default function ConnectFlow({
   onResponse,
 }: Props): JSX.Element {
   const [loadingProof, setLoadingProof] = useState(false);
-  const [, setErrorProof] = useState(false);
   const [response, setResponse] = useState<SismoConnectResponse>();
   const [registryTreeRoot, setRegistryTreeRoot] = useState<string>();
   const [proofModalOpen, setProofModalOpen] = useState(false);
@@ -188,13 +188,15 @@ export default function ConnectFlow({
   const { getRegistryTreeRoot, generateResponse } = useSismo();
   const vault = useVault();
 
+  const { notificationAdded } = useNotifications();
+  const logger = useLogger();
+
   /* ***************************************************** */
   /* ************* GENERATE RESPONSE ********************* */
   /* ***************************************************** */
 
   const generate = async () => {
     setLoadingProof(true);
-    setErrorProof(false);
     try {
       const vaultSecret = await vault.getVaultSecret();
       console.time("generateResponse");
@@ -205,7 +207,6 @@ export default function ConnectFlow({
         vaultSecret
       );
       console.timeEnd("generateResponse");
-      setErrorProof(false);
       setLoadingProof(false);
       setResponse(_sismoConnectResponse);
 
@@ -219,13 +220,20 @@ export default function ConnectFlow({
         return;
       }
       onResponse(_sismoConnectResponse);
-    } catch (e) {
-      Sentry.withScope(function (scope) {
-        scope.setLevel("fatal");
-        Sentry.captureException(e);
+    } catch (error) {
+      const errorId = await logger.error({
+        error,
+        sourceId: "connect-generateResponse",
+        level: "fatal",
       });
-      console.error(e);
-      setErrorProof(true);
+      notificationAdded(
+        {
+          type: "error",
+          text: `An error occurred while generating the proof. If this persists, please feel free to contact us on Discord with a screenshot of this message.`,
+          code: errorId,
+        },
+        1000000
+      );
     }
     setLoadingProof(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps

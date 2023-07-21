@@ -30,6 +30,8 @@ const FONTS_LIST = [
 const services = ServicesFactory.init({
   env,
 });
+const logger = services.getLoggerService();
+const vaultClient = services.getVaultClient();
 
 // TODO REFACTOR THIS TO AVOID THIS GLOBAL VARIABLE AND USE A CONTEXT INSTEAD WITH HOOKS TO ACCESS SERVICES
 const isImpersonated = services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
@@ -112,8 +114,6 @@ function App() {
     Promise.all(FONTS_LIST.map((font) => loadFonts(font)));
   }, []);
 
-  // services from the factoryService to SismoProvider and vaultProvider
-
   return (
     <AnalyticsProvider>
       <MainScrollManagerProvider>
@@ -121,7 +121,7 @@ function App() {
           <NotificationsProvider>
             <SismoVaultProvider services={services} isImpersonated={isImpersonated}>
               <SismoProvider services={services}>
-                <LoggerProvider logger={services.getLoggerService()}>
+                <LoggerProvider logger={logger} vaultClient={vaultClient}>
                   <GenerateRecoveryKeyModalProvider>
                     <MyVaultModalProvider>
                       <ImportAccountModalProvider>

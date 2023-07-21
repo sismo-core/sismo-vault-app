@@ -1,7 +1,8 @@
 import React, { useCallback, useContext, useMemo } from "react";
 import { LoggerService } from "../../services/logger-service/logger-service";
-import { useVault } from "../vault";
 import { ErrorContexts, ErrorType } from "../../services/logger-service/interfaces/logger-provider";
+import { VaultClient } from "../../services/vault-client";
+import { getVaultErrorContext } from "./utils/getVaultErrorContext";
 
 interface LoggerContextType {
   error: (params: {
@@ -9,7 +10,7 @@ interface LoggerContextType {
     sourceId: string;
     contexts?: ErrorContexts;
     level?: "error" | "fatal";
-  }) => string;
+  }) => Promise<string>;
   info: (...msg: any) => void;
 }
 
@@ -26,14 +27,14 @@ export const LoggerContext = React.createContext<LoggerContextType | null>(null)
 export function LoggerProvider({
   children,
   logger,
+  vaultClient,
 }: {
   children: React.ReactNode;
   logger: LoggerService;
+  vaultClient: VaultClient;
 }): JSX.Element {
-  const { getErrorContext } = useVault();
-
   const error = useCallback(
-    ({
+    async ({
       error,
       sourceId,
       contexts,
@@ -44,18 +45,19 @@ export function LoggerProvider({
       contexts?: ErrorContexts;
       level?: "error" | "fatal";
     }) => {
+      const vault = await getVaultErrorContext({ vaultClient });
       const errorId = logger.error({
         error,
         sourceId,
         level,
         contexts: {
           ...contexts,
-          vault: getErrorContext(),
+          vault,
         },
       });
       return errorId;
     },
-    [logger, getErrorContext]
+    [logger, vaultClient]
   );
 
   const value: LoggerContextType = useMemo(() => {

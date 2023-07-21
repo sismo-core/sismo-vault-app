@@ -8,7 +8,7 @@ import { RecoveryKey, Vault } from "./client.types";
 import SHA3 from "sha3";
 import { BigNumber } from "ethers";
 import { SNARK_FIELD } from "@sismo-core/hydra-s2";
-import { BaseStore } from "../../../libs/vault-store/base-store";
+import { BaseStore } from "../../vault-store/base-store";
 
 export class VaultClient {
   private _provider: VaultProvider;

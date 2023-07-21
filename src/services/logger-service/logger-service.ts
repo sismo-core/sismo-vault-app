@@ -1,3 +1,4 @@
+import SHA3 from "sha3";
 import { ErrorContexts, ErrorType, LoggerProvider } from "./interfaces/logger-provider";
 
 export class LoggerService {
@@ -25,10 +26,14 @@ export class LoggerService {
     level?: "error" | "fatal";
   }): string {
     const timestamp = Date.now();
-    let min = 100000;
-    let max = 999999;
+    let min = 1000000;
+    let max = 9999999;
     let random_number = Math.floor(Math.random() * (max - min + 1)) + min;
-    const errorId = `${timestamp}-${random_number}`;
+
+    const hash = new SHA3(256);
+    const sourceHash = hash.update(sourceId).digest("hex");
+
+    const errorId = `${timestamp}-${random_number}-${sourceHash.slice(-8)}`;
     for (const provider of this._loggerProviders) {
       provider.logError({
         error,

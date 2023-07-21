@@ -72,6 +72,12 @@ export default function LoggerTest(): JSX.Element {
               level: "fatal",
               error,
               sourceId: "test-error-fatal-5",
+              contexts: {
+                "additional-context": {
+                  example1: 2,
+                  example2: 3,
+                },
+              },
             });
             console.log("errorId", errorId);
           });

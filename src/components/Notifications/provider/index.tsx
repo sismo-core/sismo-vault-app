@@ -9,6 +9,7 @@ export type NotificationsState = {
 export type Notification = {
   type: "error" | "info" | "warning" | "success";
   text: string;
+  code?: string;
   id?: number;
 };
 
@@ -49,6 +50,7 @@ export default function NotificationsProvider({
       return _notifications;
     });
   }, []);
+
   const notificationDeleted = (id: number) => {
     setNotifications((currentNotifications) => {
       const _notifications = [...currentNotifications];

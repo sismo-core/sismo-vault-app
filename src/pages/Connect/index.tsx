@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import env from "../../environment";
 import WrongUrlScreen from "./components/WrongUrlScreen";
-import * as Sentry from "@sentry/react";
 import { FactoryApp } from "../../services/sismo-client";
 import { useSismo } from "../../hooks/sismo";
 import { getSismoConnectRequest } from "./utils/getSismoConnectRequest";
@@ -25,6 +24,7 @@ import {
   RequestValidationStatus,
   validateSismoConnectRequest,
 } from "./utils/validate-sismo-connect-request";
+import { useLogger } from "../../hooks/logger";
 
 const Container = styled.div`
   position: relative;
@@ -110,6 +110,8 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
   });
 
   const { getGroupMetadata, getFactoryApp, initDevConfig } = useSismo();
+
+  const logger = useLogger();
 
   /* ********************************************************** */
   /* ************************ LOAD IMAGE ********************** */
@@ -222,12 +224,14 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
           status: true,
           message: "Invalid appId: " + sismoConnectRequest.appId,
         });
-        Sentry.captureException(e);
-        console.error(e);
+        logger.error({
+          error: e,
+          sourceId: "connect-getFactoryAppData",
+        });
       }
     }
     getFactoryAppData();
-  }, [getFactoryApp, isWrongUrl?.status, sismoConnectRequest]);
+  }, [getFactoryApp, isWrongUrl?.status, sismoConnectRequest, logger]);
 
   /* *********************************************************** */
   /* ***************** GET THE REFERRER ************************ */
@@ -284,12 +288,14 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
           status: true,
           message: "Invalid referrer: " + e,
         });
-        console.log(e);
-        Sentry.captureException(e);
+        logger.error({
+          error: e,
+          sourceId: "connect-setReferrerInfo",
+        });
       }
     }
     setReferrerInfo();
-  }, [isWrongUrl?.status, sismoConnectRequest]);
+  }, [isWrongUrl?.status, sismoConnectRequest, logger]);
 
   /* *********************************************************** */
   /* ***************** GET THE GROUP METADATA ****************** */
@@ -299,6 +305,7 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
     if (!sismoConnectRequest) return;
 
     async function getGroupMetadataData() {
+      console.log("getGroupMetadataData");
       if (!sismoConnectRequest?.claims?.length) {
         setRequestGroupsMetadata(null);
         return;
@@ -319,18 +326,20 @@ export default function Connect({ isImpersonated }: Props): JSX.Element {
         });
 
         setRequestGroupsMetadata(requestGroupsMetadata);
-      } catch (e) {
+      } catch (error) {
         if (isWrongUrl?.status) return;
         setIsWrongUrl({
           status: true,
-          message: "Invalid Claim requests: " + e,
+          message: "Invalid Claim requests: " + error,
         });
-        Sentry.captureException(e);
-        console.error(e);
+        logger.error({
+          error,
+          sourceId: "connect-getGroupMetadataData",
+        });
       }
     }
     getGroupMetadataData();
-  }, [getGroupMetadata, isWrongUrl?.status, sismoConnectRequest]);
+  }, [getGroupMetadata, isWrongUrl?.status, sismoConnectRequest, logger]);
 
   /* *********************************************************** */
   /* ***************** ON RESPONSE ***************************** */
