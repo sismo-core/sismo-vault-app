@@ -9,7 +9,7 @@ import { useVault } from "../../../hooks/vault";
 import { useNotifications } from "../../../components/Notifications/provider";
 import Icon from "../../../components/Icon";
 import Loader from "../../../components/Loader";
-import * as Sentry from "@sentry/react";
+import { useLogger } from "../../../hooks/logger";
 
 const Content = styled.div`
   display: flex;
@@ -79,6 +79,7 @@ export default function GenerateRecoveryKeyModal(): JSX.Element {
   const [loading, setLoading] = useState(null);
   const vault = useVault();
   const { notificationAdded } = useNotifications();
+  const logger = useLogger();
 
   useEffect(() => {
     if (!generateRecoveryKey.isOpen) {
@@ -98,16 +99,20 @@ export default function GenerateRecoveryKeyModal(): JSX.Element {
       _key = await vault.generateRecoveryKey();
       setKey(_key);
       setName(_name);
-    } catch (e) {
-      Sentry.withScope(function (scope) {
-        scope.setLevel("fatal");
-        Sentry.captureException(e);
+    } catch (error) {
+      const errorId = await logger.error({
+        error,
+        sourceId: "GenerateRecoveryKeyModal-generate",
+        level: "fatal",
       });
-      console.log("e", e);
-      notificationAdded({
-        text: "An error occurred while saving your vault, please try again.",
-        type: "error",
-      });
+      notificationAdded(
+        {
+          text: "An error occurred while generating your key. If this persists, please feel free to contact us on Discord with a screenshot of this message.",
+          type: "error",
+          code: errorId,
+        },
+        1000000
+      );
     } finally {
       setLoading(false);
     }

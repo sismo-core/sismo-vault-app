@@ -5,7 +5,6 @@ import AccessOrCreateStep from "./components/0_AccessOrCreateStep";
 import SignStep from "./components/A2_SignStep";
 import VaultNotFound from "./components/A3_VaultNotFoundStep";
 import { useWallet } from "../../../hooks/wallet";
-import * as Sentry from "@sentry/react";
 import { useVault } from "../../../hooks/vault";
 import CreateVaultStep from "./components/B1_CreateVaultStep";
 import ConnectWalletStep from "./components/A1_ConnectStep";
@@ -49,13 +48,8 @@ export default function ConnectVaultModal({
     if (wallet && wallet.connected) {
       try {
         await wallet.disconnect({ label: wallet.connected.label });
-      } catch (e) {
-        console.error(e);
-        Sentry.captureException(e, {
-          extra: {
-            disconnectWallet: "connectVaultModal",
-          },
-        });
+      } catch (error) {
+        console.error(error);
       }
     }
     onClose();

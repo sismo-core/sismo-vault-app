@@ -223,7 +223,7 @@ export default function ConnectFlow({
     } catch (error) {
       const errorId = await logger.error({
         error,
-        sourceId: "connect-generateResponse",
+        sourceId: "connect-ConnectFlow-generateResponse",
         level: "fatal",
       });
       notificationAdded(

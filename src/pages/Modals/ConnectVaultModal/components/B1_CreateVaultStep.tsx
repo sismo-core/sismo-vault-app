@@ -10,7 +10,7 @@ import { useNotifications } from "../../../../components/Notifications/provider"
 import { Owner } from "../../../../services/vault-client";
 import { CommitmentMapper, Seed } from "../../../../services/sismo-client";
 import VaultAccessModal from "./VaultAccessModal";
-import * as Sentry from "@sentry/react";
+import { useLogger } from "../../../../hooks/logger";
 
 const Container = styled.div`
   width: 400px;
@@ -100,6 +100,8 @@ export default function CreateVaultStep({
     "idle" | "connecting" | "sign-seed" | "sign-ownership" | "creating-vault"
   >("idle");
 
+  const logger = useLogger();
+
   const connectWallet = async () => {
     onOnboardIsOpen(true);
     setConnecting(false);
@@ -124,6 +126,7 @@ export default function CreateVaultStep({
 
   const signToGenerateSeed = async (identifier: string): Promise<string> => {
     const _seedSignature = await wallet.sign(Seed.getSeedMsg(identifier));
+    if (!_seedSignature) return null;
     return await Seed.generateSeed(_seedSignature);
   };
 
@@ -166,13 +169,12 @@ export default function CreateVaultStep({
   };
 
   const addSecureWallet = async (identifier: string) => {
+    setStatus("sign-seed");
+    let seed = null;
     try {
-      setStatus("sign-seed");
-      let seed = null;
-      try {
-        seed = await signToGenerateSeed(identifier);
-      } catch (e) {
-        Sentry.captureException(e);
+      seed = await signToGenerateSeed(identifier);
+      // If the user reject the signature, we stop the process
+      if (!seed) {
         setStatus("idle");
         return;
       }
@@ -188,27 +190,30 @@ export default function CreateVaultStep({
       }
       setStatus("sign-ownership");
       let ownershipSignature = null;
-      try {
-        ownershipSignature = await signToOwnership(identifier);
-      } catch (e) {
-        Sentry.captureException(e);
+      ownershipSignature = await signToOwnership(identifier);
+      // If the user reject the signature, we stop the process
+      if (!ownershipSignature) {
         setStatus("idle");
         return;
       }
       setStatus("creating-vault");
       await create(ownershipSignature, seed, identifier);
       onCreated();
-    } catch (e) {
-      Sentry.withScope(function (scope) {
-        scope.setLevel("fatal");
-        Sentry.captureException(e);
+    } catch (error) {
+      const errorId = await logger.error({
+        error,
+        sourceId: "ConnectVaultModal-CreateVaultStep-addSecureWallet",
+        level: "fatal",
       });
-      console.error(e);
+      notificationAdded(
+        {
+          text: "An error occurred while creating your Vault. If this persists, please feel free to contact us on Discord with a screenshot of this message.",
+          type: "error",
+          code: errorId,
+        },
+        1000000
+      );
       setStatus("idle");
-      notificationAdded({
-        type: "error",
-        text: "An error occurred, while importing new owner",
-      });
     }
   };
 

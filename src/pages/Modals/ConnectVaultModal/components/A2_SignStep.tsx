@@ -10,7 +10,7 @@ import { useNotifications } from "../../../../components/Notifications/provider"
 import colors from "../../../../theme/colors";
 import Logo, { LogoType } from "../../../../components/Logo";
 import { ArrowsLeftRight } from "phosphor-react";
-import * as Sentry from "@sentry/react";
+import { useLogger } from "../../../../hooks/logger";
 
 const Container = styled.div`
   width: 400px;
@@ -89,6 +89,7 @@ export default function SignStep({
   const [loading, setLoading] = useState(false);
   const wallet = useWallet();
   const vault = useVault();
+  const logger = useLogger();
   const { notificationAdded } = useNotifications();
 
   const signToConnect = async () => {
@@ -105,7 +106,6 @@ export default function SignStep({
           seed,
           timestamp: Date.now(),
         };
-
         const isConnected = await vault.connect(owner);
         if (isConnected) {
           onVaultConnected();
@@ -114,13 +114,20 @@ export default function SignStep({
           return;
         }
       }
-    } catch (e) {
-      Sentry.captureException(e);
-      console.error(e);
-      notificationAdded({
-        text: "En error occurred, please clean your cache and refresh your page.",
-        type: "error",
+    } catch (error) {
+      const errorId = await logger.error({
+        error,
+        sourceId: "ConnectVaultModal-SignStep-signToConnect",
+        level: "fatal",
       });
+      notificationAdded(
+        {
+          text: "An error occurred while connecting to your Vault. If this persists, please feel free to contact us on Discord with a screenshot of this message.",
+          type: "error",
+          code: errorId,
+        },
+        1000000
+      );
     }
     onLoading(false);
     setLoading(false);

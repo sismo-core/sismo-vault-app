@@ -8,7 +8,7 @@ const Container = styled.div`
   position: fixed;
   bottom: 60px;
   right: 60px;
-  z-index: 4000;
+  z-index: 40000;
 `;
 
 const Notification = styled.div<{ backgroundColor: string; withCode: boolean }>`

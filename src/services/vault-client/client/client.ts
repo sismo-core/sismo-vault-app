@@ -431,7 +431,7 @@ export class VaultClient {
 
   private async _getCurrentVault(): Promise<Vault> {
     if (this._unSavedVault) return this._unSavedVault;
-    if (!this._seed) throw new Error("No vault unlocked");
+    if (!this._seed) return null;
     const currentVault = await this._get(this._seed);
     if (!currentVault) {
       this._seed = null;

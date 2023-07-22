@@ -7,7 +7,7 @@ import Button from "../../../../components/Button";
 import Icon from "../../../../components/Icon";
 import { useNotifications } from "../../../../components/Notifications/provider";
 import TextArea from "../../../../components/TextArea";
-import * as Sentry from "@sentry/react";
+import { useLogger } from "../../../../hooks/logger";
 
 const Container = styled.div`
   width: 330px;
@@ -56,6 +56,7 @@ export default function AccessRecoveryKey({ onConnected }: Props): JSX.Element {
   const [recoveryKey, setRecoveryKey] = useState("");
   const [noVaultFound, setNoVaultFound] = useState(null);
   const vault = useVault();
+  const logger = useLogger();
   const { notificationAdded } = useNotifications();
 
   const connect = async () => {
@@ -73,12 +74,20 @@ export default function AccessRecoveryKey({ onConnected }: Props): JSX.Element {
       } else {
         setNoVaultFound(true);
       }
-    } catch (e) {
-      Sentry.captureException(e);
-      notificationAdded({
-        text: "En error occurred, please clean your cache and refresh your page.",
-        type: "error",
+    } catch (error) {
+      const errorId = await logger.error({
+        error,
+        sourceId: "ConnectVaultModal-AccessRecoveryKey-connect",
+        level: "fatal",
       });
+      notificationAdded(
+        {
+          text: "An error occurred while connecting to your Vault. If this persists, please feel free to contact us on Discord with a screenshot of this message.",
+          type: "error",
+          code: errorId,
+        },
+        1000000
+      );
     }
     setLoading(false);
   };

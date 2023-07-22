@@ -1,10 +1,10 @@
-import * as Sentry from "@sentry/react";
 import axios from "axios";
 import React, { useEffect } from "react";
 import env from "../../environment";
 import { useVault } from "../../hooks/vault";
 import packageJson from "../../../package.json";
 import { getMainMinified } from "../../utils/getMain";
+import { useLogger } from "../../hooks/logger";
 
 const COMMITMENT_MAPPER_PUBKEY = env.sismoDestination.commitmentMapperPubKey;
 
@@ -16,6 +16,7 @@ export default function EnvsMonitoring({
   children: React.ReactNode;
 }): JSX.Element {
   const vault = useVault();
+  const logger = useLogger();
 
   useEffect(() => {
     const logEnvironment = async () => {
@@ -54,7 +55,7 @@ export default function EnvsMonitoring({
     if (!vault.importedAccounts) return;
     if (env.name === "DEMO") return;
     if (isImpersonated) return;
-    const test = () => {
+    const testCommitmentMapper = () => {
       for (let account of [...vault.importedAccounts]) {
         if (
           COMMITMENT_MAPPER_PUBKEY[0] !== account.commitmentMapperPubKey[0] ||
@@ -65,13 +66,15 @@ export default function EnvsMonitoring({
           )}\nenv pubKey = [${(window as any).env.commitmentMapperPubKey}]\nvault pubKey = [${
             account.commitmentMapperPubKey
           }]`;
-          console.error(msg);
-          Sentry.captureMessage(msg);
+          logger.error({
+            error: new Error(msg),
+            sourceId: "app-EnvsMonitoring-testCommitmentMapper",
+          });
         }
       }
     };
-    test();
-  }, [vault.importedAccounts, isImpersonated]);
+    testCommitmentMapper();
+  }, [vault.importedAccounts, isImpersonated, logger]);
 
   return <div>{children}</div>;
 }

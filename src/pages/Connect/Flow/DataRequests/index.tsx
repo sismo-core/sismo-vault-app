@@ -12,11 +12,12 @@ import colors from "../../../../theme/colors";
 import { DataSourceRequest } from "./components/DataSourceRequest";
 import { useSismo } from "../../../../hooks/sismo";
 import { useVault } from "../../../../hooks/vault";
-import * as Sentry from "@sentry/react";
 import { ImportedAccount } from "../../../../services/vault-client";
 import { getIsEligible } from "../../utils/getIsEligible";
 import { DataClaimRequest } from "./components/DataClaimRequest";
 import { getAllVaultIdentifiers } from "../../../../utils/getAllVaultIdentifiers";
+import { useLogger } from "../../../../hooks/logger";
+import { useNotifications } from "../../../../components/Notifications/provider";
 
 const Container = styled.div`
   border: 1px solid ${(props) => props.theme.colors.blue7};
@@ -97,6 +98,9 @@ export default function DataRequests({
   const [loadingEligible, setLoadingEligible] = useState(true);
   const { getClaimRequestEligibilities, getAuthRequestEligibilities } = useSismo();
   const { importedAccounts, getVaultSecret } = useVault();
+
+  const { notificationAdded } = useNotifications();
+  const logger = useLogger();
 
   /* ************************************************************* */
   /* ********************* SET DEFAULT VALUE ********************* */
@@ -232,15 +236,29 @@ export default function DataRequests({
           });
           onSelectedSismoRequest(_selectedSismoConnectRequest);
         }
-        setLoadingEligible(false);
-      } catch (e) {
-        console.error(e);
-        Sentry.captureException(e);
+      } catch (error) {
+        const errorId = await logger.error({
+          error,
+          sourceId: "connect-DataRequests-getEligibilities",
+          level: "fatal",
+        });
+        notificationAdded(
+          {
+            type: "error",
+            text: `An error occurred while testing your eligibility. If this persists, please feel free to contact us on Discord with a screenshot of this message.`,
+            code: errorId,
+          },
+          1000000
+        );
+      } finally {
+        console.log("finally");
         setLoadingEligible(false);
       }
     };
     getEligibilities();
   }, [
+    logger,
+    notificationAdded,
     importedAccounts,
     getVaultSecret,
     getClaimRequestEligibilities,

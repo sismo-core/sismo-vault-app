@@ -8,7 +8,7 @@ import { useVault } from "../../../../hooks/vault";
 import { useNotifications } from "../../../../components/Notifications/provider";
 import { useEffect, useState } from "react";
 import VaultAccessModal from "./VaultAccessModal";
-import * as Sentry from "@sentry/react";
+import { useLogger } from "../../../../hooks/logger";
 
 const Container = styled.div`
   width: 320px;
@@ -89,6 +89,8 @@ export default function VaultDetectedStep({
   const { notificationAdded } = useNotifications();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const logger = useLogger();
+
   const connect = async () => {
     try {
       const owner: Owner = {
@@ -103,13 +105,20 @@ export default function VaultDetectedStep({
         //Vault must exist, it's tested in the previous step
         throw new Error();
       }
-    } catch (e) {
-      Sentry.captureException(e);
-      console.error(e);
-      notificationAdded({
-        text: "En error occurred, please clean your cache and refresh your page.",
-        type: "error",
+    } catch (error) {
+      const errorId = await logger.error({
+        error,
+        sourceId: "ConnectVaultModal-VaultDetectedStep-connect",
+        level: "fatal",
       });
+      notificationAdded(
+        {
+          text: "An error occurred while connecting to your Vault. If this persists, please feel free to contact us on Discord with a screenshot of this message.",
+          type: "error",
+          code: errorId,
+        },
+        1000000
+      );
     }
   };
 

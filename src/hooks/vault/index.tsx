@@ -137,6 +137,7 @@ export default function SismoVaultProvider({
   }, []);
 
   const connect = useCallback(async (owner: Owner): Promise<boolean> => {
+    throw new Error("connect");
     let vaultV2 = await vaultClient.unlock(owner.seed);
     let vaultV1 = null;
     if (env.name !== "DEMO" && vaultSynchronizer) {

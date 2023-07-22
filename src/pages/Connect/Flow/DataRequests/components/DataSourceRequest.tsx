@@ -124,9 +124,7 @@ export function DataSourceRequest({
   const isOptional = auth?.isOptional;
   const isEligible = authRequestEligibility?.isEligible && vault?.isConnected;
   const isSelectableByUser = !proofLoading && auth?.isSelectableByUser;
-  const isLoading = importAccount?.importing
-    ? true
-    : false || loadingEligible || typeof authRequestEligibility === "undefined";
+  const isLoading = importAccount?.importing ? true : false || loadingEligible;
 
   const isWeb2Impersonating =
     isImpersonating &&
