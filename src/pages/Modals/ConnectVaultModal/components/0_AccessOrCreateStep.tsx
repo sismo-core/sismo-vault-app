@@ -70,10 +70,7 @@ type Props = {
   onCreateVault: () => void;
 };
 
-export default function AccessOrCreateStep({
-  onConnect,
-  onCreateVault,
-}: Props): JSX.Element {
+export default function AccessOrCreateStep({ onConnect, onCreateVault }: Props): JSX.Element {
   return (
     <Container>
       <Top>
@@ -85,7 +82,7 @@ export default function AccessOrCreateStep({
           size={115}
         />
         <WhatIsVault
-          href="https://docs.sismo.io/sismo-docs/what-is-sismo/sismo-vault"
+          href="https://docs.sismo.io/sismo-docs/data-vault/what-is-the-data-vault"
           target="_blank"
           rel="noreferrer"
         >

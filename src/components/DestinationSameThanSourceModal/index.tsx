@@ -71,28 +71,19 @@ export default function DestinationSameThanSourceModal({
   }, [isOpen]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      animated={animated}
-      outsideClosable
-    >
+    <Modal isOpen={isOpen} onClose={onClose} animated={animated} outsideClosable>
       <Content>
         <Header>
           <Title>Caution!</Title>
         </Header>
         <Text style={{ marginBottom: 15 }}>
-          The Destination account you selected is also the Badge’s Eligible
-          account.
+          The Destination account you selected is also the Badge’s Eligible account.
         </Text>
         <Text style={{ marginBottom: 15 }}>
-          If you want to use your Badge in a privacy-preserving manner, you
-          should select another Destination account.
+          If you want to use your Badge in a privacy-preserving manner, you should select another
+          Destination account.
         </Text>
-        <FAQLink
-          href="https://docs.sismo.io/sismo-docs/user-faq#what-are-zk-badges-and-why-are-they-interesting"
-          target="_blank"
-        >
+        <FAQLink href="https://docs.sismo.io/" target="_blank">
           ZK Badges FAQ
           <Icon
             name="externalLink-outline-white"
@@ -101,18 +92,10 @@ export default function DestinationSameThanSourceModal({
         </FAQLink>
 
         <Bottom style={{ marginTop: 30 }}>
-          <Button
-            success
-            style={{ width: 270, marginBottom: 10 }}
-            onClick={() => onClose()}
-          >
+          <Button success style={{ width: 270, marginBottom: 10 }} onClick={() => onClose()}>
             Change destination address
           </Button>
-          <Button
-            transparent
-            style={{ width: 270 }}
-            onClick={() => onContinue()}
-          >
+          <Button transparent style={{ width: 270 }} onClick={() => onContinue()}>
             I am aware, continue
           </Button>
         </Bottom>
