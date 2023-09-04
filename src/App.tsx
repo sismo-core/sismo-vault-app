@@ -15,6 +15,7 @@ import MainScrollManagerProvider from "./libs/main-scroll-manager";
 import EnvsMonitoring from "./libs/envs-monitoring";
 import { ServicesFactory } from "./libs/services-factory";
 import AnalyticsProvider from "./libs/analytics/Provider";
+import { SismoErrorService } from "@sismo-core/sismo-error-service-private";
 
 const FONTS_LIST = [
   "BebasNeuePro-Regular",
@@ -31,18 +32,17 @@ const services = ServicesFactory.init({
 });
 
 // TODO REFACTOR THIS TO AVOID THIS GLOBAL VARIABLE AND USE A CONTEXT INSTEAD WITH HOOKS TO ACCESS SERVICES
-const isImpersonated =
-  services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
+const isImpersonated = services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
 
-const removeHexadecimalNumbers = (event: Sentry.Event) => {
-  const reg = /0x[a-fA-F0-9]+/g;
+const removeEthAddresses = (event: ErrorEvent) => {
+  const reg = /0x[a-fA-F0-9]{40}/g;
   const eventString = JSON.stringify(event);
   const eventHexadecimalNumbers = eventString.replace(reg, "0x??????");
   return JSON.parse(eventHexadecimalNumbers);
 };
 
 !env.disabledSentry &&
-  Sentry.init({
+  SismoErrorService.init({
     dsn: "https://715ab6b127b4455b83e5849bd4c3a5e9@o1362988.ingest.sentry.io/4504838094323712",
     integrations: [
       new Sentry.Integrations.Breadcrumbs({
@@ -50,6 +50,7 @@ const removeHexadecimalNumbers = (event: Sentry.Event) => {
         xhr: false,
       }),
     ],
+    normalizeDepth: 10,
     release: env.sentryReleaseName,
     ignoreErrors: [
       // Random plugins/extensions
@@ -93,7 +94,7 @@ const removeHexadecimalNumbers = (event: Sentry.Event) => {
     environment: env.name,
     tracesSampleRate: 1.0,
     beforeSend(event) {
-      return removeHexadecimalNumbers(event);
+      return removeEthAddresses(event as ErrorEvent);
     },
   });
 
@@ -120,10 +121,7 @@ function App() {
       <MainScrollManagerProvider>
         <WalletProvider>
           <NotificationsProvider>
-            <SismoVaultProvider
-              services={services}
-              isImpersonated={isImpersonated}
-            >
+            <SismoVaultProvider services={services} isImpersonated={isImpersonated}>
               <SismoProvider services={services}>
                 <GenerateRecoveryKeyModalProvider>
                   <MyVaultModalProvider>

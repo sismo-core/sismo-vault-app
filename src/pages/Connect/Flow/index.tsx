@@ -23,6 +23,7 @@ import { SignatureRequest } from "./components/SignatureRequest";
 import SignInButton from "../../../components/SignInButton";
 import { useImportAccount } from "../../Modals/ImportAccount/provider";
 import { SismoConnectGem } from "../../../components/SismoReactIcon";
+import { useNotifications } from "../../../components/Notifications/provider";
 
 const Container = styled.div`
   position: relative;
@@ -187,6 +188,7 @@ export default function ConnectFlow({
 
   const { getRegistryTreeRoot, generateResponse } = useSismo();
   const vault = useVault();
+  const { notificationAdded } = useNotifications();
 
   /* ***************************************************** */
   /* ************* GENERATE RESPONSE ********************* */
@@ -196,6 +198,8 @@ export default function ConnectFlow({
     setLoadingProof(true);
     setErrorProof(false);
     try {
+      Sentry.setContext("sismoConnectRequest", sismoConnectRequest);
+      Sentry.setContext("selectedSismoConnectRequest", selectedSismoConnectRequest);
       const vaultSecret = await vault.getVaultSecret();
       console.time("generateResponse");
       const _sismoConnectResponse = await generateResponse(
@@ -222,7 +226,14 @@ export default function ConnectFlow({
     } catch (e) {
       Sentry.withScope(function (scope) {
         scope.setLevel("fatal");
-        Sentry.captureException(e);
+        const evenId = Sentry.captureException(e);
+        notificationAdded(
+          {
+            text: `The following error occurred while generating the proof: ${e?.message}. If the error persists, please contact us on Discord. Error id: ${evenId}`,
+            type: "error",
+          },
+          15000
+        );
       });
       console.error(e);
       setErrorProof(true);

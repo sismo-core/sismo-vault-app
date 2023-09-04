@@ -10,6 +10,7 @@
     "@sismo-core/hydra-s2": "^1.0.0",
     "@sismo-core/hydra-s3": "^1.0.3",
     "@sismo-core/pythia-1": "^1.0.6",
+    "@sismo-core/sismo-error-service-private": "^0.0.16",
     "@synaps-io/react-verify": "^1.0.1",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",

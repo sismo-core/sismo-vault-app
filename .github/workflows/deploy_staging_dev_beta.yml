@@ -2,7 +2,6 @@ name: Deploy Staging Dev Beta environment
 on:
   workflow_dispatch: {}
 
-
 jobs:
   deploy:
     name: Deploy Staging Dev Beta
@@ -20,6 +19,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
           static-bucket-name: staging.dev.vault-beta.sismo.io
+          npm-token: ${{ secrets.NPM_TOKEN }}
           env: staging-dev-beta
           sentry-env: STAGING_DEV_BETA
           sentry-auth-token: ${{ secrets.SENTRY_AUTH_TOKEN }}
