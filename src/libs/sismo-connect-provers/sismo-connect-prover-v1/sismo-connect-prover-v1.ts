@@ -93,26 +93,32 @@ export class SismoConnectProverV1 {
     }
 
     if (auth?.authType === AuthType.GITHUB && auth?.isSelectableByUser) {
-      accounts = importedAccounts?.filter((importedAccount) => importedAccount?.type === "github");
+      accounts = importedAccounts?.filter(
+        (importedAccount) => importedAccount?.type === "github"
+      );
     }
 
     if (auth?.authType === AuthType.GITHUB && !auth?.isSelectableByUser) {
       accounts = importedAccounts?.filter(
         (importedAccount) =>
           importedAccount?.type === "github" &&
-          importedAccount?.identifier?.toLowerCase() === auth?.userId?.toLowerCase()
+          importedAccount?.identifier?.toLowerCase() ===
+            auth?.userId?.toLowerCase()
       );
     }
 
     if (auth?.authType === AuthType.TWITTER && auth?.isSelectableByUser) {
-      accounts = importedAccounts?.filter((importedAccount) => importedAccount?.type === "twitter");
+      accounts = importedAccounts?.filter(
+        (importedAccount) => importedAccount?.type === "twitter"
+      );
     }
 
     if (auth?.authType === AuthType.TWITTER && !auth?.isSelectableByUser) {
       accounts = importedAccounts?.filter(
         (importedAccount) =>
           importedAccount?.type === "twitter" &&
-          importedAccount?.identifier?.toLowerCase() === auth?.userId?.toLowerCase()
+          importedAccount?.identifier?.toLowerCase() ===
+            auth?.userId?.toLowerCase()
       );
     }
 
@@ -126,7 +132,8 @@ export class SismoConnectProverV1 {
       accounts = importedAccounts?.filter(
         (importedAccount) =>
           importedAccount?.type === "telegram" &&
-          importedAccount?.identifier?.toLowerCase() === auth?.userId?.toLowerCase()
+          importedAccount?.identifier?.toLowerCase() ===
+            auth?.userId?.toLowerCase()
       );
     }
 
@@ -140,14 +147,16 @@ export class SismoConnectProverV1 {
       accounts = importedAccounts?.filter(
         (importedAccount) =>
           importedAccount?.type === "ethereum" &&
-          importedAccount?.identifier?.toLowerCase() === auth?.userId?.toLowerCase()
+          importedAccount?.identifier?.toLowerCase() ===
+            auth?.userId?.toLowerCase()
       );
     }
 
     return {
       auth: auth,
       accounts: accounts,
-      isEligible: auth?.authType === AuthType.VAULT ? true : Boolean(accounts?.length),
+      isEligible:
+        auth?.authType === AuthType.VAULT ? true : Boolean(accounts?.length),
     };
   }
 
@@ -204,7 +213,9 @@ export class SismoConnectProverV1 {
           .toHexString();
       } else {
         extraData = BigNumber.from(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes(preparedSignedMessage))
+          ethers.utils.keccak256(
+            ethers.utils.toUtf8Bytes(preparedSignedMessage)
+          )
         )
           .mod(SNARK_FIELD)
           .toHexString();
@@ -216,7 +227,11 @@ export class SismoConnectProverV1 {
     /* ******************************************************** */
 
     const groupsMetadata = requestGroupsMetadata?.map((el) => el.groupMetadata);
-    const identifiers = await getAllVaultIdentifiers(groupsMetadata, vaultSecret, importedAccounts);
+    const identifiers = await getAllVaultIdentifiers(
+      groupsMetadata,
+      vaultSecret,
+      importedAccounts
+    );
 
     const claimRequestEligibilities = await this.getClaimRequestEligibilities(
       selectedSismoConnectRequest,
@@ -235,7 +250,8 @@ export class SismoConnectProverV1 {
     const selectedClaimRequestEligibilities = claimRequestEligibilities?.map(
       (claimRequestEligibility) => {
         const selectedClaim = selectedSismoConnectRequest?.selectedClaims?.find(
-          (selectedClaim) => selectedClaim?.uuid === claimRequestEligibility?.claim?.uuid
+          (selectedClaim) =>
+            selectedClaim?.uuid === claimRequestEligibility?.claim?.uuid
         );
 
         return {
@@ -251,14 +267,17 @@ export class SismoConnectProverV1 {
     /* ******* FILTER ELIGIBLE CLAIM REQUESTS ****** */
     /* ********************************************* */
 
-    const filteredSelectedClaimRequestEligibilities: SelectedClaimRequestEligibility[] = [];
+    const filteredSelectedClaimRequestEligibilities: SelectedClaimRequestEligibility[] =
+      [];
 
     for (let i = 0; i < selectedClaimRequestEligibilities.length; i++) {
-      const selectedClaimRequestEligibility = selectedClaimRequestEligibilities[i];
+      const selectedClaimRequestEligibility =
+        selectedClaimRequestEligibilities[i];
 
       if (
         (selectedClaimRequestEligibility?.claim?.isOptional === false ||
-          typeof selectedClaimRequestEligibility?.claim?.isOptional === undefined) &&
+          typeof selectedClaimRequestEligibility?.claim?.isOptional ===
+            undefined) &&
         !selectedClaimRequestEligibility?.isEligible
       ) {
         throw new Error("Required claim request is not eligible");
@@ -268,7 +287,9 @@ export class SismoConnectProverV1 {
         selectedClaimRequestEligibility?.isEligible &&
         selectedClaimRequestEligibility?.selectedClaim?.isOptIn
       ) {
-        filteredSelectedClaimRequestEligibilities.push(selectedClaimRequestEligibility);
+        filteredSelectedClaimRequestEligibilities.push(
+          selectedClaimRequestEligibility
+        );
       }
     }
 
@@ -282,11 +303,14 @@ export class SismoConnectProverV1 {
       for (let selectedClaimRequestEligibility of filteredSelectedClaimRequestEligibilities) {
         // Define if the source is a ExternalAccount or a SismoCOnnectAccount
         let source: DataSource;
-        const sourceIdentifier = selectedClaimRequestEligibility?.accountData?.identifier;
+        const sourceIdentifier =
+          selectedClaimRequestEligibility?.accountData?.identifier;
 
         if (sourceIdentifier.length > 42) {
           if (selectedSismoConnectRequest.version !== "sismo-connect-v1.1") {
-            throw new Error("Group of vaultId not available on sismo-connect-v1");
+            throw new Error(
+              "Group of vaultId not available on sismo-connect-v1"
+            );
           }
           // Sismo Connect Account
 
@@ -299,18 +323,26 @@ export class SismoConnectProverV1 {
           let namespace = null;
           const poseidon = await getPoseidon();
           for (let accountType of accountTypes) {
-            const match = accountType.match(/sismo-connect-app\(appid=(0x[a-fA-F0-9]+)\)/i);
+            const match = accountType.match(
+              /sismo-connect-app\(appid=(0x[a-fA-F0-9]+)\)/i
+            );
             if (match) {
               const appId = match[1];
               const _namespace = BigNumber.from(
                 keccak256(
-                  ethers.utils.solidityPack(["uint128", "uint128"], [appId, BigNumber.from(0)])
+                  ethers.utils.solidityPack(
+                    ["uint128", "uint128"],
+                    [appId, BigNumber.from(0)]
+                  )
                 )
               )
                 .mod(SNARK_FIELD)
                 .toHexString();
 
-              const identifier = poseidon([vaultSecret, _namespace]).toHexString();
+              const identifier = poseidon([
+                vaultSecret,
+                _namespace,
+              ]).toHexString();
               if (identifier === sourceIdentifier) {
                 namespace = _namespace;
                 break;
@@ -328,12 +360,15 @@ export class SismoConnectProverV1 {
           // HydraAccount
           const importedAccount = importedAccounts?.find(
             (importedAccount) =>
-              importedAccount?.identifier?.toLowerCase() === sourceIdentifier?.toLowerCase()
+              importedAccount?.identifier?.toLowerCase() ===
+              sourceIdentifier?.toLowerCase()
           );
           source = source as ExternalDataSource;
           source = {
             identifier: sourceIdentifier,
-            secret: CommitmentMapper.generateCommitmentMapperSecret(importedAccount.seed),
+            secret: CommitmentMapper.generateCommitmentMapperSecret(
+              importedAccount.seed
+            ),
             commitmentReceipt: [
               BigNumber.from(importedAccount.commitmentReceipt[0]),
               BigNumber.from(importedAccount.commitmentReceipt[1]),
@@ -361,7 +396,8 @@ export class SismoConnectProverV1 {
     const selectedAuthRequestEligibilities = authRequestEligibilities?.map(
       (authRequestEligibility) => {
         const selectedAuth = selectedSismoConnectRequest?.selectedAuths?.find(
-          (selectedAuth) => selectedAuth?.uuid === authRequestEligibility?.auth?.uuid
+          (selectedAuth) =>
+            selectedAuth?.uuid === authRequestEligibility?.auth?.uuid
         );
 
         return {
@@ -377,14 +413,17 @@ export class SismoConnectProverV1 {
     /* ******* FILTER REQUIRED AUTH REQUESTS ******* */
     /* ********************************************* */
 
-    const filteredSelectedAuthRequestEligibilities: SelectedAuthRequestEligibility[] = [];
+    const filteredSelectedAuthRequestEligibilities: SelectedAuthRequestEligibility[] =
+      [];
 
     for (let i = 0; i < selectedAuthRequestEligibilities.length; i++) {
-      const selectedAuthRequestEligibility = selectedAuthRequestEligibilities[i];
+      const selectedAuthRequestEligibility =
+        selectedAuthRequestEligibilities[i];
 
       if (
         (selectedAuthRequestEligibility?.auth?.isOptional === false ||
-          typeof selectedAuthRequestEligibility?.auth?.isOptional === undefined) &&
+          typeof selectedAuthRequestEligibility?.auth?.isOptional ===
+            undefined) &&
         !selectedAuthRequestEligibility?.isEligible
       ) {
         throw new Error("Required auth request is not eligible");
@@ -394,7 +433,9 @@ export class SismoConnectProverV1 {
         selectedAuthRequestEligibility?.isEligible &&
         selectedAuthRequestEligibility?.selectedAuth?.isOptIn
       ) {
-        filteredSelectedAuthRequestEligibilities.push(selectedAuthRequestEligibility);
+        filteredSelectedAuthRequestEligibilities.push(
+          selectedAuthRequestEligibility
+        );
       }
     }
 
@@ -462,7 +503,8 @@ export class SismoConnectProverV1 {
         );
       });
 
-      if (!destination) throw new Error("No eligible account found for this auth request");
+      if (!destination)
+        throw new Error("No eligible account found for this auth request");
 
       if (destination) {
         _generateProofInputs = {
@@ -472,7 +514,9 @@ export class SismoConnectProverV1 {
       }
     }
 
-    const snarkProof = await this.hydraProver.generateProof(_generateProofInputs);
+    const snarkProof = await this.hydraProver.generateProof(
+      _generateProofInputs
+    );
 
     const authResponse = {
       authType: selectedAuthRequestEligibility?.auth?.authType,
@@ -481,7 +525,8 @@ export class SismoConnectProverV1 {
           ? ethers.utils.hexlify(BigNumber.from(snarkProof.input[10])) // VAULT USER ID
           : selectedAuthRequestEligibility?.selectedAuth?.selectedUserId,
       extraData: selectedAuthRequestEligibility?.auth?.extraData,
-      isSelectableByUser: selectedAuthRequestEligibility?.auth?.isSelectableByUser,
+      isSelectableByUser:
+        selectedAuthRequestEligibility?.auth?.isSelectableByUser,
     } as Auth;
 
     return {
@@ -500,7 +545,8 @@ export class SismoConnectProverV1 {
     vaultSecret: string,
     extraData: string
   ): Promise<SismoConnectProof> => {
-    if (!source) throw new Error("No eligible account found for this claim request");
+    if (!source)
+      throw new Error("No eligible account found for this claim request");
 
     const _generateProofInputs = {
       appId,
@@ -516,7 +562,9 @@ export class SismoConnectProverV1 {
       claimType: selectedClaimRequestEligibility?.claim?.claimType,
     } as ProofRequest;
 
-    const snarkProof = await this.hydraProver.generateProof(_generateProofInputs);
+    const snarkProof = await this.hydraProver.generateProof(
+      _generateProofInputs
+    );
 
     const claimResponse = {
       claimType: selectedClaimRequestEligibility?.claim?.claimType,
@@ -526,7 +574,8 @@ export class SismoConnectProverV1 {
         selectedClaimRequestEligibility?.selectedClaim?.selectedValue ??
         selectedClaimRequestEligibility?.claim?.value,
       extraData: selectedClaimRequestEligibility?.claim?.extraData,
-      isSelectableByUser: selectedClaimRequestEligibility?.claim?.isSelectableByUser,
+      isSelectableByUser:
+        selectedClaimRequestEligibility?.claim?.isSelectableByUser,
     } as Claim;
 
     return {
