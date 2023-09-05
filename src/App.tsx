@@ -32,10 +32,11 @@ const services = ServicesFactory.init({
 });
 
 // TODO REFACTOR THIS TO AVOID THIS GLOBAL VARIABLE AND USE A CONTEXT INSTEAD WITH HOOKS TO ACCESS SERVICES
-const isImpersonated = services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
+const isImpersonated =
+  services.getVaultConfigParser().get()?.vault?.impersonate?.length > 0;
 
-const removeEthAddresses = (event: ErrorEvent) => {
-  const reg = /0x[a-fA-F0-9]{40}/g;
+export const removeEthAddresses = (event: Object) => {
+  const reg = /(?<![a-fA-F0-9])0x[a-fA-F0-9]{40}(?![a-fA-F0-9])/g;
   const eventString = JSON.stringify(event);
   const eventHexadecimalNumbers = eventString.replace(reg, "0x??????");
   return JSON.parse(eventHexadecimalNumbers);
@@ -121,7 +122,10 @@ function App() {
       <MainScrollManagerProvider>
         <WalletProvider>
           <NotificationsProvider>
-            <SismoVaultProvider services={services} isImpersonated={isImpersonated}>
+            <SismoVaultProvider
+              services={services}
+              isImpersonated={isImpersonated}
+            >
               <SismoProvider services={services}>
                 <GenerateRecoveryKeyModalProvider>
                   <MyVaultModalProvider>
