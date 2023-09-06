@@ -22,6 +22,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
           static-bucket-name: vault-beta.zikies.io
+          npm-token: ${{ secrets.NPM_TOKEN }}
           env: testnet-private-beta
           sentry-env: TESTNETS_PRIVATE_BETA
           sentry-auth-token: ${{ secrets.SENTRY_AUTH_TOKEN }}

@@ -3329,6 +3329,11 @@
     ethers "^5.7.0"
     snarkjs "^0.4.16"
 
+"@sismo-core/sismo-data-analytics-private@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@sismo-core/sismo-data-analytics-private/-/sismo-data-analytics-private-0.0.10.tgz#e8b3f08b256b6eb0c6e2444c40f38eb758170342"
+  integrity sha512-bLefHaLVIKxFZUFxFcVmRqLxY+FoyqrVKhkUQgG1pcf305OSLEufjZEEGZhc7JmR68uKZbIbwLnmYf4bmoHs/Q==
+
 "@stablelib/aead@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@stablelib/aead/-/aead-1.0.1.tgz#c4b1106df9c23d1b867eb9b276d8f42d5fc4c0c3"

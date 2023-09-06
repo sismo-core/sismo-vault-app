@@ -15,6 +15,7 @@ import MainScrollManagerProvider from "./libs/main-scroll-manager";
 import EnvsMonitoring from "./libs/envs-monitoring";
 import { ServicesFactory } from "./libs/services-factory";
 import AnalyticsProvider from "./libs/analytics/Provider";
+import { FrontendLoggerService } from "@sismo-core/sismo-data-analytics-private";
 
 const FONTS_LIST = [
   "BebasNeuePro-Regular",
@@ -40,6 +41,11 @@ const removeHexadecimalNumbers = (event: Sentry.Event) => {
   const eventHexadecimalNumbers = eventString.replace(reg, "0x??????");
   return JSON.parse(eventHexadecimalNumbers);
 };
+
+FrontendLoggerService.init({
+  service: "vault_app_frontend",
+  blacklistedFields: ["proofData"],
+});
 
 !env.disabledSentry &&
   Sentry.init({

@@ -5,6 +5,7 @@ import {
   SismoConnectRequest,
 } from "../../../libs/sismo-connect-provers/sismo-connect-prover-v1";
 import { v4 as uuidv4 } from "uuid";
+import { FrontendLoggerService } from "@sismo-core/sismo-data-analytics-private";
 
 const startsWithHexadecimal = (str) => {
   let hexRegex = /^0x[0-9a-fA-F]{6}/;
@@ -61,6 +62,10 @@ export const getSismoConnectRequest = (
     displayRawResponse: _displayRawResponse === "true" ? true : false,
     vault: JSON.parse(_vault),
   };
+
+  FrontendLoggerService.log(request, {
+    action: "receive sismo connect request",
+  });
 
   /* ****************************************** */
   /* ****** REMOVE ALL URL PARAMS  ************ */

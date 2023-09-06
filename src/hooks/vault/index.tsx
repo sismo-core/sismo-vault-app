@@ -26,6 +26,9 @@ import { getVaultV1ConnectedOwner } from "./utils/getVaultV1ConnectedOwner";
 import { CommitmentMapper } from "../../libs/commitment-mapper";
 import { ServicesFactory } from "../../libs/services-factory";
 import { useNotifications } from "../../components/Notifications/provider";
+import { sha256 } from "ethers/lib/utils";
+import { FrontendLoggerService } from "@sismo-core/sismo-data-analytics-private";
+import { utils } from "ethers";
 
 type ReactVault = {
   mnemonics: string[];
@@ -121,6 +124,18 @@ export default function SismoVaultProvider({
           setImpersonationErrors(impersonationErrors);
         }
         const { owner, vault } = await impersonatedVaultCreator.create();
+
+        if (owner?.identifier) {
+          FrontendLoggerService.setUser({
+            id: sha256(
+              `${owner.identifier}${utils
+                .formatBytes32String("logs")
+                .slice(2)}` as string
+            ),
+            isImpersonated: true,
+          });
+        }
+
         owner && (await vaultState.updateConnectedOwner(owner));
         vault && (await vaultState.updateVaultState(vault));
         setSynchronizing(false);
@@ -130,6 +145,17 @@ export default function SismoVaultProvider({
 
       const ownerConnectedV1 = getVaultV1ConnectedOwner();
       const ownerConnectedV2 = getVaultV2ConnectedOwner();
+
+      if (ownerConnectedV2?.identifier) {
+        FrontendLoggerService.setUser({
+          id: sha256(
+            `${ownerConnectedV2?.identifier}${utils
+              .formatBytes32String("logs")
+              .slice(2)}` as string
+          ),
+          isImpersonated: false,
+        });
+      }
 
       // Add a loading state which trigger only the first time when the user don't have a VaultV2
       setSynchronizing(true);
@@ -212,7 +238,17 @@ export default function SismoVaultProvider({
   };
 
   const create = async (): Promise<Vault> => {
-    return await vaultClient.create();
+    const vault = await vaultClient.create();
+
+    FrontendLoggerService.log(
+      {
+        version: vault.version,
+      },
+      {
+        action: "vault creation",
+      }
+    );
+    return vault;
   };
 
   const getVaultSecret = useCallback(async (): Promise<string> => {
@@ -256,6 +292,24 @@ export default function SismoVaultProvider({
 
   const importAccount = async (account: ImportedAccount): Promise<void> => {
     const vault = await vaultClient.importAccount(account);
+
+    // compute the number of imported accounts by type
+    const accountTypes = {};
+    vault.importedAccounts.forEach((account) => {
+      if (account.type) {
+        accountTypes[account.type] = accountTypes[account.type]
+          ? accountTypes[account.type] + 1
+          : 1;
+      }
+    });
+
+    await FrontendLoggerService.log(
+      { ...accountTypes, importedAccount: account.type },
+      {
+        action: "vault import status",
+      }
+    );
+
     if (account.type === "ethereum" && vaultState.autoImportOwners) {
       if (
         !vault.owners.find((owner) => owner.identifier === account.identifier)

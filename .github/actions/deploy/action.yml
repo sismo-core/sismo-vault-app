@@ -10,6 +10,9 @@ inputs:
   role-to-assume:
     required: true
     description: "The role-to-assume used with AWS"
+  npm-token:
+    required: true
+    description: "The npm-token used to install private npm packages"
   env:
     required: true
     description: "The env"
@@ -17,6 +20,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Setup .npmrc
+      run: echo "//registry.npmjs.org/:_authToken=${{ inputs.npm-token }}" > .npmrc
+
     - name: Install dependencies
       shell: bash
       run: |
