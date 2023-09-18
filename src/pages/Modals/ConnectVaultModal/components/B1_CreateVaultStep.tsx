@@ -206,15 +206,19 @@ export default function CreateVaultStep({
       await create(ownershipSignature, seed, identifier);
       onCreated();
     } catch (e) {
+      let eventId: string;
       Sentry.withScope(function (scope) {
         scope.setLevel("fatal");
-        Sentry.captureException(e);
+        eventId = Sentry.captureException(e);
       });
       console.error(e);
       setStatus("idle");
       notificationAdded({
         type: "error",
-        text: "An error occurred, while importing new owner",
+        text:
+          "An error occurred, while importing new owner" +
+          " - Error id: " +
+          eventId,
       });
     }
   };

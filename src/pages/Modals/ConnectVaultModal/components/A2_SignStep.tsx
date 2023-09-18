@@ -115,10 +115,13 @@ export default function SignStep({
         }
       }
     } catch (e) {
-      Sentry.captureException(e);
+      const eventId = Sentry.captureException(e);
       console.error(e);
       notificationAdded({
-        text: "En error occurred, please clean your cache and refresh your page.",
+        text:
+          "En error occurred, please clean your cache and refresh your page." +
+          " - Error id: " +
+          eventId,
         type: "error",
       });
     }

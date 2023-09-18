@@ -63,14 +63,17 @@ export default function Customize() {
       setEditIsOpen(false);
     } catch (e) {
       console.error("Update name", e);
-      Sentry.captureException(e, {
+      const eventId = Sentry.captureException(e, {
         tags: {
           file: "Customization.tsx",
           function: "saveNewName",
         },
       });
       notificationAdded({
-        text: "An error occurred while saving your vault, please try again.",
+        text:
+          "An error occurred while saving your vault, please try again." +
+          " - Error id: " +
+          eventId,
         type: "error",
       });
     } finally {

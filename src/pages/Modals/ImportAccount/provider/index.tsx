@@ -85,14 +85,19 @@ export default function ImportAccountModalProvider({
     setAccountTypes(null);
   };
 
-  const triggerError = (e) => {
+  const triggerError = (e: Error) => {
+    let eventId: string;
     Sentry.withScope(function (scope) {
       scope.setLevel("fatal");
-      Sentry.captureException(e?.response?.data);
+      eventId = Sentry.captureException(e);
     });
     console.error(e);
+    const text = e?.message
+      ? e.message
+      : "An error occurred while saving your vault, please try again.";
+
     notificationAdded({
-      text: "An error occurred while saving your vault, please try again.",
+      text: text + " - Error id: " + eventId,
       type: "error",
     });
     setImporting(null);
@@ -124,7 +129,7 @@ export default function ImportAccountModalProvider({
 
     if (_importType === "owner") {
       if (alreadyOwner) {
-        triggerError("Already imported as Owner");
+        triggerError(new Error("Account already imported as Owner"));
         return;
       }
       await vault.addOwner({
@@ -157,13 +162,17 @@ export default function ImportAccountModalProvider({
           commitmentReceipt = _commitmentReceipt;
           commitmentMapperPubKey = _commitmentMapperPubKey;
         } catch (e) {
+          let eventId: string;
           Sentry.withScope(function (scope) {
             scope.setLevel("fatal");
-            Sentry.captureException(e?.response?.data);
+            eventId = Sentry.captureException(e);
           });
           console.error(e);
           notificationAdded({
-            text: "Account already imported into another vault.",
+            text:
+              "Account already imported into another vault." +
+              " - Error id: " +
+              eventId,
             type: "error",
           });
           setImporting(null);
@@ -173,7 +182,7 @@ export default function ImportAccountModalProvider({
 
       if (_importType === "account") {
         if (alreadyImported) {
-          triggerError("Already imported");
+          triggerError(new Error("Account already imported"));
           return;
         }
         await vault.importAccount({
@@ -241,12 +250,16 @@ export default function ImportAccountModalProvider({
         e?.response?.data?.error === "Address is already used for a commitment!"
       ) {
         console.error(e);
+        let eventId: string;
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
-          Sentry.captureException(e?.response?.data);
+          eventId = Sentry.captureException(e);
         });
         notificationAdded({
-          text: "Telegram account already imported in this vault or in another one",
+          text:
+            "Telegram account already imported in this vault or in another one" +
+            " - Error id: " +
+            eventId,
           type: "error",
         });
         setImporting(null);
@@ -302,12 +315,16 @@ export default function ImportAccountModalProvider({
         e?.response?.data?.error === "Address is already used for a commitment!"
       ) {
         console.error(e);
+        let eventId: string;
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
-          Sentry.captureException(e?.response?.data);
+          eventId = Sentry.captureException(e);
         });
         notificationAdded({
-          text: "Github account already imported in this vault or in another one",
+          text:
+            "Github account already imported in this vault or in another one" +
+            " - Error id: " +
+            eventId,
           type: "error",
         });
         setImporting(null);
@@ -365,12 +382,16 @@ export default function ImportAccountModalProvider({
         e?.response?.data?.error === "Address is already used for a commitment!"
       ) {
         console.error(e);
+        let eventId: string;
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
-          Sentry.captureException(e?.response?.data);
+          eventId = Sentry.captureException(e);
         });
         notificationAdded({
-          text: "Twitter account already imported in this vault or in another one",
+          text:
+            "Twitter account already imported in this vault or in another one" +
+            " - Error id: " +
+            eventId,
           type: "error",
         });
         setImporting(null);
@@ -427,12 +448,16 @@ export default function ImportAccountModalProvider({
         e?.response?.data?.error === "Address is already used for a commitment!"
       ) {
         console.error(e);
+        let eventId: string;
         Sentry.withScope(function (scope) {
           scope.setLevel("fatal");
-          Sentry.captureException(e?.response?.data);
+          eventId = Sentry.captureException(e);
         });
         notificationAdded({
-          text: "Twitter account already imported in this vault or in another one",
+          text:
+            "Twitter account already imported in this vault or in another one" +
+            " - Error id: " +
+            eventId,
           type: "error",
         });
         setImporting(null);
