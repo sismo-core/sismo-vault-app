@@ -43,9 +43,12 @@ export default function Security() {
     try {
       await vault.setKeepConnected(vault.connectedOwner, !vault.keepConnected);
     } catch (e) {
-      Sentry.captureException(e);
+      const eventId = Sentry.captureException(e);
       notificationAdded({
-        text: "An error occurred while saving your vault, please try again.",
+        text:
+          "An error occurred while saving your vault, please try again." +
+          " - Error id: " +
+          eventId,
         type: "error",
       });
     } finally {

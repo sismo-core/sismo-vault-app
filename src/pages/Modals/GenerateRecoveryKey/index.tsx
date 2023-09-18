@@ -99,13 +99,17 @@ export default function GenerateRecoveryKeyModal(): JSX.Element {
       setKey(_key);
       setName(_name);
     } catch (e) {
+      let eventId: string;
       Sentry.withScope(function (scope) {
         scope.setLevel("fatal");
-        Sentry.captureException(e);
+        eventId = Sentry.captureException(e);
       });
       console.log("e", e);
       notificationAdded({
-        text: "An error occurred while saving your vault, please try again.",
+        text:
+          "An error occurred while saving your vault, please try again." +
+          " - Error id: " +
+          eventId,
         type: "error",
       });
     } finally {
